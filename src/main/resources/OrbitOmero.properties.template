@@ -1,0 +1,8 @@
+#Orbit Omero Config
+OmeroHost=<hostname>
+SearchLimit=1000
+UseSSL=true
+OmeroPort=4064
+OmeroWebPort=8080
+#OmeroUserScaleout=root
+#OmeroPasswordScaleout=omero

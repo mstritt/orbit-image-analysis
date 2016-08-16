@@ -1,0 +1,2 @@
+for all other dependencies (see build.gradle) please refere to the maven artefact
+or http://www.orbit.bio/files/licenses/

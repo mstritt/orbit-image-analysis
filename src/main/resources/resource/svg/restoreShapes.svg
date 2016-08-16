@@ -1,0 +1,1134 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   height="128"
+   id="svg3669"
+   inkscape:export-filename="/home/david/sandbox/split/dolphin file views/32x32/fileview-icon.png"
+   inkscape:export-xdpi="22.5"
+   inkscape:export-ydpi="22.5"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="restoreShapes.svg"
+   sodipodi:version="0.32"
+   version="1.0"
+   width="128">
+  <metadata
+     id="metadata3">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title></dc:title>
+        <dc:description />
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>unsorted</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+        <dc:publisher>
+          <cc:Agent
+             rdf:about="http://www.openclipart.org/">
+            <dc:title>Open Clip Art Library, Source: Oxygen Icons, Source: Oxygen Icons, Source: Oxygen Icons, Source: Oxygen Icons</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title />
+          </cc:Agent>
+        </dc:creator>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title />
+          </cc:Agent>
+        </dc:rights>
+        <dc:date />
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/ or http://creativecommons.org/licenses/LGPL/2.1/" />
+        <dc:language>en</dc:language>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs3671">
+    <linearGradient
+       id="linearGradient3954">
+      <stop
+         id="stop3956"
+         offset="0"
+         style="stop-color:#b3b3b3;stop-opacity:1;" />
+      <stop
+         id="stop3962"
+         offset="0.52879584"
+         style="stop-color:#ffffff;stop-opacity:1;" />
+      <stop
+         id="stop3958"
+         offset="1"
+         style="stop-color:#c5c5c5;stop-opacity:1;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6330">
+      <stop
+         id="stop6332"
+         offset="0"
+         style="stop-color:#0968ef;stop-opacity:1;" />
+      <stop
+         id="stop6334"
+         offset="1"
+         style="stop-color:#aecffc;stop-opacity:1;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4711">
+      <stop
+         id="stop4713"
+         offset="0"
+         style="stop-color:#ffffff;stop-opacity:1;" />
+      <stop
+         id="stop4715"
+         offset="0.49140647"
+         style="stop-color:#ffffff;stop-opacity:1;" />
+      <stop
+         id="stop4717"
+         offset="1"
+         style="stop-color:#dcdcdc;stop-opacity:1;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient7422">
+      <stop
+         id="stop7424"
+         offset="0"
+         style="stop-color:#cbcbcd;stop-opacity:1;" />
+      <stop
+         id="stop7426"
+         offset="0.5"
+         style="stop-color:#e0e0e2;stop-opacity:1;" />
+      <stop
+         id="stop7428"
+         offset="1"
+         style="stop-color:#f2f2f2;stop-opacity:1;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient7244">
+      <stop
+         id="stop7246"
+         offset="0"
+         style="stop-color:#6f6f6f;stop-opacity:1;" />
+      <stop
+         id="stop7248"
+         offset="1"
+         style="stop-color:#ffffff;stop-opacity:1;" />
+    </linearGradient>
+    <filter
+       inkscape:label="Eroded Metal"
+       inkscape:menu="Materials"
+       inkscape:menu-tooltip="Eroded metal texture with ridges, grooves, holes and bumps"
+       style="color-interpolation-filters:sRGB;"
+       id="filter13880">
+      <feGaussianBlur
+         result="result0"
+         in="SourceGraphic"
+         stdDeviation="1"
+         id="feGaussianBlur13882" />
+      <feTurbulence
+         type="turbulence"
+         baseFrequency="0.057"
+         seed="4"
+         numOctaves="4"
+         result="result1"
+         id="feTurbulence13884" />
+      <feDisplacementMap
+         xChannelSelector="R"
+         in2="result1"
+         result="result91"
+         id="feDisplacementMap13886" />
+      <feComposite
+         result="result2"
+         operator="out"
+         in="result0"
+         in2="result91"
+         id="feComposite13888" />
+      <feComposite
+         k1="0.1"
+         k3="1.2"
+         in2="result2"
+         in="SourceAlpha"
+         operator="arithmetic"
+         result="result5"
+         id="feComposite13890" />
+      <feBlend
+         result="fbSourceGraphic"
+         mode="multiply"
+         in2="result5"
+         id="feBlend13892" />
+      <feGaussianBlur
+         stdDeviation="3"
+         in="fbSourceGraphic"
+         result="result0"
+         id="feGaussianBlur13894" />
+      <feSpecularLighting
+         in="result0"
+         result="result1"
+         lighting-color="rgb(254,230,93)"
+         surfaceScale="3"
+         specularConstant="0.4"
+         specularExponent="15"
+         id="feSpecularLighting13896">
+        <fePointLight
+           x="-5000"
+           y="-10000"
+           z="20000"
+           id="fePointLight13898" />
+      </feSpecularLighting>
+      <feComposite
+         in2="fbSourceGraphic"
+         in="result1"
+         result="result2"
+         operator="in"
+         id="feComposite13900" />
+      <feComposite
+         k1="-1"
+         in="fbSourceGraphic"
+         result="result4"
+         operator="arithmetic"
+         k2="2.5"
+         k3="3.5"
+         in2="result2"
+         id="feComposite13902" />
+      <feBlend
+         mode="multiply"
+         in2="result4"
+         id="feBlend13904" />
+    </filter>
+    <filter
+       inkscape:label="Eroded Metal"
+       inkscape:menu="Materials"
+       inkscape:menu-tooltip="Eroded metal texture with ridges, grooves, holes and bumps"
+       style="color-interpolation-filters:sRGB;"
+       id="filter13906">
+      <feGaussianBlur
+         result="result0"
+         in="SourceGraphic"
+         stdDeviation="1"
+         id="feGaussianBlur13908" />
+      <feTurbulence
+         type="turbulence"
+         baseFrequency="0.057"
+         seed="4"
+         numOctaves="4"
+         result="result1"
+         id="feTurbulence13910" />
+      <feDisplacementMap
+         xChannelSelector="R"
+         in2="result1"
+         result="result91"
+         id="feDisplacementMap13912" />
+      <feComposite
+         result="result2"
+         operator="out"
+         in="result0"
+         in2="result91"
+         id="feComposite13914" />
+      <feComposite
+         k1="0.1"
+         k3="1.2"
+         in2="result2"
+         in="SourceAlpha"
+         operator="arithmetic"
+         result="result5"
+         id="feComposite13916" />
+      <feBlend
+         result="fbSourceGraphic"
+         mode="multiply"
+         in2="result5"
+         id="feBlend13918" />
+      <feGaussianBlur
+         stdDeviation="3"
+         in="fbSourceGraphic"
+         result="result0"
+         id="feGaussianBlur13920" />
+      <feSpecularLighting
+         in="result0"
+         result="result1"
+         lighting-color="rgb(254,230,93)"
+         surfaceScale="3"
+         specularConstant="0.4"
+         specularExponent="15"
+         id="feSpecularLighting13922">
+        <fePointLight
+           x="-5000"
+           y="-10000"
+           z="20000"
+           id="fePointLight13924" />
+      </feSpecularLighting>
+      <feComposite
+         in2="fbSourceGraphic"
+         in="result1"
+         result="result2"
+         operator="in"
+         id="feComposite13926" />
+      <feComposite
+         k1="-1"
+         in="fbSourceGraphic"
+         result="result4"
+         operator="arithmetic"
+         k2="2.5"
+         k3="3.5"
+         in2="result2"
+         id="feComposite13928" />
+      <feBlend
+         mode="multiply"
+         in2="result4"
+         id="feBlend13930" />
+    </filter>
+    <filter
+       inkscape:label="Eroded Metal"
+       inkscape:menu="Materials"
+       inkscape:menu-tooltip="Eroded metal texture with ridges, grooves, holes and bumps"
+       style="color-interpolation-filters:sRGB;"
+       id="filter13932">
+      <feGaussianBlur
+         result="result0"
+         in="SourceGraphic"
+         stdDeviation="1"
+         id="feGaussianBlur13934" />
+      <feTurbulence
+         type="turbulence"
+         baseFrequency="0.057"
+         seed="4"
+         numOctaves="4"
+         result="result1"
+         id="feTurbulence13936" />
+      <feDisplacementMap
+         xChannelSelector="R"
+         in2="result1"
+         result="result91"
+         id="feDisplacementMap13938" />
+      <feComposite
+         result="result2"
+         operator="out"
+         in="result0"
+         in2="result91"
+         id="feComposite13940" />
+      <feComposite
+         k1="0.1"
+         k3="1.2"
+         in2="result2"
+         in="SourceAlpha"
+         operator="arithmetic"
+         result="result5"
+         id="feComposite13942" />
+      <feBlend
+         result="fbSourceGraphic"
+         mode="multiply"
+         in2="result5"
+         id="feBlend13944" />
+      <feGaussianBlur
+         stdDeviation="3"
+         in="fbSourceGraphic"
+         result="result0"
+         id="feGaussianBlur13946" />
+      <feSpecularLighting
+         in="result0"
+         result="result1"
+         lighting-color="rgb(254,230,93)"
+         surfaceScale="3"
+         specularConstant="0.4"
+         specularExponent="15"
+         id="feSpecularLighting13948">
+        <fePointLight
+           x="-5000"
+           y="-10000"
+           z="20000"
+           id="fePointLight13950" />
+      </feSpecularLighting>
+      <feComposite
+         in2="fbSourceGraphic"
+         in="result1"
+         result="result2"
+         operator="in"
+         id="feComposite13952" />
+      <feComposite
+         k1="-1"
+         in="fbSourceGraphic"
+         result="result4"
+         operator="arithmetic"
+         k2="2.5"
+         k3="3.5"
+         in2="result2"
+         id="feComposite13954" />
+      <feBlend
+         mode="multiply"
+         in2="result4"
+         id="feBlend13956" />
+    </filter>
+    <filter
+       inkscape:label="Eroded Metal"
+       inkscape:menu="Materials"
+       inkscape:menu-tooltip="Eroded metal texture with ridges, grooves, holes and bumps"
+       style="color-interpolation-filters:sRGB;"
+       id="filter13958">
+      <feGaussianBlur
+         result="result0"
+         in="SourceGraphic"
+         stdDeviation="1"
+         id="feGaussianBlur13960" />
+      <feTurbulence
+         type="turbulence"
+         baseFrequency="0.057"
+         seed="4"
+         numOctaves="4"
+         result="result1"
+         id="feTurbulence13962" />
+      <feDisplacementMap
+         xChannelSelector="R"
+         in2="result1"
+         result="result91"
+         id="feDisplacementMap13964" />
+      <feComposite
+         result="result2"
+         operator="out"
+         in="result0"
+         in2="result91"
+         id="feComposite13966" />
+      <feComposite
+         k1="0.1"
+         k3="1.2"
+         in2="result2"
+         in="SourceAlpha"
+         operator="arithmetic"
+         result="result5"
+         id="feComposite13968" />
+      <feBlend
+         result="fbSourceGraphic"
+         mode="multiply"
+         in2="result5"
+         id="feBlend13970" />
+      <feGaussianBlur
+         stdDeviation="3"
+         in="fbSourceGraphic"
+         result="result0"
+         id="feGaussianBlur13972" />
+      <feSpecularLighting
+         in="result0"
+         result="result1"
+         lighting-color="rgb(254,230,93)"
+         surfaceScale="3"
+         specularConstant="0.4"
+         specularExponent="15"
+         id="feSpecularLighting13974">
+        <fePointLight
+           x="-5000"
+           y="-10000"
+           z="20000"
+           id="fePointLight13976" />
+      </feSpecularLighting>
+      <feComposite
+         in2="fbSourceGraphic"
+         in="result1"
+         result="result2"
+         operator="in"
+         id="feComposite13978" />
+      <feComposite
+         k1="-1"
+         in="fbSourceGraphic"
+         result="result4"
+         operator="arithmetic"
+         k2="2.5"
+         k3="3.5"
+         in2="result2"
+         id="feComposite13980" />
+      <feBlend
+         mode="multiply"
+         in2="result4"
+         id="feBlend13982" />
+    </filter>
+    <filter
+       inkscape:label="Eroded Metal"
+       inkscape:menu="Materials"
+       inkscape:menu-tooltip="Eroded metal texture with ridges, grooves, holes and bumps"
+       style="color-interpolation-filters:sRGB;"
+       id="filter13984">
+      <feGaussianBlur
+         result="result0"
+         in="SourceGraphic"
+         stdDeviation="1"
+         id="feGaussianBlur13986" />
+      <feTurbulence
+         type="turbulence"
+         baseFrequency="0.057"
+         seed="4"
+         numOctaves="4"
+         result="result1"
+         id="feTurbulence13988" />
+      <feDisplacementMap
+         xChannelSelector="R"
+         in2="result1"
+         result="result91"
+         id="feDisplacementMap13990" />
+      <feComposite
+         result="result2"
+         operator="out"
+         in="result0"
+         in2="result91"
+         id="feComposite13992" />
+      <feComposite
+         k1="0.1"
+         k3="1.2"
+         in2="result2"
+         in="SourceAlpha"
+         operator="arithmetic"
+         result="result5"
+         id="feComposite13994" />
+      <feBlend
+         result="fbSourceGraphic"
+         mode="multiply"
+         in2="result5"
+         id="feBlend13996" />
+      <feGaussianBlur
+         stdDeviation="3"
+         in="fbSourceGraphic"
+         result="result0"
+         id="feGaussianBlur13998" />
+      <feSpecularLighting
+         in="result0"
+         result="result1"
+         lighting-color="rgb(254,230,93)"
+         surfaceScale="3"
+         specularConstant="0.4"
+         specularExponent="15"
+         id="feSpecularLighting14000">
+        <fePointLight
+           x="-5000"
+           y="-10000"
+           z="20000"
+           id="fePointLight14002" />
+      </feSpecularLighting>
+      <feComposite
+         in2="fbSourceGraphic"
+         in="result1"
+         result="result2"
+         operator="in"
+         id="feComposite14004" />
+      <feComposite
+         k1="-1"
+         in="fbSourceGraphic"
+         result="result4"
+         operator="arithmetic"
+         k2="2.5"
+         k3="3.5"
+         in2="result2"
+         id="feComposite14006" />
+      <feBlend
+         mode="multiply"
+         in2="result4"
+         id="feBlend14008" />
+    </filter>
+    <filter
+       inkscape:label="Eroded Metal"
+       inkscape:menu="Materials"
+       inkscape:menu-tooltip="Eroded metal texture with ridges, grooves, holes and bumps"
+       style="color-interpolation-filters:sRGB;"
+       id="filter14010">
+      <feGaussianBlur
+         result="result0"
+         in="SourceGraphic"
+         stdDeviation="1"
+         id="feGaussianBlur14012" />
+      <feTurbulence
+         type="turbulence"
+         baseFrequency="0.057"
+         seed="4"
+         numOctaves="4"
+         result="result1"
+         id="feTurbulence14014" />
+      <feDisplacementMap
+         xChannelSelector="R"
+         in2="result1"
+         result="result91"
+         id="feDisplacementMap14016" />
+      <feComposite
+         result="result2"
+         operator="out"
+         in="result0"
+         in2="result91"
+         id="feComposite14018" />
+      <feComposite
+         k1="0.1"
+         k3="1.2"
+         in2="result2"
+         in="SourceAlpha"
+         operator="arithmetic"
+         result="result5"
+         id="feComposite14020" />
+      <feBlend
+         result="fbSourceGraphic"
+         mode="multiply"
+         in2="result5"
+         id="feBlend14022" />
+      <feGaussianBlur
+         stdDeviation="3"
+         in="fbSourceGraphic"
+         result="result0"
+         id="feGaussianBlur14024" />
+      <feSpecularLighting
+         in="result0"
+         result="result1"
+         lighting-color="rgb(254,230,93)"
+         surfaceScale="3"
+         specularConstant="0.4"
+         specularExponent="15"
+         id="feSpecularLighting14026">
+        <fePointLight
+           x="-5000"
+           y="-10000"
+           z="20000"
+           id="fePointLight14028" />
+      </feSpecularLighting>
+      <feComposite
+         in2="fbSourceGraphic"
+         in="result1"
+         result="result2"
+         operator="in"
+         id="feComposite14030" />
+      <feComposite
+         k1="-1"
+         in="fbSourceGraphic"
+         result="result4"
+         operator="arithmetic"
+         k2="2.5"
+         k3="3.5"
+         in2="result2"
+         id="feComposite14032" />
+      <feBlend
+         mode="multiply"
+         in2="result4"
+         id="feBlend14034" />
+    </filter>
+    <filter
+       inkscape:label="Eroded Metal"
+       inkscape:menu="Materials"
+       inkscape:menu-tooltip="Eroded metal texture with ridges, grooves, holes and bumps"
+       style="color-interpolation-filters:sRGB;"
+       id="filter14036">
+      <feGaussianBlur
+         result="result0"
+         in="SourceGraphic"
+         stdDeviation="1"
+         id="feGaussianBlur14038" />
+      <feTurbulence
+         type="turbulence"
+         baseFrequency="0.057"
+         seed="4"
+         numOctaves="4"
+         result="result1"
+         id="feTurbulence14040" />
+      <feDisplacementMap
+         xChannelSelector="R"
+         in2="result1"
+         result="result91"
+         id="feDisplacementMap14042" />
+      <feComposite
+         result="result2"
+         operator="out"
+         in="result0"
+         in2="result91"
+         id="feComposite14044" />
+      <feComposite
+         k1="0.1"
+         k3="1.2"
+         in2="result2"
+         in="SourceAlpha"
+         operator="arithmetic"
+         result="result5"
+         id="feComposite14046" />
+      <feBlend
+         result="fbSourceGraphic"
+         mode="multiply"
+         in2="result5"
+         id="feBlend14048" />
+      <feGaussianBlur
+         stdDeviation="3"
+         in="fbSourceGraphic"
+         result="result0"
+         id="feGaussianBlur14050" />
+      <feSpecularLighting
+         in="result0"
+         result="result1"
+         lighting-color="rgb(254,230,93)"
+         surfaceScale="3"
+         specularConstant="0.4"
+         specularExponent="15"
+         id="feSpecularLighting14052">
+        <fePointLight
+           x="-5000"
+           y="-10000"
+           z="20000"
+           id="fePointLight14054" />
+      </feSpecularLighting>
+      <feComposite
+         in2="fbSourceGraphic"
+         in="result1"
+         result="result2"
+         operator="in"
+         id="feComposite14056" />
+      <feComposite
+         k1="-1"
+         in="fbSourceGraphic"
+         result="result4"
+         operator="arithmetic"
+         k2="2.5"
+         k3="3.5"
+         in2="result2"
+         id="feComposite14058" />
+      <feBlend
+         mode="multiply"
+         in2="result4"
+         id="feBlend14060" />
+    </filter>
+    <filter
+       inkscape:label="Eroded Metal"
+       inkscape:menu="Materials"
+       inkscape:menu-tooltip="Eroded metal texture with ridges, grooves, holes and bumps"
+       style="color-interpolation-filters:sRGB;"
+       id="filter14062">
+      <feGaussianBlur
+         result="result0"
+         in="SourceGraphic"
+         stdDeviation="1"
+         id="feGaussianBlur14064" />
+      <feTurbulence
+         type="turbulence"
+         baseFrequency="0.057"
+         seed="4"
+         numOctaves="4"
+         result="result1"
+         id="feTurbulence14066" />
+      <feDisplacementMap
+         xChannelSelector="R"
+         in2="result1"
+         result="result91"
+         id="feDisplacementMap14068" />
+      <feComposite
+         result="result2"
+         operator="out"
+         in="result0"
+         in2="result91"
+         id="feComposite14070" />
+      <feComposite
+         k1="0.1"
+         k3="1.2"
+         in2="result2"
+         in="SourceAlpha"
+         operator="arithmetic"
+         result="result5"
+         id="feComposite14072" />
+      <feBlend
+         result="fbSourceGraphic"
+         mode="multiply"
+         in2="result5"
+         id="feBlend14074" />
+      <feGaussianBlur
+         stdDeviation="3"
+         in="fbSourceGraphic"
+         result="result0"
+         id="feGaussianBlur14076" />
+      <feSpecularLighting
+         in="result0"
+         result="result1"
+         lighting-color="rgb(254,230,93)"
+         surfaceScale="3"
+         specularConstant="0.4"
+         specularExponent="15"
+         id="feSpecularLighting14078">
+        <fePointLight
+           x="-5000"
+           y="-10000"
+           z="20000"
+           id="fePointLight14080" />
+      </feSpecularLighting>
+      <feComposite
+         in2="fbSourceGraphic"
+         in="result1"
+         result="result2"
+         operator="in"
+         id="feComposite14082" />
+      <feComposite
+         k1="-1"
+         in="fbSourceGraphic"
+         result="result4"
+         operator="arithmetic"
+         k2="2.5"
+         k3="3.5"
+         in2="result2"
+         id="feComposite14084" />
+      <feBlend
+         mode="multiply"
+         in2="result4"
+         id="feBlend14086" />
+    </filter>
+    <filter
+       inkscape:label="Eroded Metal"
+       inkscape:menu="Materials"
+       inkscape:menu-tooltip="Eroded metal texture with ridges, grooves, holes and bumps"
+       style="color-interpolation-filters:sRGB;"
+       id="filter14088">
+      <feGaussianBlur
+         result="result0"
+         in="SourceGraphic"
+         stdDeviation="1"
+         id="feGaussianBlur14090" />
+      <feTurbulence
+         type="turbulence"
+         baseFrequency="0.057"
+         seed="4"
+         numOctaves="4"
+         result="result1"
+         id="feTurbulence14092" />
+      <feDisplacementMap
+         xChannelSelector="R"
+         in2="result1"
+         result="result91"
+         id="feDisplacementMap14094" />
+      <feComposite
+         result="result2"
+         operator="out"
+         in="result0"
+         in2="result91"
+         id="feComposite14096" />
+      <feComposite
+         k1="0.1"
+         k3="1.2"
+         in2="result2"
+         in="SourceAlpha"
+         operator="arithmetic"
+         result="result5"
+         id="feComposite14098" />
+      <feBlend
+         result="fbSourceGraphic"
+         mode="multiply"
+         in2="result5"
+         id="feBlend14100" />
+      <feGaussianBlur
+         stdDeviation="3"
+         in="fbSourceGraphic"
+         result="result0"
+         id="feGaussianBlur14102" />
+      <feSpecularLighting
+         in="result0"
+         result="result1"
+         lighting-color="rgb(254,230,93)"
+         surfaceScale="3"
+         specularConstant="0.4"
+         specularExponent="15"
+         id="feSpecularLighting14104">
+        <fePointLight
+           x="-5000"
+           y="-10000"
+           z="20000"
+           id="fePointLight14106" />
+      </feSpecularLighting>
+      <feComposite
+         in2="fbSourceGraphic"
+         in="result1"
+         result="result2"
+         operator="in"
+         id="feComposite14108" />
+      <feComposite
+         k1="-1"
+         in="fbSourceGraphic"
+         result="result4"
+         operator="arithmetic"
+         k2="2.5"
+         k3="3.5"
+         in2="result2"
+         id="feComposite14110" />
+      <feBlend
+         mode="multiply"
+         in2="result4"
+         id="feBlend14112" />
+    </filter>
+    <filter
+       inkscape:label="Eroded Metal"
+       inkscape:menu="Materials"
+       inkscape:menu-tooltip="Eroded metal texture with ridges, grooves, holes and bumps"
+       style="color-interpolation-filters:sRGB;"
+       id="filter14114">
+      <feGaussianBlur
+         result="result0"
+         in="SourceGraphic"
+         stdDeviation="1"
+         id="feGaussianBlur14116" />
+      <feTurbulence
+         type="turbulence"
+         baseFrequency="0.057"
+         seed="4"
+         numOctaves="4"
+         result="result1"
+         id="feTurbulence14118" />
+      <feDisplacementMap
+         xChannelSelector="R"
+         in2="result1"
+         result="result91"
+         id="feDisplacementMap14120" />
+      <feComposite
+         result="result2"
+         operator="out"
+         in="result0"
+         in2="result91"
+         id="feComposite14122" />
+      <feComposite
+         k1="0.1"
+         k3="1.2"
+         in2="result2"
+         in="SourceAlpha"
+         operator="arithmetic"
+         result="result5"
+         id="feComposite14124" />
+      <feBlend
+         result="fbSourceGraphic"
+         mode="multiply"
+         in2="result5"
+         id="feBlend14126" />
+      <feGaussianBlur
+         stdDeviation="3"
+         in="fbSourceGraphic"
+         result="result0"
+         id="feGaussianBlur14128" />
+      <feSpecularLighting
+         in="result0"
+         result="result1"
+         lighting-color="rgb(254,230,93)"
+         surfaceScale="3"
+         specularConstant="0.4"
+         specularExponent="15"
+         id="feSpecularLighting14130">
+        <fePointLight
+           x="-5000"
+           y="-10000"
+           z="20000"
+           id="fePointLight14132" />
+      </feSpecularLighting>
+      <feComposite
+         in2="fbSourceGraphic"
+         in="result1"
+         result="result2"
+         operator="in"
+         id="feComposite14134" />
+      <feComposite
+         k1="-1"
+         in="fbSourceGraphic"
+         result="result4"
+         operator="arithmetic"
+         k2="2.5"
+         k3="3.5"
+         in2="result2"
+         id="feComposite14136" />
+      <feBlend
+         mode="multiply"
+         in2="result4"
+         id="feBlend14138" />
+    </filter>
+    <filter
+       inkscape:label="Cracked Lava"
+       inkscape:menu="Materials"
+       inkscape:menu-tooltip="A volcanic texture, a little like leather"
+       style="color-interpolation-filters:sRGB;"
+       id="filter14240">
+      <feGaussianBlur
+         result="result0"
+         in="SourceGraphic"
+         stdDeviation="0.5"
+         id="feGaussianBlur14242" />
+      <feTurbulence
+         baseFrequency="0.042"
+         seed="488"
+         numOctaves="7"
+         result="result1"
+         id="feTurbulence14244" />
+      <feDisplacementMap
+         result="result5"
+         xChannelSelector="R"
+         scale="0"
+         in2="result1"
+         in="result1"
+         yChannelSelector="G"
+         id="feDisplacementMap14246" />
+      <feComposite
+         result="result2"
+         operator="in"
+         in2="result5"
+         in="result0"
+         id="feComposite14248" />
+      <feSpecularLighting
+         lighting-color="rgb(255,230,136)"
+         surfaceScale="2"
+         result="result4"
+         specularConstant="2"
+         specularExponent="65"
+         in="result2"
+         id="feSpecularLighting14250">
+        <feDistantLight
+           elevation="62"
+           azimuth="225"
+           id="feDistantLight14252" />
+      </feSpecularLighting>
+      <feComposite
+         k1="2.5"
+         k3="1"
+         k2="-0.5"
+         in2="result2"
+         in="result4"
+         operator="arithmetic"
+         result="result91"
+         id="feComposite14254" />
+      <feBlend
+         result="fbSourceGraphic"
+         mode="multiply"
+         in2="result91"
+         id="feBlend14256" />
+      <feColorMatrix
+         values="1 0 0 -1 0 1 0 1 -1 0 1 0 0 -1 0 -2 -0.5 0 5 -2"
+         in="fbSourceGraphic"
+         result="fbSourceGraphicAlpha"
+         id="feColorMatrix14258" />
+      <feGaussianBlur
+         stdDeviation="8"
+         in="fbSourceGraphicAlpha"
+         result="result0"
+         id="feGaussianBlur14260" />
+      <feOffset
+         dx="2"
+         dy="2"
+         in="result0"
+         result="result3"
+         id="feOffset14262" />
+      <feSpecularLighting
+         in="result0"
+         result="result1"
+         lighting-color="rgb(255,255,255)"
+         surfaceScale="4"
+         specularConstant="0.8"
+         specularExponent="15"
+         id="feSpecularLighting14264">
+        <fePointLight
+           x="-5000"
+           y="-10000"
+           z="20000"
+           id="fePointLight14266" />
+      </feSpecularLighting>
+      <feComposite
+         in2="fbSourceGraphicAlpha"
+         in="result1"
+         result="result2"
+         operator="in"
+         id="feComposite14268" />
+      <feComposite
+         in="fbSourceGraphic"
+         result="result4"
+         operator="arithmetic"
+         k2="2"
+         k3="2"
+         in2="result2"
+         id="feComposite14270" />
+      <feBlend
+         mode="darken"
+         in2="result4"
+         id="feBlend14272" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     bordercolor="#666666"
+     borderopacity="1.0"
+     grid_units="px"
+     gridtolerance="10000"
+     height="128px"
+     id="namedview3673"
+     inkscape:current-layer="layer1"
+     inkscape:cx="28.601296"
+     inkscape:cy="68.815189"
+     inkscape:document-units="px"
+     inkscape:grid-points="true"
+     inkscape:guide-bbox="true"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:window-height="1547"
+     inkscape:window-width="2560"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:zoom="5.6568542"
+     pagecolor="#ffffff"
+     showgrid="true"
+     showguides="true"
+     width="128px"
+     inkscape:window-maximized="1">
+    <inkscape:grid
+       id="GridFromPre046Settings"
+       type="xygrid"
+       originx="0px"
+       originy="0px"
+       spacingx="4px"
+       spacingy="4px"
+       color="#3f3fff"
+       empcolor="#3f3fff"
+       opacity="0.15"
+       empopacity="0.38"
+       empspacing="0" />
+  </sodipodi:namedview>
+  <g
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1"
+     transform="translate(-79.62865,-236.8761)">
+    <rect
+       style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#e6e6e6;stroke-width:2;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4331"
+       width="60"
+       height="64"
+       x="85.926743"
+       y="241.93677"
+       rx="1.12305"
+       ry="1.11209" />
+    <rect
+       ry="1.11209"
+       rx="1.12305"
+       y="252.01305"
+       x="138.42943"
+       height="64"
+       width="60"
+       id="rect4333"
+       style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#e6e6e6;stroke-width:2;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       style="fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#e6e6e6;stroke-width:2;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4335"
+       width="60"
+       height="64"
+       x="107.13995"
+       y="297.26788"
+       rx="1.12305"
+       ry="1.11209" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#ff00ff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 179.62865,268.8761 C 179.05793,268.58489 178.48721,268.29368 177.91649,268.00247 177.91649,267.94355 177.9692,267.85205 177.91649,267.82569 177.81108,267.77299 177.68079,267.82569 177.56294,267.82569 177.50401,267.82569 177.42783,267.86736 177.38616,267.82569 177.3445,267.78403 177.42783,267.69058 177.38616,267.64892 177.3445,267.60725 177.25105,267.69058 177.20939,267.64892 177.16772,267.60725 177.25105,267.51381 177.20939,267.47214 177.16772,267.43047 177.09154,267.47214 177.03261,267.47214 176.90965,267.47214 176.21265,267.5041 176.14873,267.47214 176.07419,267.43487 176.04648,267.33263 175.97195,267.29536 175.92547,267.27212 175.35728,267.29536 175.26484,267.29536 174.67559,267.29536 174.08633,267.29536 173.49708,267.29536 171.96501,267.29536 170.43295,267.29536 168.90088,267.29536 168.13485,267.29536 167.36882,267.29536 166.60278,267.29536 166.55991,267.29536 166.07814,267.28968 166.07245,267.29536 166.03079,267.33703 166.11412,267.43047 166.07245,267.47214 165.98912,267.55547 165.8307,267.43487 165.7189,267.47214 165.5939,267.51381 165.4832,267.58999 165.36535,267.64892 165.18857,267.64892 165.00836,267.61425 164.83502,267.64892 164.70581,267.67476 164.60646,267.78403 164.48146,267.82569 164.2163,267.91408 164.30469,267.64892 163.95113,267.82569 163.89843,267.85205 163.97749,267.94977 163.95113,268.00247 163.91387,268.07701 163.84369,268.13302 163.77436,268.17925 163.55509,268.32542 163.28651,268.38662 163.06725,268.5328 162.99791,268.57902 162.95981,268.66335 162.89047,268.70958 162.78084,268.78266 162.63009,268.79318 162.53692,268.88635 162.49525,268.92802 162.57859,269.02146 162.53692,269.06313 162.49525,269.1048 162.40181,269.02146 162.36014,269.06313 162.31848,269.1048 162.40181,269.19824 162.36014,269.23991 162.27681,269.32324 162.08992,269.15657 162.00659,269.23991 161.96492,269.28157 162.04826,269.37502 162.00659,269.41668 161.96492,269.45835 161.87148,269.37502 161.82981,269.41668 161.78815,269.45835 161.85617,269.54076 161.82981,269.59346 161.79255,269.668 161.71196,269.71131 161.65304,269.77024 161.59411,269.82916 161.53519,269.88809 161.47626,269.94701 161.24056,270.18272 160.97739,270.39383 160.76915,270.65412 160.63643,270.82002 160.56583,271.03422 160.4156,271.18445 160.32243,271.27762 160.17168,271.28814 160.06205,271.36123 159.99271,271.40745 159.9442,271.47908 159.88527,271.538 159.82634,271.59693 159.75472,271.64544 159.70849,271.71478 159.63541,271.82441 159.6048,271.9587 159.53172,272.06833 159.48549,272.13767 159.40116,272.17577 159.35494,272.24511 159.13568,272.57401 159.04388,272.97687 158.82461,273.30577 158.73216,273.44445 158.57106,273.52599 158.47106,273.65932 158.392,273.76473 158.35321,273.89503 158.29428,274.01288 158.23535,274.13073 158.17643,274.24858 158.1175,274.36643 157.99965,274.60213 157.8818,274.83784 157.76395,275.07354 157.70502,275.19139 157.62884,275.30209 157.58717,275.42709 157.56854,275.48299 157.61353,275.55116 157.58717,275.60387 157.54991,275.6784 157.44766,275.70611 157.4104,275.78064 157.38404,275.83335 157.43675,275.90472 157.4104,275.95742 157.37313,276.03196 157.25383,276.05335 157.23362,276.1342 157.23362,276.31097 157.23362,276.48775 157.23362,276.66453 157.17469,276.66453 157.0832,276.61182 157.05684,276.66453 157.00414,276.76994 157.05684,276.90023 157.05684,277.01808 157.05684,277.07701 157.09851,277.15319 157.05684,277.19486 156.96367,277.28803 156.77638,277.262 156.70329,277.37164 156.63792,277.46969 156.74056,277.61338 156.70329,277.72519 156.67694,277.80425 156.55286,277.82291 156.52651,277.90197 156.49665,277.99156 156.52651,278.99489 156.52651,279.1394 156.52651,279.19833 156.55286,279.26347 156.52651,279.31618 156.48924,279.39071 156.37609,279.4139 156.34974,279.49295 156.31247,279.60476 156.34974,279.72866 156.34974,279.84651 156.34974,280.25899 156.34974,280.67147 156.34974,281.08395 156.34974,281.55535 156.34974,282.02675 156.34974,282.49816 156.34974,282.67494 156.27068,282.87038 156.34974,283.02849 156.37609,283.08119 156.48485,282.98682 156.52651,283.02849 156.57882,283.08079 156.47176,283.6261 156.52651,283.7356 156.56378,283.81013 156.66602,283.83784 156.70329,283.91237 156.78662,284.07904 156.79673,284.27604 156.88007,284.4427 156.9546,284.59177 157.15908,284.64719 157.23362,284.79626 157.25997,284.84896 157.20093,284.924 157.23362,284.97303 157.32607,285.11171 157.48048,285.19855 157.58717,285.32659 157.77579,285.55293 157.90917,285.82536 158.1175,286.03369 158.26773,286.18392 158.4976,286.23701 158.64783,286.38725 158.741,286.48042 158.73144,286.64763 158.82461,286.7408 158.91778,286.83397 159.07275,286.83852 159.17816,286.91758 159.3115,287.01758 159.41387,287.15328 159.53172,287.27113 159.64957,287.38898 159.76742,287.50683 159.88527,287.62468 159.9442,287.68361 159.99271,287.75524 160.06205,287.80146 160.17168,287.87455 160.29775,287.91931 160.4156,287.97824 160.53345,288.03716 160.64682,288.10608 160.76915,288.15501 160.94216,288.22422 161.1377,288.23934 161.29948,288.33179 161.55529,288.47797 161.76145,288.69869 162.00659,288.86212 162.12444,288.92105 162.24229,288.97997 162.36014,289.0389 162.47799,289.0389 162.60829,288.98619 162.7137,289.0389 162.86277,289.11343 162.92858,289.3 163.06725,289.39245 163.11628,289.42514 163.18813,289.37382 163.24403,289.39245 163.36903,289.43412 163.4846,289.50144 163.59758,289.56923 163.77976,289.67854 163.93788,289.82777 164.12791,289.92278 164.94177,290.32971 164.36202,289.93425 165.18857,290.09956 165.31777,290.1254 165.41543,290.24014 165.54212,290.27633 168.07521,290.78295 164.93745,290.07478 167.13311,290.80666 167.2965,290.86113 167.8521,290.7517 168.017,290.80666 168.142,290.84833 168.24555,290.94177 168.37055,290.98344 168.42645,291.00207 168.4884,290.98344 168.54733,290.98344 168.66518,290.98344 168.78908,290.94617 168.90088,290.98344 168.97994,291.00979 168.99594,291.14387 169.07766,291.16022 169.30878,291.20644 169.54906,291.16022 169.78476,291.16022 170.31509,291.16022 170.84543,291.16022 171.37576,291.16022 171.55253,291.16022 171.73274,291.12555 171.90609,291.16022 172.14432,291.20787 172.37958,291.27025 172.61319,291.33699 172.79236,291.38819 172.95906,291.48742 173.14352,291.51377 173.37686,291.5471 173.61493,291.51377 173.85063,291.51377 174.14526,291.51377 174.43988,291.51377 174.73451,291.51377 175.67732,291.51377 176.62013,291.51377 177.56294,291.51377 178.50575,291.51377 179.44856,291.51377 180.39137,291.51377 180.54535,291.51377 181.38678,291.5464 181.45203,291.51377 181.52656,291.4765 181.54975,291.36335 181.6288,291.33699 181.70934,291.31015 182.74652,291.33699 182.86624,291.33699 182.92517,291.33699 182.98712,291.35563 183.04302,291.33699 183.16802,291.29533 183.27872,291.21914 183.39657,291.16022 183.51442,291.10129 183.63714,291.05123 183.75012,290.98344 183.93231,290.87413 184.09043,290.7249 184.28045,290.62989 184.44712,290.54655 184.64412,290.53644 184.81078,290.45311 185.31041,290.2033 185.66198,289.77869 186.04822,289.39245 186.225,289.21567 186.44993,289.07649 186.57855,288.86212 186.67442,288.70234 186.67199,288.49846 186.75533,288.33179 186.85034,288.14176 186.98141,287.97143 187.10888,287.80146 187.29261,287.55649 187.38472,287.65973 187.46244,287.27113 187.4971,287.09779 187.43337,286.91517 187.46244,286.7408 187.5237,286.37319 187.7429,286.04558 187.81599,285.68014 187.8391,285.56458 187.81599,285.44444 187.81599,285.32659 187.81599,285.09088 187.81599,284.85518 187.81599,284.61948 187.81599,283.91237 187.81599,283.20527 187.81599,282.49816 187.81599,281.73213 187.81599,280.96609 187.81599,280.20006 187.81599,280.06412 187.85687,279.30293 187.81599,279.1394 187.77079,278.95863 187.6904,278.78824 187.63921,278.60907 187.57247,278.37546 187.54774,278.12945 187.46244,277.90197 187.36991,277.65522 187.21269,277.43707 187.10888,277.19486 186.96208,276.85231 186.87318,276.48775 186.75533,276.1342 186.6964,275.95742 186.66188,275.77053 186.57855,275.60387 186.48354,275.41384 186.33431,275.25572 186.225,275.07354 185.40962,273.71458 186.99781,276.14437 185.69467,274.18966 185.57682,274.01288 185.45042,273.84151 185.34111,273.65932 185.27332,273.54634 185.25751,273.39894 185.16434,273.30577 185.07117,273.2126 184.90395,273.22216 184.81078,273.12899 184.12087,272.43908 184.8517,273.03406 184.63401,272.59866 184.59674,272.52413 184.50346,272.49122 184.45723,272.42189 184.38414,272.31225 184.37362,272.1615 184.28045,272.06833 184.13022,271.9181 183.90036,271.86501 183.75012,271.71478 183.70846,271.67311 183.77648,271.59071 183.75012,271.538 183.71286,271.46347 183.61062,271.43576 183.57335,271.36123 183.547,271.30852 183.61501,271.22612 183.57335,271.18445 183.53168,271.14278 183.43824,271.22612 183.39657,271.18445 183.3549,271.14278 183.43824,271.04934 183.39657,271.00767 183.3549,270.96601 183.26146,271.04934 183.21979,271.00767 183.17813,270.96601 183.26146,270.87256 183.21979,270.8309 183.17813,270.78923 183.09572,270.85725 183.04302,270.8309 182.96848,270.79363 182.93558,270.70035 182.86624,270.65412 182.75661,270.58103 182.62232,270.55043 182.51269,270.47734 182.37401,270.38489 182.30821,270.19833 182.15913,270.12379 182.10643,270.09744 182.03506,270.15014 181.98236,270.12379 181.90782,270.08652 181.88012,269.98428 181.80558,269.94701 181.75288,269.92066 181.68151,269.97337 181.6288,269.94701 181.55427,269.90975 181.52656,269.8075 181.45203,269.77024 181.34662,269.71753 181.20388,269.82294 181.09847,269.77024 180.36277,269.40239 181.28745,269.78244 180.9217,269.41668 180.83836,269.33335 180.56814,269.53453 180.56814,269.41668 180.56814,269.35776 180.686,269.41668 180.74492,269.41668 180.37283,269.23649 180.00074,269.05629 179.62865,268.8761"
+       id="path4339"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#00ffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 131.62865,316.8761 C 131.03018,317.08405 130.35188,317.13606 129.83323,317.49995 129.68043,317.60715 129.33385,318.84335 129.3029,319.09094 129.27367,319.32482 129.36765,319.57141 129.3029,319.79804 129.24453,320.00233 129.04436,320.13834 128.94935,320.32837 128.86601,320.49504 128.8559,320.69204 128.77257,320.8587 128.67756,321.04873 128.4862,321.18748 128.41902,321.38903 128.36312,321.55674 128.45369,321.74602 128.41902,321.91936 128.35846,322.22217 127.7668,322.87023 127.71191,322.98002 127.60326,323.19733 127.65312,323.47475 127.53513,323.68713 127.3519,324.01696 127.05441,324.26917 126.82803,324.57101 126.70055,324.74098 126.59796,324.92846 126.47447,325.10134 126.30323,325.34109 126.11539,325.5687 125.94414,325.80845 125.82065,325.98133 125.70844,326.162 125.59059,326.33878 125.47274,326.51556 125.33205,326.67908 125.23704,326.86911 125.1537,327.03578 125.14359,327.23277 125.06026,327.39944 124.99824,327.52348 124.36335,328.57993 124.17638,328.81365 124.07226,328.9438 123.92694,329.03706 123.82282,329.16721 122.70939,330.559 124.32549,328.71096 123.11572,330.40464 122.97041,330.60808 122.72406,330.72696 122.58539,330.93497 122.48202,331.09002 122.50448,331.30552 122.40861,331.4653 122.32286,331.60822 122.14751,331.68018 122.05506,331.81886 121.31936,332.92241 121.99613,332.11349 121.52473,333.05629 121.38953,333.32669 120.97053,333.91145 120.81762,334.29373 120.74842,334.46674 120.72418,334.65739 120.64084,334.82406 120.60358,334.8986 120.49042,334.92178 120.46407,335.00084 120.4268,335.11264 120.51677,335.24898 120.46407,335.35439 120.43771,335.4071 120.31364,335.30169 120.28729,335.35439 120.23459,335.4598 120.31587,335.59361 120.28729,335.70794 120.15912,336.22064 120.14937,335.91482 119.93374,336.23827 119.86065,336.34791 119.80886,336.47072 119.75696,336.59183 119.63911,336.88646 119.52126,337.18108 119.40341,337.47571 119.34448,337.53464 119.2639,337.57795 119.22663,337.65249 119.08472,337.93631 119.03051,338.26086 118.87308,338.53637 118.7077,338.82579 118.33747,338.95765 118.16597,339.24348 118.0701,339.40326 118.07253,339.60714 117.98919,339.77381 117.83108,340.09004 117.26546,340.77103 117.10531,341.01125 116.83008,341.42409 116.67343,342.01262 116.3982,342.42546 116.23477,342.6706 116.01405,342.87676 115.86787,343.13257 115.68297,343.45614 115.70606,343.87366 115.51432,344.19323 115.34282,344.47906 115.00721,344.63367 114.80721,344.90033 114.72816,345.00574 114.6721,345.12889 114.63044,345.25389 114.59317,345.36569 114.71377,345.52411 114.63044,345.60744 114.58877,345.64911 114.49533,345.56577 114.45366,345.60744 114.41199,345.64911 114.48001,345.73151 114.45366,345.78422 114.41639,345.85875 114.31415,345.88646 114.27688,345.96099 114.20617,346.10241 114.34759,346.3499 114.27688,346.49132 114.23961,346.56586 114.12646,346.58904 114.10011,346.6681 114.06284,346.7799 114.15281,346.91624 114.10011,347.02165 114.07375,347.07436 113.92333,347.08058 113.92333,347.02165 113.92333,346.96273 114.10011,346.96273 114.10011,347.02165 114.10011,347.10499 113.9606,347.12389 113.92333,347.19843 113.9052,347.23469 113.8984,347.70383 113.92333,347.72876 113.965,347.77043 114.0474,347.70241 114.10011,347.72876 114.17464,347.76603 114.20754,347.85931 114.27688,347.90554 114.38652,347.97863 114.51259,348.02339 114.63044,348.08231 114.74829,348.14124 114.85899,348.21742 114.98399,348.25909 115.03989,348.27772 115.10486,348.24046 115.16077,348.25909 115.28577,348.30076 115.39198,348.38693 115.51432,348.43587 115.68733,348.50507 115.87164,348.54344 116.04465,348.61264 116.28932,348.71051 116.4961,348.90228 116.75176,348.9662 116.88619,348.99981 117.48761,348.9662 117.63564,348.9662 117.69456,348.9662 117.75349,348.9662 117.81242,348.9662 117.87134,348.9662 117.93649,348.93984 117.98919,348.9662 118.06373,349.00347 118.0886,349.11202 118.16597,349.14297 118.8407,349.41287 119.5792,349.31975 120.28729,349.31975 120.52299,349.31975 120.76106,349.28642 120.9944,349.31975 121.17886,349.3461 121.34795,349.4376 121.52473,349.49653 121.81936,349.55545 122.10964,349.64341 122.40861,349.6733 122.85376,349.71782 123.36358,349.6733 123.82282,349.6733 123.94068,349.6733 124.06013,349.65393 124.17638,349.6733 124.41603,349.71325 124.64383,349.81014 124.88348,349.85008 124.99973,349.86946 125.1227,349.8215 125.23704,349.85008 125.36486,349.88204 125.46559,349.98519 125.59059,350.02686 126.05157,350.18052 126.53759,350.24692 127.0048,350.38041 128.08751,350.68976 127.11601,350.56699 128.94935,350.91074 130.66677,351.23276 129.89451,350.92606 131.24744,351.26429 131.8345,351.41106 131.82356,351.53518 132.48488,351.61785 132.71876,351.64708 132.95629,351.61785 133.19199,351.61785 133.25091,351.61785 133.31286,351.59921 133.36877,351.61785 133.49377,351.65951 133.59563,351.75843 133.72232,351.79462 136.50922,352.352 133.55959,351.68146 134.95976,352.14818 135.07156,352.18545 135.20151,352.11091 135.31331,352.14818 135.56331,352.23151 135.76476,352.43782 136.02042,352.50173 136.36814,352.58866 136.72752,352.61958 137.08108,352.67851 138.43811,352.90468 137.79027,352.78499 139.02562,353.03206 139.32025,353.09099 139.6206,353.12629 139.9095,353.20884 140.0362,353.24504 140.13636,353.34942 140.26306,353.38561 141.18441,353.64886 142.16174,353.68351 143.09148,353.91594 143.50766,354.01999 143.91505,354.15662 144.32892,354.2695 144.56332,354.33342 144.79551,354.41192 145.03603,354.44627 145.38603,354.49627 145.74794,354.38815 146.09669,354.44627 146.28049,354.47691 146.44785,354.57186 146.62702,354.62305 146.86063,354.6898 147.09509,354.75637 147.33412,354.79983 147.74407,354.87436 148.15633,354.942 148.57156,354.9766 148.98262,355.01086 149.39652,354.9766 149.809,354.9766 150.16255,354.9766 150.5161,354.9766 150.86966,354.9766 151.04644,354.9766 151.22321,354.9766 151.39999,354.9766 151.45891,354.9766 151.52406,354.95025 151.57677,354.9766 152.27841,355.32743 150.79547,355.03248 152.28387,355.33016 152.39943,355.35327 152.51957,355.33016 152.63743,355.33016 152.69635,355.33016 152.7615,355.30381 152.8142,355.33016 152.88874,355.36743 152.91644,355.46967 152.99098,355.50694 153.0306,355.52675 153.65608,355.50694 153.69809,355.50694 154.11056,355.50694 154.52304,355.50694 154.93552,355.50694 155.23015,355.50694 155.52478,355.50694 155.81941,355.50694 155.87833,355.50694 155.95452,355.5486 155.99618,355.50694 156.03785,355.46527 155.96983,355.38286 155.99618,355.33016 156.03345,355.25562 156.14661,355.23244 156.17296,355.15338 156.24749,354.92977 156.06755,354.65709 156.17296,354.44627 156.19931,354.39357 156.30807,354.48794 156.34974,354.44627 156.38588,354.41014 156.31469,353.98604 156.34974,353.91594 156.387,353.84141 156.46759,353.79809 156.52651,353.73917 156.52651,353.62132 156.48924,353.49742 156.52651,353.38561 156.55286,353.30656 156.67694,353.28789 156.70329,353.20884 156.74056,353.09703 156.70329,352.97314 156.70329,352.85528 156.70329,352.79636 156.67694,352.73121 156.70329,352.67851 156.74056,352.60397 156.85371,352.58079 156.88007,352.50173 156.93453,352.33835 156.8251,351.78274 156.88007,351.61785 156.92173,351.49285 157.01518,351.38929 157.05684,351.26429 157.07548,351.20839 157.03821,351.14342 157.05684,351.08752 157.09851,350.96252 157.20166,350.86179 157.23362,350.73396 157.2622,350.61963 157.23362,350.49826 157.23362,350.38041 157.23362,350.14471 157.23362,349.90901 157.23362,349.6733 157.23362,349.61438 157.21499,349.55243 157.23362,349.49653 157.27529,349.37153 157.36873,349.26797 157.4104,349.14297 157.42903,349.08707 157.39176,349.0221 157.4104,348.9662 157.45206,348.8412 157.56854,348.74308 157.58717,348.61264 157.64658,348.1968 157.58717,347.64693 157.58717,347.19843 157.58717,347.08058 157.55859,346.95921 157.58717,346.84488 157.91106,345.54933 157.70906,348.15578 157.94073,345.60744 157.97274,345.25534 157.94073,344.90033 157.94073,344.54678 157.94073,344.07538 157.94073,343.60397 157.94073,343.13257 157.94073,343.0338 157.90595,342.353 157.94073,342.24868 157.98239,342.12368 158.09166,342.02433 158.1175,341.89513 158.15217,341.72179 158.1175,341.54158 158.1175,341.3648 158.1175,341.07017 158.1175,340.77554 158.1175,340.48092 158.1175,340.36306 158.08892,340.24169 158.1175,340.12736 158.14946,339.99953 158.25808,339.9005 158.29428,339.77381 158.42068,339.33142 158.56562,338.24035 158.64783,337.82927 158.69548,337.59103 158.75786,337.35577 158.82461,337.12216 158.8758,336.94299 158.96484,336.77455 159.00139,336.59183 159.02726,336.46248 158.9552,335.60044 159.00139,335.53117 159.09384,335.39249 159.2804,335.32669 159.35494,335.17761 159.46359,334.96031 159.46497,334.70412 159.53172,334.47051 159.58291,334.29134 159.67195,334.1229 159.70849,333.94018 159.74213,333.77199 159.66501,332.96648 159.70849,332.87952 159.74576,332.80498 159.85892,332.7818 159.88527,332.70274 159.92254,332.59094 159.85669,332.46352 159.88527,332.34919 160.11475,331.43126 160.06205,332.53791 160.06205,331.64208 160.06205,331.17601 160.04776,331.71354 160.23882,330.7582 160.25038,330.70042 160.21247,330.63413 160.23882,330.58142 160.27609,330.50688 160.37833,330.47918 160.4156,330.40464 160.46822,330.2994 160.36599,329.6696 160.4156,329.52076 160.45727,329.39576 160.56042,329.29503 160.59238,329.16721 160.62096,329.05288 160.55511,328.92546 160.59238,328.81365 160.61873,328.7346 160.74894,328.71772 160.76915,328.63688 160.81447,328.45563 160.70721,327.76204 160.76915,327.57622 160.79551,327.49716 160.90866,327.47398 160.94593,327.39944 160.96878,327.35374 160.94593,326.46408 160.94593,326.33878 160.94593,326.27985 160.9876,326.20367 160.94593,326.162 160.85276,326.06883 160.70201,326.05831 160.59238,325.98523 160.52304,325.939 160.49014,325.84572 160.4156,325.80845 160.3629,325.7821 160.29153,325.8348 160.23882,325.80845 160.16429,325.77118 160.13658,325.66894 160.06205,325.63167 159.89538,325.54834 159.70473,325.5241 159.53172,325.4549 159.40938,325.40596 159.30599,325.31008 159.17816,325.27812 159.06383,325.24954 158.93641,325.31539 158.82461,325.27812 158.74555,325.25177 158.72237,325.13861 158.64783,325.10134 158.48117,325.01801 158.29051,324.99377 158.1175,324.92457 157.87283,324.8267 157.6604,324.65435 157.4104,324.57101 157.17991,324.49418 156.93899,324.45316 156.70329,324.39424 156.11562,324.24732 155.48887,324.10984 154.93552,323.86391 154.74137,323.77762 154.60246,323.58926 154.40519,323.51035 154.18635,323.42282 153.9089,323.61576 153.69809,323.51035 153.35733,323.16959 153.40983,323.14756 152.99098,322.98002 152.81797,322.91082 152.63982,322.85444 152.46065,322.80325 152.22704,322.7365 151.97085,322.73512 151.75354,322.62647 151.49002,322.49471 151.31567,322.2158 151.04644,322.09614 150.77187,321.97411 150.44973,322.00772 150.16255,321.91936 149.68135,321.7713 149.22149,321.56109 148.74834,321.38903 148.57322,321.32535 148.38467,321.29559 148.21801,321.21226 147.7689,320.9877 148.39905,321.00098 147.68768,320.8587 147.46571,320.72003 147.2117,320.90493 146.98057,320.8587 146.74233,320.81105 146.5117,320.72957 146.27346,320.68193 144.66429,320.36009 145.58186,320.6674 143.62181,320.1516 143.02687,319.99503 142.45088,319.77047 141.85405,319.62127 141.50632,319.53433 141.14486,319.51478 140.79339,319.44449 140.55515,319.39684 140.32452,319.31536 140.08628,319.26771 140.0285,319.25616 139.95117,319.30938 139.9095,319.26771 139.86784,319.22605 139.95117,319.1326 139.9095,319.09094 139.90382,319.08525 139.42205,319.09094 139.37917,319.09094 139.29956,319.09094 138.90264,319.11784 138.84884,319.09094 138.77431,319.05367 138.7466,318.95143 138.67207,318.91416 138.56813,318.86219 138.11007,318.95044 137.96496,318.91416 137.78418,318.86896 137.61843,318.76802 137.43463,318.73738 137.26026,318.70832 137.0758,318.78026 136.9043,318.73738 136.82345,318.71717 136.80658,318.58696 136.72752,318.5606 136.6224,318.52557 135.87567,318.5606 135.66686,318.5606 135.60794,318.5606 135.54901,318.5606 135.49009,318.5606 135.43116,318.5606 135.35498,318.60227 135.31331,318.5606 135.27164,318.51894 135.35498,318.42549 135.31331,318.38383 135.29147,318.36199 134.71706,318.38383 134.6062,318.38383 134.3705,318.38383 134.1348,318.38383 133.8991,318.38383 133.84017,318.38383 133.76399,318.42549 133.72232,318.38383 133.68065,318.34216 133.76399,318.24872 133.72232,318.20705 133.68065,318.16539 133.60025,318.22894 133.54554,318.20705 133.30087,318.10918 133.08518,317.94603 132.83844,317.8535 132.61095,317.76819 132.36703,317.73565 132.13133,317.67672 131.89563,317.6178 131.66246,317.54759 131.42422,317.49995 131.36644,317.48839 131.28911,317.54161 131.24744,317.49995 131.15428,317.40678 131.16384,317.23956 131.07067,317.14639 131.029,317.10473 130.93556,317.18806 130.89389,317.14639 130.85222,317.10473 130.93556,317.01128 130.89389,316.96961 130.85222,316.92795 130.65866,316.97705 130.71711,316.96961 131.02011,316.93105 131.3248,316.90727 131.62865,316.8761"
+       id="path4341"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#66ff00;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 119.62865,252.8761 C 119.73035,252.7917 119.89595,252.74954 119.93374,252.6229 119.94668,252.57953 119.66361,252.39448 119.58018,252.26934 119.52126,252.15149 119.46233,252.03364 119.40341,251.91579 119.34448,251.91579 119.2683,251.95746 119.22663,251.91579 119.18496,251.87412 119.2683,251.78068 119.22663,251.73901 119.18496,251.69735 119.09152,251.78068 119.04985,251.73901 119.00819,251.69735 119.09152,251.6039 119.04985,251.56224 119.00819,251.52057 118.92898,251.58087 118.87308,251.56224 118.5033,251.43898 118.17459,251.17678 117.81242,251.03191 117.6394,250.9627 117.45886,250.91406 117.28209,250.85513 117.10531,250.79621 116.93448,250.7149 116.75176,250.67835 116.63619,250.65524 116.50361,250.73106 116.3982,250.67835 116.3455,250.652 116.43987,250.54324 116.3982,250.50158 116.35654,250.45991 116.28035,250.50158 116.22143,250.50158 116.10357,250.50158 115.98572,250.50158 115.86787,250.50158 115.39647,250.50158 114.92506,250.50158 114.45366,250.50158 114.21796,250.50158 113.98225,250.50158 113.74655,250.50158 113.6287,250.50158 113.50925,250.52095 113.393,250.50158 113.15335,250.46163 112.92697,250.35493 112.68589,250.3248 112.45201,250.29556 112.21449,250.3248 111.97879,250.3248 111.62523,250.3248 111.26812,250.3748 110.91812,250.3248 110.73366,250.29845 110.57052,250.18457 110.38779,250.14802 110.15667,250.1018 109.91639,250.14802 109.68069,250.14802 109.20928,250.14802 108.73788,250.14802 108.26647,250.14802 108.0897,250.14802 107.91292,250.14802 107.73614,250.14802 107.67722,250.14802 107.60103,250.10636 107.55937,250.14802 107.5177,250.18969 107.60103,250.28313 107.55937,250.3248 107.5177,250.36647 107.4353,250.29845 107.38259,250.3248 107.30806,250.36207 107.28035,250.46431 107.20582,250.50158 106.63086,250.78906 106.78532,250.54621 106.32193,250.85513 106.25259,250.90136 106.21969,250.99464 106.14515,251.03191 106.09245,251.05826 106.01004,250.99024 105.96838,251.03191 105.92671,251.07357 106.01004,251.16702 105.96838,251.20868 105.88504,251.29202 105.72023,251.15598 105.61482,251.20868 105.54029,251.24595 105.51258,251.34819 105.43805,251.38546 105.38534,251.41181 105.30294,251.34379 105.26127,251.38546 105.2196,251.42713 105.30294,251.52057 105.26127,251.56224 104.57136,252.25215 105.16633,251.52132 104.73094,251.73901 104.58187,251.81355 104.51606,252.00012 104.37739,252.09257 104.26775,252.16566 104.13347,252.19626 104.02383,252.26934 103.9545,252.31557 103.91639,252.3999 103.84706,252.44612 103.73743,252.51921 103.59891,252.54384 103.4935,252.6229 103.43747,252.66492 102.6833,253.39627 102.60962,253.50678 102.40233,253.81771 102.39981,254.03132 102.25607,254.39066 102.20713,254.513 102.11125,254.61639 102.07929,254.74422 102.02065,254.97878 102.14866,255.59676 102.07929,255.80488 102.05294,255.88393 101.92887,255.9026 101.90251,255.98166 101.86525,256.09346 101.90251,256.21736 101.90251,256.33521 101.90251,256.74769 101.90251,257.16017 101.90251,257.57265 101.90251,258.1619 101.90251,258.75116 101.90251,259.34041 101.90251,259.39934 101.90251,259.45826 101.90251,259.51719 101.90251,259.57611 101.86085,259.6523 101.90251,259.69396 101.94418,259.73563 102.05294,259.64126 102.07929,259.69396 102.13199,259.79937 102.04202,259.93572 102.07929,260.04752 102.10564,260.12658 102.2188,260.14976 102.25607,260.22429 102.28242,260.277 102.23743,260.34517 102.25607,260.40107 102.29773,260.52607 102.39118,260.62963 102.43284,260.75463 102.47011,260.86643 102.38014,261.00277 102.43284,261.10818 102.47011,261.18272 102.55069,261.22603 102.60962,261.28496 102.66855,261.40281 102.73746,261.51617 102.7864,261.63851 102.93014,261.99786 102.93266,262.21146 103.13995,262.52239 103.18618,262.59173 103.27946,262.62463 103.31673,262.69917 103.34308,262.75187 103.29037,262.82324 103.31673,262.87595 103.39126,263.02502 103.57783,263.09082 103.67028,263.2295 103.74337,263.33913 103.77397,263.47342 103.84706,263.58305 103.89328,263.65239 103.96491,263.7009 104.02383,263.75983 104.08276,263.87768 104.12752,264.00375 104.20061,264.11338 104.24684,264.18272 104.33116,264.22082 104.37739,264.29016 104.45048,264.39979 104.48108,264.53408 104.55416,264.64371 104.72758,264.90384 105.08786,265.0907 105.26127,265.35082 105.33436,265.46045 105.34488,265.6112 105.43805,265.70437 105.47971,265.74604 105.57316,265.66271 105.61482,265.70437 105.65649,265.74604 105.57316,265.83948 105.61482,265.88115 105.65649,265.92282 105.74993,265.83948 105.7916,265.88115 105.83327,265.92282 105.74993,266.01626 105.7916,266.05793 105.83327,266.09959 105.92671,266.01626 105.96838,266.05793 106.01004,266.09959 105.94974,266.1788 105.96838,266.2347 106.01004,266.3597 106.10349,266.46326 106.14515,266.58826 106.16379,266.64416 106.10349,266.72337 106.14515,266.76503 106.18682,266.8067 106.26923,266.73868 106.32193,266.76503 106.39647,266.8023 106.43978,266.88288 106.49871,266.94181 106.55763,267.00074 106.63822,267.04405 106.67548,267.11859 106.72819,267.224 106.59215,267.38881 106.67548,267.47214 106.71715,267.51381 106.81059,267.43047 106.85226,267.47214 106.85938,267.47925 106.85226,268.11433 106.85226,268.17925 106.85226,268.25886 106.82536,268.65578 106.85226,268.70958 106.88953,268.78411 106.99177,268.81182 107.02904,268.88635 107.05189,268.93206 107.02904,269.82171 107.02904,269.94701 107.02904,270.00594 107.0707,270.08212 107.02904,270.12379 106.98737,270.16546 106.89393,270.08212 106.85226,270.12379 106.76387,270.21218 106.94065,270.56573 106.85226,270.65412 106.81059,270.69579 106.71715,270.61245 106.67548,270.65412 106.30973,271.01988 107.23441,270.63982 106.49871,271.00767 106.446,271.03403 106.3636,270.96601 106.32193,271.00767 106.20428,271.12532 106.43958,271.24358 106.32193,271.36123 106.28026,271.40289 106.18682,271.31956 106.14515,271.36123 106.10349,271.40289 106.18682,271.49634 106.14515,271.538 106.10349,271.57967 106.01004,271.49634 105.96838,271.538 105.92671,271.57967 106.01004,271.67311 105.96838,271.71478 105.92671,271.75645 105.83327,271.67311 105.7916,271.71478 105.69843,271.80795 105.68791,271.9587 105.61482,272.06833 105.5686,272.13767 105.49697,272.18619 105.43805,272.24511 105.37912,272.30404 105.33581,272.38462 105.26127,272.42189 103.65179,273.22663 105.48896,272.01742 104.55416,272.95222 104.40393,273.10245 104.20602,273.19646 104.02383,273.30577 103.91085,273.37356 103.76345,273.38938 103.67028,273.48255 103.52005,273.63278 103.46696,273.86265 103.31673,274.01288 103.22356,274.10605 103.07616,274.12186 102.96317,274.18966 102.78099,274.29896 102.61503,274.4339 102.43284,274.54321 102.31986,274.611 102.1847,274.64093 102.07929,274.71998 101.74931,274.96747 101.52539,275.35638 101.19541,275.60387 101.09,275.68292 100.94726,275.70159 100.84185,275.78064 100.70852,275.88065 100.61844,276.03008 100.4883,276.1342 100.3224,276.26692 100.12119,276.35174 99.95797,276.48775 99.637878,276.7545 99.394179,277.10489 99.074087,277.37164 98.847747,277.56025 98.593319,277.71335 98.36698,277.90197 98.110906,278.11536 97.895575,278.37337 97.659873,278.60907 97.542022,278.72692 97.410436,278.83248 97.30632,278.96262 97.040875,279.29443 96.846192,279.67752 96.599213,280.02329 96.427964,280.26303 96.257499,280.50405 96.068883,280.73039 95.962185,280.85843 95.801079,280.94103 95.715329,281.08395 95.619459,281.24373 95.621886,281.44761 95.538553,281.61428 95.443538,281.8043 95.294309,281.96242 95.184999,282.14461 95.117209,282.25759 95.081311,282.38853 95.008223,282.49816 94.961998,282.5675 94.868714,282.6004 94.831446,282.67494 94.783496,282.77084 94.879816,283.33367 94.831446,283.38204 94.465689,283.7478 94.845744,282.82312 94.477893,283.55882 94.45154,283.61152 94.477893,283.67667 94.477893,283.7356 94.477893,283.85345 94.477893,283.9713 94.477893,284.08915 94.477893,284.38378 94.477893,284.6784 94.477893,284.97303 94.477893,285.44444 94.477893,285.91584 94.477893,286.38725 94.477893,286.46686 94.450993,286.86378 94.477893,286.91758 94.51516,286.99211 94.617401,287.01982 94.654669,287.09435 94.681022,287.14706 94.613003,287.22946 94.654669,287.27113 94.696336,287.3128 94.789779,287.22946 94.831446,287.27113 94.873113,287.3128 94.789779,287.40624 94.831446,287.44791 94.873113,287.48957 94.966556,287.40624 95.008223,287.44791 95.091556,287.53124 94.924889,287.71813 95.008223,287.80146 95.049889,287.84313 95.143333,287.75979 95.184999,287.80146 95.226666,287.84313 95.143333,287.93657 95.184999,287.97824 95.226666,288.0199 95.32909,287.92921 95.361776,287.97824 95.499847,288.18534 95.512051,288.65884 95.715329,288.86212 95.756996,288.90379 95.850439,288.82045 95.892106,288.86212 95.933773,288.90379 95.850439,288.99723 95.892106,289.0389 95.975439,289.12223 96.14025,288.98619 96.24566,289.0389 96.320195,289.07616 96.347901,289.17841 96.422436,289.21567 96.475141,289.24203 96.546508,289.18932 96.599213,289.21567 96.673748,289.25294 96.701454,289.35518 96.77599,289.39245 96.881399,289.44515 97.04621,289.30912 97.129543,289.39245 97.17121,289.43412 97.087876,289.52756 97.129543,289.56923 97.17121,289.61089 97.253615,289.54287 97.30632,289.56923 97.380855,289.60649 97.424171,289.68708 97.483096,289.746 97.659873,289.746 97.841928,289.70313 98.013426,289.746 98.175117,289.78643 98.208866,290.04685 98.36698,290.09956 98.554825,290.16217 98.886242,290.03694 99.074087,290.09956 99.199087,290.14122 99.30264,290.23467 99.42764,290.27633 99.596039,290.33247 100.13933,290.21894 100.31152,290.27633 100.56152,290.35967 100.75869,290.58656 101.01863,290.62989 101.25113,290.66864 101.49003,290.62989 101.72574,290.62989 102.02036,290.62989 102.31499,290.62989 102.60962,290.62989 102.72747,290.62989 102.84761,290.60678 102.96317,290.62989 103.14589,290.66643 103.3097,290.77603 103.4935,290.80666 103.66788,290.83573 103.84706,290.80666 104.02383,290.80666 104.25954,290.80666 104.49524,290.80666 104.73094,290.80666 104.84879,290.80666 104.97016,290.77808 105.08449,290.80666 106.10783,291.0625 104.61981,290.98344 105.96838,290.98344 106.16779,290.98344 107.14546,290.95326 107.20582,290.98344 107.28035,291.02071 107.30039,291.14652 107.38259,291.16022 107.67321,291.20865 107.97185,291.16022 108.26647,291.16022 108.67895,291.16022 109.09143,291.16022 109.50391,291.16022 109.64305,291.16022 110.3736,291.14602 110.38779,291.16022 110.42946,291.20188 110.34613,291.29533 110.38779,291.33699 110.42559,291.37479 110.99744,291.30451 111.0949,291.33699 111.2199,291.37866 111.31771,291.49743 111.44845,291.51377 111.79928,291.55762 112.15556,291.51377 112.50912,291.51377 113.03945,291.51377 113.56978,291.51377 114.10011,291.51377 114.27688,291.51377 114.46273,291.45787 114.63044,291.51377 114.70949,291.54012 114.72501,291.67685 114.80721,291.69055 115.09783,291.73898 115.39647,291.69055 115.6911,291.69055 116.10357,291.69055 116.51605,291.69055 116.92853,291.69055 117.10531,291.69055 117.28449,291.66149 117.45886,291.69055 117.64267,291.72118 117.80399,291.84675 117.98919,291.86732 118.34058,291.90637 118.6963,291.86732 119.04985,291.86732 119.99266,291.86732 120.93547,291.86732 121.87828,291.86732 123.88175,291.86732 125.88522,291.86732 127.88869,291.86732 127.93486,291.86732 128.86047,291.89695 128.94935,291.86732 129.07435,291.82566 129.17507,291.7225 129.3029,291.69055 129.45868,291.6516 130.25898,291.74284 130.36356,291.69055 130.4381,291.65328 130.471,291.56 130.54034,291.51377 130.64997,291.44068 130.80072,291.43016 130.89389,291.33699 130.98706,291.24383 130.99758,291.09307 131.07067,290.98344 131.11689,290.9141 131.22109,290.88572 131.24744,290.80666 131.28471,290.69486 131.21018,290.56491 131.24744,290.45311 131.2738,290.37405 131.38695,290.35087 131.42422,290.27633 131.44746,290.22985 131.42422,289.66167 131.42422,289.56923 131.42422,289.47679 131.44746,288.9086 131.42422,288.86212 131.0734,288.16047 131.36835,289.64342 131.07067,288.15501 131.02444,287.92389 131.07067,287.68361 131.07067,287.44791 131.07067,287.38898 131.0893,287.32703 131.07067,287.27113 130.87832,286.69408 130.83973,287.12295 130.71711,286.38725 130.71711,286.21047 130.71711,286.03369 130.71711,285.85692 130.65819,285.79799 130.56669,285.7592 130.54034,285.68014 130.51017,285.58965 130.54034,284.74586 130.54034,284.61948 130.54034,284.56055 130.56669,284.49541 130.54034,284.4427 130.50307,284.36817 130.40083,284.34046 130.36356,284.26593 130.28023,284.09926 130.25599,283.90861 130.18678,283.7356 130.08891,283.49092 129.9311,283.27316 129.83323,283.02849 129.76403,282.85548 129.72566,282.67117 129.65645,282.49816 129.39186,281.83668 129.54116,282.44434 129.12612,281.61428 128.65472,280.67147 129.3315,281.48039 128.59579,280.37684 128.50334,280.23816 128.34224,280.15662 128.24224,280.02329 128.16318,279.91788 128.15863,279.7629 128.06546,279.66973 127.9723,279.57656 127.80508,279.58613 127.71191,279.49295 127.61874,279.39979 127.61419,279.24481 127.53513,279.1394 127.43534,279.00634 126.78431,278.35532 126.65125,278.25552 126.54584,278.17646 126.41068,278.14653 126.2977,278.07874 126.11552,277.96943 125.93733,277.85266 125.76737,277.72519 125.56737,277.57519 125.43704,277.34486 125.23704,277.19486 125.14801,276.80539 124.87337,277.10142 124.70671,277.01808 124.63217,276.98081 124.60447,276.87857 124.52993,276.84131 124.47723,276.81495 124.40586,276.86766 124.35315,276.84131 124.27862,276.80404 124.24304,276.71453 124.17638,276.66453 124.00641,276.53705 123.81601,276.43845 123.64605,276.31097 123.57938,276.26098 123.54073,276.17707 123.46927,276.1342 123.2433,275.99862 122.9766,275.93381 122.76216,275.78064 122.55873,275.63533 122.43985,275.38899 122.23183,275.25031 122.07679,275.14695 121.87452,275.14274 121.7015,275.07354 121.40773,274.95603 121.05478,274.72108 120.81762,274.54321 120.61762,274.39321 120.48729,274.16288 120.28729,274.01288 120.18188,273.93382 120.02691,273.92927 119.93374,273.8361 119.78351,273.68587 119.70766,273.47574 119.58018,273.30577 119.43018,273.10577 119.19985,272.97544 119.04985,272.77544 118.9708,272.67003 118.932,272.53974 118.87308,272.42189 118.81415,272.30404 118.74523,272.19067 118.6963,272.06833 117.98451,270.28885 118.83433,272.44367 118.51952,271.18445 118.45561,270.9288 118.22988,270.733 118.16597,270.47734 118.12591,270.31709 118.16597,269.79882 118.16597,269.59346 118.16597,269.00421 118.16597,268.41495 118.16597,267.82569 118.16597,267.76677 118.16597,267.70784 118.16597,267.64892 118.16597,267.58999 118.1243,267.51381 118.16597,267.47214 118.2493,267.38881 118.43619,267.55547 118.51952,267.47214 118.51952,267.00074 118.4606,267.53107 118.6963,267.29536 118.73797,267.2537 118.65463,267.16025 118.6963,267.11859 118.77963,267.03525 118.94444,267.17129 119.04985,267.11859 119.20654,267.04025 119.41926,266.69554 119.58018,266.58826 119.68982,266.51517 119.8114,266.46041 119.93374,266.41148 120.10675,266.34228 120.315,266.34651 120.46407,266.2347 120.56948,266.15565 120.56775,265.99078 120.64084,265.88115 120.6945,265.80066 121.29082,265.20261 121.34795,265.17404 121.40066,265.14769 121.48306,265.21571 121.52473,265.17404 121.56639,265.13238 121.48306,265.03893 121.52473,264.99727 121.64482,264.87718 121.87629,265.17802 122.05506,264.82049 122.08141,264.76778 122.02871,264.69642 122.05506,264.64371 122.1632,264.42744 122.41314,264.41935 122.58539,264.29016 122.71872,264.19016 122.78987,264.01114 122.93894,263.93661 123.04435,263.8839 123.18069,263.97387 123.29249,263.93661 123.37155,263.91025 123.39473,263.7971 123.46927,263.75983 123.52197,263.73348 123.59015,263.77846 123.64605,263.75983 123.89605,263.6765 124.11745,263.52413 124.35315,263.40628 124.471,263.34735 124.58886,263.28843 124.70671,263.2295 124.82456,263.17057 124.95485,263.13178 125.06026,263.05272 125.19359,262.95272 125.2709,262.78492 125.41381,262.69917 125.5736,262.6033 125.77748,262.60573 125.94414,262.52239 126.01868,262.48512 126.05158,262.39184 126.12092,262.34562 126.23055,262.27253 126.35662,262.22777 126.47447,262.16884 126.59233,262.10991 126.70303,262.03373 126.82803,261.99206 126.88393,261.97343 126.96314,262.03373 127.0048,261.99206 127.04647,261.9504 126.96314,261.85695 127.0048,261.81529 127.08814,261.73195 127.27503,261.89862 127.35836,261.81529 127.40003,261.77362 127.33201,261.69121 127.35836,261.63851 127.43289,261.48944 127.63738,261.43403 127.71191,261.28496 127.76462,261.17955 127.62858,261.01474 127.71191,260.9314 127.94761,260.6957 127.88154,261.3064 128.06546,260.75463 128.10273,260.64282 128.0282,260.51288 128.06546,260.40107 128.09182,260.32202 128.21589,260.30335 128.24224,260.22429 128.27951,260.11249 128.24224,259.98859 128.24224,259.87074 128.24224,259.81182 128.21589,259.74667 128.24224,259.69396 128.27951,259.61943 128.39267,259.59625 128.41902,259.51719 128.47492,259.34948 128.41902,259.16363 128.41902,258.98686 128.41902,258.69223 128.41902,258.3976 128.41902,258.10298 128.41902,258.01053 128.44226,257.44235 128.41902,257.39587 127.83272,256.80957 128.50235,257.56254 128.24224,257.04232 128.16771,256.89324 127.96322,256.83783 127.88869,256.68876 127.86234,256.63606 127.91504,256.56469 127.88869,256.51198 127.85142,256.43745 127.74918,256.40974 127.71191,256.33521 127.68556,256.2825 127.75358,256.2001 127.71191,256.15843 127.67024,256.11676 127.5768,256.2001 127.53513,256.15843 127.4518,256.0751 127.61847,255.88821 127.53513,255.80488 127.49347,255.76321 127.41106,255.83123 127.35836,255.80488 127.20929,255.73034 127.15388,255.52586 127.0048,255.45132 126.83814,255.36799 126.64114,255.35788 126.47447,255.27455 126.39994,255.23728 126.37223,255.13504 126.2977,255.09777 126.19229,255.04507 126.04955,255.15048 125.94414,255.09777 125.86961,255.0605 125.84642,254.94735 125.76737,254.92099 125.65556,254.88373 125.53167,254.92099 125.41381,254.92099 125.35489,254.92099 125.28974,254.94735 125.23704,254.92099 125.1625,254.88373 125.1348,254.78149 125.06026,254.74422 125.00756,254.71787 124.93939,254.76285 124.88348,254.74422 124.63348,254.66088 124.42105,254.48854 124.17638,254.39066 124.00337,254.32146 123.82682,254.25908 123.64605,254.21389 123.58888,254.1996 123.52197,254.24024 123.46927,254.21389 123.0928,254.02565 123.49219,254.04857 123.11572,253.86033 122.93894,253.80141 122.76216,253.74248 122.58539,253.68356 122.52646,253.62463 122.48315,253.54405 122.40861,253.50678 122.35591,253.48043 122.28454,253.53313 122.23183,253.50678 122.1573,253.46951 122.1359,253.35022 122.05506,253.33 121.88356,253.28713 121.7015,253.33 121.52473,253.33 121.4658,253.33 121.40066,253.35636 121.34795,253.33 121.27342,253.29274 121.24571,253.19049 121.17117,253.15323 121.11847,253.12687 121.0471,253.17958 120.9944,253.15323 120.91986,253.11596 120.89668,253.0028 120.81762,252.97645 120.70582,252.93918 120.57587,253.01372 120.46407,252.97645 120.38501,252.9501 120.37003,252.80961 120.28729,252.79967 120.06785,252.77331 119.8482,252.85062 119.62865,252.8761 Z"
+       id="path4343"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>

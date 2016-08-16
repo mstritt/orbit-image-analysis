@@ -1,0 +1,187 @@
+/*
+ *     Orbit, a versatile image analysis software for biological image-based quantification.
+ *     Copyright (C) 2009 - 2016 Actelion Pharmaceuticals Ltd., Gewerbestrasse 16, CH-4123 Allschwil, Switzerland.
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.smokejumperit.gradle.license:Gradle-License-Report:0.0.2"
+    }
+}
+plugins {
+    id "com.github.cr0.macappbundle" version "3.0.1"
+}
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'license-report'
+if (file('custom.gradle').exists()) {
+    apply from: 'custom.gradle'
+}
+
+[ compileJava, compileTestJava ]*.options*.encoding = 'UTF-8'
+
+ext.description = "OrbitImageAnalysis"
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+ext.orbitVersion = new File("src/main/resources/version.txt").text;
+ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url 'http://artifacts.openmicroscopy.org/artifactory/maven/'
+    }
+    maven {
+        url 'https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/'    // just for thredds-parent-4.3.22 used by netcdf-4.3.22
+    }
+    maven {
+        url 'http://maven.imagej.net/content/repositories/snapshots/'    // for legacy-imglib1-2.0.0-SNAPSHOT.jar used by imagej1 compatible graph_cut
+    }
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+task docJar(type: Jar, dependsOn: 'javadoc') {
+    from javadoc.destinationDir
+}
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'com.actelion.research'
+            artifactId 'orbit-image-analysis'
+            version orbitVersion
+            from components.java
+        }
+    }
+}
+
+
+task copyToLib( type: Copy ) {
+    into "$buildDir/libs/lib"
+    from configurations.runtime
+}
+
+jar {
+    dependsOn copyToLib
+    manifest {
+        attributes 'Implementation-Title': 'Orbit Image Analysis',
+                'Implementation-Version': orbitVersion,
+                'Main-Class': 'com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis',
+                'Vendor': 'Actelion',
+                'Class-Path': 'lib/*'
+    }
+}
+
+
+
+
+
+
+task icons {
+    ant.taskdef(name:'svg2java'
+            ,classpath:'lib/flamingo-svg-transcoder-ant-1.1.1.jar'
+            ,classname:'org.pushingpixels.flamingo.api.svg.SvgTranscoderTask'
+    )
+    ant.svg2java(todir:"src/main/java/com/actelion/research/orbit/imageAnalysis/components/icons",
+            verbose:"true", namingStrategy:"camelcase", template:"resizable", package:"com.actelion.research.orbit.imageAnalysis.components.icons",
+            {
+                fileset(dir:"src/main/resources/resource/svg", includes:"**/*.svg*")
+            })
+}
+
+
+dependencies {
+    compile 'com.actelion.research:lib-orbit-common:1.0.8'
+    compile 'com.actelion.research:image-provider-omero:1.0.8'
+    compile 'com.actelion.research:map-reduce-generic:1.0.7'
+    compile 'com.actelion.research:map-reduce-exec-spark:1.0.1'
+//  compile 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
+//    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.0.3.13') {
+//        exclude(module: 'OrbitImageAnalysis')
+//    }
+
+    compile 'com.thoughtworks.xstream:xstream:1.4.9'
+    compile 'org.jaitools:jt-utils:1.4.0' // jai-tools
+    compile 'com.sun.media:jai-codec:1.1.3'
+    compile 'javax.media:jai-core:1.1.3'
+    compile 'com.github.jai-imageio:jai-imageio-core:1.3.1'
+    compile 'com.github.jai-imageio:jai-imageio-jpeg2000:1.3.0'
+
+    compile (group:'org.swinglabs', name:'swingx', version:'1.6.1') {
+        exclude (module: 'swing-worker')
+    }
+
+    compile 'org.apache.commons:commons-math3:3.5'
+    compile 'com.github.insubstantial:substance:7.3'
+    compile 'com.github.insubstantial:substance-flamingo:7.3'
+    compile 'com.google.guava:guava:19.0'
+    // weka start - only java implementations
+    compile (group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version:'3.8.0') {
+        transitive = false
+    }
+    compile 'nz.ac.waikato.cms.weka.thirdparty:java-cup-11b:2015.03.26'
+    compile 'nz.ac.waikato.cms.weka.thirdparty:java-cup-11b-runtime:2015.03.26'
+    compile 'nz.ac.waikato.cms.weka.thirdparty:bounce:0.18'
+    compile 'com.github.fommil.netlib:core:1.1.2'
+    compile 'com.github.fommil.netlib:generator:1.1.2'
+    compile 'com.github.fommil.netlib:native_system-java:1.1'
+//    compile 'com.github.fommil.netlib:netlib-native_system-linux-x86_64:1.1'
+//    compile 'com.github.fommil.netlib:netlib-native_ref-linux-x86_64:1.1'
+//    compile 'com.github.fommil.netlib:netlib-native_system-win-x86_64:1.1'
+//    compile 'com.github.fommil.netlib:netlib-native_system-win-i686:1.1'
+//    compile 'com.github.fommil.netlib:netlib-native_system-osx-x86_64:1.1'
+//    compile 'com.github.fommil.netlib:netlib-native_ref-win-x86_64:1.1'
+//    compile 'com.github.fommil.netlib:netlib-native_ref-win-i686:1.1'
+    // weka end
+
+    compile 'gov.nih.imagej:imagej:1.46'
+    compile (group: 'org.codelibs', name:'jcifs', version:'1.3.18.1') {  // for SmbUtils     (exclude javax.servlet-api because Spark needs a different version)
+       exclude (group:'javax.servlet', module: 'servlet-api')
+    }
+    compile (group: 'edu.ucar', name:'netcdf', version:'4.3.22')     // replacement of 4.3.19 used by formats-gpl which has a buggy pom (version LATEST does not work with gradle)
+    compile (group: 'ome', name:'formats-gpl', version:'5.1.5') {
+        exclude (module: 'netcdf')
+    }
+
+    compile 'org.codehaus.groovy:groovy-all:2.4.5'
+    compile 'org.codehaus.gpars:gpars:1.2.1'
+    compile 'com.fifesoft:rsyntaxtextarea:2.5.8'
+    compile 'com.fifesoft:autocomplete:2.5.8'
+   // compile 'com.fifesoft:languagesupport:2.5.8'
+
+    compile 'ch.qos.logback:logback-classic:1.1.3'
+    compile 'net.java.linoleum:jlfgr:1_0'
+    compile (group: 'sc.fiji', name: 'legacy-imglib1', version: '2.0.0-SNAPSHOT') {     //1.1.5  2.0.0-SNAPSHOT for graph_cut
+        transitive = false
+    }
+    testCompile 'junit:junit:4+'
+}

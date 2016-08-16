@@ -1,0 +1,9 @@
+# Spark configuration
+
+# rename to SparkCong.properties
+# and place in execution directory
+# properties are documented here: http://spark.apache.org/docs/latest/configuration.html
+
+spark.master=123.123.123.123
+spark.app.name=OrbitSpark
+Orbit.samba.share=domain/user:password@smb://server/share

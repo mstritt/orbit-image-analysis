@@ -1,0 +1,44 @@
+<configuration>
+
+    <!--appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${user.home}/orbittrace.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n%ex</pattern>
+        </encoder>
+    </appender-->
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="Orbit" class="com.actelion.research.orbit.imageAnalysis.utils.OrbitLogAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="syslog" class="ch.qos.logback.classic.net.SyslogAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <syslogHost>cronos.actelion.com</syslogHost>
+        <facility>USER</facility>
+        <suffixPattern>OrbitImageAnalysis: [%property{user.name}] %d [%t] %-5p %c - %m%n%ex</suffixPattern>
+    </appender>
+
+    <logger name="com.actelion.research" level="INFO" />
+
+    <root level="WARN">
+        <!--appender-ref ref="FILE" /-->
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="Orbit" />
+        <appender-ref ref="syslog" />
+    </root>
+
+</configuration>
