@@ -5,7 +5,6 @@
 
 #####Available backends:
 
-* Orbit infrastructure (imageproviderorbit)
 * OMERO image server (imageprovideromero)
 
 #####Scaleout via
