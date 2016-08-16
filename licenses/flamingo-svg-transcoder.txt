@@ -1,0 +1,2 @@
+BSD, Apache License 2.0
+see http://ebourg.github.io/flamingo-svg-transcoder/
