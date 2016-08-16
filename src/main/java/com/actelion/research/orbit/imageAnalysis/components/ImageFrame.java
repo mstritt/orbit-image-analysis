@@ -518,10 +518,6 @@ public class ImageFrame extends JInternalFrame implements ComponentListener, Pro
     }
 
 
-
-
-
-
     private void loadChannel(int rdfId, String channel) {
         try {
             RawDataFile rdf = DALConfig.getImageProvider().LoadRawDataFile(rdfId);

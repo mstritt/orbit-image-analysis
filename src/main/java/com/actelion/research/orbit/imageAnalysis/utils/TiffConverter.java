@@ -172,7 +172,7 @@ public class TiffConverter {
             ColorModel colorModel = rgbColorModel;
             if (isGrey) colorModel = greyColorModel;
               /*  // rendering hints can be used as further parameter of JAI.create, but unclear what exactly it does.
-        	  ImageLayout layout = new ImageLayout();
+              ImageLayout layout = new ImageLayout();
          	  layout.setColorModel(colorModel);
         	  RenderingHints rh = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
         	  */

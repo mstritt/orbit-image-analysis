@@ -126,7 +126,7 @@ public class DALConfig {
             }
 
             String explicitLibDirStr = props.getProperty("explicitLibDir");
-            if (explicitLibDirStr!=null && explicitLibDirStr.length()>0) {
+            if (explicitLibDirStr != null && explicitLibDirStr.length() > 0) {
                 explicitLibDir = explicitLibDirStr;
             }
 
@@ -164,23 +164,22 @@ public class DALConfig {
     }
 
     public static String getLibDir() throws URISyntaxException, UnsupportedEncodingException {
-        if (explicitLibDir!=null) {
-            logger.info("using explicit lib dir: "+explicitLibDir);
+        if (explicitLibDir != null) {
+            logger.info("using explicit lib dir: " + explicitLibDir);
             return explicitLibDir;
         }
         CodeSource codeSource = OrbitUtils.class.getProtectionDomain().getCodeSource();
         File jarFile;
         if (codeSource.getLocation() != null) {
             jarFile = new File(codeSource.getLocation().toURI());
-        }
-        else {
+        } else {
             String path = OrbitUtils.class.getResource(OrbitUtils.class.getSimpleName() + ".class").getPath();
             String jarFilePath = path.substring(path.indexOf(":") + 1, path.indexOf("!"));
             jarFilePath = URLDecoder.decode(jarFilePath, "UTF-8");
             jarFile = new File(jarFilePath);
         }
         String jarDir = jarFile.getParentFile().getAbsolutePath();
-        logger.debug("libDir: "+jarDir);
+        logger.debug("libDir: " + jarDir);
         return jarDir;
     }
 

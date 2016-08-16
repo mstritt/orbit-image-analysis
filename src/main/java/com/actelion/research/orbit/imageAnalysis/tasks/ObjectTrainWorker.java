@@ -21,8 +21,8 @@ package com.actelion.research.orbit.imageAnalysis.tasks;
 
 import com.actelion.research.orbit.imageAnalysis.components.ImageFrame;
 import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTiled;
-import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.ClassifierWrapper;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.ScaleoutMode;
 import org.slf4j.Logger;

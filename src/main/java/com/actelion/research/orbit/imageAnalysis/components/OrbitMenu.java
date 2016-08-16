@@ -230,19 +230,19 @@ public class OrbitMenu extends JRibbonFrame {
         RibbonApplicationMenuEntrySecondary amEntryTutorials = new RibbonApplicationMenuEntrySecondary(new SystemHelp3(), "Tutorials", oia == null ? null : oia.tutorialsBrowserActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
         amEntryTutorials.setDescriptionText("Orbit Hands-On Tutorials");
         final UpdateChecker checker = new UpdateChecker();
-        final String checkDesc = checker.isChecksEnabled()? "Disable new version check": "Enable new version check";
+        final String checkDesc = checker.isChecksEnabled() ? "Disable new version check" : "Enable new version check";
         amEntryVersionCheck = new RibbonApplicationMenuEntrySecondary(new Configure4(), checkDesc, oia == null ? null : new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 boolean doChecks = !checker.isChecksEnabled();
                 checker.setChecksEnabled(doChecks);
-                amEntryVersionCheck.setText(checker.isChecksEnabled()? "Disable new version check": "Enable new version check");
-                JOptionPane.showMessageDialog(null,"Version check at startup is now "+(checker.isChecksEnabled()?"enabled":"disabled")+".","Version Checks",JOptionPane.INFORMATION_MESSAGE);
+                amEntryVersionCheck.setText(checker.isChecksEnabled() ? "Disable new version check" : "Enable new version check");
+                JOptionPane.showMessageDialog(null, "Version check at startup is now " + (checker.isChecksEnabled() ? "enabled" : "disabled") + ".", "Version Checks", JOptionPane.INFORMATION_MESSAGE);
             }
         }, JCommandButton.CommandButtonKind.ACTION_ONLY);
         amEntryVersionCheck.setDescriptionText("Enable or disable check for updates at startup");
 
-        amEntryHelp.addSecondaryMenuGroup("Help",amEntryHelpSec,amEntryTutorials,amEntryVersionCheck);
+        amEntryHelp.addSecondaryMenuGroup("Help", amEntryHelpSec, amEntryTutorials, amEntryVersionCheck);
 
         menu.addMenuEntry(amEntryHelp);
         menu.addMenuSeparator();
@@ -966,7 +966,7 @@ public class OrbitMenu extends JRibbonFrame {
 
         JRibbonBand saveImageBand = new JRibbonBand("Save Image", null);
         saveImageBand.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(saveImageBand.getControlPanel()),
-               // new CoreRibbonResizePolicies.Mirror(saveImageBand.getControlPanel()),
+                // new CoreRibbonResizePolicies.Mirror(saveImageBand.getControlPanel()),
                 new IconRibbonBandResizePolicy(saveImageBand.getControlPanel())));
 
         JCommandButton buttonSaveFullImage = new JCommandButton("Save Full Image", new DocumentSaveAs3());
@@ -995,8 +995,8 @@ public class OrbitMenu extends JRibbonFrame {
 
         JRibbonBand extensionsBand = new JRibbonBand("Extensions", null);
         extensionsBand.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(extensionsBand.getControlPanel()),
-               // new CoreRibbonResizePolicies.Mirror(extensionsBand.getControlPanel()),
-               // new CoreRibbonResizePolicies.Mid2Low(manageFilesBand.getControlPanel()),
+                // new CoreRibbonResizePolicies.Mirror(extensionsBand.getControlPanel()),
+                // new CoreRibbonResizePolicies.Mid2Low(manageFilesBand.getControlPanel()),
                 new IconRibbonBandResizePolicy(extensionsBand.getControlPanel())
         ));
 

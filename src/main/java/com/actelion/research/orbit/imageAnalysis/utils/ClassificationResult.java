@@ -20,8 +20,8 @@
 package com.actelion.research.orbit.imageAnalysis.utils;
 
 import com.actelion.research.mapReduceGeneric.utils.KeyValue;
-import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 
 import java.io.Serializable;
 import java.util.ArrayList;

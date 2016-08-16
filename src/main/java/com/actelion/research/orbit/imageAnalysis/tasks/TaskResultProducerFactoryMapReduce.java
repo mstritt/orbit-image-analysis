@@ -41,7 +41,8 @@ public class TaskResultProducerFactoryMapReduce {
             return new CellClassificationWorkerMapReduce();
         else if (mapReduceClassName.equals(ClassificationMapReduce.class.getName()))
             return new ClassificationWorkerMapReduce();
-        else if (mapReduceClassName.equals(SegmentationMapReduce.class.getName())) return new SegmentationWorkerMapReduce();
+        else if (mapReduceClassName.equals(SegmentationMapReduce.class.getName()))
+            return new SegmentationWorkerMapReduce();
         else if (mapReduceClassName.equals(ROIAreaMapReduce.class.getName())) return new ROIAreaWorkerMapReduce();
         else return new ITaskResultProducer() {
                 @Override

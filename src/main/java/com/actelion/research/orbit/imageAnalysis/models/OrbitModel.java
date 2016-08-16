@@ -174,13 +174,14 @@ public class OrbitModel implements Serializable, Cloneable {
         } catch (Exception ex) {
             logger.error("cannot load model: {}", ex);
             return null;
+        } finally {
+            try {
+                if (fis != null) fis.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
-        finally {
-                try {
-                    if (fis!=null) fis.close();
-                } catch (IOException e1) { e1.printStackTrace();}
-        }
-     }
+    }
 
     /**
      * Constructs the model by loading the file via inputStream
@@ -410,6 +411,7 @@ public class OrbitModel implements Serializable, Cloneable {
 
     /**
      * convert models from old weka version
+     *
      * @param model
      */
     public static void fixOldModelVersion(final OrbitModel model) {
@@ -444,7 +446,7 @@ public class OrbitModel implements Serializable, Cloneable {
             model.setStructure(structure);
 
             try {
-                if (model.getClassifier()!=null && model.getClassifier().getClassifier()!=null && model.getClassifier().getClassifier() instanceof SMO) {
+                if (model.getClassifier() != null && model.getClassifier().getClassifier() != null && model.getClassifier().getClassifier() instanceof SMO) {
                     SMO smo = ((SMO) model.getClassifier().getClassifier());
 
                     Field field = smo.getClass().getDeclaredField("m_classAttribute");

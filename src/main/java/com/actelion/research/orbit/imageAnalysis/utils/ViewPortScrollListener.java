@@ -101,7 +101,7 @@ public class ViewPortScrollListener extends MouseInputAdapter {
     		  recognitionFrame.scaleImage(newScale, iFrame);
     		  iFrame.adjustViewport();
     	 */
-    		  /*
+              /*
     		  if (scaleSlider!=null) 
     		  {
     			  scaleSlider.setValue((int)newScale);

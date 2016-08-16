@@ -1079,7 +1079,6 @@ public class ObjectSegmentationWorker extends OrbitWorker {
     }
 
 
-
     private List<Color> buildHeatmapFeatures(List<double[]> features, int heatMapFeatureIdx) {
         int idx = features.get(0).length - heatmapFeature;
         double min = Double.MAX_VALUE;
@@ -1243,7 +1242,6 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             return true; //north
         return (y > 0) && (x >= 0) && (x < smap.length) && (y < smap[0].length) && (smap[x][y - 1] != smap[x][y]) && (smap[x][y - 1] != Short.MAX_VALUE);
     }
-
 
 
     public RecognitionFrame getRf() {

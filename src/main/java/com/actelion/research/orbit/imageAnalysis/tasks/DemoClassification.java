@@ -30,8 +30,8 @@ public class DemoClassification {
         OrbitModel model = OrbitModel.LoadFromInputStream(DemoClassification.class.getResourceAsStream("/resource/testmodels/tissueClassification.omo"));
         RecognitionFrame rf = new RecognitionFrame("/resource/testimages/tissueClassification.jpg", true);
         ClassificationResult res = OrbitHelper.Classify(null, rf, model, null, -1, null);
-        for (String name: res.getRatio().keySet()) {
-            System.out.println(name+ ": "+ res.getRatio().get(name));
+        for (String name : res.getRatio().keySet()) {
+            System.out.println(name + ": " + res.getRatio().get(name));
         }
     }
 

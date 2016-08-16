@@ -24,8 +24,8 @@ import com.actelion.research.mapReduceGeneric.executors.MapReduceExecutorLocalMu
 import com.actelion.research.mapReduceGeneric.utils.KeyValue;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
-import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.ImageTile;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.SegmentationResult;
 import com.actelion.research.orbit.imageAnalysis.models.TaskResult;
 import com.actelion.research.orbit.imageAnalysis.tasks.ITaskResultProducer;

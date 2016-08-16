@@ -27,8 +27,8 @@ import com.actelion.research.orbit.beans.RawData;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.beans.RawMeta;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
-import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.ImageTile;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.tasks.ROIArea.ROIAreaMapReduce;
 import com.actelion.research.orbit.lims.LIMSBioSample;
 import com.actelion.research.orbit.utils.RawDbTypes;
@@ -166,7 +166,6 @@ public class ResultEnhancer {
     }
 
 
-
     public static <T> String toString(final Map<Integer, List<KeyValue<String, T>>> result) {
         if (result == null || result.size() == 0) {
             log.warn("ORBITERR00450: no result available (result:{})", result);
@@ -240,8 +239,6 @@ public class ResultEnhancer {
 
         return sb.toString();
     }
-
-
 
 
     private static String obj2str(final Object obj) {

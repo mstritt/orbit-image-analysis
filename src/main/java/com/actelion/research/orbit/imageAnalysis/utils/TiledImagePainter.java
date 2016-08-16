@@ -574,7 +574,7 @@ public class TiledImagePainter {
         }
 
 		  /*
-		  // schedule tiles
+          // schedule tiles
 		  int topIndexP = Math.max(PlanarImage.YToTileY(vpOffsY, 0, tileHeight), displayImage.getMinTileY());
 		  int bottomIndexP = Math.min(PlanarImage.YToTileY(vpOffsY+vpHeight, 0, tileHeight), displayImage.getMaxTileY());
 		  int leftIndexP = Math.max(PlanarImage.XToTileX(vpOffsX+vpWidth+1, 0, tileWidth), displayImage.getMinTileX());

@@ -20,13 +20,13 @@
 package com.actelion.research.orbit.imageAnalysis.modules;
 
 import com.actelion.research.orbit.imageAnalysis.components.*;
-import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
 import com.actelion.research.orbit.imageAnalysis.tasks.OrbitWorker;
 import com.actelion.research.orbit.imageAnalysis.tasks.TrainWorker;
-import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.ClassListCellRenderer;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

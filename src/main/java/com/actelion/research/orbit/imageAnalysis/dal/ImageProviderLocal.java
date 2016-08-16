@@ -21,8 +21,8 @@ package com.actelion.research.orbit.imageAnalysis.dal;
 
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.dal.IOrbitImage;
-import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitImagePlanar;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.TiffConverter;
 import com.actelion.research.orbit.utils.Logger;
 

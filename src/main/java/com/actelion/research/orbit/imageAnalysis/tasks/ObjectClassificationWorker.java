@@ -21,9 +21,9 @@ package com.actelion.research.orbit.imageAnalysis.tasks;
 
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTiled;
-import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
 import com.actelion.research.orbit.imageAnalysis.models.ClassifierWrapper;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.TaskResult;
 import com.freedomotic.util.SerialClone.SerialClone;
 import org.slf4j.Logger;

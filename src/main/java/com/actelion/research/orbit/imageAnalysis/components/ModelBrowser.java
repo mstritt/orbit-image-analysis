@@ -21,8 +21,8 @@ package com.actelion.research.orbit.imageAnalysis.components;
 
 import com.actelion.research.orbit.gui.IntInputVerifier;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
-import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.ModelAnnotation;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 import org.jdesktop.swingx.JXSearchField;

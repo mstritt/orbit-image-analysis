@@ -41,25 +41,25 @@ public class UpdateChecker {
     private String downloadUrl = "http://www.orbit.bio/download";
 
     public void checkUpdate() {
-        boolean doCheck = prefs.getBoolean(checkUpdateKey,true);
+        boolean doCheck = prefs.getBoolean(checkUpdateKey, true);
         if (!doCheck) return;
 
         try {
-            URL checkURL = new URL("http://www.orbit.bio/currentversion/"+getProps());
+            URL checkURL = new URL("http://www.orbit.bio/currentversion/" + getProps());
             String content = RawUtilsCommon.getContentStr(checkURL);
-           // String content = "<p>###orbitversion=2.26###</p>";
+            // String content = "<p>###orbitversion=2.26###</p>";
             Pattern p = Pattern.compile("###orbitversion=\\d+.\\d+.\\d*###");
             Matcher m = p.matcher(content);
             if (m.find()) {
                 String match = m.group();
-                match = match.replaceAll("###","").replaceAll("orbitversion","").replaceAll("=","").trim();
-                logger.trace("match: "+match);
+                match = match.replaceAll("###", "").replaceAll("orbitversion", "").replaceAll("=", "").trim();
+                logger.trace("match: " + match);
                 double version = Double.parseDouble(match);
-                logger.debug("latest version: "+version);
+                logger.debug("latest version: " + version);
 
                 double currentVersion = OrbitUtils.getVersion();
-                if (version>currentVersion) {
-                    logger.info("new version found: "+version);
+                if (version > currentVersion) {
+                    logger.info("new version found: " + version);
                     showUpdateNotification();
                 }
 
@@ -71,39 +71,38 @@ public class UpdateChecker {
     }
 
     public boolean isChecksEnabled() {
-       return prefs.getBoolean(checkUpdateKey,true);
+        return prefs.getBoolean(checkUpdateKey, true);
     }
 
     public void setChecksEnabled(boolean enabled) {
-        prefs.putBoolean(checkUpdateKey,enabled);
+        prefs.putBoolean(checkUpdateKey, enabled);
     }
 
     private void showUpdateNotification() throws Exception {
-        if (JOptionPane.showConfirmDialog(null,"A new Orbit version is available.\nDo you want to download and install the new verison?","Update available",JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION) {
-            if(Desktop.isDesktopSupported())
-            {
+        if (JOptionPane.showConfirmDialog(null, "A new Orbit version is available.\nDo you want to download and install the new verison?", "Update available", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            if (Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().browse(new URI(downloadUrl));
             } else {
-                logger.error("Cannot open download URL. Please download the new version manually from "+downloadUrl);
+                logger.error("Cannot open download URL. Please download the new version manually from " + downloadUrl);
             }
         }
     }
 
     private long getInstTime() {
-        long val = prefs.getLong(instTimeKey,0);
-        if (val==0) {
-            prefs.putLong(instTimeKey,new Date().getTime());
+        long val = prefs.getLong(instTimeKey, 0);
+        if (val == 0) {
+            prefs.putLong(instTimeKey, new Date().getTime());
         }
-        val = prefs.getLong(instTimeKey,0);
+        val = prefs.getLong(instTimeKey, 0);
         return val;
     }
 
     private String getProps() {
-        return "?time="+getInstTime()
-                +"&os="+System.getProperty("os.name").replaceAll(" ","")
-                +"&javaVersion="+Runtime.class.getPackage().getImplementationVersion()
-                +"&mem="+(int)(Runtime.getRuntime().maxMemory()/ (1024L * 1024L))
-                +"&cores="+Runtime.getRuntime().availableProcessors()
+        return "?time=" + getInstTime()
+                + "&os=" + System.getProperty("os.name").replaceAll(" ", "")
+                + "&javaVersion=" + Runtime.class.getPackage().getImplementationVersion()
+                + "&mem=" + (int) (Runtime.getRuntime().maxMemory() / (1024L * 1024L))
+                + "&cores=" + Runtime.getRuntime().availableProcessors()
                 ;
     }
 

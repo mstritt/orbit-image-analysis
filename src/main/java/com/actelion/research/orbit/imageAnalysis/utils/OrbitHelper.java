@@ -98,19 +98,19 @@ public class OrbitHelper {
         return EncodeImageTiles(model, null, tileChunkSize, imageLevel, false, false, rdfList);
     }
 
-        /**
-         * Encodes an (tiled) image and a model filename in several rdfID#tileX1,tileY1;tileX2,tileY2;...#model strings.
-         * Use -1 as chunkSize for a pseudo marker to use all tiles of the image.
-         *
-         * @param rdfList list of RawDataFiles
-         * @param model   the model filename (with or without path). Must not contain spaces.
-         * @return
-         * @aram tileChunkSize defines the number of tiles per package (encoded string).
-         */
-        public static List<String> EncodeImageTiles(String model, OrbitModel roiModel, int parallelism, int imageLevel, boolean onlyTilesInRoi, boolean skipNonExplicitROIImages, final RawDataFile... rdfList) throws OrbitImageServletException {
-            Map<RawDataFile,List<Point>> tileMap = new HashMap<>();
-            int totalCnt = 0;
-            for (RawDataFile rdf : rdfList) {
+    /**
+     * Encodes an (tiled) image and a model filename in several rdfID#tileX1,tileY1;tileX2,tileY2;...#model strings.
+     * Use -1 as chunkSize for a pseudo marker to use all tiles of the image.
+     *
+     * @param rdfList list of RawDataFiles
+     * @param model   the model filename (with or without path). Must not contain spaces.
+     * @return
+     * @aram tileChunkSize defines the number of tiles per package (encoded string).
+     */
+    public static List<String> EncodeImageTiles(String model, OrbitModel roiModel, int parallelism, int imageLevel, boolean onlyTilesInRoi, boolean skipNonExplicitROIImages, final RawDataFile... rdfList) throws OrbitImageServletException {
+        Map<RawDataFile, List<Point>> tileMap = new HashMap<>();
+        int totalCnt = 0;
+        for (RawDataFile rdf : rdfList) {
             boolean found = false;
             try {
                 List<RawAnnotation> annos = DALConfig.getImageProvider().LoadRawAnnotationsByRawDataFile(rdf.getRawDataFileId(), RawAnnotation.ANNOTATION_TYPE_IMAGE);
@@ -126,7 +126,7 @@ public class OrbitHelper {
 
             if (skipNonExplicitROIImages && !found) continue;
 
-            tileMap.put(rdf,new ArrayList<Point>());
+            tileMap.put(rdf, new ArrayList<Point>());
             RecognitionFrame rf;
             if (imageLevel <= 0) {
                 rf = new RecognitionFrame(rdf, false);
@@ -135,9 +135,9 @@ public class OrbitHelper {
             }
             Point[] tileIndices;
             Rectangle roi = null;
-            if (onlyTilesInRoi && roiModel!=null) {
+            if (onlyTilesInRoi && roiModel != null) {
                 rf.loadAnnotationROI(rdf.getRawDataFileId(), roiModel.getAnnotationGroup());
-                if (rf.getROI()!=null) {
+                if (rf.getROI() != null) {
                     roi = rf.getROI().getScaledInstance(100d, new Point(0, 0)).getBounds();
                 }
             }
@@ -152,11 +152,11 @@ public class OrbitHelper {
 
 
         int chunksize = 100;
-        if (parallelism>0) chunksize = totalCnt / parallelism;
+        if (parallelism > 0) chunksize = totalCnt / parallelism;
         List<String> imageList = new ArrayList<String>();
-        for (RawDataFile rdf: tileMap.keySet()) {
+        for (RawDataFile rdf : tileMap.keySet()) {
             List<Point> tiles = tileMap.get(rdf);
-            if (tiles.size()>0) {
+            if (tiles.size() > 0) {
                 Collections.shuffle(tiles);  // very fast tiles (e.g. just background) and long running tiles should be mixed for average job runtime
                 List<Point> localList = new ArrayList<Point>();
                 for (Point tile : tiles) {
@@ -171,7 +171,7 @@ public class OrbitHelper {
                 }
             }
         }
-        log.debug("imageList chunks: "+imageList.size());
+        log.debug("imageList chunks: " + imageList.size());
         return imageList;
     }
 
@@ -395,8 +395,8 @@ public class OrbitHelper {
         if (overrideROI == null && rdf != null) {
             rf.loadAnnotationROI(rdf.getRawDataFileId(), annoGroup);
         } else {
-            if (overrideROI!=null) {
-                overrideROI = (IScaleableShape) overrideROI.getScaledInstance(100d,new Point(0,0));
+            if (overrideROI != null) {
+                overrideROI = (IScaleableShape) overrideROI.getScaledInstance(100d, new Point(0, 0));
             }
             rf.setROI(overrideROI);
         }
@@ -541,7 +541,7 @@ public class OrbitHelper {
 
 
     public static List<RawDataFile> searchImages(String search) throws Exception {
-        return searchImages(search,1000);
+        return searchImages(search, 1000);
     }
 
 

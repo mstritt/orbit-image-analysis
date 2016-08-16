@@ -58,7 +58,6 @@ public class ScriptEditor extends JInternalFrame {
         setLayout(new BorderLayout());
 
 
-
         final JTabbedPane tabOutPane = new JClosableTabbedPane();
 
         final RSyntaxTextArea scriptArea = new RSyntaxTextArea(20, 60);
@@ -229,8 +228,8 @@ public class ScriptEditor extends JInternalFrame {
 
 
     public static void main(String[] args) {
-      //  ScriptEditor scriptEditor = new ScriptEditor();
-      //  scriptEditor.showScriptEditor(null);
+        //  ScriptEditor scriptEditor = new ScriptEditor();
+        //  scriptEditor.showScriptEditor(null);
     }
 
 }

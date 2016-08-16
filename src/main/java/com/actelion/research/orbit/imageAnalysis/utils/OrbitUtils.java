@@ -63,8 +63,8 @@ public class OrbitUtils {
     public static final String TAG = "OrbitImageAnalysis" + VERSION_STR.replaceAll("\\.", "");
     public static final double EPSILON = 0.000001d;
     public static final int TILE_SIZE = ScaleoutMode.SCALEOUTMODE.get() ? 256 : 256; // 512:256 for writing tiles
-    public static final long PLANAR_IMAGE_CACHE = Runtime.getRuntime().maxMemory()/7L;  // JAI cache
-    public static final long DISK_IMAGE_CACHE = Runtime.getRuntime().maxMemory()/5L;   // DiskMemImage cache
+    public static final long PLANAR_IMAGE_CACHE = Runtime.getRuntime().maxMemory() / 7L;  // JAI cache
+    public static final long DISK_IMAGE_CACHE = Runtime.getRuntime().maxMemory() / 5L;   // DiskMemImage cache
     // see OrbitTiledImage2.initCache for 3rd cache (the main tile cache). Currently uses maxMem/2 memory
     public static final boolean DISK_IMAGE_AUTO_FLUSH = false;
     public static final double ACCURACY_WARNING = 85d;
@@ -86,7 +86,7 @@ public class OrbitUtils {
 
     public static final String MODEL_ENDING = ".omo"; // filename ending of orbit models
     public static final String remoteNameSpace = "orbit/temp";
-    public static final String orbitHelpURL =  "http://www.orbit.bio/help";
+    public static final String orbitHelpURL = "http://www.orbit.bio/help";
     public static final String orbitTutorialsURL = "http://www.orbit.bio/tutorials";
     public static final String orbitImageProviderURL = "http://www.orbit.bio/setup";
 
@@ -105,7 +105,7 @@ public class OrbitUtils {
 
     public final static double getVersion() {
         try (InputStreamReader in = new InputStreamReader(OrbitUtils.class.getResourceAsStream("/version.txt"));
-            BufferedReader reader = new BufferedReader(in);) {
+             BufferedReader reader = new BufferedReader(in);) {
             String s = reader.readLine();
             s = s.trim();
             double version = Double.parseDouble(s);
@@ -115,8 +115,6 @@ public class OrbitUtils {
             return 0;
         }
     }
-
-
 
 
     public static TissueFeatures createTissueFeatures(final FeatureDescription featureDescription, final TiledImagePainter bimg) {
@@ -596,8 +594,7 @@ public class OrbitUtils {
     public static void openPdfUrl(String url) {
         logger.trace("trying to open pdf in external viewer");
         try {
-            if(Desktop.isDesktopSupported())
-            {
+            if (Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().browse(new URI(url));
             } else {
                 File tmp = File.createTempFile("Orbit_", ".pdf");
@@ -940,12 +937,12 @@ public class OrbitUtils {
     }
 
     public static void main(String[] args) {
-        System.out.println("maxMem: "+(Runtime.getRuntime().maxMemory()/(1024*1024L)));
-        System.out.println("totMem: "+Runtime.getRuntime().totalMemory()/(1024*1024L));
-        System.out.println("freMem: "+Runtime.getRuntime().freeMemory()/(1024*1024L));
+        System.out.println("maxMem: " + (Runtime.getRuntime().maxMemory() / (1024 * 1024L)));
+        System.out.println("totMem: " + Runtime.getRuntime().totalMemory() / (1024 * 1024L));
+        System.out.println("freMem: " + Runtime.getRuntime().freeMemory() / (1024 * 1024L));
         long memFree = Runtime.getRuntime().maxMemory() - (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
-        memFree /= 1024*1024*1024L;
-        System.out.println("memFree: "+memFree);
+        memFree /= 1024 * 1024 * 1024L;
+        System.out.println("memFree: " + memFree);
     }
 
 }

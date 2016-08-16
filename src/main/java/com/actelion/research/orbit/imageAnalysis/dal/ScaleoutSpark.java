@@ -215,9 +215,9 @@ public class ScaleoutSpark implements IScaleout {
         try {
             props = getProperties();
             String p = props.getProperty(sparkDefaultParallelism);
-            if (p!=null && p.length()>0) {
+            if (p != null && p.length() > 0) {
                 int parallelism = Integer.parseInt(p.trim());
-                logger.info("orbit scaleout parallelism: "+parallelism);
+                logger.info("orbit scaleout parallelism: " + parallelism);
                 return parallelism;
             }
         } catch (IOException e) {

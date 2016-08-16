@@ -209,7 +209,7 @@ public class TiledImageWriter {
 		 
 		 
 		 /*
-		 return new Color(image.getSample(x, y, 0),  // red
+         return new Color(image.getSample(x, y, 0),  // red
 				 		  image.getSample(x, y, 1),  // green
 				 		  image.getSample(x, y, 2))  // blue
 		 			.getRGB();

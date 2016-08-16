@@ -21,10 +21,10 @@ package com.actelion.research.orbit.imageAnalysis.tasks;
 
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.features.TissueFeatures;
-import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
 import com.actelion.research.orbit.imageAnalysis.models.ClassifierWrapper;
 import com.actelion.research.orbit.imageAnalysis.models.FeatureDescription;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.tasks.histogram.Histogram;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.PropertyChangeEmitter;

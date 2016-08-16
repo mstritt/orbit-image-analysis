@@ -112,10 +112,10 @@ public class SmbUtils implements IRemoteContextStore {
     @Override
     public List<String> listFilenames(String remoteFolder) throws IOException {
         List<String> flist = new ArrayList<>();
-        SmbFile file = new SmbFile(share + "/" + remoteFolder+"/");
+        SmbFile file = new SmbFile(share + "/" + remoteFolder + "/");
         SmbFile[] files = file.listFiles();
-        if (files!=null && files.length>0) {
-            for (SmbFile f: files) {
+        if (files != null && files.length > 0) {
+            for (SmbFile f : files) {
                 flist.add(f.getName());
             }
         }

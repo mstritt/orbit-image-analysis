@@ -81,7 +81,7 @@ final class SplashScreenTransparent extends Frame {
         Image m_imageCapture = null;
         Rectangle m_rect = new Rectangle(getLocation().x, getLocation().y, getSize().width, getSize().height);
         try {
-           m_robot = new Robot();
+            m_robot = new Robot();
             m_imageCapture = m_robot.createScreenCapture(m_rect);
         } catch (AWTException e) {
             e.printStackTrace();

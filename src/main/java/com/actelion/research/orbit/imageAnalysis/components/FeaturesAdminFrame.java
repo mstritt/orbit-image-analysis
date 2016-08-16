@@ -23,9 +23,9 @@ import com.actelion.research.orbit.gui.DoubleTextField;
 import com.actelion.research.orbit.gui.IntInputVerifier;
 import com.actelion.research.orbit.gui.IntegerTextField;
 import com.actelion.research.orbit.imageAnalysis.components.legacy.JComboCheckBox;
-import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
 import com.actelion.research.orbit.imageAnalysis.models.FeatureDescription;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import imageJ.Colour_Deconvolution;
 

@@ -22,9 +22,9 @@ package com.actelion.research.orbit.imageAnalysis.tasks;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
-import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
 import com.actelion.research.orbit.imageAnalysis.models.IScaleableShape;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.TiledImageWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -231,7 +231,7 @@ public class ExclusionMapGen {
 
         // TODO!!!
             /*
-			 * does not work here, maybe because of classmerging before (and getClass does not work anymore...?) Move to (1), but then smap does not exist...
+             * does not work here, maybe because of classmerging before (and getClass does not work anymore...?) Move to (1), but then smap does not exist...
 			 * do it directly on recongitionFrame.bimg ?
 			 */
 			/*

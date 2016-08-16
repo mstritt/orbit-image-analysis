@@ -377,7 +377,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         treeListSplit.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0), "none");
 
         //Lay out the main panel.
-        final Color backgroundColor = new Color(42,42,42);
+        final Color backgroundColor = new Color(42, 42, 42);
         desktop = new JDesktopPane() {
             //Image image = new ImageIcon(this.getClass().getResource("/resource/carbon-fiber-texture.jpg")).getImage();
             @Override
@@ -386,7 +386,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 if (OrbitUtils.DARKUI) {
                     //g.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), this);
                     g.setColor(backgroundColor);
-                    g.fillRect(0,0,getWidth(),getHeight());
+                    g.fillRect(0, 0, getWidth(), getHeight());
                 }
             }
         };
@@ -613,7 +613,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
 
     private TipOfTheDay getTipOfTheDay() {
-        if (_tipOfTheDay==null) {
+        if (_tipOfTheDay == null) {
             _tipOfTheDay = new TipOfTheDay(this);
         }
         return _tipOfTheDay;
@@ -824,8 +824,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             infoStr += "\nAvailable temporary disk space: " + freeSpace + " MB.";
         } else infoStr += "\nUnable to calculate available temporary disk space.";
 
-        System.out.println("cache: "+ OrbitTiledImage2.tileCache);
-        infoStr += "\nTile memory size (Read): " + ((OrbitTiledImage2.tileCache == null) ? "0 tiles" : (OrbitTiledImage2.tileCache.size()+" tiles"));
+        System.out.println("cache: " + OrbitTiledImage2.tileCache);
+        infoStr += "\nTile memory size (Read): " + ((OrbitTiledImage2.tileCache == null) ? "0 tiles" : (OrbitTiledImage2.tileCache.size() + " tiles"));
         infoStr += "\nTile memory capacity (Write): " +
                 DiskMemImageOrbit.getCommonTileCache().getMemoryCapacity() / (1024L * 1024) + " MB";
 
@@ -842,7 +842,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         //infoStr += "\n JAI version: "+JAI.getBuildVersion();
         infoStr += "\nVM Memory used/total: " + Runtime.getRuntime().totalMemory() / (1024L * 1024L) + " / " + Runtime.getRuntime().maxMemory() / (1024L * 1024L) + " MB";
         infoStr += "\nAvailable Cores: " + Runtime.getRuntime().availableProcessors();
-        infoStr += "\nJVM version: "+Runtime.class.getPackage().getImplementationVersion();
+        infoStr += "\nJVM version: " + Runtime.class.getPackage().getImplementationVersion();
         String libDir = "unknown";
         try {
             libDir = DALConfig.getLibDir();
@@ -851,7 +851,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        infoStr += "\nLib directory: "+libDir;
+        infoStr += "\nLib directory: " + libDir;
         infoStr += "\nLoaded model: " + loadedModel;
 
         return infoStr;
@@ -3843,7 +3843,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     public final ActionListener tipOfTheDayActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-             getTipOfTheDay().showDialog(true);
+            getTipOfTheDay().showDialog(true);
         }
     };
 
@@ -4092,12 +4092,12 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         @Override
         public void actionPerformed(ActionEvent e) {
             boolean found = false;
-            for (JInternalFrame frame: desktop.getAllFrames()) {
-                if (frame instanceof  ScriptEditor) {
+            for (JInternalFrame frame : desktop.getAllFrames()) {
+                if (frame instanceof ScriptEditor) {
                     found = true;
                     try {
                         if (frame.isIcon())
-                             frame.setMaximum(true);
+                            frame.setMaximum(true);
                     } catch (PropertyVetoException e1) {
                         e1.printStackTrace();
                     }

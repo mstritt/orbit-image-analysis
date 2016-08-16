@@ -128,7 +128,7 @@ public class SambaMRResultsView extends JInternalFrame {
                         try {
                             fillTaskList();
                             statusField.setText("Status of task " + task2String(task) + ": " + task.getStatus());
-                            if (task.getStatus()==0) { // 0 means finished
+                            if (task.getStatus() == 0) { // 0 means finished
                                 Map map = task.getResults();
                                 ITaskResultProducer worker = TaskResultProducerFactoryMapReduce.createTaskResultProducer(task.getClassName());
                                 TaskResult taskResult = worker.produceTaskResult(map, roiAreaCb.isSelected());
@@ -153,7 +153,6 @@ public class SambaMRResultsView extends JInternalFrame {
     }
 
 
-
     protected void fillTaskList() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, IOException {
         IRemoteContextStore store = DALConfig.getScaleOut().getRemoteContextStore();
         List<String> filenames = store.listFilenames(shareName);
@@ -161,7 +160,7 @@ public class SambaMRResultsView extends JInternalFrame {
         DefaultListModel model = new DefaultListModel();
         for (String s : filenames) {
             System.out.println(s);
-            byte[] bytes = store.readFromRemote(shareName +"/"+ s);
+            byte[] bytes = store.readFromRemote(shareName + "/" + s);
             ObjectInputStream ois = null;
             try {
                 ois = new ObjectInputStream(new GZIPInputStream(new ByteArrayInputStream(bytes)));
@@ -170,9 +169,8 @@ public class SambaMRResultsView extends JInternalFrame {
                 model.addElement(taskResult);
             } catch (Exception e) {
                 logger.error("cannot read taskresult", e);
-            }
-            finally {
-                if (ois!=null) ois.close();
+            } finally {
+                if (ois != null) ois.close();
             }
         }
 
@@ -189,10 +187,10 @@ public class SambaMRResultsView extends JInternalFrame {
 
     protected String task2String(TaskResultGeneric task) {
         String name = "";
-        if (task.getClassName()!=null) name = task.getClassName();
-        if (name.contains(".")) name = name.substring(name.lastIndexOf(".")+1);
+        if (task.getClassName() != null) name = task.getClassName();
+        if (name.contains(".")) name = name.substring(name.lastIndexOf(".") + 1);
         //if (task.getNumericId()>0) name += " ("+dateFormat.get().format(new Date(task.getNumericId()))+")";
-        name += " ["+task.getStringId()+"]";
+        name += " [" + task.getStringId() + "]";
         return name;
     }
 
@@ -200,8 +198,6 @@ public class SambaMRResultsView extends JInternalFrame {
         SambaMRResultsView view = new SambaMRResultsView();
         view.setVisible(true);
     }
-
-
 
 
 }

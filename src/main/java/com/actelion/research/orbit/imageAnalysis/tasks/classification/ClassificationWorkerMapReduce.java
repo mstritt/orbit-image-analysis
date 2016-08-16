@@ -92,7 +92,7 @@ public class ClassificationWorkerMapReduce extends OrbitWorker implements ITaskR
                 ImageTile.modelCache.put(modelNew, model); // for local execution we just keep it in memory
             }
             List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, model, tileChunkSize, model.getMipLayer(), onlyTilesinROI, skipNonExplicitROIImages, rdfList.toArray(new RawDataFile[0]));
-            logger.debug("#tile jobs: "+imageTiles.size());
+            logger.debug("#tile jobs: " + imageTiles.size());
             ClassificationMapReduce mrClassification = new ClassificationMapReduce();
             mrClassification.setModel(new OrbitModel(model));
             Map<Integer, ClassificationResult> classificationResultMap = null;

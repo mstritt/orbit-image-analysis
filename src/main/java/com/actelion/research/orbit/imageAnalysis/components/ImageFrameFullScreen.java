@@ -86,7 +86,7 @@ public class ImageFrameFullScreen extends JWindow {
 	*/
 
 	/*
-	public void mouseWheelMoved(MouseWheelEvent event) {
+    public void mouseWheelMoved(MouseWheelEvent event) {
 		if (newFrame!=null) {
 			//newFrame.processMouseWheelEvent(event);
 			//newFrame.adjustViewport();
