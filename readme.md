@@ -5,11 +5,11 @@
 
 #####Available backends:
 
-* OMERO image server (imageprovideromero)
+* Omero image server (image-provider-omero)
 
 #####Scaleout via
 
-* gridmapreduce (e.g. spark support)
+* Spark scaleout (map-reduce-exec-spark)
 
 #####Use gradle to build
 
