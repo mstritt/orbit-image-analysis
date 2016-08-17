@@ -122,7 +122,7 @@ public class DALConfig {
                 } catch (Exception e) {
                     logger.error("cannot parse CheckVersion value. Should be 'true' or 'false' but is " + strCheckVersion);
                 }
-                logger.info("CheckVersion: " + strCheckVersion);
+                logger.debug("CheckVersion: " + strCheckVersion);
             }
 
             String explicitLibDirStr = props.getProperty("explicitLibDir");

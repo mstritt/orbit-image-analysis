@@ -34,7 +34,9 @@ import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-
+/**
+ * Samba implementation of a IRemoteContextStore
+ */
 public class SmbUtils implements IRemoteContextStore {
 
     private final static int BUFFER_SIZE = 16384;

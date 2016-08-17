@@ -268,10 +268,28 @@ public class OrbitMenu extends JRibbonFrame {
 
 
     private void addImageTask(final JRibbon ribbon) {
+        JRibbonBand imageBandOpen = new JRibbonBand("Open Image", null);
+        imageBandOpen.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(imageBandOpen.getControlPanel())));
+        JCommandButton buttonopenFromOrbit = new JCommandButton("Open from Orbit", new DocumentOpen5());
+        buttonopenFromOrbit.setActionRichTooltip(new RichTooltip("Open from Orbit", "Open an image from the image server."));
+        buttonopenFromOrbit.addActionListener(oia == null ? null : oia.openFileOrbitActionListener);
+        imageBandOpen.addCommandButton(buttonopenFromOrbit, RibbonElementPriority.TOP);
+
+        JCommandButton buttonopenFromFile = new JCommandButton("Open from File", new DocumentOpen5());
+        buttonopenFromFile.setActionRichTooltip(new RichTooltip("Open from File", "Open an image from the local file system."));
+        buttonopenFromFile.addActionListener(oia == null ? null : oia.openFileActionListener);
+        imageBandOpen.addCommandButton(buttonopenFromFile, RibbonElementPriority.TOP);
+
+        JCommandButton buttonopenFromUrl = new JCommandButton("Open from URL", new DocumentOpen5());
+        buttonopenFromUrl.setActionRichTooltip(new RichTooltip("Open from URL", "Open an image from URL."));
+        buttonopenFromUrl.addActionListener(oia == null ? null : oia.openFileURLActionListener);
+        imageBandOpen.addCommandButton(buttonopenFromUrl, RibbonElementPriority.TOP);
+
+
         JRibbonBand imageBand1 = new JRibbonBand("Slide Overview", null);
         imageBand1.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(imageBand1.getControlPanel())));
-        JCommandButton buttonImg1 = new JCommandButton("Load Overview (CTRL-O)", new SlidepreviewNoLoupe6());
-        buttonImg1.setActionRichTooltip(new RichTooltip("Load Overview", "Load the whole-slide overview. Only available if the image stems from a whole slide scanner."));
+        JCommandButton buttonImg1 = new JCommandButton("View Overview (CTRL-O)", new SlidepreviewNoLoupe6());
+        buttonImg1.setActionRichTooltip(new RichTooltip("View Overview", "Load the whole-slide overview. Only available if the image stems from a whole slide scanner."));
         buttonImg1.addActionListener(oia == null ? null : oia.loadOverviewActionListener);
         imageBand1.addCommandButton(buttonImg1, RibbonElementPriority.TOP);
 
@@ -319,7 +337,7 @@ public class OrbitMenu extends JRibbonFrame {
         saveAsOrbitBand.addCommandButton(buttonSaveAsOrbit, RibbonElementPriority.TOP);
 
 
-        RibbonTask imageTask = new RibbonTask("Image", imageBand1, imageBand2, imageBand3, imageBand4, saveAsOrbitBand);
+        RibbonTask imageTask = new RibbonTask("Image", imageBandOpen, imageBand1, imageBand2, imageBand3, imageBand4, saveAsOrbitBand);
         ribbon.addTask(imageTask);
     }
 

@@ -1798,19 +1798,19 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
-    private void batchExportMapReduce(final boolean useGrid)   // mapreduce
+    private void batchExportMapReduce(final boolean useScaleout)   // mapreduce
     {
         if (!checkClassNames()) {
             JOptionPane.showMessageDialog(this, "Class names of main model and class names of exclusion model must be different.\nPlease open class setup and change the class names.", "Class names must be unique", JOptionPane.ERROR_MESSAGE);
 
         }
-        logger.info("batchExportMapReduce called [method call]; usegrid: " + useGrid);
+        logger.info("batchExportMapReduce called [method call]; useScaleout: " + useScaleout);
         try {
             List<RawDataFile> rdfList = browseImages();
             if (rdfList == null) logger.debug("open image canceled.");
             else if (rdfList.size() == 0) logger.debug("No file selected.");
             else {
-                OrbitWorker worker = createBatchWorker(model, rdfList, useGrid);
+                OrbitWorker worker = createBatchWorker(model, rdfList, useScaleout);
                 if (worker != null) {
                     ProgressPanel pp = new ProgressPanel(rdfList.size() + " images", "Batch Export", worker);
                     addAndExecuteTask(pp);
