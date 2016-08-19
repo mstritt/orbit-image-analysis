@@ -30,9 +30,7 @@ plugins {
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 apply plugin: 'license-report'
-if (file('custom.gradle').exists()) {
-    apply from: 'custom.gradle'
-}
+
 
 [ compileJava, compileTestJava ]*.options*.encoding = 'UTF-8'
 
@@ -184,4 +182,8 @@ dependencies {
         transitive = false
     }
     testCompile 'junit:junit:4+'
+}
+
+if (file('custom.gradle').exists()) {
+    apply from: 'custom.gradle'
 }
