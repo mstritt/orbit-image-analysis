@@ -22,6 +22,7 @@ buildscript {
     }
     dependencies {
         classpath "com.smokejumperit.gradle.license:Gradle-License-Report:0.0.2"
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
     }
 }
 plugins {
@@ -30,7 +31,6 @@ plugins {
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 apply plugin: 'license-report'
-
 
 [ compileJava, compileTestJava ]*.options*.encoding = 'UTF-8'
 
@@ -81,6 +81,15 @@ publishing {
             artifactId 'orbit-image-analysis'
             version orbitVersion
             from components.java
+            artifact sourceJar {
+                classifier "sources"
+            }
+            artifact docJar {
+                classifier "javadoc"
+            }
+            pom.withXml {
+                asNode().appendNode('description', 'Orbit, a versatile image analysis software for biological image-based quantification')
+            }
         }
     }
 }
@@ -184,7 +193,7 @@ dependencies {
     compile (group: 'sc.fiji', name: 'legacy-imglib1', version: '2.0.0-SNAPSHOT') {     //1.1.5  2.0.0-SNAPSHOT for graph_cut
         transitive = false
     }
-    testCompile 'junit:junit:4+'
+    testCompile 'junit:junit:[4.0,)'
 }
 
 if (file('custom.gradle').exists()) {
