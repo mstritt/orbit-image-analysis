@@ -54,6 +54,9 @@ repositories {
     maven {
         url 'http://maven.imagej.net/content/repositories/snapshots/'    // for legacy-imglib1-2.0.0-SNAPSHOT.jar used by imagej1 compatible graph_cut
     }
+    maven {
+        url 'https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/' // for jai-codec
+    }
 }
 
 if (JavaVersion.current().isJava8Compatible()) {
