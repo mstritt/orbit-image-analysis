@@ -131,13 +131,13 @@ task icons {
 
 dependencies {
     compile 'com.actelion.research:lib-orbit-common:1.0.8'
-    compile 'com.actelion.research:image-provider-omero:1.0.8'
+//    compile 'com.actelion.research:image-provider-omero:1.0.8'
     compile 'com.actelion.research:map-reduce-generic:1.0.7'
-    compile 'com.actelion.research:map-reduce-exec-spark:1.0.1'
+//    compile 'com.actelion.research:map-reduce-exec-spark:1.0.1'
 //  compile 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
-//    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.0.3.13') {
-//        exclude(module: 'OrbitImageAnalysis')
-//    }
+    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.0.3.13') {
+        exclude(module: 'OrbitImageAnalysis')
+    }
 
     compile 'com.thoughtworks.xstream:xstream:1.4.9'
     compile 'org.jaitools:jt-utils:1.4.0' // jai-tools
@@ -181,6 +181,8 @@ dependencies {
     compile (group: 'ome', name:'formats-gpl', version:'5.1.5') {
         exclude (module: 'netcdf')
     }
+    compile 'io.scif:scifio:0.25.2'
+    compile 'io.scif:scifio-bf-compat:2.0.0'
 
     compile 'org.codehaus.groovy:groovy-all:2.4.5'
     compile 'org.codehaus.gpars:gpars:1.2.1'

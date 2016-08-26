@@ -21,14 +21,12 @@ package com.actelion.research.orbit.imageAnalysis.dal;
 
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.dal.IOrbitImage;
-import com.actelion.research.orbit.imageAnalysis.utils.OrbitImagePlanar;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
-import com.actelion.research.orbit.imageAnalysis.utils.TiffConverter;
 import com.actelion.research.orbit.utils.Logger;
 
-import javax.media.jai.PlanarImage;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -110,9 +108,18 @@ public class ImageProviderLocal extends ImageProviderNoop {
     }
 
     @Override
-    public IOrbitImage createOrbitImage(RawDataFile rdf, int rdfId) throws Exception {
-        PlanarImage pi = TiffConverter.loadFromFile(rdf.getDataPath() + File.separator + rdf.getFileName());
-        return new OrbitImagePlanar(pi, rdf.getFileName());
+    public IOrbitImage createOrbitImage(RawDataFile rdf, int level) throws Exception {
+       // PlanarImage pi = TiffConverter.loadFromFile(rdf.getDataPath() + File.separator + rdf.getFileName());
+       // return new OrbitImagePlanar(pi, rdf.getFileName());
+        return new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
+    }
+
+    @Override
+    public BufferedImage getThumbnail(RawDataFile rdf) throws Exception {
+        OrbitImageScifio img = new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), 0);
+        BufferedImage thumb = img.getThumbnail();
+        img.close();
+        return thumb;
     }
 
 

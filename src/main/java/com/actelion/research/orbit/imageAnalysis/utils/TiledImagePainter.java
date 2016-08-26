@@ -98,7 +98,7 @@ public class TiledImagePainter {
 
 
     public final static ExecutorService executorService = Executors.newCachedThreadPool();
-    //public final static ExecutorService executorService = Executors.newFixedThreadPool(8);
+    //public final static ExecutorService executorService = Executors.newFixedThreadPool(1);
 
     // private ContrastColor contrastColor = new ContrastColor();
     //private GaussianBlur gaussianBlur = new GaussianBlur();

@@ -1529,7 +1529,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                     metaBar.listMetas(rdf);
                     metaBar.loadImageAdjustmentsFromDB(iFrame);
                     metaBar.repaint();
-                    if (rd.getOrigin() != null && rd.getOrigin().equalsIgnoreCase("metasystems")) {
+                    if (rd!=null && rd.getOrigin() != null && rd.getOrigin().equalsIgnoreCase("metasystems")) {           // TODO!!!
                         iFrame.recognitionFrame.setMuMeterPerPixel(0.322177822177822d/*((double)6.45/9.96d)/2d*/); // correction factor: 2,0100401606425713905420130132919
                     }
 
