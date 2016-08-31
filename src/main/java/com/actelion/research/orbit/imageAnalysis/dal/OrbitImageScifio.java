@@ -25,17 +25,19 @@ import com.actelion.research.orbit.utils.RawUtilsCommon;
 import io.scif.*;
 import io.scif.gui.AWTImageTools;
 import net.imagej.axis.Axes;
+import org.scijava.Context;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.Raster;
-import java.awt.image.SampleModel;
+import java.awt.*;
+import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
 
+import static ucar.nc2.util.net.EasyX509TrustManager.logger;
+
 public class OrbitImageScifio implements IOrbitImage {
 
+    final int maxThumbWidth = 300;
     final protected SCIFIO scifio;
     final protected ThreadLocal<Reader> reader;
   //  final Metadata meta;
@@ -69,10 +71,11 @@ public class OrbitImageScifio implements IOrbitImage {
     final long[] axesLengthsPlanar;
 
 
-    public OrbitImageScifio(final String filename, final int level) throws IOException, FormatException {
+    public OrbitImageScifio(final String filename, final int level, final Context context) throws IOException, FormatException {
         this.filename = filename+"["+level+"]";
-        this.level = level;
-        scifio = new SCIFIO();
+        this.level = level!=5?level:6;
+        if (context==null) scifio = new SCIFIO();
+        else scifio = new SCIFIO(context);
         reader = new ThreadLocal<Reader>() {
             @Override
             protected Reader initialValue() {
@@ -87,12 +90,12 @@ public class OrbitImageScifio implements IOrbitImage {
         Metadata meta = reader.get().getMetadata();
 
         numLevels =  reader.get().getImageCount();
-        if (level >= numLevels) { // or just > ?
+        if (this.level >= numLevels) { // or just > ?
             close();
-            throw new OrbitImageServletException("image pyramid level " + level + " does not exist for image " + filename);
+            throw new OrbitImageServletException("image pyramid level " + this.level + " does not exist for image " + filename);
         }
 
-        ImageMetadata iMeta = meta.get(level);
+        ImageMetadata iMeta = meta.get(this.level);
 
         xAxis = iMeta.getAxisIndex(Axes.X);
         yAxis = iMeta.getAxisIndex(Axes.Y);
@@ -192,8 +195,14 @@ public class OrbitImageScifio implements IOrbitImage {
 
         // Finally we open the current plane, using an openPlane signature
         // that allows us to specify a sub-region of the current plane.
-        Plane plane = reader.get().openPlane(level, planeIndex, offsets, extents);
-        return getBufferedImage(plane,(int)extents[xAxis],(int)extents[yAxis]);
+        try {
+            Plane plane = reader.get().openPlane(level, planeIndex, offsets, extents);
+            return getBufferedImage(plane, (int) extents[xAxis], (int) extents[yAxis]);
+        } catch (NullPointerException no) {
+            System.out.println("offsets: "+offsets);
+            no.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -273,12 +282,12 @@ public class OrbitImageScifio implements IOrbitImage {
                  reader.get().close();
              } catch (Exception e) {}
          }
-         if (scifio!=null) {
-             try {
-                 scifio.getContext().dispose();
-             } catch (Exception e) {
-             }
-         }
+//         if (scifio!=null) {
+//             try {
+//                 scifio.getContext().dispose();
+//             } catch (Exception e) {
+//             }
+//         }
     }
 
     public int getNumLevels() {
@@ -290,22 +299,35 @@ public class OrbitImageScifio implements IOrbitImage {
     }
 
     public BufferedImage getThumbnail() {
-         int thumbLevel = numLevels-1;
+         int thumbLevel = numLevels;
          long thumbW=1;
          long thumbH=1;
+         boolean thumbIOnterleaved = interleaved; // but might change per layer!
          Metadata meta = reader.get().getMetadata();
          for (int lev=numLevels-1; lev>=0; lev--) {
              ImageMetadata iMeta = meta.get(lev);
              thumbLevel = lev;
-             thumbW = iMeta.getAxisLength(xAxis);
-             thumbH = iMeta.getAxisLength(yAxis);
+             thumbW = iMeta.getAxisLength(Axes.X);
+             thumbH = iMeta.getAxisLength(Axes.Y);
+             thumbIOnterleaved = iMeta.getInterleavedAxisCount()>0;
              double diff = Math.abs((thumbW/(double)thumbH) - (width/(double)height));
              //System.out.println("lev: "+lev+"  diff: "+diff+"  isThumb: "+iMeta.isThumbnail());
              if (diff<0.001) break;
          }
         try {
+            logger.trace("thumbnail level: "+thumbLevel+" size:"+thumbW+"x"+thumbH);
             Plane p = reader.get().openPlane(thumbLevel,0);
-            BufferedImage  thumb = getBufferedImage(p,(int)thumbW,(int)thumbH);
+           // BufferedImage  thumb = getBufferedImage(p,(int)thumbW,(int)thumbH);
+            BufferedImage thumb = AWTImageTools.makeRGBImage(p.getBytes(),numBandsOriginal,(int)thumbW,(int)thumbH,thumbIOnterleaved);
+            if (thumbW>maxThumbWidth) {
+                int h = (int)(maxThumbWidth * (thumbH/(double)thumbW));
+                BufferedImage img = new BufferedImage(maxThumbWidth,h, BufferedImage.TYPE_INT_RGB);
+                Graphics2D g2d = (Graphics2D) img.getGraphics();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                g2d.drawImage(thumb,0,0,maxThumbWidth,h, null);
+                thumb = img;
+            }
             return thumb;
         } catch (FormatException e) {
             e.printStackTrace();
@@ -316,14 +338,15 @@ public class OrbitImageScifio implements IOrbitImage {
     }
 
     public static void main(String[] args) throws Exception {
-        final String testImage = "D:\\pic\\4059.svs";
+        //final String testImage = "C:\\temp\\495.svs";
+        final String testImage = "C:\\temp\\brain.ndpi";
         //final String testImage = "D:\\pic\\fibers.jpg";
-        OrbitImageScifio oi = new OrbitImageScifio(testImage,0);
+        OrbitImageScifio oi = new OrbitImageScifio(testImage,5, null);
         //OrbitTiledImage2 img = new OrbitTiledImageIOrbitImage(oi);
-        //BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);
+        BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);
       //  BufferedImage bi = new BufferedImage(img.getColorModel(),  (WritableRaster) img.getTile(1,1) , img.getColorModel().isAlphaPremultiplied(), null);
 
-        BufferedImage bi = oi.getThumbnail();
+        //BufferedImage bi = oi.getThumbnail();
 
         System.out.println("img: "+bi);
         ImageIO.write(bi,"jpeg",new File("d:/test.jpg"));

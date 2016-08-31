@@ -25,12 +25,12 @@ import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.beans.RawMeta;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
+import com.actelion.research.orbit.imageAnalysis.dal.LocalFileFilter;
 import com.actelion.research.orbit.imageAnalysis.features.TissueFeatures;
 import com.actelion.research.orbit.imageAnalysis.features.TissueFeaturesCircular;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
 import com.actelion.research.orbit.imageAnalysis.tasks.OrbitWorker;
-import com.actelion.research.orbit.utils.OrbitFileFilter;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 import imageJ.Colour_Deconvolution;
 import org.jaitools.tilecache.DiskCachedTile;
@@ -635,7 +635,7 @@ public class OrbitUtils {
         fileChooser.setDialogTitle("Open File(s)");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
-            OrbitFileFilter filter = new OrbitFileFilter();
+            LocalFileFilter filter = new LocalFileFilter();
 
             @Override
             public boolean accept(File f) {
@@ -644,7 +644,7 @@ public class OrbitUtils {
 
             @Override
             public String getDescription() {
-                return "Orbit Files (tif,tiff,jpg,png,gif,bmp,svs)";
+                return "Orbit Files (tif,tiff,jpg,png,gif,bmp,svs,ndpi,czi)";
             }
         });
         return fileChooser;

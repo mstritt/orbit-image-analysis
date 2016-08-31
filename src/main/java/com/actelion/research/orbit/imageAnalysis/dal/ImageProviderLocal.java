@@ -23,11 +23,14 @@ import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.utils.Logger;
+import io.scif.SCIFIO;
+import org.scijava.Context;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,11 +45,22 @@ public class ImageProviderLocal extends ImageProviderNoop {
     private final Map<Integer, String> int2file = new ConcurrentHashMap<>();
     private final Map<String, Integer> file2int = new ConcurrentHashMap<>();
     private final AtomicInteger index = new AtomicInteger(0);
+    private Context context;
 
     @Override
     public List<RawDataFile> browseImages(Object parentObj) throws Exception {
         List<RawDataFile> rdfList = new ArrayList<>();
         JFileChooser fileChooser = OrbitUtils.buildOpenFileFileChooser();
+        SCIFIO scifio = new SCIFIO();
+        context = scifio.getContext();
+//        Format[] formats = new Format[]{new TIFFFormat() {
+//            @Override
+//            public String getFormatName() {
+//                return "TIFF";
+//            }
+//        }};
+//        JFileChooser fileChooser = scifio.gui().buildFileChooser(scifio.gui().buildFileFilters(Arrays.asList(formats)));
+
         Preferences prefs = Preferences.userNodeForPackage(this.getClass());
         String dir = prefs.get("ImageProviderLocal.OpenFileCurrentDir", null);
         if (dir != null) {
@@ -111,17 +125,21 @@ public class ImageProviderLocal extends ImageProviderNoop {
     public IOrbitImage createOrbitImage(RawDataFile rdf, int level) throws Exception {
        // PlanarImage pi = TiffConverter.loadFromFile(rdf.getDataPath() + File.separator + rdf.getFileName());
        // return new OrbitImagePlanar(pi, rdf.getFileName());
-        return new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
+        return new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), level, context);
     }
 
     @Override
     public BufferedImage getThumbnail(RawDataFile rdf) throws Exception {
-        OrbitImageScifio img = new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), 0);
+        OrbitImageScifio img = new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), 0, context);
         BufferedImage thumb = img.getThumbnail();
         img.close();
         return thumb;
     }
 
+    @Override
+    public void close() throws IOException {
+        context.dispose();
+    }
 
     public static void main(String[] args) throws Exception {
         ImageProviderLocal ipl = new ImageProviderLocal();

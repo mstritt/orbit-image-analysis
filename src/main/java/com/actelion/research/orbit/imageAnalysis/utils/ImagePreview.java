@@ -19,6 +19,8 @@
 
 package com.actelion.research.orbit.imageAnalysis.utils;
 
+import com.actelion.research.orbit.imageAnalysis.dal.OrbitImageScifio;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -42,8 +44,16 @@ public class ImagePreview extends JComponent
     public void loadImage() {
         if (file != null) {
             //thumbnail = TiffConverter.getImageIcon(file.getPath(), 300, 0);
-            BufferedImage bi = TiffConverter.getDownsampledImage(file.getPath(), 300, -1, 1, false);
-            thumbnail = new ImageIcon(bi);
+            //BufferedImage bi = TiffConverter.getDownsampledImage(file.getPath(), 300, -1, 1, false);
+            try {
+                OrbitImageScifio oi = new OrbitImageScifio(file.getAbsolutePath(),0, null);
+                BufferedImage bi = oi.getThumbnail();
+                oi.close();
+                thumbnail = new ImageIcon(bi);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
     }
 

@@ -178,7 +178,7 @@ dependencies {
        exclude (group:'javax.servlet', module: 'servlet-api')
     }
     compile (group: 'edu.ucar', name:'netcdf', version:'4.3.22')     // replacement of 4.3.19 used by formats-gpl which has a buggy pom (version LATEST does not work with gradle)
-    compile (group: 'ome', name:'formats-gpl', version:'5.1.5') {
+    compile (group: 'ome', name:'formats-gpl', version:'5.2.1') { // 5.1.5   5.1.10   (5.2.1)
         exclude (module: 'netcdf')
     }
     compile 'io.scif:scifio:0.25.2'
