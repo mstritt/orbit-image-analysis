@@ -97,8 +97,8 @@ public class TiledImagePainter {
     final private OrbitUtils.ImageAdjustCachedParams cachedParams = new OrbitUtils.ImageAdjustCachedParams();
 
 
-    public final static ExecutorService executorService = Executors.newCachedThreadPool();
-    //public final static ExecutorService executorService = Executors.newFixedThreadPool(1);
+    //public final static ExecutorService executorService = Executors.newCachedThreadPool();
+    public final static ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     // private ContrastColor contrastColor = new ContrastColor();
     //private GaussianBlur gaussianBlur = new GaussianBlur();

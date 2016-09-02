@@ -46,7 +46,7 @@ public class ImagePreview extends JComponent
             //thumbnail = TiffConverter.getImageIcon(file.getPath(), 300, 0);
             //BufferedImage bi = TiffConverter.getDownsampledImage(file.getPath(), 300, -1, 1, false);
             try {
-                OrbitImageScifio oi = new OrbitImageScifio(file.getAbsolutePath(),0, null);
+                OrbitImageScifio oi = new OrbitImageScifio(file.getAbsolutePath(),0);
                 BufferedImage bi = oi.getThumbnail();
                 oi.close();
                 thumbnail = new ImageIcon(bi);

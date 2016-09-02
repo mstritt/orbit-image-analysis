@@ -125,12 +125,12 @@ public class ImageProviderLocal extends ImageProviderNoop {
     public IOrbitImage createOrbitImage(RawDataFile rdf, int level) throws Exception {
        // PlanarImage pi = TiffConverter.loadFromFile(rdf.getDataPath() + File.separator + rdf.getFileName());
        // return new OrbitImagePlanar(pi, rdf.getFileName());
-        return new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), level, context);
+        return new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
     }
 
     @Override
     public BufferedImage getThumbnail(RawDataFile rdf) throws Exception {
-        OrbitImageScifio img = new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), 0, context);
+        OrbitImageScifio img = new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), 0);
         BufferedImage thumb = img.getThumbnail();
         img.close();
         return thumb;
