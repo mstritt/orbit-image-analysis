@@ -73,7 +73,7 @@ public class ExclusionMapGen {
         ExclusionMapGen exMap = null;
         if (model != null && model.getExclusionModel() != null) {
             try {
-                logger.debug("Exclusion Model perform erode and diliate: " + model.getExclusionModel().isPerformErodeDiliate());
+                logger.debug("Exclusion Model perform erode and dilate: " + model.getExclusionModel().isPerformErodeDiliate());
                 RecognitionFrame rFrame = getExclusionMapFrame(rdf, originalFrame, model);
 
                 List<ClassShape> classShapes = model.getExclusionModel().getClassShapes();

@@ -97,8 +97,8 @@ public class TiledImagePainter {
     final private OrbitUtils.ImageAdjustCachedParams cachedParams = new OrbitUtils.ImageAdjustCachedParams();
 
 
-    public final static ExecutorService executorService = Executors.newCachedThreadPool();
-    //public final static ExecutorService executorService = Executors.newFixedThreadPool(8);
+    //public final static ExecutorService executorService = Executors.newCachedThreadPool();
+    public final static ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     // private ContrastColor contrastColor = new ContrastColor();
     //private GaussianBlur gaussianBlur = new GaussianBlur();
@@ -341,7 +341,7 @@ public class TiledImagePainter {
         } catch (Exception e) {
             e.printStackTrace();
             r = null;
-            logger.error("Error loading image. Orbit image server down?\nPlease contact IT Research Administration.\nOrbit will now retry to load the image several times.");
+            logger.error("Error loading image. Image server down?\nOrbit will now retry to load the image several times.");
         }
         if (r == null) {
             throw new OrbitImageServletException("error loading image data");

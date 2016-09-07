@@ -437,7 +437,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
             //System.out.println("image: "+bimg.image);
             System.gc();
         } catch (Exception e) {
-            logger.error("Error loading image. Probably the Orbit image server down or not accessable.\nPlease contact IT Research Administration. Error Details", e);
+            logger.error("Error loading image. Probably the Orbit image server down or not accessible.\nError Details: ", e);
             if (e instanceof OrbitImageServletException) {
                 throw new OrbitImageServletException(e.getMessage());
             }

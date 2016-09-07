@@ -159,7 +159,7 @@ public class ScriptEditor extends JInternalFrame {
                 "ImageFrame iFrame = OIA.getIFrame();\n" +
                 "println(\"selected image: \"+iFrame);\n" +
                 "\n" +
-                "APARModelV3 model = OIA.getModel();\n" +
+                "OrbitModel model = OIA.getModel();\n" +
                 "println(\"active model: \"+model);");
 
 
