@@ -26,20 +26,20 @@ import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils
 import com.actelion.research.orbit.imageAnalysis.utils.TiledImageWriter
 
+import java.awt.Color
 import java.awt.Point
 import java.awt.image.Raster
 import java.awt.image.WritableRaster
 
 /**
- * Load an image, iterate over tiles, access pixel data and compute mean intensities.
- * Here we load the annotation ROI to define a valid ROI.
- *
- * CURRENTLY NOT WORKING !!!
+ * Mark all pixel with red channel < threshold. After running the script, drag the class image slider (bottom of the image)
+ * to the right to see the classification map.
  *
  */
 
 final OrbitImageAnalysis OIA = OrbitImageAnalysis.getInstance(); // get the current (running) Orbit instance
-ImageFrame iFrame = OIA.getIFrame();
+final ImageFrame iFrame = OIA.getIFrame();
+final int threshold = 200;
 
 RecognitionFrame recognitionFrame = iFrame.recognitionFrame;
 RawDataFile rdf = iFrame.rdf;
@@ -49,6 +49,9 @@ recognitionFrame.setClassImage(
         new TiledImageWriter(recognitionFrame.bimg.getWidth(), recognitionFrame.bimg.getHeight(),
         recognitionFrame.bimg.getTileWidth(), recognitionFrame.bimg.getTileHeight()));
 
+final Color classColor = Color.green;
+final int[] col = [classColor.red,classColor.green,classColor.blue, 255];
+
 recognitionFrame.bimg.image.getTileIndices(null).each  {
     Point tileIdx = it;
     Raster r = recognitionFrame.bimg.image.getTile((int)tileIdx.x,(int)tileIdx.y);
@@ -56,12 +59,12 @@ recognitionFrame.bimg.image.getTileIndices(null).each  {
     for (int y=0; y<r.getHeight(); y++)
         for (int x=0; x<r.getWidth(); x++) {
             if (OrbitUtils.isInROI(x,y,recognitionFrame.getROI(),null)) {
-                if (r.getSample(x, y, 0) > 100) {
-                    classRaster.setSample(x,y,1,255);
+                if (r.getSample(x, y, 0) < threshold) {
+                    classRaster.setPixel(x, y, col);
                 }
             }
         }
     recognitionFrame.classImage.image.releaseWritableTile((int)tileIdx.x,(int)tileIdx.y);
 }
-println "threshold classification done!"
+println "Threshold classification done!"
 iFrame.opacitySlider.setEnabled(true)
