@@ -166,6 +166,17 @@ public class OrbitUtils {
         return false;
     }
 
+
+    public static boolean isTileInROI(int tileX, int tileY, final OrbitTiledImage2 image, Shape ROI, ExclusionMapGen exclusionMapGen) {
+        Rectangle rect = image.getTileRect(tileX,tileY);
+        if (isInROI((int)rect.getMinX(),(int)rect.getMinY(),ROI,exclusionMapGen)) return true;   // top-left
+        if (isInROI((int)rect.getMaxX(),(int)rect.getMinY(),ROI,exclusionMapGen)) return true;   // top-right
+        if (isInROI((int)rect.getMinX(),(int)rect.getMaxY(),ROI,exclusionMapGen)) return true;   // bottom-left
+        if (isInROI((int)rect.getMaxX(),(int)rect.getMaxY(),ROI,exclusionMapGen)) return true;   // bottom-right
+        if (isInROI((int)rect.getCenterX(),(int)rect.getCenterY(),ROI,exclusionMapGen)) return true;   // bottom-right
+        return false;
+    }
+
     /**
      * Loads the combined annotation ROI. Set annotationGroup to 0 to load the annotations of all annotation groups.
      *
