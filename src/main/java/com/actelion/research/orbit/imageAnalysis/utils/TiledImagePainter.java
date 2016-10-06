@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.media.jai.*;
-import javax.media.jai.remote.RemoteJAI;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.*;
@@ -70,7 +69,6 @@ public class TiledImagePainter {
     private Object sourceImage = null;
     private TiledImagePainter[] mipMaps = null;
     private boolean generateMipMaps = true;
-    private static RemoteJAI _rc = null;
     private OrbitTiledImage2 redChannel = null;
     private OrbitTiledImage2 greenChannel = null;
     private OrbitTiledImage2 blueChannel = null;
@@ -98,6 +96,7 @@ public class TiledImagePainter {
 
 
     //public final static ExecutorService executorService = Executors.newCachedThreadPool();
+    //public final static ExecutorService executorService = Executors.newFixedThreadPool(1);
     public final static ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     // private ContrastColor contrastColor = new ContrastColor();
@@ -273,7 +272,7 @@ public class TiledImagePainter {
                         double mipRatio = (double)mipPainter.getWidth()/mipPainter.getHeight();
                         if (Math.abs(level0ratio-mipRatio)<0.01d) {
                             if (logger.isTraceEnabled())
-                                logger.trace("mipmap loaded (remote) " + mipPainter.getWidth() + "x" + mipPainter.getHeight() + " mipNum:" + mipNum);
+                                logger.trace("mipmap loaded " + mipPainter.getWidth() + "x" + mipPainter.getHeight() + " mipNum:" + mipNum);
                             mipList.add(mipPainter);
                             // load further mipMaps ?
                             if (oldMipPyramid) {
@@ -351,7 +350,7 @@ public class TiledImagePainter {
         } catch (Exception e) {
             e.printStackTrace();
             r = null;
-            logger.error("Error loading image. Orbit image server down?\nPlease contact IT Research Administration.\nOrbit will now retry to load the image several times.");
+            logger.error("Error loading image.\nOrbit will now retry to load the image several times.");
         }
         if (r == null) {
             throw new OrbitImageServletException("error loading image data");

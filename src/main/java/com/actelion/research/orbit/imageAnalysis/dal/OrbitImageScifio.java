@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
+import javax.media.jai.PlanarImage;
 import java.awt.*;
 import java.awt.image.*;
 import java.io.File;
@@ -200,10 +201,20 @@ public class OrbitImageScifio implements IOrbitImage {
     @Override
     public Raster getTileData(int tileX, int tileY) {
         try {
-            BufferedImage img = getPlane(tileX, tileY);
-          //  BufferedImage bi = new BufferedImage(img.getWidth(),img.getHeight(),BufferedImage.TYPE_INT_RGB);
-          //  bi.getGraphics().drawImage(img,0,0,null);
-            return img.getRaster();
+           BufferedImage img = getPlane(tileX, tileY);
+
+           // ensure tiles have always full tileWifth and tileHeight (even at borders)
+           //if (img.getWidth()!=getTileWidth() || img.getHeight()!=getTileHeight())
+           {
+              //BufferedImage bi = new BufferedImage(getTileWidth(), getTileHeight(), img.getType());
+               BufferedImage bi = new BufferedImage(getTileWidth(), getTileHeight(), BufferedImage.TYPE_INT_RGB);
+               bi.getGraphics().drawImage(img, 0, 0, null);
+               img = bi;
+           }
+
+          // set correct bounds
+          Raster r = img.getData().createTranslatedChild(PlanarImage.tileXToX(tileX, img.getTileGridXOffset(), getTileWidth()), PlanarImage.tileYToY(tileY, img.getTileGridYOffset(), getTileHeight()));
+          return r;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -370,10 +381,11 @@ public class OrbitImageScifio implements IOrbitImage {
 
     public static void main(String[] args) throws Exception {
         //final String testImage = "C:\\temp\\495.svs";
-        //final String testImage = "C:\\temp\\brain.ndpi";
+       // final String testImage = "C:\\temp\\brain.ndpi";
       //  final String testImage = "D:\\pic\\Hamamatsu\\4x higher.ndpis";
         //final String testImage = "D:\\pic\\fibers.jpg";
-        final String testImage = "D:\\r08c17-2044837823.jp2";
+       // final String testImage = "D:\\r08c17-2044837823.jp2";
+        final String testImage = "D:\\pic\\Hamamatsu\\multitiff.tif";
       //  final String testImage = "D:\\pic\\mri\\MRI examples x Manuel\\Training Day2\\Dicoms\\Training_Day2_Rat1006_Brain\\30\\1\\0024.dcm";
 
       // final String testImage = "D:\\TetraTest.bmp";

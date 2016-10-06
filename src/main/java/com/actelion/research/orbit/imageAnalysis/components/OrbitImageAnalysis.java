@@ -1379,20 +1379,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     }
 
-    private void loadFileURL() {
-        logger.info("loadFileURL called [method call]");
-        URLChooser urlChooser = new URLChooser();
-        int returnVal = urlChooser.showOpenDialog(OrbitImageAnalysis.this);
-
-        if (returnVal == URLChooser.APPROVE_OPTION) {
-            URL url = urlChooser.getSelectedURL();
-            loadFile(url);
-        } else {
-            logger.trace("open image canceled.");
-        }
-
-    }
-
 
     private void loadFileOrbit() {
         logger.info("loadFileOrbit called [method call]");
@@ -1408,6 +1394,20 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Error browsing files: " + e.getMessage());
+        }
+
+    }
+
+    private void loadFileURL() {
+        logger.info("loadFileURL called [method call]");
+        URLChooser urlChooser = new URLChooser();
+        int returnVal = urlChooser.showOpenDialog(OrbitImageAnalysis.this);
+
+        if (returnVal == URLChooser.APPROVE_OPTION) {
+            URL url = urlChooser.getSelectedURL();
+            loadFile(url);
+        } else {
+            logger.trace("open image canceled.");
         }
 
     }

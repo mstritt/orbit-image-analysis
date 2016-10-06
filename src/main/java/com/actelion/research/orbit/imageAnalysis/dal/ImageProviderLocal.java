@@ -21,11 +21,15 @@ package com.actelion.research.orbit.imageAnalysis.dal;
 
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.dal.IOrbitImage;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitImagePlanar;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
+import com.actelion.research.orbit.imageAnalysis.utils.TiffConverter;
 import com.actelion.research.orbit.utils.Logger;
+import com.actelion.research.orbit.utils.RawUtilsCommon;
 import io.scif.SCIFIO;
 import org.scijava.Context;
 
+import javax.media.jai.PlanarImage;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -123,9 +127,16 @@ public class ImageProviderLocal extends ImageProviderNoop {
 
     @Override
     public IOrbitImage createOrbitImage(RawDataFile rdf, int level) throws Exception {
-       // PlanarImage pi = TiffConverter.loadFromFile(rdf.getDataPath() + File.separator + rdf.getFileName());
-       // return new OrbitImagePlanar(pi, rdf.getFileName());
-        return new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
+        String ending = RawUtilsCommon.getExtension(rdf.getFileName());
+        if (ending.equals("bmp")||ending.equals("png")||ending.equals("pcx")||ending.equals("dcm")||ending.equals("lif")||ending.equals("ziv")) {
+            PlanarImage pi = TiffConverter.loadFromFile(rdf.getDataPath() + File.separator + rdf.getFileName());
+            return new OrbitImagePlanar(pi, rdf.getFileName());
+        } else if (ending.equals("tif")||ending.equals("tiff"))  {
+            return new OrbitImageTiff(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
+        }
+        else {
+            return new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
+        }
     }
 
     @Override
