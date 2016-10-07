@@ -32,7 +32,10 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
 import java.awt.*;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.Raster;
+import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 
@@ -68,7 +71,6 @@ public class OrbitImageTiff implements IOrbitImage {
 
 
     public OrbitImageTiff(final String filename, final int level) throws IOException, FormatException {
-        this.originalFilename = filename;
         this.filename = filename+"["+level+"]";
         this.level = level;
         String fn = null;
@@ -102,6 +104,7 @@ public class OrbitImageTiff implements IOrbitImage {
 
         final String fileToOpen = fn!=null? fn:filename;
         logger.trace("file to open: "+fileToOpen);
+        this.originalFilename = fileToOpen;
 
         tp = new ThreadLocal<TiffParser>() {
             @Override
@@ -164,6 +167,16 @@ public class OrbitImageTiff implements IOrbitImage {
             byte[] buf = buffer.get();
             byte[] data = tp.get().getTile(ifd,buf,tileY,tileX);
             BufferedImage image =getBufferedImage(data,tileWidth,tileHeight);
+
+            // ensure tiles have always full tileWifth and tileHeight (even at borders)
+            if (image.getWidth()!=getTileWidth() || image.getHeight()!=getTileHeight())
+            {
+                BufferedImage bi = new BufferedImage(getTileWidth(), getTileHeight(), image.getType());
+                //BufferedImage bi = new BufferedImage(getTileWidth(), getTileHeight(), BufferedImage.TYPE_INT_RGB);
+                bi.getGraphics().drawImage(image, 0, 0, null);
+                image = bi;
+            }
+
             Raster r = image.getData().createTranslatedChild(PlanarImage.tileXToX(tileX, image.getTileGridXOffset(), tileWidth), PlanarImage.tileYToY(tileY, image.getTileGridYOffset(), tileHeight));
             return r;
         } catch (Exception e) {
@@ -304,10 +317,10 @@ public class OrbitImageTiff implements IOrbitImage {
                  double diff = Math.abs((thumbW/(double)thumbH) - (width/(double)height));
                  if (thumbW>maxThumbWidth && diff<0.001) break;
              }
-            logger.trace("thumbnail level: "+thumbLevel+" size:"+thumbW+"x"+thumbH);
-
-            byte[] buf = tp.get().getSamples(imgLevel.getIfd(),new byte[thumbW*thumbH*numBands]);
-            BufferedImage thumb = AWTImageTools.makeRGBImage(buf,numBandsOriginal,(int)thumbW,(int)thumbH,interleaved);
+            logger.trace("thumbnail level: "+thumbLevel+" size:"+thumbW+"x"+thumbH+ " (img: "+imgLevel.originalFilename+")");
+            TiffParser tpThumb = imgLevel.getTp().get();
+            byte[] buf = tpThumb.getSamples(imgLevel.getIfd(),new byte[thumbW*thumbH*numBands]);
+            BufferedImage thumb = AWTImageTools.makeRGBImage(buf,numBandsOriginal,thumbW,thumbH,interleaved);
             if (thumbW>maxThumbWidth) {
                 int h = (int)(maxThumbWidth * (thumbH/(double)thumbW));
                 BufferedImage img = new BufferedImage(maxThumbWidth,h, BufferedImage.TYPE_INT_RGB);
@@ -326,11 +339,15 @@ public class OrbitImageTiff implements IOrbitImage {
         return null;
     }
 
+    public ThreadLocal<TiffParser> getTp() {
+        return tp;
+    }
 
     @Override
     public String toString() {
         return "OrbitImageTiff{" +
                 "filename='" + filename + '\'' +
+                ", actualFilename=" + originalFilename +
                 ", width=" + width +
                 ", height=" + height +
                 ", tileWidth=" + tileWidth +
@@ -351,8 +368,9 @@ public class OrbitImageTiff implements IOrbitImage {
     }
 
     public static void main(String[] args) throws Exception {
-        final String testImage = "D:\\pic\\Hamamatsu\\multitiff.tif";
-        //final String testImage = "D:\\pic\\20881.tif";
+
+        //final String testImage = "D:\\pic\\Hamamatsu\\multitiff.tif";
+        final String testImage = "D:\\pic\\20881.tif";
         OrbitImageTiff oit = new OrbitImageTiff(testImage,0);
         System.out.println(oit);
 
@@ -365,6 +383,18 @@ public class OrbitImageTiff implements IOrbitImage {
         ImageIO.write(bi,"png",new File("d:/test.png"));
         oit.close();
 
+
+/*
+        final String testImage = "D:\\pic\\20881.tif";
+        OrbitImageTiff oit = new OrbitImageTiff(testImage,5);
+        System.out.println(oit);
+        TiffParser tp = oit.getTp().get();
+        IFD ifd = oit.getIfd();
+        int thumbW = (int) ifd.getImageWidth();
+        int thumbH = (int) ifd.getImageLength();
+        int numBands = 3;
+        byte[] buf = tp.getSamples(ifd,new byte[thumbW*thumbH*numBands]);
+*/
     }
 
 }

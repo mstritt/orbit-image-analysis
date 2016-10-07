@@ -204,10 +204,10 @@ public class OrbitImageScifio implements IOrbitImage {
            BufferedImage img = getPlane(tileX, tileY);
 
            // ensure tiles have always full tileWifth and tileHeight (even at borders)
-           //if (img.getWidth()!=getTileWidth() || img.getHeight()!=getTileHeight())
+           if (img.getWidth()!=getTileWidth() || img.getHeight()!=getTileHeight())
            {
-              //BufferedImage bi = new BufferedImage(getTileWidth(), getTileHeight(), img.getType());
-               BufferedImage bi = new BufferedImage(getTileWidth(), getTileHeight(), BufferedImage.TYPE_INT_RGB);
+               BufferedImage bi = new BufferedImage(getTileWidth(), getTileHeight(), img.getType());
+               //BufferedImage bi = new BufferedImage(getTileWidth(), getTileHeight(), BufferedImage.TYPE_INT_RGB);
                bi.getGraphics().drawImage(img, 0, 0, null);
                img = bi;
            }
