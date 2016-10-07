@@ -128,7 +128,7 @@ public class ImageProviderLocal extends ImageProviderNoop {
     @Override
     public IOrbitImage createOrbitImage(RawDataFile rdf, int level) throws Exception {
         String ending = RawUtilsCommon.getExtension(rdf.getFileName());
-        if (ending.equals("bmp")||ending.equals("png")||ending.equals("pcx")||ending.equals("dcm")||ending.equals("lif")||ending.equals("ziv")) {
+        if (ending.equals("bmp")||ending.equals("png")||ending.equals("dcm")||ending.equals("lif")||ending.equals("ziv")) {
             PlanarImage pi = TiffConverter.loadFromFile(rdf.getDataPath() + File.separator + rdf.getFileName());
             return new OrbitImagePlanar(pi, rdf.getFileName());
         } else if (ending.equals("tif")||ending.equals("tiff"))  {
@@ -139,12 +139,33 @@ public class ImageProviderLocal extends ImageProviderNoop {
         }
     }
 
+    public BufferedImage getThumbnail(String filename) throws Exception {
+        File file = new File(filename);
+        String ending = RawUtilsCommon.getExtension(file.getName()) ;
+        BufferedImage bi = null;
+        if (ending.equals("bmp")||ending.equals("png")||ending.equals("dcm")||ending.equals("lif")||ending.equals("ziv")) {
+            bi = TiffConverter.getDownsampledImage(file.getPath(), 300, -1, 1, false);
+        } else {
+            try {
+                if (ending.equals("tif") || ending.equals(".tiff")) {
+                    OrbitImageTiff oi = new OrbitImageTiff(file.getAbsolutePath(), 0);
+                    bi = oi.getThumbnail();
+                    oi.close();
+                }  else {
+                    OrbitImageScifio oi = new OrbitImageScifio(file.getAbsolutePath(), 0);
+                    bi = oi.getThumbnail();
+                    oi.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return bi;
+    }
+
     @Override
     public BufferedImage getThumbnail(RawDataFile rdf) throws Exception {
-        OrbitImageScifio img = new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), 0);
-        BufferedImage thumb = img.getThumbnail();
-        img.close();
-        return thumb;
+        return getThumbnail(rdf.getDataPath() + File.separator + rdf.getFileName());
     }
 
     @Override

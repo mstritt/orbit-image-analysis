@@ -26,7 +26,7 @@ import java.io.FileFilter;
 
 public class LocalFileFilter implements FileFilter {
 
-    private static String[] supportedFileExtensions = new String[]{"tif", "tiff", "jpg", "png", "gif", "bmp", "svs", "ndpi", "czi", "dcm", "pcx", "jp2"};
+    private static String[] supportedFileExtensions = new String[]{"jpg", "jp2", "png", "bmp", "pcx", "tga", "dcm","tif", "tiff","tf2", "tf8", "btf", "svs", "ndpi", "ndpis", "czi", "afi", "ims", "vsi", "scn", "sld"};
 
     @Override
     public boolean accept(File pathname) {

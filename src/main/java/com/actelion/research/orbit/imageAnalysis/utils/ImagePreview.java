@@ -19,9 +19,7 @@
 
 package com.actelion.research.orbit.imageAnalysis.utils;
 
-import com.actelion.research.orbit.imageAnalysis.dal.OrbitImageScifio;
-import com.actelion.research.orbit.imageAnalysis.dal.OrbitImageTiff;
-import com.actelion.research.orbit.utils.RawUtilsCommon;
+import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,30 +43,16 @@ public class ImagePreview extends JComponent
 
     public void loadImage() {
         if (file != null) {
-            String ending = RawUtilsCommon.getExtension(file.getName()) ;
-            //thumbnail = TiffConverter.getImageIcon(file.getPath(), 300, 0);
+            ImageProviderLocal ipl = new ImageProviderLocal();
             BufferedImage bi = null;
-            if (ending.equals("bmp")||ending.equals("png")||ending.equals("pcx")||ending.equals("dcm")||ending.equals("lif")||ending.equals("ziv")) {
-                bi = TiffConverter.getDownsampledImage(file.getPath(), 300, -1, 1, false);
-            } else {
-                try {
-                    if (ending.equals("tif") || ending.equals(".tiff")) {
-                        OrbitImageTiff oi = new OrbitImageTiff(file.getAbsolutePath(), 0);
-                        bi = oi.getThumbnail();
-                        oi.close();
-                    }  else {
-                        OrbitImageScifio oi = new OrbitImageScifio(file.getAbsolutePath(), 0);
-                        bi = oi.getThumbnail();
-                        oi.close();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            try {
+                bi = ipl.getThumbnail(file.getAbsolutePath());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             if (bi!=null)
                 thumbnail = new ImageIcon(bi);
             else thumbnail = null;
-
         }
     }
 

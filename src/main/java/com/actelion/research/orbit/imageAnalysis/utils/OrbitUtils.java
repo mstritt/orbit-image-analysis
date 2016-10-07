@@ -515,13 +515,13 @@ public class OrbitUtils {
                     // table block
                     if (!tableBlock) {  // header
                         tableBlock = true;
-                        sb.append("<table border=\"1\"><tr align=\"center\">");
+                        sb.append("<table border=1><tr align=center>");
                         for (String col : tabs) {
                             sb.append("<th>" + col + "</th>");
                         }
                         sb.append("</tr>");
                     } else { // data
-                        sb.append("<tr align=\"center\">");
+                        sb.append("<tr align=center>");
                         for (String col : tabs) {
                             sb.append("<td>" + col + "</td>");
                         }
@@ -644,7 +644,7 @@ public class OrbitUtils {
 
             @Override
             public String getDescription() {
-                return "Orbit Files (tif,tiff,jpg,png,gif,bmp,svs,ndpi,czi)";
+                return "Image Files (jpg,jp2,png,bmp,pcx,tga,dcm,tif,tiff,tf2,tf8,btf,svs,ndpi,ndpis,czi,afi,ims,vsi,scn,sld)";
             }
         });
         return fileChooser;
