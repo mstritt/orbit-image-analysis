@@ -196,6 +196,7 @@ dependencies {
     compile (group: 'sc.fiji', name: 'legacy-imglib1', version: '2.0.0-SNAPSHOT') {     //1.1.5  2.0.0-SNAPSHOT for graph_cut
         transitive = false
     }
+    compile 'org.xerial:sqlite-jdbc:3.14.2.1'
     testCompile 'junit:junit:[4.0,)'
 }
 

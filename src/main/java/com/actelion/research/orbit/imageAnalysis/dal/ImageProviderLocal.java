@@ -19,12 +19,21 @@
 
 package com.actelion.research.orbit.imageAnalysis.dal;
 
+import com.actelion.research.orbit.beans.RawAnnotation;
+import com.actelion.research.orbit.beans.RawData;
 import com.actelion.research.orbit.beans.RawDataFile;
+import com.actelion.research.orbit.beans.RawMeta;
 import com.actelion.research.orbit.dal.IOrbitImage;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAODataFileSQLite;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAORawAnnotationSQLite;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.OrbitImageScifio;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.OrbitImageTiff;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitImagePlanar;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.TiffConverter;
 import com.actelion.research.orbit.utils.Logger;
+import com.actelion.research.orbit.utils.RawMetaFactoryData;
+import com.actelion.research.orbit.utils.RawMetaFactoryFile;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 import io.scif.SCIFIO;
 import org.scijava.Context;
@@ -38,18 +47,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.prefs.Preferences;
 
 public class ImageProviderLocal extends ImageProviderNoop {
 
     private static final Logger logger = Logger.getLogger(ImageProviderLocal.class);
-    private final Map<Integer, String> int2file = new ConcurrentHashMap<>();
-    private final Map<String, Integer> file2int = new ConcurrentHashMap<>();
-    private final AtomicInteger index = new AtomicInteger(0);
     private Context context;
+    private RawData rawData;
+
+    public ImageProviderLocal() {
+        rawData = new RawData();
+        rawData.setBioLabJournal("local");
+        rawData.setModifyDate(new Date());
+        rawData.setReferenceDate(new Date());
+        rawData.setRawDataId(1);
+        rawData.setUserId("orbit");
+    }
 
     @Override
     public List<RawDataFile> browseImages(Object parentObj) throws Exception {
@@ -82,16 +95,14 @@ public class ImageProviderLocal extends ImageProviderNoop {
             if (files != null && files.length > 0) {
                 for (File file : files) {
                     String fn = file.getAbsolutePath();
-                    int fileId;
-                    if (file2int.containsKey(fn)) {
-                        fileId = file2int.get(fn);
+                    int id = DAODataFileSQLite.ExistRawDataFile(fn);
+                    RawDataFile rdf;
+                    if (id>0) {
+                        rdf = DAODataFileSQLite.LoadRawDataFile(id);
                     } else {
-                        fileId = index.incrementAndGet();
-                        int2file.put(fileId, fn);
-                        file2int.put(fn, fileId);
+                        rdf = createRDF(file.getAbsolutePath());
+                        DAODataFileSQLite.InsertRawDataFile(rdf);
                     }
-
-                    RawDataFile rdf = createRDF(file.getAbsolutePath(), fileId);
                     rdfList.add(rdf);
                 }
             }
@@ -106,24 +117,53 @@ public class ImageProviderLocal extends ImageProviderNoop {
         return true;
     }
 
-    private RawDataFile createRDF(String fn, int rdfId) {
+
+    private RawDataFile createRDF(String fn) {
         File file = new File(fn);
+        // TODO: user and type
         RawDataFile rdf = new RawDataFile();
         rdf.setDataPath(file.getParentFile().getAbsolutePath());
         rdf.setFileName(file.getName());
         rdf.setFileSize(file.length());
         rdf.setModifyDate(new Date(file.lastModified()));
         rdf.setReferenceDate(new Date(file.lastModified()));
-        rdf.setRawDataFileId(rdfId);
+        rdf.setRawDataId(rawData.getRawDataId());
         return rdf;
     }
 
+
     @Override
     public RawDataFile LoadRawDataFile(int rdfId) throws Exception {
-        if (!int2file.containsKey(rdfId))
-            throw new IllegalArgumentException("rdf with id " + rdfId + " does not exist");
-        return createRDF(int2file.get(rdfId), rdfId);
+        return DAODataFileSQLite.LoadRawDataFile(rdfId);
     }
+
+    @Override
+    public RawData LoadRawData(int i) throws Exception {
+        return rawData;
+    }
+
+    @Override
+    public List<RawMeta> LoadRawMetasByRawDataFile(int rdfId) throws Exception {
+        List<RawMeta> rmList =  new ArrayList<>();
+        RawDataFile rdf = LoadRawDataFile(rdfId);
+        IOrbitImage image = createOrbitImage(rdf,0);
+
+        RawMetaFactoryFile rmff = new RawMetaFactoryFile(rdfId,new Date(),"orbit");
+        rmList.add(rmff.createMetaStr("Filename",rdf.getFileName()));
+        rmList.add(rmff.createMetaStr("Filesize", RawUtilsCommon.formatFileSize(rdf.getFileSize())));
+        rmList.add(rmff.createMetaInt("ImageLength",image.getHeight()));
+        rmList.add(rmff.createMetaInt("ImageWidth",image.getWidth()));
+        return rmList;
+    }
+
+    @Override
+    public List<RawMeta> LoadRawMetasByRawData(int i) throws Exception {
+        List<RawMeta> rmList =  new ArrayList<>();
+        RawMetaFactoryData rmfd = new RawMetaFactoryData (rawData.getRawDataId(),new Date(),"orbit");
+        rmList.add(rmfd.createMetaStr("Filesystem","local"));
+        return rmList;
+    }
+
 
     @Override
     public IOrbitImage createOrbitImage(RawDataFile rdf, int level) throws Exception {
@@ -172,6 +212,59 @@ public class ImageProviderLocal extends ImageProviderNoop {
     public void close() throws IOException {
         context.dispose();
     }
+
+
+
+    // raw annotations
+
+    @Override
+    public RawAnnotation LoadRawAnnotation(int rawAnnotationId) throws Exception {
+        return DAORawAnnotationSQLite.LoadRawAnnotation(rawAnnotationId);
+    }
+
+    @Override
+    public List<RawAnnotation> LoadRawAnnotationsByRawDataFile(int rdfID) throws Exception {
+        return DAORawAnnotationSQLite.LoadRawAnnotationsByRawDataFile(rdfID);
+    }
+
+    @Override
+    public List<RawAnnotation> LoadRawAnnotationsByRawDataFile(int rdfID, int rawAnnotationType) throws Exception {
+        return DAORawAnnotationSQLite.LoadRawAnnotationsByRawDataFile(rdfID,rawAnnotationType);
+    }
+
+    @Override
+    public List<RawAnnotation> LoadRawAnnotationsByType(int rawAnnotationType) throws Exception {
+        return DAORawAnnotationSQLite.LoadRawAnnotationsByType(rawAnnotationType);
+    }
+
+    @Override
+    public int InsertRawAnnotation(RawAnnotation rawAnnotation) throws Exception {
+        return DAORawAnnotationSQLite.InsertRawAnnotation(rawAnnotation);
+    }
+
+    @Override
+    public boolean UpdateRawAnnotation(RawAnnotation rawAnnotation) throws Exception {
+        return DAORawAnnotationSQLite.UpdateRawAnnotation(rawAnnotation);
+    }
+
+    @Override
+    public boolean DeleteRawAnnotation(int rawAnnotationId) throws Exception {
+       return DAORawAnnotationSQLite.DeleteRawAnnotation(rawAnnotationId);
+    }
+
+    @Override
+    public boolean DeleteRawAnnotationAllWithType(int rdfId, int rawAnnotationType) throws Exception {
+        return DAORawAnnotationSQLite.DeleteRawAnnotationAllWithType(rdfId,rawAnnotationType);
+    }
+
+
+
+
+    @Override
+    public boolean authenticateUser(String s, String s1) {
+        return true;
+    }
+
 
     public static void main(String[] args) throws Exception {
         ImageProviderLocal ipl = new ImageProviderLocal();

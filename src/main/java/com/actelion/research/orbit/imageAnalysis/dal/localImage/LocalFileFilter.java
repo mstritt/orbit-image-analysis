@@ -17,7 +17,7 @@
  *
  */
 
-package com.actelion.research.orbit.imageAnalysis.dal;
+package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 

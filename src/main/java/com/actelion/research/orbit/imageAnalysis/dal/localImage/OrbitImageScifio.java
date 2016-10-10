@@ -17,7 +17,7 @@
  *
  */
 
-package com.actelion.research.orbit.imageAnalysis.dal;
+package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
