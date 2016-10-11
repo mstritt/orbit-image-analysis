@@ -113,7 +113,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     final JFileChooser fileChooser = new JFileChooser();
     private boolean objectSegmentationEnabled = false;
     private boolean cellCountEnabled = false;
-    private JMenuBar menuBar = null;
     private JCheckBoxMenuItem performClusteringCheckbox = null;
     public final JCheckBoxMenuItem loadAllLayersMultiChannel = new JCheckBoxMenuItem("Load Full Pyramid", true);
 
@@ -206,6 +205,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private String lastErrorMessage = "";
     private long lastErrorTime = 0;
     private boolean modifiedClassShapes = false;
+    private OrbitMenu orbitMenu;
 
     static {
         ScaleoutMode.SCALEOUTMODE.set(false);
@@ -294,6 +294,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         };
         orbitMenu.createRibbonMenu(getRibbon());
+        this.orbitMenu = orbitMenu;
 
 
         this.setTitle(title);
@@ -2942,9 +2943,40 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
 
     public void switchLocalRemoteImageProvider() {
-        DALConfig.switchLocalRemoteImageProvider();
-        String s = DALConfig.isLocalImageProvider() ? "Image provider local is active." : "Image provider remote is active.";
-        JOptionPane.showMessageDialog(OrbitImageAnalysis.this, s, "Image Provider Changed", JOptionPane.INFORMATION_MESSAGE);
+        List<ImageFrame> openFrames = getIFrames();
+        if (openFrames.size()==0 || JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+                "Switch from local/remote image provider implies closing all open images.\nDo you want to proceed?",
+                "Close open images", JOptionPane.YES_NO_OPTION)
+                == JOptionPane.YES_OPTION) {
+
+            // close open images
+            for (ImageFrame frame: openFrames) {
+                try {
+                    frame.setClosed(true);
+                } catch (PropertyVetoException e1) {
+                    e1.printStackTrace();
+                }
+                if (frame != null)
+                    frame.dispose();
+            }
+
+            DALConfig.switchLocalRemoteImageProvider();
+            String s = DALConfig.isLocalImageProvider() ? "Image provider local is active." : "Image provider remote is active.";
+            String openButtonTitel = DALConfig.isLocalImageProvider() ? OrbitMenu.openFromLocalStr : OrbitMenu.openFromServerStr;
+            orbitMenu.getAmOpenOrbit().setText(openButtonTitel);
+            orbitMenu.getButtonopenFromOrbit().setText(openButtonTitel);
+
+            // tree / imagelist
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    imageList.setModel(new DefaultListModel()); // clear image list
+                    rdTree.setEnabled(!DALConfig.isLocalImageProvider());
+                }
+            });
+
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, s, "Image Provider Changed", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
 
@@ -2962,25 +2994,25 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
 
 
-    public final ActionListener openFileActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            for (ImageFrame iFrame : getIFrames()) {
-                iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
-            }
-            loadFileDirect();
-        }
-    };
-
-
-    public final ActionListener openFileURLActionListener
-            = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            for (ImageFrame iFrame : getIFrames()) {
-                iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
-            }
-            loadFileURL();
-        }
-    };
+//    public final ActionListener openFileActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            for (ImageFrame iFrame : getIFrames()) {
+//                iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
+//            }
+//            loadFileDirect();
+//        }
+//    };
+//
+//
+//    public final ActionListener openFileURLActionListener
+//            = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            for (ImageFrame iFrame : getIFrames()) {
+//                iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
+//            }
+//            loadFileURL();
+//        }
+//    };
 
 
     public final ActionListener openFileOrbitActionListener

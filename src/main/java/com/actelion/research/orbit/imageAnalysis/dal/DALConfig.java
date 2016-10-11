@@ -279,7 +279,9 @@ public class DALConfig {
             setImageProvider(localImageProvider);
         }
         logger.info("image provider switched to " + getImageProvider() + " isLocal: " + isLocalImageProvider());
-        OrbitTiledImage2.tileCache.invalidateAll();
+        if (OrbitTiledImage2.tileCache!=null) {
+            OrbitTiledImage2.tileCache.invalidateAll();
+        }
     }
 
 }

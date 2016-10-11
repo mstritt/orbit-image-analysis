@@ -151,8 +151,10 @@ public class ImageProviderLocal extends ImageProviderNoop {
         RawMetaFactoryFile rmff = new RawMetaFactoryFile(rdfId,new Date(),"orbit");
         rmList.add(rmff.createMetaStr("Filename",rdf.getFileName()));
         rmList.add(rmff.createMetaStr("Filesize", RawUtilsCommon.formatFileSize(rdf.getFileSize())));
-        rmList.add(rmff.createMetaInt("ImageLength",image.getHeight()));
-        rmList.add(rmff.createMetaInt("ImageWidth",image.getWidth()));
+        if (image!=null) {
+            rmList.add(rmff.createMetaInt("ImageLength", image.getHeight()));
+            rmList.add(rmff.createMetaInt("ImageWidth", image.getWidth()));
+        }
         return rmList;
     }
 
@@ -167,6 +169,7 @@ public class ImageProviderLocal extends ImageProviderNoop {
 
     @Override
     public IOrbitImage createOrbitImage(RawDataFile rdf, int level) throws Exception {
+        if (rdf==null) return null;
         String ending = RawUtilsCommon.getExtension(rdf.getFileName());
         if (ending.equals("bmp")||ending.equals("png")||ending.equals("dcm")||ending.equals("lif")||ending.equals("ziv")) {
             PlanarImage pi = TiffConverter.loadFromFile(rdf.getDataPath() + File.separator + rdf.getFileName());
