@@ -20,6 +20,7 @@
 package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import com.actelion.research.orbit.beans.RawAnnotation;
+import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.utils.Logger;
 
 import java.sql.*;
@@ -47,7 +48,7 @@ public class DAORawAnnotationSQLite {
     }
 
     public static String getTableFilename() {
-        return "d:/test.db";
+        return DALConfig.getLocalDBFile();
     }
 
 
@@ -70,20 +71,21 @@ public class DAORawAnnotationSQLite {
             stmt.close();
 
             stmt = conn.createStatement();
-            sql = "CREATE INDEX RAW_ANNOTATION_RD_FILE_ID ON RAW_ANNOTATION (RAW_DATA_FILE_ID) TABLESPACE RAWDB_IDX";
+            sql = "CREATE INDEX RAW_ANNOTATION_RD_FILE_ID ON RAW_ANNOTATION (RAW_DATA_FILE_ID) ";
             stmt.executeUpdate(sql);
             stmt.close();
 
             stmt = conn.createStatement();
-            sql = " CREATE INDEX RAW_ANNOTATION_TYPE ON RAW_ANNOTATION (RAW_ANNOTATION_TYPE) TABLESPACE RAWDB_IDX";
+            sql = " CREATE INDEX RAW_ANNOTATION_TYPE ON RAW_ANNOTATION (RAW_ANNOTATION_TYPE) ";
             stmt.executeUpdate(sql);
             stmt.close();
 
             stmt = conn.createStatement();
-            sql = "CREATE INDEX RAW_ANNOTATION_RDF_TYPE ON RAW_ANNOTATION (RAW_DATA_FILE_ID,RAW_ANNOTATION_TYPE) TABLESPACE RAWDB_IDX";
+            sql = "CREATE INDEX RAW_ANNOTATION_RDF_TYPE ON RAW_ANNOTATION (RAW_DATA_FILE_ID,RAW_ANNOTATION_TYPE) ";
             stmt.executeUpdate(sql);
             stmt.close();
 
+            logger.info("local RawAnnotation table created");
             return true;
         } catch (Exception ex) {
             logger.error(ex.getMessage());
@@ -211,6 +213,30 @@ public class DAORawAnnotationSQLite {
         }
         return (rowcnt > 0);
     }
+
+    public static boolean DeleteRawAnnotationsByRDF(int rdfId) throws SQLException {
+        int rowcnt = 0;
+        Connection conn = getConnection();
+        try {
+
+            PreparedStatement ps = conn.prepareStatement("delete from raw_annotation where RAW_DATA_FILE_ID=? ");
+
+            ps.setInt(1, rdfId);
+            rowcnt = ps.executeUpdate();
+            ps.close();
+            //conn.commit();
+
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+        } finally {
+            try {
+                conn.close();
+            } catch (Exception e) {
+            }
+        }
+        return (rowcnt > 0);
+    }
+
 
     /**
      * Deletes a RawData object.

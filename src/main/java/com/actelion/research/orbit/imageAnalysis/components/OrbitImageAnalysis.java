@@ -1357,8 +1357,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
-    private void loadFile() {
-        logger.info("loadFile called [method call]");
+    private void loadFileDirect() {
+        logger.info("loadFileDirect called [method call]");
         JFileChooser fileChooser = OrbitUtils.buildOpenFileFileChooser();
         String dir = prefs.get("OrbitImageAnalysis.OpenFileCurrentDir", null);
         if (dir != null) {
@@ -2967,7 +2967,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             for (ImageFrame iFrame : getIFrames()) {
                 iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
             }
-            loadFile();
+            loadFileDirect();
         }
     };
 

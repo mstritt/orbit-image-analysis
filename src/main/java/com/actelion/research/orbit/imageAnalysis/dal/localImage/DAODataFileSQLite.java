@@ -20,6 +20,7 @@
 package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import com.actelion.research.orbit.beans.RawDataFile;
+import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.utils.Logger;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 
@@ -46,7 +47,7 @@ public class DAODataFileSQLite {
     }
 
     public static String getTableFilename() {
-        return "d:/test.db";
+        return DALConfig.getLocalDBFile();
     }
 
 
@@ -80,12 +81,13 @@ public class DAODataFileSQLite {
             stmt.executeUpdate(sql);
             stmt.close();
 
-            execStmt("CREATE INDEX RAW_DATA_FILE_DATA ON RAW_DATA_FILE (RAW_DATA_ID) TABLESPACE RAWDB_IDX",conn);
-            execStmt("CREATE INDEX RAW_DATA_FILE_FILENAME ON RAW_DATA_FILE (FILENAME) TABLESPACE RAWDB_IDX",conn);
-            execStmt("CREATE INDEX RAW_DATA_FILE_PATH_NAME ON RAW_DATA_FILE (PATH, FILENAME) TABLESPACE RAWDB_IDX",conn);
-            execStmt("CREATE INDEX RAW_DATA_FILE_TYPE ON RAW_DATA_FILE (FILETYPE) TABLESPACE RAWDB_IDX",conn);
-            execStmt("CREATE INDEX RAW_DATA_FILE_BIOSAMP ON RAW_DATA_FILE (BIOSAMPLE_ID) TABLESPACE RAWDB_IDX",conn);
+            execStmt("CREATE INDEX RAW_DATA_FILE_DATA ON RAW_DATA_FILE (RAW_DATA_ID) ",conn);
+            execStmt("CREATE INDEX RAW_DATA_FILE_FILENAME ON RAW_DATA_FILE (FILENAME) ",conn);
+            execStmt("CREATE INDEX RAW_DATA_FILE_PATH_NAME ON RAW_DATA_FILE (PATH, FILENAME) ",conn);
+            execStmt("CREATE INDEX RAW_DATA_FILE_TYPE ON RAW_DATA_FILE (FILETYPE) ",conn);
+            execStmt("CREATE INDEX RAW_DATA_FILE_BIOSAMP ON RAW_DATA_FILE (BIOSAMPLE_ID) ",conn);
 
+            logger.info("local RawDataFile table created");
             return true;
         } catch (Exception ex) {
             logger.error(ex.getMessage());

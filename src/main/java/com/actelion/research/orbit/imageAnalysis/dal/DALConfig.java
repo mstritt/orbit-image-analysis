@@ -20,6 +20,8 @@
 package com.actelion.research.orbit.imageAnalysis.dal;
 
 import com.actelion.research.orbit.dal.IImageProvider;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAODataFileSQLite;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAORawAnnotationSQLite;
 import com.actelion.research.orbit.imageAnalysis.utils.ICustomMenu;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
@@ -54,6 +56,7 @@ public class DALConfig {
     private static boolean showLIMSMetas = false;
     private static boolean checkVersion = true;
     private static String explicitLibDir = null;
+    private static String localDBFile;
 
     static {
         try {
@@ -140,6 +143,19 @@ public class DALConfig {
             logger.debug("temporary users: " + temporaryUsers);
             logger.debug("external repository computers: " + externalRepositoryComputers);
 
+
+            localDBFile = System.getProperty("user.home")+File.separator+"orbit.db";
+            String userLocalDB = props.getProperty("localDBFile");
+            if (userLocalDB != null && userLocalDB.length() > 0) {
+                localDBFile = userLocalDB;
+            }
+            logger.info("local db file: "+localDBFile);
+            File dbFile = new File(localDBFile);
+            if (!dbFile.exists()) {
+                DAODataFileSQLite.createTable();
+                DAORawAnnotationSQLite.createTable();
+            }
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -184,6 +200,7 @@ public class DALConfig {
     }
 
 
+
     public static IImageProvider getImageProvider() {
         return imageProvider;
     }
@@ -223,6 +240,10 @@ public class DALConfig {
 
     public static void setCheckVersion(boolean checkVersion) {
         DALConfig.checkVersion = checkVersion;
+    }
+
+    public static String getLocalDBFile() {
+        return localDBFile;
     }
 
     /**

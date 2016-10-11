@@ -210,7 +210,8 @@ public class ImageProviderLocal extends ImageProviderNoop {
 
     @Override
     public void close() throws IOException {
-        context.dispose();
+        if (context!=null)
+            context.dispose();
     }
 
 
@@ -258,6 +259,24 @@ public class ImageProviderLocal extends ImageProviderNoop {
     }
 
 
+    // DB tools
+
+    /**
+     * Checks if saved RawDataFiles still physically exist on local disk (path+filename) and removes RawDataFile and RawAnnotation entries if not.
+     */
+    public static void DBCleanup() throws Exception {
+        List<RawDataFile> rdfList = DAODataFileSQLite.LoadRawDataFiles(); // load all RDFs
+        if (rdfList!=null && rdfList.size()>0) {
+            for (RawDataFile rdf: rdfList) {
+                File file = new File(rdf.getDataPath()+File.separator+rdf.getFileName());
+                if (!file.exists()) {
+                    DAORawAnnotationSQLite.DeleteRawAnnotationsByRDF(rdf.getRawDataFileId());
+                    DAODataFileSQLite.DeleteRawDataFile(rdf.getRawDataFileId());
+                    logger.info("local db entries removed for non existing file "+file.getAbsolutePath());
+                }
+            }
+        }
+    }
 
 
     @Override

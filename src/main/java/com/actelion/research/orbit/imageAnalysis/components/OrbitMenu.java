@@ -186,8 +186,9 @@ public class OrbitMenu extends JRibbonFrame {
         // open file image
         RibbonApplicationMenuEntryPrimary amEntryOpen = new RibbonApplicationMenuEntryPrimary(new DocumentOpen5(), "Open", null, JCommandButton.CommandButtonKind.POPUP_ONLY);
         amEntryOpen.setPopupKeyTip("O");
-        RibbonApplicationMenuEntrySecondary amOpenOrbit = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Open from Orbit", oia == null ? null : oia.openFileOrbitActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
+        RibbonApplicationMenuEntrySecondary amOpenOrbit = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Open from Image Server", oia == null ? null : oia.openFileOrbitActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
         amOpenOrbit.setDescriptionText("Open an image from the image server");
+
         RibbonApplicationMenuEntrySecondary amOpenFile = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Open from File", oia == null ? null : oia.openFileActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
         amOpenFile.setDescriptionText("Open an image from the local file system");
         RibbonApplicationMenuEntrySecondary amOpenUrl = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Open from URL", oia == null ? null : oia.openFileURLActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
