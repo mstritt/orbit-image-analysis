@@ -48,6 +48,8 @@ public class SegmentationWorkerMapReduce extends OrbitWorker implements ITaskRes
     private List<RawDataFile> rdfList;
     private OrbitModel model;
     private String taskDetail = "";
+    private boolean onlyTilesinROI = false;
+    private boolean skipNonExplicitROIImages = false;
     private boolean useScaleout = false;
 
     public SegmentationWorkerMapReduce() {
@@ -94,7 +96,7 @@ public class SegmentationWorkerMapReduce extends OrbitWorker implements ITaskRes
         int chunkSize = -1;
         if ((model.getClassifier() != null && model.getClassifier().isBuild()))
             chunkSize = DALConfig.getScaleOut().getParallelism();
-        List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, chunkSize, model.getMipLayer(), rdfList);
+        List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, model, chunkSize, model.getMipLayer(), onlyTilesinROI, skipNonExplicitROIImages, rdfList.toArray(new RawDataFile[0]));
         SegmentationMapReduce mrCellCount = new SegmentationMapReduce();
         mrCellCount.setModel(new OrbitModel(model));
         Map<Integer, SegmentationResult> counts = null;
@@ -129,6 +131,22 @@ public class SegmentationWorkerMapReduce extends OrbitWorker implements ITaskRes
         String res = ResultEnhancer.toString(map);
         logger.info("result:\n" + res);
         return new TaskResult("Cell Counts" + taskDetail, res);
+    }
+
+    public boolean isOnlyTilesinROI() {
+        return onlyTilesinROI;
+    }
+
+    public void setOnlyTilesinROI(boolean onlyTilesinROI) {
+        this.onlyTilesinROI = onlyTilesinROI;
+    }
+
+    public boolean isSkipNonExplicitROIImages() {
+        return skipNonExplicitROIImages;
+    }
+
+    public void setSkipNonExplicitROIImages(boolean skipNonExplicitROIImages) {
+        this.skipNonExplicitROIImages = skipNonExplicitROIImages;
     }
 
     @Override

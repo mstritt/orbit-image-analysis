@@ -46,6 +46,8 @@ public class CellClassificationWorkerMapReduce extends OrbitWorker implements IT
     private IMapReduceExecutor<String, Integer, ClassificationResult> executor;
     private List<RawDataFile> rdfList;
     private OrbitModel model;
+    private boolean onlyTilesinROI = false;
+    private boolean skipNonExplicitROIImages = false;
     private String taskDetail = "";
     private boolean useScaleout = false;
 
@@ -96,7 +98,7 @@ public class CellClassificationWorkerMapReduce extends OrbitWorker implements IT
             } else {
                 ImageTile.modelCache.put(modelNew, model); // for local execution we just keep it in memory
             }
-            List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, tileChunkSize, model.getMipLayer(), rdfList);
+            List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, model, tileChunkSize, model.getMipLayer(), onlyTilesinROI, skipNonExplicitROIImages, rdfList.toArray(new RawDataFile[0]));
             CellClassificationMapReduce mrCellClassification = new CellClassificationMapReduce();
             mrCellClassification.setModel(new OrbitModel(model));
             Map<Integer, ClassificationResult> classificationResultMap = new HashMap<Integer, ClassificationResult>();
@@ -144,6 +146,22 @@ public class CellClassificationWorkerMapReduce extends OrbitWorker implements IT
             }
         }
         return valList;
+    }
+
+    public boolean isOnlyTilesinROI() {
+        return onlyTilesinROI;
+    }
+
+    public void setOnlyTilesinROI(boolean onlyTilesinROI) {
+        this.onlyTilesinROI = onlyTilesinROI;
+    }
+
+    public boolean isSkipNonExplicitROIImages() {
+        return skipNonExplicitROIImages;
+    }
+
+    public void setSkipNonExplicitROIImages(boolean skipNonExplicitROIImages) {
+        this.skipNonExplicitROIImages = skipNonExplicitROIImages;
     }
 
     @Override
