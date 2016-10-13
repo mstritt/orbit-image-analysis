@@ -28,6 +28,8 @@ import com.actelion.research.orbit.gui.AbstractOrbitTree;
 import com.actelion.research.orbit.gui.RdfSearchBox;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame.Tools;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
+import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.LocalFileFilter;
 import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTiled;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.modules.*;
@@ -64,9 +66,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -1358,24 +1359,18 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
-    private void loadFileDirect() {
+    public void loadFileDirect(File file) {
         logger.info("loadFileDirect called [method call]");
-        JFileChooser fileChooser = OrbitUtils.buildOpenFileFileChooser();
-        String dir = prefs.get("OrbitImageAnalysis.OpenFileCurrentDir", null);
-        if (dir != null) {
-            File cd = new File(dir);
-            fileChooser.setCurrentDirectory(cd);
-        }
-        int returnVal = fileChooser.showOpenDialog(OrbitImageAnalysis.this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            prefs.put("OrbitImageAnalysis.OpenFileCurrentDir", fileChooser.getCurrentDirectory().getAbsolutePath());
-            File[] files = fileChooser.getSelectedFiles();
-            if (files != null && files.length > 0) {
-                for (File file : files)
-                    loadFile(file.getAbsolutePath());
+        if (DALConfig.isLocalImageProvider()) {
+            ImageProviderLocal ipl = (ImageProviderLocal)DALConfig.getImageProvider();
+            try {
+                RawDataFile rdf = ipl.registerFile(file);
+                loadFile(rdf);
+            } catch (SQLException e) {
+                logger.error("Cannot register file: "+e.getMessage());
             }
         } else {
-            logger.trace("open image canceled.");
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,"To open a file from local filesystem you have to switch the image provider to local.\nPlease click Image->Switch Image provider local/remote and then try to open the image again.","Local file image provider not active",JOptionPane.ERROR_MESSAGE);
         }
 
     }
@@ -1395,20 +1390,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Error browsing files: " + e.getMessage());
-        }
-
-    }
-
-    private void loadFileURL() {
-        logger.info("loadFileURL called [method call]");
-        URLChooser urlChooser = new URLChooser();
-        int returnVal = urlChooser.showOpenDialog(OrbitImageAnalysis.this);
-
-        if (returnVal == URLChooser.APPROVE_OPTION) {
-            URL url = urlChooser.getSelectedURL();
-            loadFile(url);
-        } else {
-            logger.trace("open image canceled.");
         }
 
     }
@@ -1465,7 +1446,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
-    public void loadFile(Object imageSource) {
+    public void loadFile(RawDataFile imageSource) {
         loadFile(imageSource, null, true);
     }
 
@@ -2793,21 +2774,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
      * loads an object from string. Can be an .orbit file, and image or a raw data id.
      */
     public static void processInputLine(String param, String all) {
-
+        LocalFileFilter localFileFilter = new LocalFileFilter();
         if (param.endsWith(".orbit")) {
             logger.debug("trying to load an orbit file");
             getInstance().loadOrbitFile(param);
-        } else if (param.toLowerCase().startsWith("http://") || param.toLowerCase().startsWith("https://") || param.toLowerCase().startsWith("ftp://") || param.toLowerCase().startsWith("file://") || param.toLowerCase().startsWith("jar://")) {
-            logger.debug("trying to load an image from URL");
-            try {
-                URL url = new URL(param);
-                getInstance().loadFile(url);
-            } catch (MalformedURLException e) {
-                logger.error("Cannot load file from url", e);
-            }
-        } else if (RawUtilsCommon.isImageFile(param)) {
+        } else if (localFileFilter.accept(new File(param))) {
             logger.debug("trying to load an image");
-            getInstance().loadFile(param);
+            getInstance().loadFileDirect(new File(param));
         } else if (param.toLowerCase().endsWith(OrbitUtils.MODEL_ENDING)) {
             logger.debug("trying to load a model");
             getInstance().loadModel(new File(param), true, param.toLowerCase().endsWith(OrbitUtils.MODEL_ENDING));

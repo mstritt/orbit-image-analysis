@@ -44,6 +44,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -94,15 +95,7 @@ public class ImageProviderLocal extends ImageProviderNoop {
             File[] files = fileChooser.getSelectedFiles();
             if (files != null && files.length > 0) {
                 for (File file : files) {
-                    String fn = file.getAbsolutePath();
-                    int id = DAODataFileSQLite.ExistRawDataFile(fn);
-                    RawDataFile rdf;
-                    if (id>0) {
-                        rdf = DAODataFileSQLite.LoadRawDataFile(id);
-                    } else {
-                        rdf = createRDF(file.getAbsolutePath());
-                        DAODataFileSQLite.InsertRawDataFile(rdf);
-                    }
+                    RawDataFile rdf = registerFile(file);
                     rdfList.add(rdf);
                 }
             }
@@ -112,13 +105,26 @@ public class ImageProviderLocal extends ImageProviderNoop {
         return rdfList;
     }
 
+    public RawDataFile registerFile(File file) throws SQLException {
+        String fn = file.getAbsolutePath();
+        int id = DAODataFileSQLite.ExistRawDataFile(fn);
+        RawDataFile rdf;
+        if (id>0) {
+            rdf = DAODataFileSQLite.LoadRawDataFile(id);
+        } else {
+            rdf = createRDF(file.getAbsolutePath());
+            DAODataFileSQLite.InsertRawDataFile(rdf);
+        }
+        return rdf;
+    }
+
     @Override
     public boolean useCustomBrowseImagesDialog() {
         return true;
     }
 
 
-    private RawDataFile createRDF(String fn) {
+    public RawDataFile createRDF(String fn) {
         File file = new File(fn);
         // TODO: user and type
         RawDataFile rdf = new RawDataFile();

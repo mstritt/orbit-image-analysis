@@ -20,8 +20,8 @@
 package com.actelion.research.orbit.imageAnalysis.components;
 
 import com.actelion.research.orbit.beans.RawDataFile;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.LocalFileFilter;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
-import com.actelion.research.orbit.utils.RawUtilsCommon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,8 +84,9 @@ public class DesktopTransferHandler extends TransferHandler {
         if (fileList != null) {
             for (File file : fileList) {
                 String fn = file.getAbsolutePath();
-                if (RawUtilsCommon.isImageFile(file)) {
-                    OrbitImageAnalysis.getInstance().loadFile(fn);
+                LocalFileFilter localFilter = new LocalFileFilter();
+                if (localFilter.accept(file)) {
+                    OrbitImageAnalysis.getInstance().loadFileDirect(file);
                 } else if (file.getName().toLowerCase().endsWith(".orbit")) {
                     OrbitImageAnalysis.getInstance().loadOrbitFile(file.getAbsolutePath());
                 } else if (file.getName().toLowerCase().endsWith(OrbitUtils.MODEL_ENDING)) {
