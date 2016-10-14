@@ -21,13 +21,13 @@ package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.utils.Logger;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 
 import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -76,7 +76,8 @@ public class DAODataFileSQLite {
                     "  FLAGS INTEGER," +
                     "  REFERENCE_DATE DATE, " +
                     "  MODIFY_DATE DATE, " +
-                    "  USER_ID TEXT " +
+                    "  USER_ID TEXT, " +
+                    "  MD5 TEXT " +
                     ")";
             stmt.executeUpdate(sql);
             stmt.close();
@@ -84,6 +85,7 @@ public class DAODataFileSQLite {
             execStmt("CREATE INDEX RAW_DATA_FILE_DATA ON RAW_DATA_FILE (RAW_DATA_ID) ",conn);
             execStmt("CREATE INDEX RAW_DATA_FILE_FILENAME ON RAW_DATA_FILE (FILENAME) ",conn);
             execStmt("CREATE INDEX RAW_DATA_FILE_PATH_NAME ON RAW_DATA_FILE (PATH, FILENAME) ",conn);
+            execStmt("CREATE INDEX RAW_DATA_FILE_NAME_MD5 ON RAW_DATA_FILE (FILENAME, MD5) ",conn);
             execStmt("CREATE INDEX RAW_DATA_FILE_TYPE ON RAW_DATA_FILE (FILETYPE) ",conn);
             execStmt("CREATE INDEX RAW_DATA_FILE_BIOSAMP ON RAW_DATA_FILE (BIOSAMPLE_ID) ",conn);
 
@@ -114,8 +116,8 @@ public class DAODataFileSQLite {
         try {
 
             PreparedStatement ps = conn.prepareStatement("insert into raw_data_file " +
-                    "(raw_data_id,path,filename,filesize,filetype,flags,REFERENCE_DATE,MODIFY_DATE,USER_ID,BIOSAMPLE_ID) " +
-                    "values (?,?,?,?,?,?,?,?,?,?)");
+                    "(raw_data_id,path,filename,filesize,filetype,flags,REFERENCE_DATE,MODIFY_DATE,USER_ID,BIOSAMPLE_ID,MD5) " +
+                    "values (?,?,?,?,?,?,?,?,?,?,?)");
 
             ps.setInt(1, dataFile.getRawDataId());
             ps.setString(2, dataFile.getDataPath());
@@ -133,6 +135,7 @@ public class DAODataFileSQLite {
             else ps.setNull(8, java.sql.Types.TIMESTAMP);
             ps.setString(9, dataFile.getUserId());
             ps.setInt(10, dataFile.getBioSampleId());
+            ps.setString(11, dataFile.getMd5());
 
             ps.executeUpdate();
             ps.close();
@@ -168,7 +171,7 @@ public class DAODataFileSQLite {
         try {
 
             PreparedStatement ps = conn.prepareStatement("update raw_data_file set " +
-                    "raw_data_id=?,path=?,filename=?,filesize=?,filetype=?,flags=?,REFERENCE_DATE=?,MODIFY_DATE=?,USER_ID=?,BIOSAMPLE_ID=? " +
+                    "raw_data_id=?,path=?,filename=?,filesize=?,filetype=?,flags=?,REFERENCE_DATE=?,MODIFY_DATE=?,USER_ID=?,BIOSAMPLE_ID=?,MD5=? " +
                     "where raw_data_file_id = ?");
 
             ps.setInt(1, dataFile.getRawDataId());
@@ -183,7 +186,8 @@ public class DAODataFileSQLite {
             ps.setTimestamp(8, new java.sql.Timestamp(System.currentTimeMillis()));
             ps.setString(9, dataFile.getUserId());
             ps.setInt(10, dataFile.getBioSampleId());
-            ps.setInt(11, dataFile.getRawDataFileId());
+            ps.setString(11, dataFile.getMd5());
+            ps.setInt(12, dataFile.getRawDataFileId());
 
             rowcnt = ps.executeUpdate();
             ps.close();
@@ -396,13 +400,13 @@ public class DAODataFileSQLite {
         int id = -1;
         Connection conn = getConnection();
         try {
+            String md5 = OrbitUtils.getDigest(absolutepath);
             File file = new File(absolutepath);
             String filename = file.getName();
-            String path = file.getParentFile().getAbsolutePath();
             PreparedStatement ps = conn.prepareStatement(
-                    "select raw_data_file_id from raw_data_file where FILENAME=? and PATH=?");
+                    "select raw_data_file_id from raw_data_file where FILENAME=? and MD5=?");
             ps.setString(1, filename);
-            ps.setString(2, path);
+            ps.setString(2, md5);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 id = rs.getInt("RAW_DATA_FILE_ID");
@@ -684,31 +688,12 @@ public class DAODataFileSQLite {
         rawDataFile.setReferenceDate(rs.getTimestamp("REFERENCE_DATE"));
         rawDataFile.setModifyDate(rs.getTimestamp("MODIFY_DATE"));
         rawDataFile.setUserId(rs.getString("USER_ID"));
+        rawDataFile.setMd5(rs.getString("MD5"));
         //rawDataFile.setBioSampleId(rs.getInt("BIOSAMPLE_ID"));
         return rawDataFile;
     }
 
 
-    public static void main(String[] args) throws Exception {
-       // DAODataFileSQLite.createTable();
 
-//        RawDataFile rdf = new RawDataFile();
-//        rdf.setRawDataId(1);
-//        rdf.setUserId("orbit");
-//        rdf.setModifyDate(new Date());
-//        rdf.setReferenceDate(new Date());
-//        rdf.setDataPath("d:/");
-//        rdf.setFileName("test.jpg");
-//        rdf.setFileType(RawUtilsCommon.DATA_TYPE_IMAGE_JPG);
-//        rdf.setFileSize(1000l);
-//
-//        int id = DAODataFileSQLite.InsertRawDataFile(rdf);
-//        System.out.println("id: "+id);
-
-        RawDataFile rdf = DAODataFileSQLite.LoadRawDataFilesSearchFast("test",1000, Arrays.asList(RawUtilsCommon.fileTypesImage)).get(0);
-        System.out.println(rdf.toStringDetail());
-
-
-    }
 
 }

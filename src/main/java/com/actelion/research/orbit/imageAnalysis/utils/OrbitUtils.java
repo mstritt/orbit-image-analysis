@@ -44,6 +44,8 @@ import java.awt.image.*;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -650,6 +652,51 @@ public class OrbitUtils {
         return fileChooser;
     }
 
+    /**
+     * Returns the MD5 of the fist 50mb (max) of a file.
+     * @param fileName
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     */
+    public static String getDigest(String fileName) throws NoSuchAlgorithmException, IOException {
+        long startT = System.currentTimeMillis();
+        int maxLen = 1024*1024*50; // 1MB
+        String res = "";
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        File file = new File(fileName);
+        int len = (int)Math.min(file.length(),maxLen);
+        byte[] buffer = new byte[len];
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(file);
+            fis.read(buffer);
+            md.update(buffer);
+            byte[] digest = md.digest();
+            res = encodeHexString(digest);
+        } finally {
+            try {
+                if (fis!=null) fis.close();
+            } catch (IOException e) {
+            }
+        }
+        long usedT = System.currentTimeMillis()-startT;
+        System.out.println("usedTime: "+usedT);
+        return res;
+    }
+
+    final protected static char[] HEXARRAY = "0123456789abcdef".toCharArray();
+
+    public static String encodeHexString( byte[] bytes ) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEXARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEXARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
 
     /**
      * Apply raster modifications like color deconvolution.
@@ -936,13 +983,10 @@ public class OrbitUtils {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println("maxMem: " + (Runtime.getRuntime().maxMemory() / (1024 * 1024L)));
-        System.out.println("totMem: " + Runtime.getRuntime().totalMemory() / (1024 * 1024L));
-        System.out.println("freMem: " + Runtime.getRuntime().freeMemory() / (1024 * 1024L));
-        long memFree = Runtime.getRuntime().maxMemory() - (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
-        memFree /= 1024 * 1024 * 1024L;
-        System.out.println("memFree: " + memFree);
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+        String fn = "d:\\pic\\4059.svs";
+        String digest = OrbitUtils.getDigest(fn);
+        System.out.println(digest);
     }
 
 }

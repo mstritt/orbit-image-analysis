@@ -1361,6 +1361,17 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     public void loadFileDirect(File file) {
         logger.info("loadFileDirect called [method call]");
+
+        // switch image provider
+        if (!DALConfig.isLocalImageProvider()) {
+            if (JOptionPane.showConfirmDialog(this,
+                    "To open a local file you have to switch to image provider local.\nDo you want to switch to image provider local now?\n\n(You can switch to remote image provider later via Image->Switch Local / Remote Image Provider)",
+                    "Switch to local image provider?", JOptionPane.YES_NO_OPTION)
+                    == JOptionPane.YES_OPTION) {
+                    switchLocalRemoteImageProvider();
+            }
+        }
+
         if (DALConfig.isLocalImageProvider()) {
             ImageProviderLocal ipl = (ImageProviderLocal)DALConfig.getImageProvider();
             try {
@@ -3633,6 +3644,25 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     };
 
+    public final ActionListener dbCleanupActionListener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            forceLogin();
+            if (loginOk) {
+                if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+                        "Do you really want to cleanup the local database?\nEntries (e.g. annotations) of moved files will be removed.\nThis only affects the local files, not files on an image server.",
+                        "Cleanup local database", JOptionPane.YES_NO_OPTION)
+                        == JOptionPane.YES_OPTION) {
+                    try {
+                        ImageProviderLocal.DBCleanup();
+                        JOptionPane.showMessageDialog(OrbitImageAnalysis.this,"DB cleanup successfully completed.","Cleanup completed",JOptionPane.INFORMATION_MESSAGE);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                        logger.error("DB cleanup error: " + e1.getMessage());
+                    }
+                }
+            }
+        }
+    };
 
     public String askForDir() {
         logger.trace("ask for dir");

@@ -988,6 +988,14 @@ public class OrbitMenu extends JRibbonFrame {
         buttonOrbitBrowser.addActionListener(oia == null ? null : oia.orbitBrowserActionListener);
         manageFilesBand.addCommandButton(buttonOrbitBrowser, RibbonElementPriority.TOP);
 
+        JCommandButton buttonDBCleanup = new JCommandButton("DB Cleanup", new SystemRun5());
+        RichTooltip richTooltipDBCleanup = new RichTooltip("DB Cleanup", "Cleanup the local database.");
+        richTooltipDBCleanup.addDescriptionSection("Database entries (e.g. annotations) for non existing local files will be removed.");
+        richTooltipDBCleanup.addDescriptionSection("Warning: Images moved to another folder will have no annotations afterwards!");
+        buttonDBCleanup.setActionRichTooltip(richTooltipDBCleanup);
+        buttonDBCleanup.addActionListener(oia == null ? null : oia.dbCleanupActionListener);
+        manageFilesBand.addCommandButton(buttonDBCleanup, RibbonElementPriority.MEDIUM);
+
 
         // save image
 

@@ -111,6 +111,10 @@ public class ImageProviderLocal extends ImageProviderNoop {
         RawDataFile rdf;
         if (id>0) {
             rdf = DAODataFileSQLite.LoadRawDataFile(id);
+            if (!file.getParent().equals(rdf.getDataPath())) {
+                rdf.setDataPath(file.getParent());
+                DAODataFileSQLite.UpdateRawDataFile(rdf);
+            }
         } else {
             rdf = createRDF(file.getAbsolutePath());
             DAODataFileSQLite.InsertRawDataFile(rdf);
@@ -126,6 +130,12 @@ public class ImageProviderLocal extends ImageProviderNoop {
 
     public RawDataFile createRDF(String fn) {
         File file = new File(fn);
+        String md5 = "";
+        try {
+            md5 = OrbitUtils.getDigest(fn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         // TODO: user and type
         RawDataFile rdf = new RawDataFile();
         rdf.setDataPath(file.getParentFile().getAbsolutePath());
@@ -134,6 +144,7 @@ public class ImageProviderLocal extends ImageProviderNoop {
         rdf.setModifyDate(new Date(file.lastModified()));
         rdf.setReferenceDate(new Date(file.lastModified()));
         rdf.setRawDataId(rawData.getRawDataId());
+        rdf.setMd5(md5);
         return rdf;
     }
 
@@ -295,7 +306,7 @@ public class ImageProviderLocal extends ImageProviderNoop {
 
 
     public static void main(String[] args) throws Exception {
-        ImageProviderLocal ipl = new ImageProviderLocal();
-        ipl.browseImages(null);
+        ImageProviderLocal.DBCleanup();
+
     }
 }
