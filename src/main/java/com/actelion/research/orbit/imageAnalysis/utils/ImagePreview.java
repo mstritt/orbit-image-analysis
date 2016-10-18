@@ -19,6 +19,8 @@
 
 package com.actelion.research.orbit.imageAnalysis.utils;
 
+import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -41,9 +43,16 @@ public class ImagePreview extends JComponent
 
     public void loadImage() {
         if (file != null) {
-            //thumbnail = TiffConverter.getImageIcon(file.getPath(), 300, 0);
-            BufferedImage bi = TiffConverter.getDownsampledImage(file.getPath(), 300, -1, 1, false);
-            thumbnail = new ImageIcon(bi);
+            ImageProviderLocal ipl = new ImageProviderLocal();
+            BufferedImage bi = null;
+            try {
+                bi = ipl.getThumbnail(file.getAbsolutePath());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (bi!=null)
+                thumbnail = new ImageIcon(bi);
+            else thumbnail = null;
         }
     }
 

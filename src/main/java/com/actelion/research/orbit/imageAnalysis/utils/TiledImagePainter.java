@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.media.jai.*;
-import javax.media.jai.remote.RemoteJAI;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.*;
@@ -70,7 +69,6 @@ public class TiledImagePainter {
     private Object sourceImage = null;
     private TiledImagePainter[] mipMaps = null;
     private boolean generateMipMaps = true;
-    private static RemoteJAI _rc = null;
     private OrbitTiledImage2 redChannel = null;
     private OrbitTiledImage2 greenChannel = null;
     private OrbitTiledImage2 blueChannel = null;
@@ -98,6 +96,7 @@ public class TiledImagePainter {
 
 
     //public final static ExecutorService executorService = Executors.newCachedThreadPool();
+    //public final static ExecutorService executorService = Executors.newFixedThreadPool(1);
     public final static ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     // private ContrastColor contrastColor = new ContrastColor();
@@ -230,6 +229,7 @@ public class TiledImagePainter {
         }
         // so inputStrorURL can be of type RawDataFile or String
 
+        double level0ratio = (double)image.getWidth()/image.getHeight();
         boolean oldMipPyramid = false;
         if (inputStrOrURL instanceof RawDataFile) {
             oldMipPyramid = ((RawDataFile) inputStrOrURL).getModifyDate().getTime() < 1411075560000L;   // before 9/18/14 5:26 PM  the pyramid limit was width < 2000
@@ -269,18 +269,24 @@ public class TiledImagePainter {
                         //logger.debug("building painter "+mipFileName);
                         TiledImagePainter mipPainter = new TiledImagePainter(false);
                         mipPainter.loadImage(inputStrOrURL, mipNum, true);
-                        if (logger.isTraceEnabled())
-                            logger.trace("mipmap loaded (remote) " + mipPainter.getWidth() + "x" + mipPainter.getHeight() + " mipNum:" + mipNum);
-                        mipList.add(mipPainter);
-                        // load further mipMaps ?
-                        if (oldMipPyramid) {
-                            if (mipPainter.getWidth() > 2000)
-                                mipNum++;
-                            else mipNum = -1;
-                        } else {
-                            if ((long) mipPainter.getWidth() * mipPainter.getHeight() > RawUtilsCommon.MIN_SIZE_FOR_IMAGE_PYRAMID) // according RawUploader (line ~764) criteria
-                                mipNum++;
-                            else mipNum = -1;
+                        double mipRatio = (double)mipPainter.getWidth()/mipPainter.getHeight();
+                        if (Math.abs(level0ratio-mipRatio)<0.01d) {
+                            if (logger.isTraceEnabled())
+                                logger.trace("mipmap loaded " + mipPainter.getWidth() + "x" + mipPainter.getHeight() + " mipNum:" + mipNum);
+                            mipList.add(mipPainter);
+                            // load further mipMaps ?
+                            if (oldMipPyramid) {
+                                if (mipPainter.getWidth() > 2000)
+                                    mipNum++;
+                                else mipNum = -1;
+                            } else {
+                                if ((long) mipPainter.getWidth() * mipPainter.getHeight() > RawUtilsCommon.MIN_SIZE_FOR_IMAGE_PYRAMID) // according RawUploader (line ~764) criteria
+                                    mipNum++;
+                                else mipNum = -1;
+                            }
+//                            if (((long) mipPainter.getWidth() * mipPainter.getHeight()) > (1024L*1024L))
+//                                   mipNum++;
+//                             else mipNum = -1;
                         }
                     }
                 } else {
@@ -302,19 +308,22 @@ public class TiledImagePainter {
                 //logger.trace("building painter");
                 TiledImagePainter mipPainter = new TiledImagePainter(false);
                 mipPainter.loadImage(mipFileName, mipNum, false);
-                if (logger.isTraceEnabled())
-                    logger.trace("mipmap loaded " + mipPainter.getWidth() + "x" + mipPainter.getHeight());
-                mipList.add(mipPainter);
+                double mipRatio = (double)mipPainter.getWidth()/mipPainter.getHeight();
+                if (Math.abs(level0ratio-mipRatio)<0.01d) {
+                    if (logger.isTraceEnabled())
+                        logger.trace("mipmap loaded " + mipPainter.getWidth() + "x" + mipPainter.getHeight());
+                    mipList.add(mipPainter);
 
-                // load further mipMaps ?
-                if (oldMipPyramid) {
-                    if (mipPainter.getWidth() > 2000)
-                        mipNum++;
-                    else mipNum = -1;
-                } else {
-                    if ((long) mipPainter.getWidth() * mipPainter.getHeight() > RawUtilsCommon.MIN_SIZE_FOR_IMAGE_PYRAMID) // according RawUploader (line ~764) criteria
-                        mipNum++;
-                    else mipNum = -1;
+                    // load further mipMaps ?
+                    if (oldMipPyramid) {
+                        if (mipPainter.getWidth() > 2000)
+                            mipNum++;
+                        else mipNum = -1;
+                    } else {
+                        if ((long) mipPainter.getWidth() * mipPainter.getHeight() > RawUtilsCommon.MIN_SIZE_FOR_IMAGE_PYRAMID) // according RawUploader (line ~764) criteria
+                            mipNum++;
+                        else mipNum = -1;
+                    }
                 }
             }
         } // while i>0
@@ -341,7 +350,7 @@ public class TiledImagePainter {
         } catch (Exception e) {
             e.printStackTrace();
             r = null;
-            logger.error("Error loading image. Image server down?\nOrbit will now retry to load the image several times.");
+            logger.error("Error loading image.\nOrbit will now retry to load the image several times.");
         }
         if (r == null) {
             throw new OrbitImageServletException("error loading image data");

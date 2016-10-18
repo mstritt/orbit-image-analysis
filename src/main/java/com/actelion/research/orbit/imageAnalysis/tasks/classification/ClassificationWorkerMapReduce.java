@@ -85,8 +85,9 @@ public class ClassificationWorkerMapReduce extends OrbitWorker implements ITaskR
             int tileChunkSize = -1;
             if ((model.getClassifier() != null && model.getClassifier().isBuild()))
                 tileChunkSize = DALConfig.getScaleOut().getParallelism();   // 150
-            String modelNew = DALConfig.getScaleOut().getRemoteContextStore().generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
+            String modelNew = OrbitUtils.generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
             if (useScaleout) {
+                modelNew = DALConfig.getScaleOut().getRemoteContextStore().generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
                 try {
                     DALConfig.getScaleOut().getRemoteContextStore().copyToRemote(model.getAsByteArray(), OrbitUtils.remoteNameSpace, modelNew);
                 } catch (Exception es) {
@@ -96,6 +97,8 @@ public class ClassificationWorkerMapReduce extends OrbitWorker implements ITaskR
             } else {
                 ImageTile.modelCache.put(modelNew, model); // for local execution we just keep it in memory
             }
+            if (!onlyTilesinROI) onlyTilesinROI = !useScaleout;
+            logger.debug("onlyTilesInROI: "+onlyTilesinROI+"  skipNonExplicitROIImages: "+skipNonExplicitROIImages);
             List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, model, tileChunkSize, model.getMipLayer(), onlyTilesinROI, skipNonExplicitROIImages, rdfList.toArray(new RawDataFile[0]));
             logger.debug("#tile jobs: " + imageTiles.size());
             ClassificationMapReduce mrClassification = new ClassificationMapReduce();

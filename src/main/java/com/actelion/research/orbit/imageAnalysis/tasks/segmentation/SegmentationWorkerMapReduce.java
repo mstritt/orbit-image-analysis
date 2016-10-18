@@ -82,9 +82,10 @@ public class SegmentationWorkerMapReduce extends OrbitWorker implements ITaskRes
     protected void doWork() throws Exception {
         taskDetail = " [" + new Date().toString() + "]";
         //ELB0226-0143-OD130043-M2843-CD4 CD3 -.tif = 9536;
-        String modelNew = DALConfig.getScaleOut().getRemoteContextStore().generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
+        String modelNew = OrbitUtils.generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
         if (useScaleout) {
             try {
+                modelNew = DALConfig.getScaleOut().getRemoteContextStore().generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
                 DALConfig.getScaleOut().getRemoteContextStore().copyToRemote(model.getAsByteArray(), OrbitUtils.remoteNameSpace, modelNew);
             } catch (Exception es) {
                 ImageTile.modelCache.put(modelNew, model);

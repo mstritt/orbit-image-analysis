@@ -83,9 +83,10 @@ public class CellFeaturesWorkerMapReduce extends OrbitWorker implements ITaskRes
     protected void doWork() throws Exception {
         try {
             taskDetail = " [" + new Date().toString() + "]";
-            String modelNew = DALConfig.getScaleOut().getRemoteContextStore().generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
+            String modelNew = OrbitUtils.generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
             if (useScaleout) {
                 try {
+                    modelNew = DALConfig.getScaleOut().getRemoteContextStore().generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
                     DALConfig.getScaleOut().getRemoteContextStore().copyToRemote(model.getAsByteArray(), OrbitUtils.remoteNameSpace, modelNew);
                 } catch (Exception es) {
                     ImageTile.modelCache.put(modelNew, model);

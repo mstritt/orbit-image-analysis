@@ -53,6 +53,13 @@ public class OrbitMenu extends JRibbonFrame {
     private final JCommandToggleButton buttonSyncFrames = new JCommandToggleButton("Sync Frames", new SyncImages());
     private final JCommandToggleButton buttonShowPopupResults = new JCommandToggleButton("Popup Results", new ShowPopups());
     private RibbonApplicationMenuEntrySecondary amEntryVersionCheck = null;
+    private RibbonApplicationMenuEntrySecondary amOpenOrbit;
+    private JCommandButton buttonopenFromOrbit = new JCommandButton(openFromServerStr, new DocumentOpen5());
+    private JCommandButton buttonSwitchLocalRemote = null;
+
+    public static final String openFromServerStr = "Open image from image server";
+    public static final String openFromLocalStr = "Open image from file system";
+
 
     public OrbitMenu(OrbitImageAnalysis oia) {
         this.oia = oia;
@@ -185,14 +192,11 @@ public class OrbitMenu extends JRibbonFrame {
 
         // open file image
         RibbonApplicationMenuEntryPrimary amEntryOpen = new RibbonApplicationMenuEntryPrimary(new DocumentOpen5(), "Open", null, JCommandButton.CommandButtonKind.POPUP_ONLY);
+        amOpenOrbit = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), openFromServerStr, oia == null ? null : oia.openFileOrbitActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
         amEntryOpen.setPopupKeyTip("O");
-        RibbonApplicationMenuEntrySecondary amOpenOrbit = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Open from Orbit", oia == null ? null : oia.openFileOrbitActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
-        amOpenOrbit.setDescriptionText("Open an image from the image server");
-        RibbonApplicationMenuEntrySecondary amOpenFile = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Open from File", oia == null ? null : oia.openFileActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
-        amOpenFile.setDescriptionText("Open an image from the local file system");
-        RibbonApplicationMenuEntrySecondary amOpenUrl = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Open from URL", oia == null ? null : oia.openFileURLActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
-        amOpenUrl.setDescriptionText("Open an image from a webserver via URL");
-        amEntryOpen.addSecondaryMenuGroup("Open Image", amOpenOrbit, amOpenFile, amOpenUrl);
+        amOpenOrbit.setDescriptionText("Open an image from an image serve or local file system.");
+
+        amEntryOpen.addSecondaryMenuGroup("Open Image", amOpenOrbit);
         menu.addMenuEntry(amEntryOpen);
 
         // save as .orbit
@@ -270,20 +274,21 @@ public class OrbitMenu extends JRibbonFrame {
     private void addImageTask(final JRibbon ribbon) {
         JRibbonBand imageBandOpen = new JRibbonBand("Open Image", null);
         imageBandOpen.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(imageBandOpen.getControlPanel())));
-        JCommandButton buttonopenFromOrbit = new JCommandButton("Open from Orbit", new DocumentOpen5());
-        buttonopenFromOrbit.setActionRichTooltip(new RichTooltip("Open from Orbit", "Open an image from the image server."));
+
+
+        buttonopenFromOrbit.setActionRichTooltip(new RichTooltip("Open Image", "Open an image from an image serve or local file system."));
         buttonopenFromOrbit.addActionListener(oia == null ? null : oia.openFileOrbitActionListener);
         imageBandOpen.addCommandButton(buttonopenFromOrbit, RibbonElementPriority.TOP);
 
-        JCommandButton buttonopenFromFile = new JCommandButton("Open from File", new DocumentOpen5());
-        buttonopenFromFile.setActionRichTooltip(new RichTooltip("Open from File", "Open an image from the local file system."));
-        buttonopenFromFile.addActionListener(oia == null ? null : oia.openFileActionListener);
-        imageBandOpen.addCommandButton(buttonopenFromFile, RibbonElementPriority.TOP);
-
-        JCommandButton buttonopenFromUrl = new JCommandButton("Open from URL", new DocumentOpen5());
-        buttonopenFromUrl.setActionRichTooltip(new RichTooltip("Open from URL", "Open an image from URL."));
-        buttonopenFromUrl.addActionListener(oia == null ? null : oia.openFileURLActionListener);
-        imageBandOpen.addCommandButton(buttonopenFromUrl, RibbonElementPriority.TOP);
+//        JCommandButton buttonopenFromFile = new JCommandButton("Open from File", new DocumentOpen5());
+//        buttonopenFromFile.setActionRichTooltip(new RichTooltip("Open from File", "Open an image from the local file system."));
+//        buttonopenFromFile.addActionListener(oia == null ? null : oia.openFileActionListener);
+//        imageBandOpen.addCommandButton(buttonopenFromFile, RibbonElementPriority.TOP);
+//
+//        JCommandButton buttonopenFromUrl = new JCommandButton("Open from URL", new DocumentOpen5());
+//        buttonopenFromUrl.setActionRichTooltip(new RichTooltip("Open from URL", "Open an image from URL."));
+//        buttonopenFromUrl.addActionListener(oia == null ? null : oia.openFileURLActionListener);
+//        imageBandOpen.addCommandButton(buttonopenFromUrl, RibbonElementPriority.TOP);
 
 
         JRibbonBand imageBand1 = new JRibbonBand("Slide Overview", null);
@@ -336,8 +341,9 @@ public class OrbitMenu extends JRibbonFrame {
         buttonSaveAsOrbit.addActionListener(oia == null ? null : oia.saveAsOrbitActionListener);
         saveAsOrbitBand.addCommandButton(buttonSaveAsOrbit, RibbonElementPriority.TOP);
 
+        JRibbonBand switchImageProviderBand = getSwitchImageProviderBand();
 
-        RibbonTask imageTask = new RibbonTask("Image", imageBandOpen, imageBand1, imageBand2, imageBand3, imageBand4, saveAsOrbitBand);
+        RibbonTask imageTask = new RibbonTask("Image", imageBandOpen, imageBand1, imageBand2, imageBand3, imageBand4, saveAsOrbitBand, switchImageProviderBand);
         ribbon.addTask(imageTask);
     }
 
@@ -942,26 +948,36 @@ public class OrbitMenu extends JRibbonFrame {
         batchExecuteBand.addCommandButton(buttonRetrieveExistingResults, RibbonElementPriority.MEDIUM);
 
 
+        //JRibbonBand switchImageProviderBand = getSwitchImageProviderBand();
+
+        RibbonTask objectsTask = new RibbonTask("Batch", batchExecuteBand);
+        ribbon.addTask(objectsTask);
+
+    }
+
+    private JRibbonBand getSwitchImageProviderBand() {
         JRibbonBand switchImageProviderBand = new JRibbonBand("Image Provider", null);
         switchImageProviderBand.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(switchImageProviderBand.getControlPanel()),
                 new CoreRibbonResizePolicies.Mirror(switchImageProviderBand.getControlPanel()),
                 new CoreRibbonResizePolicies.Mid2Low(switchImageProviderBand.getControlPanel()),
                 new IconRibbonBandResizePolicy(switchImageProviderBand.getControlPanel())));
 
-        JCommandButton buttonSwitchLocalRemote = new JCommandButton("Switch Local / Remote Image Provider", new SystemRun3());
-        RichTooltip richTooltipSwitchLocalRemote = new RichTooltip("Switch Local / Remote Image Provider", "Switch local file system / remote image provider.");
-        richTooltipSwitchLocalRemote.addDescriptionSection("This can be used to process a set of images stored on the local filesystem.");
-        richTooltipSwitchLocalRemote.addDescriptionSection("Please keep in mind that this is just a fallback option with several drawbacks, e.g. no annotations can be drawn, pixel scale is not available, ...");
-        richTooltipSwitchLocalRemote.addDescriptionSection("When in local mode, the quicksearch bar on the left side cannot be used until switched back to remote mode.");
-        richTooltipSwitchLocalRemote.addDescriptionSection("Please use batch execution local, the scaleout execution won't work.");
-        buttonSwitchLocalRemote.setActionRichTooltip(richTooltipSwitchLocalRemote);
-        buttonSwitchLocalRemote.addActionListener(oia == null ? null : oia.switchLocalRemoteImageProvider);
+        JCommandButton buttonSwitchLocalRemote = getSwitchImageProviderBtn();
         switchImageProviderBand.addCommandButton(buttonSwitchLocalRemote, RibbonElementPriority.TOP);
+        return switchImageProviderBand;
+    }
 
-
-        RibbonTask objectsTask = new RibbonTask("Batch", batchExecuteBand, switchImageProviderBand);
-        ribbon.addTask(objectsTask);
-
+    public synchronized JCommandButton getSwitchImageProviderBtn() {
+        if (buttonSwitchLocalRemote==null) {
+            buttonSwitchLocalRemote = new JCommandButton("Switch Local / Remote Image Provider", new SystemRun3());
+            RichTooltip richTooltipSwitchLocalRemote = new RichTooltip("Switch Local / Remote Image Provider", "Switch local file system / remote image provider.");
+            richTooltipSwitchLocalRemote.addDescriptionSection("This can be used to process a set of images stored on the local filesystem.");
+            richTooltipSwitchLocalRemote.addDescriptionSection("When in local mode, the quicksearch bar on the left side cannot be used until switched back to remote mode.");
+            richTooltipSwitchLocalRemote.addDescriptionSection("Please use batch execution local, the scaleout execution won't work.");
+            buttonSwitchLocalRemote.setActionRichTooltip(richTooltipSwitchLocalRemote);
+            buttonSwitchLocalRemote.addActionListener(oia == null ? null : oia.switchLocalRemoteImageProvider);
+        }
+        return buttonSwitchLocalRemote;
     }
 
 
@@ -977,6 +993,14 @@ public class OrbitMenu extends JRibbonFrame {
         buttonOrbitBrowser.setActionRichTooltip(richTooltipOrbitBrowser);
         buttonOrbitBrowser.addActionListener(oia == null ? null : oia.orbitBrowserActionListener);
         manageFilesBand.addCommandButton(buttonOrbitBrowser, RibbonElementPriority.TOP);
+
+        JCommandButton buttonDBCleanup = new JCommandButton("DB Cleanup", new SystemRun5());
+        RichTooltip richTooltipDBCleanup = new RichTooltip("DB Cleanup", "Cleanup the local database.");
+        richTooltipDBCleanup.addDescriptionSection("Database entries (e.g. annotations) for non existing local files will be removed.");
+        richTooltipDBCleanup.addDescriptionSection("Warning: Images moved to another folder will have no annotations afterwards!");
+        buttonDBCleanup.setActionRichTooltip(richTooltipDBCleanup);
+        buttonDBCleanup.addActionListener(oia == null ? null : oia.dbCleanupActionListener);
+        manageFilesBand.addCommandButton(buttonDBCleanup, RibbonElementPriority.MEDIUM);
 
 
         // save image
@@ -1450,4 +1474,11 @@ public class OrbitMenu extends JRibbonFrame {
         btn.setFont(btn.getFont().deriveFont(Font.BOLD + Font.ITALIC));
     }
 
+    public RibbonApplicationMenuEntrySecondary getAmOpenOrbit() {
+        return amOpenOrbit;
+    }
+
+    public JCommandButton getButtonopenFromOrbit() {
+        return buttonopenFromOrbit;
+    }
 }

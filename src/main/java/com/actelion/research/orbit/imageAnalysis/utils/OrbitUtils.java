@@ -25,12 +25,12 @@ import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.beans.RawMeta;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.LocalFileFilter;
 import com.actelion.research.orbit.imageAnalysis.features.TissueFeatures;
 import com.actelion.research.orbit.imageAnalysis.features.TissueFeaturesCircular;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
 import com.actelion.research.orbit.imageAnalysis.tasks.OrbitWorker;
-import com.actelion.research.orbit.utils.OrbitFileFilter;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 import imageJ.Colour_Deconvolution;
 import org.jaitools.tilecache.DiskCachedTile;
@@ -44,6 +44,8 @@ import java.awt.image.*;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -52,7 +54,7 @@ import java.util.List;
 public class OrbitUtils {
     // label:  OrbitImageAnalysis230
     public static final String VERSION_STR = getVersion() + (ScaleoutMode.SCALEOUTMODE.get() ? "G" : "") + (OrbitUtils.DEVELOPMENTMODE ? " DEVELOPMENT" : "");
-    public static final boolean DEVELOPMENTMODE = false;
+    public static final boolean DEVELOPMENTMODE = true;
     public static final boolean TILEMODE = false;
     public static final boolean OFFLINE_MODE = false;
     public static final boolean DARKUI = true;
@@ -526,13 +528,13 @@ public class OrbitUtils {
                     // table block
                     if (!tableBlock) {  // header
                         tableBlock = true;
-                        sb.append("<table border=\"1\"><tr align=\"center\">");
+                        sb.append("<table border=1><tr align=center>");
                         for (String col : tabs) {
                             sb.append("<th>" + col + "</th>");
                         }
                         sb.append("</tr>");
                     } else { // data
-                        sb.append("<tr align=\"center\">");
+                        sb.append("<tr align=center>");
                         for (String col : tabs) {
                             sb.append("<td>" + col + "</td>");
                         }
@@ -646,7 +648,7 @@ public class OrbitUtils {
         fileChooser.setDialogTitle("Open File(s)");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
-            OrbitFileFilter filter = new OrbitFileFilter();
+            LocalFileFilter filter = new LocalFileFilter();
 
             @Override
             public boolean accept(File f) {
@@ -655,12 +657,61 @@ public class OrbitUtils {
 
             @Override
             public String getDescription() {
-                return "Orbit Files (tif,tiff,jpg,png,gif,bmp,svs)";
+                return "Image Files (jpg,jp2,png,bmp,pcx,tga,dcm,tif,tiff,tf2,tf8,btf,svs,ndpi,ndpis,czi,afi,ims,vsi,scn,sld)";
             }
         });
         return fileChooser;
     }
 
+    /**
+     * Returns the MD5 of the fist 50mb (max) of a file.
+     * @param fileName
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     */
+    public static String getDigest(String fileName) throws NoSuchAlgorithmException, IOException {
+        long startT = System.currentTimeMillis();
+        int maxLen = 1024*1024*50; // 1MB
+        String res = "";
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        File file = new File(fileName);
+        int len = (int)Math.min(file.length(),maxLen);
+        byte[] buffer = new byte[len];
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(file);
+            fis.read(buffer);
+            md.update(buffer);
+            byte[] digest = md.digest();
+            res = encodeHexString(digest);
+        } finally {
+            try {
+                if (fis!=null) fis.close();
+            } catch (IOException e) {
+            }
+        }
+        long usedT = System.currentTimeMillis()-startT;
+        System.out.println("usedTime: "+usedT);
+        return res;
+    }
+
+    final protected static char[] HEXARRAY = "0123456789abcdef".toCharArray();
+
+    public static String encodeHexString( byte[] bytes ) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEXARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEXARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
+
+    public static String generateUniqueFilename(String prefix, String ending) {
+        return prefix + UUID.randomUUID().toString() + ending;
+    }
 
     /**
      * Apply raster modifications like color deconvolution.
@@ -947,13 +998,10 @@ public class OrbitUtils {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println("maxMem: " + (Runtime.getRuntime().maxMemory() / (1024 * 1024L)));
-        System.out.println("totMem: " + Runtime.getRuntime().totalMemory() / (1024 * 1024L));
-        System.out.println("freMem: " + Runtime.getRuntime().freeMemory() / (1024 * 1024L));
-        long memFree = Runtime.getRuntime().maxMemory() - (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
-        memFree /= 1024 * 1024 * 1024L;
-        System.out.println("memFree: " + memFree);
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+        String fn = "d:\\pic\\4059.svs";
+        String digest = OrbitUtils.getDigest(fn);
+        System.out.println(digest);
     }
 
 }

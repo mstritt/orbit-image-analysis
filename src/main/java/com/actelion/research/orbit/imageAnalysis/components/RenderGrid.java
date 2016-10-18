@@ -287,6 +287,7 @@ public class RenderGrid extends JPanel implements ComponentListener, AncestorLis
                             w = (int) (w * ((double) fullImage1.getWidth() / fullImage1.getHeight()));
                         }
                         image = fullImage1.getPreviewImage(w, h);
+                        //image = new BufferedImage(100,100,BufferedImage.TYPE_INT_RGB);
                         // enhance contrast for low-contrast preview images
                         image = contrastEnhancer.enhanceContrast(image);
 

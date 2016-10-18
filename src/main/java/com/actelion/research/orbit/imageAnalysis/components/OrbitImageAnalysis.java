@@ -28,6 +28,8 @@ import com.actelion.research.orbit.gui.AbstractOrbitTree;
 import com.actelion.research.orbit.gui.RdfSearchBox;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame.Tools;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
+import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.LocalFileFilter;
 import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTiled;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.modules.*;
@@ -64,9 +66,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -113,7 +114,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     final JFileChooser fileChooser = new JFileChooser();
     private boolean objectSegmentationEnabled = false;
     private boolean cellCountEnabled = false;
-    private JMenuBar menuBar = null;
     private JCheckBoxMenuItem performClusteringCheckbox = null;
     public final JCheckBoxMenuItem loadAllLayersMultiChannel = new JCheckBoxMenuItem("Load Full Pyramid", true);
 
@@ -206,6 +206,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private String lastErrorMessage = "";
     private long lastErrorTime = 0;
     private boolean modifiedClassShapes = false;
+    private OrbitMenu orbitMenu;
 
     static {
         ScaleoutMode.SCALEOUTMODE.set(false);
@@ -294,6 +295,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         };
         orbitMenu.createRibbonMenu(getRibbon());
+        this.orbitMenu = orbitMenu;
 
 
         this.setTitle(title);
@@ -598,6 +600,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         });
 
 
+        updateMenuImageProviderEntries();
         this.setVisible(true);
 
         if (DALConfig.isCheckVersion()) {
@@ -1357,38 +1360,29 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
-    private void loadFile() {
-        logger.info("loadFile called [method call]");
-        JFileChooser fileChooser = OrbitUtils.buildOpenFileFileChooser();
-        String dir = prefs.get("OrbitImageAnalysis.OpenFileCurrentDir", null);
-        if (dir != null) {
-            File cd = new File(dir);
-            fileChooser.setCurrentDirectory(cd);
+    public void loadFileDirect(File file) {
+        logger.info("loadFileDirect called [method call]");
+
+        // switch image provider
+        if (!DALConfig.isLocalImageProvider()) {
+            if (JOptionPane.showConfirmDialog(this,
+                    "To open a local file you have to switch to image provider local.\nDo you want to switch to image provider local now?\n\n(You can switch to remote image provider later via Image->Switch Local / Remote Image Provider)",
+                    "Switch to local image provider?", JOptionPane.YES_NO_OPTION)
+                    == JOptionPane.YES_OPTION) {
+                    switchLocalRemoteImageProvider();
+            }
         }
-        int returnVal = fileChooser.showOpenDialog(OrbitImageAnalysis.this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            prefs.put("OrbitImageAnalysis.OpenFileCurrentDir", fileChooser.getCurrentDirectory().getAbsolutePath());
-            File[] files = fileChooser.getSelectedFiles();
-            if (files != null && files.length > 0) {
-                for (File file : files)
-                    loadFile(file.getAbsolutePath());
+
+        if (DALConfig.isLocalImageProvider()) {
+            ImageProviderLocal ipl = (ImageProviderLocal)DALConfig.getImageProvider();
+            try {
+                RawDataFile rdf = ipl.registerFile(file);
+                loadFile(rdf);
+            } catch (SQLException e) {
+                logger.error("Cannot register file: "+e.getMessage());
             }
         } else {
-            logger.trace("open image canceled.");
-        }
-
-    }
-
-    private void loadFileURL() {
-        logger.info("loadFileURL called [method call]");
-        URLChooser urlChooser = new URLChooser();
-        int returnVal = urlChooser.showOpenDialog(OrbitImageAnalysis.this);
-
-        if (returnVal == URLChooser.APPROVE_OPTION) {
-            URL url = urlChooser.getSelectedURL();
-            loadFile(url);
-        } else {
-            logger.trace("open image canceled.");
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,"To open a file from local filesystem you have to switch the image provider to local.\nPlease click Image->Switch Image provider local/remote and then try to open the image again.","Local file image provider not active",JOptionPane.ERROR_MESSAGE);
         }
 
     }
@@ -1464,7 +1458,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
-    public void loadFile(Object imageSource) {
+    public void loadFile(RawDataFile imageSource) {
         loadFile(imageSource, null, true);
     }
 
@@ -1529,7 +1523,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                     metaBar.listMetas(rdf);
                     metaBar.loadImageAdjustmentsFromDB(iFrame);
                     metaBar.repaint();
-                    if (rd.getOrigin() != null && rd.getOrigin().equalsIgnoreCase("metasystems")) {
+                    if (rd!=null && rd.getOrigin() != null && rd.getOrigin().equalsIgnoreCase("metasystems")) {           // TODO!!!
                         iFrame.recognitionFrame.setMuMeterPerPixel(0.322177822177822d/*((double)6.45/9.96d)/2d*/); // correction factor: 2,0100401606425713905420130132919
                     }
 
@@ -2792,21 +2786,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
      * loads an object from string. Can be an .orbit file, and image or a raw data id.
      */
     public static void processInputLine(String param, String all) {
-
+        LocalFileFilter localFileFilter = new LocalFileFilter();
         if (param.endsWith(".orbit")) {
             logger.debug("trying to load an orbit file");
             getInstance().loadOrbitFile(param);
-        } else if (param.toLowerCase().startsWith("http://") || param.toLowerCase().startsWith("https://") || param.toLowerCase().startsWith("ftp://") || param.toLowerCase().startsWith("file://") || param.toLowerCase().startsWith("jar://")) {
-            logger.debug("trying to load an image from URL");
-            try {
-                URL url = new URL(param);
-                getInstance().loadFile(url);
-            } catch (MalformedURLException e) {
-                logger.error("Cannot load file from url", e);
-            }
-        } else if (RawUtilsCommon.isImageFile(param)) {
+        } else if (localFileFilter.accept(new File(param))) {
             logger.debug("trying to load an image");
-            getInstance().loadFile(param);
+            getInstance().loadFileDirect(new File(param));
         } else if (param.toLowerCase().endsWith(OrbitUtils.MODEL_ENDING)) {
             logger.debug("trying to load a model");
             getInstance().loadModel(new File(param), true, param.toLowerCase().endsWith(OrbitUtils.MODEL_ENDING));
@@ -2942,9 +2928,45 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
 
     public void switchLocalRemoteImageProvider() {
-        DALConfig.switchLocalRemoteImageProvider();
-        String s = DALConfig.isLocalImageProvider() ? "Image provider local is active." : "Image provider remote is active.";
-        JOptionPane.showMessageDialog(OrbitImageAnalysis.this, s, "Image Provider Changed", JOptionPane.INFORMATION_MESSAGE);
+        List<ImageFrame> openFrames = getIFrames();
+        if (openFrames.size()==0 || JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+                "Switch from local/remote image provider implies closing all open images.\nDo you want to proceed?",
+                "Close open images", JOptionPane.YES_NO_OPTION)
+                == JOptionPane.YES_OPTION) {
+
+            // close open images
+            for (ImageFrame frame: openFrames) {
+                try {
+                    frame.setClosed(true);
+                } catch (PropertyVetoException e1) {
+                    e1.printStackTrace();
+                }
+                if (frame != null)
+                    frame.dispose();
+            }
+
+            DALConfig.switchLocalRemoteImageProvider();
+            updateMenuImageProviderEntries();
+
+            String s = DALConfig.isLocalImageProvider() ? "Image provider local is active." : "Image provider remote is active.";
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, s, "Image Provider Changed", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    public void updateMenuImageProviderEntries() {
+        String openButtonTitel = DALConfig.isLocalImageProvider() ? OrbitMenu.openFromLocalStr : OrbitMenu.openFromServerStr;
+        orbitMenu.getAmOpenOrbit().setText(openButtonTitel);
+        orbitMenu.getButtonopenFromOrbit().setText(openButtonTitel);
+        // tree / imagelist
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                imageList.setModel(new DefaultListModel()); // clear image list
+                rdTree.setEnabled(!DALConfig.isLocalImageProvider());
+                orbitMenu.getSwitchImageProviderBtn().setEnabled(!DALConfig.onlyLocalImageProviderAvailable());
+
+            }
+        });
     }
 
 
@@ -2962,25 +2984,25 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
 
 
-    public final ActionListener openFileActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            for (ImageFrame iFrame : getIFrames()) {
-                iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
-            }
-            loadFile();
-        }
-    };
-
-
-    public final ActionListener openFileURLActionListener
-            = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            for (ImageFrame iFrame : getIFrames()) {
-                iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
-            }
-            loadFileURL();
-        }
-    };
+//    public final ActionListener openFileActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            for (ImageFrame iFrame : getIFrames()) {
+//                iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
+//            }
+//            loadFileDirect();
+//        }
+//    };
+//
+//
+//    public final ActionListener openFileURLActionListener
+//            = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            for (ImageFrame iFrame : getIFrames()) {
+//                iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
+//            }
+//            loadFileURL();
+//        }
+//    };
 
 
     public final ActionListener openFileOrbitActionListener
@@ -3628,6 +3650,25 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     };
 
+    public final ActionListener dbCleanupActionListener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            forceLogin();
+            if (loginOk) {
+                if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+                        "Do you really want to cleanup the local database?\nEntries (e.g. annotations) of moved files will be removed.\nThis only affects the local files, not files on an image server.",
+                        "Cleanup local database", JOptionPane.YES_NO_OPTION)
+                        == JOptionPane.YES_OPTION) {
+                    try {
+                        ImageProviderLocal.DBCleanup();
+                        JOptionPane.showMessageDialog(OrbitImageAnalysis.this,"DB cleanup successfully completed.","Cleanup completed",JOptionPane.INFORMATION_MESSAGE);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                        logger.error("DB cleanup error: " + e1.getMessage());
+                    }
+                }
+            }
+        }
+    };
 
     public String askForDir() {
         logger.trace("ask for dir");

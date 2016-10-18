@@ -130,14 +130,14 @@ task icons {
 
 
 dependencies {
-    compile 'com.actelion.research:lib-orbit-common:1.0.8'
-//    compile 'com.actelion.research:image-provider-omero:1.0.8'
+    compile 'com.actelion.research:lib-orbit-common:1.0.9'
+    compile 'com.actelion.research:image-provider-omero:1.0.8'
     compile 'com.actelion.research:map-reduce-generic:1.0.7'
-//    compile 'com.actelion.research:map-reduce-exec-spark:1.0.1'
-//   compile 'com.actelion.research:mapReduceExecGrid:1.0.2.4'
-    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.0.3.13') {
-        exclude(module: 'OrbitImageAnalysis')
-    }
+    compile 'com.actelion.research:map-reduce-exec-spark:1.0.1'
+//  compile 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
+//    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.0.4') {
+//        exclude(module: 'OrbitImageAnalysis')
+//    }
 
     compile 'com.thoughtworks.xstream:xstream:1.4.9'
     compile 'org.jaitools:jt-utils:1.4.0' // jai-tools
@@ -178,9 +178,12 @@ dependencies {
        exclude (group:'javax.servlet', module: 'servlet-api')
     }
     compile (group: 'edu.ucar', name:'netcdf', version:'4.3.22')     // replacement of 4.3.19 used by formats-gpl which has a buggy pom (version LATEST does not work with gradle)
-    compile (group: 'ome', name:'formats-gpl', version:'5.1.5') {
+    compile (group: 'ome', name:'formats-gpl', version:'5.2.3') { // 5.1.5   5.1.10   (5.2.1)
         exclude (module: 'netcdf')
     }
+
+    compile 'io.scif:scifio:0.25.2'
+    compile 'io.scif:scifio-bf-compat:2.0.0'
 
     compile 'org.codehaus.groovy:groovy-all:2.4.5'
     compile 'org.codehaus.gpars:gpars:1.2.1'
@@ -193,6 +196,7 @@ dependencies {
     compile (group: 'sc.fiji', name: 'legacy-imglib1', version: '2.0.0-SNAPSHOT') {     //1.1.5  2.0.0-SNAPSHOT for graph_cut
         transitive = false
     }
+    compile 'org.xerial:sqlite-jdbc:3.14.2.1'
     testCompile 'junit:junit:[4.0,)'
 }
 
