@@ -271,6 +271,10 @@ public class DALConfig {
         return getImageProvider() instanceof ImageProviderLocal;
     }
 
+    public static boolean onlyLocalImageProviderAvailable() {
+        return imageProvider == localImageProvider;
+    }
+
     public static void switchLocalRemoteImageProvider() {
         if (isLocalImageProvider()) {
             setImageProvider(remoteImageProvider);

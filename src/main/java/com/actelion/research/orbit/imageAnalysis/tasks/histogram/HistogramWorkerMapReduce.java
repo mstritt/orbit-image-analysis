@@ -81,9 +81,10 @@ public class HistogramWorkerMapReduce extends OrbitWorker implements ITaskResult
             int tileChunkSize = -1;
             if ((model.getClassifier() != null && model.getClassifier().isBuild()))
                 tileChunkSize = DALConfig.getScaleOut().getParallelism();
-            String modelNew = DALConfig.getScaleOut().getRemoteContextStore().generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
+            String modelNew = OrbitUtils.generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
             if (useScaleout) {
                 try {
+                    modelNew = DALConfig.getScaleOut().getRemoteContextStore().generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
                     DALConfig.getScaleOut().getRemoteContextStore().copyToRemote(model.getAsByteArray(), OrbitUtils.remoteNameSpace, modelNew);
                 } catch (Exception es) {
                     ImageTile.modelCache.put(modelNew, model);

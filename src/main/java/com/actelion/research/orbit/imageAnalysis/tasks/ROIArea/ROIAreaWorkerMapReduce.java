@@ -77,9 +77,10 @@ public class ROIAreaWorkerMapReduce extends OrbitWorker implements ITaskResultPr
 
     @Override
     protected void doWork() throws Exception {
-        String modelNew = DALConfig.getScaleOut().getRemoteContextStore().generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
+        String modelNew = OrbitUtils.generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
         if (useScaleout) {
             try {
+                modelNew = DALConfig.getScaleOut().getRemoteContextStore().generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
                 DALConfig.getScaleOut().getRemoteContextStore().copyToRemote(model.getAsByteArray(), OrbitUtils.remoteNameSpace, modelNew);
             } catch (Exception es) {
                 ImageTile.modelCache.put(modelNew, model);

@@ -113,7 +113,10 @@ public class ResultEnhancer {
             for (Integer rdfId : rdfResults.keySet()) {
                 rdfList.add(DALConfig.getImageProvider().LoadRawDataFile(rdfId));
             }
-            String modelNew = DALConfig.getScaleOut().getRemoteContextStore().generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
+            String modelNew = OrbitUtils.generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
+//            if (useScaleout) {
+//                modelNew = DALConfig.getScaleOut().getRemoteContextStore().generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
+//            }
             ImageTile.modelCache.put(modelNew, model); // for local execution we just keep it in memory
             //DALConfig.getScaleOut().getRemoteContextStore().copyToRemote(model.getAsByteArray(), OrbitUtils.remoteNameSpace, modelNew);
             List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, -1, model.getMipLayer(), rdfList);

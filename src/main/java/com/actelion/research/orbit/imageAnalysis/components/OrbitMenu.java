@@ -55,6 +55,7 @@ public class OrbitMenu extends JRibbonFrame {
     private RibbonApplicationMenuEntrySecondary amEntryVersionCheck = null;
     private RibbonApplicationMenuEntrySecondary amOpenOrbit;
     private JCommandButton buttonopenFromOrbit = new JCommandButton(openFromServerStr, new DocumentOpen5());
+    private JCommandButton buttonSwitchLocalRemote = null;
 
     public static final String openFromServerStr = "Open image from image server";
     public static final String openFromLocalStr = "Open image from file system";
@@ -274,8 +275,6 @@ public class OrbitMenu extends JRibbonFrame {
         JRibbonBand imageBandOpen = new JRibbonBand("Open Image", null);
         imageBandOpen.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(imageBandOpen.getControlPanel())));
 
-        JCommandButton buttonSwitchLocalRemote = getSwitchImageProviderBtn();
-        imageBandOpen.addCommandButton(buttonSwitchLocalRemote, RibbonElementPriority.TOP);
 
         buttonopenFromOrbit.setActionRichTooltip(new RichTooltip("Open Image", "Open an image from an image serve or local file system."));
         buttonopenFromOrbit.addActionListener(oia == null ? null : oia.openFileOrbitActionListener);
@@ -342,8 +341,9 @@ public class OrbitMenu extends JRibbonFrame {
         buttonSaveAsOrbit.addActionListener(oia == null ? null : oia.saveAsOrbitActionListener);
         saveAsOrbitBand.addCommandButton(buttonSaveAsOrbit, RibbonElementPriority.TOP);
 
+        JRibbonBand switchImageProviderBand = getSwitchImageProviderBand();
 
-        RibbonTask imageTask = new RibbonTask("Image", imageBandOpen, imageBand1, imageBand2, imageBand3, imageBand4, saveAsOrbitBand);
+        RibbonTask imageTask = new RibbonTask("Image", imageBandOpen, imageBand1, imageBand2, imageBand3, imageBand4, saveAsOrbitBand, switchImageProviderBand);
         ribbon.addTask(imageTask);
     }
 
@@ -948,6 +948,14 @@ public class OrbitMenu extends JRibbonFrame {
         batchExecuteBand.addCommandButton(buttonRetrieveExistingResults, RibbonElementPriority.MEDIUM);
 
 
+        //JRibbonBand switchImageProviderBand = getSwitchImageProviderBand();
+
+        RibbonTask objectsTask = new RibbonTask("Batch", batchExecuteBand);
+        ribbon.addTask(objectsTask);
+
+    }
+
+    private JRibbonBand getSwitchImageProviderBand() {
         JRibbonBand switchImageProviderBand = new JRibbonBand("Image Provider", null);
         switchImageProviderBand.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(switchImageProviderBand.getControlPanel()),
                 new CoreRibbonResizePolicies.Mirror(switchImageProviderBand.getControlPanel()),
@@ -956,21 +964,19 @@ public class OrbitMenu extends JRibbonFrame {
 
         JCommandButton buttonSwitchLocalRemote = getSwitchImageProviderBtn();
         switchImageProviderBand.addCommandButton(buttonSwitchLocalRemote, RibbonElementPriority.TOP);
-
-
-        RibbonTask objectsTask = new RibbonTask("Batch", batchExecuteBand, switchImageProviderBand);
-        ribbon.addTask(objectsTask);
-
+        return switchImageProviderBand;
     }
 
-    private JCommandButton getSwitchImageProviderBtn() {
-        JCommandButton buttonSwitchLocalRemote = new JCommandButton("Switch Local / Remote Image Provider", new SystemRun3());
-        RichTooltip richTooltipSwitchLocalRemote = new RichTooltip("Switch Local / Remote Image Provider", "Switch local file system / remote image provider.");
-        richTooltipSwitchLocalRemote.addDescriptionSection("This can be used to process a set of images stored on the local filesystem.");
-        richTooltipSwitchLocalRemote.addDescriptionSection("When in local mode, the quicksearch bar on the left side cannot be used until switched back to remote mode.");
-        richTooltipSwitchLocalRemote.addDescriptionSection("Please use batch execution local, the scaleout execution won't work.");
-        buttonSwitchLocalRemote.setActionRichTooltip(richTooltipSwitchLocalRemote);
-        buttonSwitchLocalRemote.addActionListener(oia == null ? null : oia.switchLocalRemoteImageProvider);
+    public synchronized JCommandButton getSwitchImageProviderBtn() {
+        if (buttonSwitchLocalRemote==null) {
+            buttonSwitchLocalRemote = new JCommandButton("Switch Local / Remote Image Provider", new SystemRun3());
+            RichTooltip richTooltipSwitchLocalRemote = new RichTooltip("Switch Local / Remote Image Provider", "Switch local file system / remote image provider.");
+            richTooltipSwitchLocalRemote.addDescriptionSection("This can be used to process a set of images stored on the local filesystem.");
+            richTooltipSwitchLocalRemote.addDescriptionSection("When in local mode, the quicksearch bar on the left side cannot be used until switched back to remote mode.");
+            richTooltipSwitchLocalRemote.addDescriptionSection("Please use batch execution local, the scaleout execution won't work.");
+            buttonSwitchLocalRemote.setActionRichTooltip(richTooltipSwitchLocalRemote);
+            buttonSwitchLocalRemote.addActionListener(oia == null ? null : oia.switchLocalRemoteImageProvider);
+        }
         return buttonSwitchLocalRemote;
     }
 

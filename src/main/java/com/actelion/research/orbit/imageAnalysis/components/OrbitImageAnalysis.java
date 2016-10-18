@@ -600,6 +600,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         });
 
 
+        updateMenuImageProviderEntries();
         this.setVisible(true);
 
         if (DALConfig.isCheckVersion()) {
@@ -2945,22 +2946,27 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
 
             DALConfig.switchLocalRemoteImageProvider();
+            updateMenuImageProviderEntries();
+
             String s = DALConfig.isLocalImageProvider() ? "Image provider local is active." : "Image provider remote is active.";
-            String openButtonTitel = DALConfig.isLocalImageProvider() ? OrbitMenu.openFromLocalStr : OrbitMenu.openFromServerStr;
-            orbitMenu.getAmOpenOrbit().setText(openButtonTitel);
-            orbitMenu.getButtonopenFromOrbit().setText(openButtonTitel);
-
-            // tree / imagelist
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    imageList.setModel(new DefaultListModel()); // clear image list
-                    rdTree.setEnabled(!DALConfig.isLocalImageProvider());
-                }
-            });
-
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this, s, "Image Provider Changed", JOptionPane.INFORMATION_MESSAGE);
         }
+    }
+
+    public void updateMenuImageProviderEntries() {
+        String openButtonTitel = DALConfig.isLocalImageProvider() ? OrbitMenu.openFromLocalStr : OrbitMenu.openFromServerStr;
+        orbitMenu.getAmOpenOrbit().setText(openButtonTitel);
+        orbitMenu.getButtonopenFromOrbit().setText(openButtonTitel);
+        // tree / imagelist
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                imageList.setModel(new DefaultListModel()); // clear image list
+                rdTree.setEnabled(!DALConfig.isLocalImageProvider());
+                orbitMenu.getSwitchImageProviderBtn().setEnabled(!DALConfig.onlyLocalImageProviderAvailable());
+
+            }
+        });
     }
 
 

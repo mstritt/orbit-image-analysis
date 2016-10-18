@@ -698,6 +698,10 @@ public class OrbitUtils {
     }
 
 
+    public static String generateUniqueFilename(String prefix, String ending) {
+        return prefix + UUID.randomUUID().toString() + ending;
+    }
+
     /**
      * Apply raster modifications like color deconvolution.
      * The output will be a ModifiedRaster. If the input is already a ModifiedRaster, no modification will be done.
