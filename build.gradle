@@ -55,6 +55,9 @@ repositories {
         url 'http://maven.imagej.net/content/repositories/snapshots/'    // for legacy-imglib1-2.0.0-SNAPSHOT.jar used by imagej1 compatible graph_cut
     }
     maven {
+        url 'http://maven.imagej.net/content/repositories/releases/'  // scifio
+    }
+    maven {
         url 'https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/' // for jai-codec
     }
 }
@@ -131,13 +134,13 @@ task icons {
 
 dependencies {
     compile 'com.actelion.research:lib-orbit-common:1.0.9'
-    compile 'com.actelion.research:image-provider-omero:1.0.8'
+//    compile 'com.actelion.research:image-provider-omero:1.0.8'
     compile 'com.actelion.research:map-reduce-generic:1.0.7'
-    compile 'com.actelion.research:map-reduce-exec-spark:1.0.1'
+//    compile 'com.actelion.research:map-reduce-exec-spark:1.0.1'
 //  compile 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
-//    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.0.4') {
-//        exclude(module: 'OrbitImageAnalysis')
-//    }
+    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.0.4') {
+        exclude(module: 'OrbitImageAnalysis')
+    }
 
     compile 'com.thoughtworks.xstream:xstream:1.4.9'
     compile 'org.jaitools:jt-utils:1.4.0' // jai-tools
@@ -158,8 +161,8 @@ dependencies {
     compile (group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version:'3.8.0') {
         transitive = false
     }
-    compile 'nz.ac.waikato.cms.weka.thirdparty:java-cup-11b:2015.03.26'
-    compile 'nz.ac.waikato.cms.weka.thirdparty:java-cup-11b-runtime:2015.03.26'
+    //compile 'nz.ac.waikato.cms.weka.thirdparty:java-cup-11b:2015.03.26'
+    //compile 'nz.ac.waikato.cms.weka.thirdparty:java-cup-11b-runtime:2015.03.26'
     compile 'nz.ac.waikato.cms.weka.thirdparty:bounce:0.18'
     compile 'com.github.fommil.netlib:core:1.1.2'
     compile 'com.github.fommil.netlib:generator:1.1.2'
@@ -178,11 +181,12 @@ dependencies {
        exclude (group:'javax.servlet', module: 'servlet-api')
     }
     compile (group: 'edu.ucar', name:'netcdf', version:'4.3.22')     // replacement of 4.3.19 used by formats-gpl which has a buggy pom (version LATEST does not work with gradle)
-    compile (group: 'ome', name:'formats-gpl', version:'5.2.3') { // 5.1.5   5.1.10   (5.2.1)
+    compile (group: 'ome', name:'formats-gpl', version:'5.2.4') { // 5.1.5   5.1.10   (5.2.1)
         exclude (module: 'netcdf')
     }
 
-    compile 'io.scif:scifio:0.25.2'
+    //compile 'io.scif:scifio:0.25.2'    // works with java 1.7
+    compile 'io.scif:scifio:0.29.0'  // only java 1.8
     compile 'io.scif:scifio-bf-compat:2.0.0'
 
     compile 'org.codehaus.groovy:groovy-all:2.4.5'

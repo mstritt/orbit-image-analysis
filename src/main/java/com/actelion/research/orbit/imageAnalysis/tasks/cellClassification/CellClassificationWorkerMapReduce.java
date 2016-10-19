@@ -99,6 +99,8 @@ public class CellClassificationWorkerMapReduce extends OrbitWorker implements IT
             } else {
                 ImageTile.modelCache.put(modelNew, model); // for local execution we just keep it in memory
             }
+            if (!onlyTilesinROI) onlyTilesinROI = !useScaleout;
+            logger.debug("onlyTilesInROI: "+onlyTilesinROI+"  skipNonExplicitROIImages: "+skipNonExplicitROIImages);
             List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, model, tileChunkSize, model.getMipLayer(), onlyTilesinROI, skipNonExplicitROIImages, rdfList.toArray(new RawDataFile[0]));
             CellClassificationMapReduce mrCellClassification = new CellClassificationMapReduce();
             mrCellClassification.setModel(new OrbitModel(model));

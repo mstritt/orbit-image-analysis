@@ -47,6 +47,9 @@ public class HistogramWorkerMapReduce extends OrbitWorker implements ITaskResult
     private OrbitModel model;
     private String taskDetail = "";
     private boolean useScaleout = false;
+    private boolean onlyTilesinROI = false;
+    private boolean skipNonExplicitROIImages = false;
+
 
     public HistogramWorkerMapReduce() {
         // for result producer
@@ -93,7 +96,9 @@ public class HistogramWorkerMapReduce extends OrbitWorker implements ITaskResult
             } else {
                 ImageTile.modelCache.put(modelNew, model); // for local execution we just keep it in memory
             }
-            List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, tileChunkSize, model.getMipLayer(), rdfList);
+            if (!onlyTilesinROI) onlyTilesinROI = !useScaleout;
+            logger.debug("onlyTilesInROI: "+onlyTilesinROI+"  skipNonExplicitROIImages: "+skipNonExplicitROIImages);
+            List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, model, tileChunkSize, model.getMipLayer(), onlyTilesinROI, skipNonExplicitROIImages, rdfList.toArray(new RawDataFile[0]));
             HistogramMapReduce mrHistogram = new HistogramMapReduce();
             mrHistogram.setModel(new OrbitModel(model));
             Map<Integer, Histogram[]> histogramMap = null;
@@ -146,5 +151,22 @@ public class HistogramWorkerMapReduce extends OrbitWorker implements ITaskResult
     public double getProgressD() {
         return executor.getProgress();
     }
+
+    public boolean isOnlyTilesinROI() {
+        return onlyTilesinROI;
+    }
+
+    public void setOnlyTilesinROI(boolean onlyTilesinROI) {
+        this.onlyTilesinROI = onlyTilesinROI;
+    }
+
+    public boolean isSkipNonExplicitROIImages() {
+        return skipNonExplicitROIImages;
+    }
+
+    public void setSkipNonExplicitROIImages(boolean skipNonExplicitROIImages) {
+        this.skipNonExplicitROIImages = skipNonExplicitROIImages;
+    }
+
 
 }

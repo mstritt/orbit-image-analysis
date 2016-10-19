@@ -16,6 +16,7 @@ settings.gradle
 custom.gradle
 build.xml
 config_custom.properties
+config_2custom.properties
 
 OrbitImageAnalysis.jar
 

@@ -42,6 +42,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -380,12 +381,46 @@ public class OrbitModel implements Serializable, Cloneable {
      */
     public void prepareModelforSaving(List<ImageFrame> iFrames) {
         if (classShapesToRestore == null) return; // old deserialized model
+
+        // collect open images
+        HashSet<Integer> openRDFs = new HashSet<>();
+        if (iFrames != null) {
+            for (ImageFrame iFrame : iFrames) {
+                if (iFrame.getRdf()!=null) {
+                    openRDFs.add(iFrame.getRdf().getRawDataFileId());
+                }
+            }
+        }
+
+        // save old class shapes from images which are not open
+        List<ClassShape> classShapesToAdd = new ArrayList<>();
+        for (ClassShape cs: classShapesToRestore) {
+            ClassShape csNew = cs.clone();
+            csNew.getShapeList().clear();
+            for (Shape shape: cs.getShapeList()) {
+                if (shape instanceof IScaleableShape) {
+                    IScaleableShape isc = (IScaleableShape) shape;
+                    if (isc.getRdfId()>0) {
+                        if (!openRDFs.contains(isc.getRdfId())) {
+                            csNew.getShapeList().add(isc);  // not open, so keep old one to add later
+                        }
+                    }
+                }
+                if (csNew.getShapeList().size()>0) {
+                    classShapesToAdd.add(csNew);
+                }
+            }
+        }
+
+
+        // clear class shape list and initialize according to class shape drop-down box
         classShapesToRestore.clear();
         for (ClassShape cs : classShapes) {
             ClassShape newShape = cs.clone();
             newShape.setShapeList(Collections.synchronizedList(new ArrayList<Shape>())); // store empty list
             classShapesToRestore.add(newShape);
         }
+        // add class shapes from open images
         if (iFrames != null) {
             for (ImageFrame iFrame : iFrames) {
                 if (iFrame.getRdf() != null) {   // it's an Orbit image (not loaded from file)
@@ -407,6 +442,20 @@ public class OrbitModel implements Serializable, Cloneable {
                 }
             }
         }
+
+        // add old (not open in images) class shapes
+        for (ClassShape csNew: classShapesToAdd) {
+            boolean found=false;
+            for (ClassShape cs: classShapesToRestore) {
+                if (cs.equalsSimple(csNew)) {
+                    cs.getShapeList().addAll(csNew.getShapeList());
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) classShapesToRestore.add(csNew);
+        }
+
     }
 
     /**

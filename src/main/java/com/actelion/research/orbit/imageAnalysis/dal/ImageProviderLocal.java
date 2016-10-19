@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -233,6 +234,30 @@ public class ImageProviderLocal extends ImageProviderNoop {
         if (context!=null)
             context.dispose();
     }
+
+
+    // search
+
+    @Override
+    public List<RawDataFile> LoadRawDataFilesSearch(String search, boolean b) throws Exception {
+        return LoadRawDataFilesSearchFast(search,1000, Arrays.asList(RawUtilsCommon.fileTypesImage));
+    }
+
+    @Override
+    public List<RawDataFile> LoadRawDataFilesSearch(String search, boolean andMode, int searchLimit, List<String> fileTypes) throws Exception {
+        return LoadRawDataFilesSearchFast(search,1000, Arrays.asList(RawUtilsCommon.fileTypesImage));
+    }
+
+    @Override
+    public List<RawDataFile> LoadRawDataFilesByFilenameStart(String search, boolean andMode, int searchLimit, List<String> fileTypes, String s1) throws Exception {
+        return LoadRawDataFilesSearchFast(search,1000, Arrays.asList(RawUtilsCommon.fileTypesImage));
+    }
+
+    @Override
+    public List<RawDataFile> LoadRawDataFilesSearchFast(String search, int searchLimit, List<String> list) throws Exception {
+        return DAODataFileSQLite.LoadRawDataFilesSearchFast(search,searchLimit,null);
+    }
+
 
 
 

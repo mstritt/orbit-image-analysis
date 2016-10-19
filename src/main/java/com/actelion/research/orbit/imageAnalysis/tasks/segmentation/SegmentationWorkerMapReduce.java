@@ -97,6 +97,8 @@ public class SegmentationWorkerMapReduce extends OrbitWorker implements ITaskRes
         int chunkSize = -1;
         if ((model.getClassifier() != null && model.getClassifier().isBuild()))
             chunkSize = DALConfig.getScaleOut().getParallelism();
+        if (!onlyTilesinROI) onlyTilesinROI = !useScaleout;
+        logger.debug("onlyTilesInROI: "+onlyTilesinROI+"  skipNonExplicitROIImages: "+skipNonExplicitROIImages);
         List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, model, chunkSize, model.getMipLayer(), onlyTilesinROI, skipNonExplicitROIImages, rdfList.toArray(new RawDataFile[0]));
         SegmentationMapReduce mrCellCount = new SegmentationMapReduce();
         mrCellCount.setModel(new OrbitModel(model));

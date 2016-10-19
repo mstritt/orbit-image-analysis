@@ -40,6 +40,9 @@ import java.util.Date;
 import java.util.List;
 
 public class ModelBrowser {
+
+    private OrbitModel selectedModel;
+
     public static void main(String[] args) throws Exception {
 
         ModelBrowser browser = new ModelBrowser();
@@ -47,6 +50,10 @@ public class ModelBrowser {
     }
 
     public void showModelBrowser(final Frame owner, final String username) throws Exception {
+         showModelBrowser(owner,username,true);
+    }
+
+    public void showModelBrowser(final Frame owner, final String username, final boolean loadInOrbit) throws Exception {
         List<ModelAnnotation> modelList = OrbitModel.LoadFromOrbitUser(null);
         for (ModelAnnotation modelAnnotation : modelList) {
             System.out.println("model: " + modelAnnotation.getDescription() + " (" + modelAnnotation.getRawAnnotationId() + ")");
@@ -57,6 +64,7 @@ public class ModelBrowser {
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.setSize(1024, 800);
         frame.setLayout(new BorderLayout());
+        frame.setModal(true);
 
         final TableModel tableModel = new OrbitModelTableModel(modelList);
         final JTable table = new JTable(tableModel);
@@ -136,12 +144,15 @@ public class ModelBrowser {
             public void actionPerformed(ActionEvent e) {
                 if (table.getSelectedRow() >= 0) {
                     final ModelAnnotation annotation = (ModelAnnotation) table.getModel().getValueAt(table.convertRowIndexToModel(table.getSelectedRow()), -1);
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            OrbitImageAnalysis.getInstance().loadModel(annotation.getModel(), getNameAndELB(annotation.getDescription())[0]);
-                        }
-                    });
+                    selectedModel = annotation.getModel();
+                    if (loadInOrbit) {
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                OrbitImageAnalysis.getInstance().loadModel(annotation.getModel(), getNameAndELB(annotation.getDescription())[0]);
+                            }
+                        });
+                    }
                     frame.setVisible(false);
                     frame.dispose();
                 }
@@ -364,5 +375,7 @@ public class ModelBrowser {
         }
     };
 
-
+    public OrbitModel getSelectedModel() {
+        return selectedModel;
+    }
 }

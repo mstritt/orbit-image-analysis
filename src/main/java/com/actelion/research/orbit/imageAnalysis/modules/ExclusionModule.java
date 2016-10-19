@@ -40,6 +40,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import static com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis.loginOk;
+
 public class ExclusionModule extends AbstractOrbitModule {
 
     private static final long serialVersionUID = 1L;
@@ -48,6 +50,7 @@ public class ExclusionModule extends AbstractOrbitModule {
     private final JButton btnConfigureClasses = new JButton("Configure Classes");
     private final JButton btnTrain = new JButton("Train, Set and Classify");
     private final JButton btnLoad = new JButton("Load and Set Exclusion Model");
+    private final JButton btnLoadServer = new JButton("Load and Set Exclusion Model from Server");
     private final JButton btnClassify = new JButton("Classify Trained Exclusion Model");
     private final JButton btnReset = new JButton("Reset Exclusion Model");
     private final JButton btnHelp = new JButton("Help");
@@ -89,6 +92,12 @@ public class ExclusionModule extends AbstractOrbitModule {
         btnLoad.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadModel();
+            }
+        });
+
+        btnLoadServer.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadModelServer();
             }
         });
 
@@ -226,6 +235,31 @@ public class ExclusionModule extends AbstractOrbitModule {
         }
     }
 
+    private void loadModelServer() {
+        final OrbitImageAnalysis OIA = OrbitImageAnalysis.getInstance();
+        OrbitModel exclModel = null;
+        ModelBrowser modelBrowser = new ModelBrowser();
+        try {
+            OIA.forceLogin();
+            if (loginOk) {
+                modelBrowser.showModelBrowser(OIA, OIA.loginUser,false);  // modal
+                exclModel = modelBrowser.getSelectedModel();
+            }
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+
+        if (exclModel!=null) {
+            OIA.getModel().setExclusionModel(exclModel);
+            logger.info("exclusion model loaded and set");
+            OIA.updateStatusBar();
+            JOptionPane.showMessageDialog(null, "Exclusion model loaded and set.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            logger.trace("load model canceled.");
+        }
+    }
+
+
     @Override
     public String getName() {
         return "Exclusion Model";
@@ -280,6 +314,10 @@ public class ExclusionModule extends AbstractOrbitModule {
 
     public JButton getBtnLoad() {
         return btnLoad;
+    }
+
+    public JButton getBtnLoadServer() {
+        return btnLoadServer;
     }
 
     public JButton getBtnReset() {

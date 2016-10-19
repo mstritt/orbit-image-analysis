@@ -311,6 +311,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             forceLogin();
         }
 
+        // if only local filesystem, switch to Image menu to show open from local file button (otherwise the classification task will be shown)
+        if (DALConfig.onlyLocalImageProviderAvailable()) {
+            getRibbon().setSelectedTask(getRibbon().getTask(0));
+        }
 
         ImagePreview preview = new ImagePreview(fileChooser);
         fileChooser.setAccessory(preview);
@@ -679,6 +683,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     private boolean login() {
         logger.debug("login start");
+        if (DALConfig.isLocalImageProvider()) {
+            loginUser = GUEST_USER;
+            menuLogOff.setEnabled(false);
+            menuLogIn.setEnabled(true);
+            updateStatusBar();
+            return true;
+        }
         if (OrbitLoginDialog.showLoginDialog(this) == Status.SUCCEEDED) {
             loginUser = OrbitLoginDialog.getUsername();
             loginPassword = OrbitLoginDialog.getPassword();
@@ -693,6 +704,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
     private void logoff() {
+        if (DALConfig.isLocalImageProvider()) {
+            return;
+        }
         loginUser = GUEST_USER;
         OrbitLoginDialog.reset();
         menuLogOff.setEnabled(false);
@@ -2964,7 +2978,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 imageList.setModel(new DefaultListModel()); // clear image list
                 rdTree.setEnabled(!DALConfig.isLocalImageProvider());
                 orbitMenu.getSwitchImageProviderBtn().setEnabled(!DALConfig.onlyLocalImageProviderAvailable());
-
+                orbitMenu.getButtonExecuteScaleout().setEnabled(!DALConfig.onlyLocalImageProviderAvailable());
+                orbitMenu.getButtonRetrieveExistingResults().setEnabled(!DALConfig.onlyLocalImageProviderAvailable());
             }
         });
     }
@@ -3655,7 +3670,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             forceLogin();
             if (loginOk) {
                 if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
-                        "Do you really want to cleanup the local database?\nEntries (e.g. annotations) of moved files will be removed.\nThis only affects the local files, not files on an image server.",
+                        "Do you really want to cleanup the local database?\nEntries (e.g. annotations) of non-existing files will be removed.\nThis only affects the local files, not files on an image server.",
                         "Cleanup local database", JOptionPane.YES_NO_OPTION)
                         == JOptionPane.YES_OPTION) {
                     try {

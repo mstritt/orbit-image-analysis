@@ -52,6 +52,9 @@ public class CellFeaturesWorkerMapReduce extends OrbitWorker implements ITaskRes
     private OrbitModel model;
     private String taskDetail = "";
     private boolean useScaleout = false;
+    private boolean onlyTilesinROI = false;
+    private boolean skipNonExplicitROIImages = false;
+
 
     public CellFeaturesWorkerMapReduce() {
         // for result producer
@@ -100,7 +103,9 @@ public class CellFeaturesWorkerMapReduce extends OrbitWorker implements ITaskRes
             int chunkSize = -1;
             if ((model.getClassifier() != null && model.getClassifier().isBuild()))
                 chunkSize = DALConfig.getScaleOut().getParallelism();
-            List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, chunkSize, model.getMipLayer(), rdfList);      // chunksize: 15:150
+            if (!onlyTilesinROI) onlyTilesinROI = !useScaleout;
+            logger.debug("onlyTilesInROI: "+onlyTilesinROI+"  skipNonExplicitROIImages: "+skipNonExplicitROIImages);
+            List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, model, chunkSize, model.getMipLayer(), onlyTilesinROI, skipNonExplicitROIImages, rdfList.toArray(new RawDataFile[0]));
             CellFeaturesMapReduce cellFeaturesMapReduce = new CellFeaturesMapReduce();
             cellFeaturesMapReduce.setModel(new OrbitModel(model));
             Map<Integer, KeyValue<OrbitModel, SegmentationResult>> results = null;
@@ -162,6 +167,22 @@ public class CellFeaturesWorkerMapReduce extends OrbitWorker implements ITaskRes
     @Override
     public double getProgressD() {
         return executor.getProgress();
+    }
+
+    public boolean isOnlyTilesinROI() {
+        return onlyTilesinROI;
+    }
+
+    public void setOnlyTilesinROI(boolean onlyTilesinROI) {
+        this.onlyTilesinROI = onlyTilesinROI;
+    }
+
+    public boolean isSkipNonExplicitROIImages() {
+        return skipNonExplicitROIImages;
+    }
+
+    public void setSkipNonExplicitROIImages(boolean skipNonExplicitROIImages) {
+        this.skipNonExplicitROIImages = skipNonExplicitROIImages;
     }
 
 

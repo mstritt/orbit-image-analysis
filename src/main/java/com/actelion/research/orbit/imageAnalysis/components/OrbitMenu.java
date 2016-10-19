@@ -56,9 +56,13 @@ public class OrbitMenu extends JRibbonFrame {
     private RibbonApplicationMenuEntrySecondary amOpenOrbit;
     private JCommandButton buttonopenFromOrbit = new JCommandButton(openFromServerStr, new DocumentOpen5());
     private JCommandButton buttonSwitchLocalRemote = null;
+    private final JCommandButton buttonExecuteScaleout = new JCommandButton("Scaleout Execution", new SystemRun3());
+    private final JCommandButton buttonRetrieveExistingResults = new JCommandButton("Retrieve Existing Results", new GoDownSearch());
 
-    public static final String openFromServerStr = "Open image from image server";
-    public static final String openFromLocalStr = "Open image from file system";
+
+
+    public static final String openFromServerStr = "Open Image from Server";
+    public static final String openFromLocalStr = "Open Image from File System";
 
 
     public OrbitMenu(OrbitImageAnalysis oia) {
@@ -206,7 +210,7 @@ public class OrbitMenu extends JRibbonFrame {
 
         // open model
         RibbonApplicationMenuEntryPrimary amEntryOpenModel = new RibbonApplicationMenuEntryPrimary(new DocumentOpen5(), "Open Model", null, JCommandButton.CommandButtonKind.POPUP_ONLY);
-        RibbonApplicationMenuEntrySecondary amEntryOpenModelOrbit = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Open Model from Orbit", oia == null ? null : oia.openModelOrbitActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
+        RibbonApplicationMenuEntrySecondary amEntryOpenModelOrbit = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Open Model from Server", oia == null ? null : oia.openModelOrbitActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
         amEntryOpenModelOrbit.setActionKeyTip("M");
         RibbonApplicationMenuEntrySecondary amEntryOpenModelFile = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Open Model from File", oia == null ? null : oia.openModelActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
         amEntryOpenModel.addSecondaryMenuGroup("Open Model", amEntryOpenModelOrbit, amEntryOpenModelFile);
@@ -275,52 +279,35 @@ public class OrbitMenu extends JRibbonFrame {
         JRibbonBand imageBandOpen = new JRibbonBand("Open Image", null);
         imageBandOpen.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(imageBandOpen.getControlPanel())));
 
-
-        buttonopenFromOrbit.setActionRichTooltip(new RichTooltip("Open Image", "Open an image from an image serve or local file system."));
+        buttonopenFromOrbit.setActionRichTooltip(new RichTooltip("Open Image", "Open an image from image serve or local file system."));
         buttonopenFromOrbit.addActionListener(oia == null ? null : oia.openFileOrbitActionListener);
         imageBandOpen.addCommandButton(buttonopenFromOrbit, RibbonElementPriority.TOP);
 
-//        JCommandButton buttonopenFromFile = new JCommandButton("Open from File", new DocumentOpen5());
-//        buttonopenFromFile.setActionRichTooltip(new RichTooltip("Open from File", "Open an image from the local file system."));
-//        buttonopenFromFile.addActionListener(oia == null ? null : oia.openFileActionListener);
-//        imageBandOpen.addCommandButton(buttonopenFromFile, RibbonElementPriority.TOP);
-//
-//        JCommandButton buttonopenFromUrl = new JCommandButton("Open from URL", new DocumentOpen5());
-//        buttonopenFromUrl.setActionRichTooltip(new RichTooltip("Open from URL", "Open an image from URL."));
-//        buttonopenFromUrl.addActionListener(oia == null ? null : oia.openFileURLActionListener);
-//        imageBandOpen.addCommandButton(buttonopenFromUrl, RibbonElementPriority.TOP);
+        JRibbonBand imageBandOpenSpecial = new JRibbonBand("Open Special", null);
+        imageBandOpenSpecial.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(imageBandOpenSpecial.getControlPanel())));
 
 
-        JRibbonBand imageBand1 = new JRibbonBand("Slide Overview", null);
-        imageBand1.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(imageBand1.getControlPanel())));
         JCommandButton buttonImg1 = new JCommandButton("View Overview (CTRL-O)", new SlidepreviewNoLoupe6());
         buttonImg1.setActionRichTooltip(new RichTooltip("View Overview", "Load the whole-slide overview. Only available if the image stems from a whole slide scanner."));
         buttonImg1.addActionListener(oia == null ? null : oia.loadOverviewActionListener);
-        imageBand1.addCommandButton(buttonImg1, RibbonElementPriority.TOP);
+        imageBandOpenSpecial.addCommandButton(buttonImg1, RibbonElementPriority.TOP);
 
-        JRibbonBand imageBand2 = new JRibbonBand("TMA Detection", null);
-        imageBand2.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(imageBand2.getControlPanel())));
         JCommandButton buttonImg2 = new JCommandButton("Open Spot Detection", new DocumentOpen5());
         buttonImg2.setActionRichTooltip(new RichTooltip("Load Image for TMA Spot Detection", "Load a special resolution image on which the TMA spot detection can be performed."));
         buttonImg2.addActionListener(oia == null ? null : oia.loadTMAThumbnailActionListener);
-        imageBand2.addCommandButton(buttonImg2, RibbonElementPriority.TOP);
+        imageBandOpenSpecial.addCommandButton(buttonImg2, RibbonElementPriority.TOP);
 
-        JRibbonBand imageBand3 = new JRibbonBand("Resolution for Printing", null);
-        imageBand3.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(imageBand3.getControlPanel())));
         JCommandButton buttonImg3 = new JCommandButton("Open Resolution for Printing", new DocumentOpen5());
         buttonImg3.setActionRichTooltip(new RichTooltip("Load Printing Resolution", "Load a medium size resolution which is suitable for printing."));
         buttonImg3.addActionListener(oia == null ? null : oia.loadMediumResolutionActionListener);
-        imageBand3.addCommandButton(buttonImg3, RibbonElementPriority.TOP);
+        imageBandOpenSpecial.addCommandButton(buttonImg3, RibbonElementPriority.TOP);
 
-
-        JRibbonBand imageBand4 = new JRibbonBand("Special Resolutions", null);
-        imageBand4.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(imageBand4.getControlPanel())));
 
         JCommandButton buttonImgSpecialResolution = new JCommandButton("Open Special Resolution", new DocumentOpen5());
         RichTooltip richTooltipSpecialResolution = new RichTooltip("Load Special Resolution", "Load a special resolution of the image.");
         richTooltipSpecialResolution.addDescriptionSection("Each successor resolution has half the size in each dimension as the parent resolution.");
         buttonImgSpecialResolution.setActionRichTooltip(richTooltipSpecialResolution);
-        imageBand4.addCommandButton(buttonImgSpecialResolution, RibbonElementPriority.TOP);
+        imageBandOpenSpecial.addCommandButton(buttonImgSpecialResolution, RibbonElementPriority.TOP);
         buttonImgSpecialResolution.setCommandButtonKind(JCommandButton.CommandButtonKind.POPUP_ONLY);
 
         buttonImgSpecialResolution.setPopupCallback(new PopupPanelCallback() {
@@ -343,7 +330,7 @@ public class OrbitMenu extends JRibbonFrame {
 
         JRibbonBand switchImageProviderBand = getSwitchImageProviderBand();
 
-        RibbonTask imageTask = new RibbonTask("Image", imageBandOpen, imageBand1, imageBand2, imageBand3, imageBand4, saveAsOrbitBand, switchImageProviderBand);
+        RibbonTask imageTask = new RibbonTask("Image", imageBandOpen, imageBandOpenSpecial, saveAsOrbitBand, switchImageProviderBand);
         ribbon.addTask(imageTask);
     }
 
@@ -392,8 +379,8 @@ public class OrbitMenu extends JRibbonFrame {
         JRibbonBand modelOpenBand = new JRibbonBand("Open", null);
         modelOpenBand.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(modelOpenBand.getControlPanel())));
 
-        JCommandButton buttonModelOpenOrbit = new JCommandButton("Open Model from Orbit", new DocumentOpen5());
-        buttonModelOpenOrbit.setActionRichTooltip(new RichTooltip("Open Model from Orbit", "Load an existing model from Orbit."));
+        JCommandButton buttonModelOpenOrbit = new JCommandButton("Open Model from Server", new DocumentOpen5());
+        buttonModelOpenOrbit.setActionRichTooltip(new RichTooltip("Open Model from Server", "Load an existing model from Server."));
         buttonModelOpenOrbit.addActionListener(oia == null ? null : oia.openModelOrbitActionListener);
         modelOpenBand.addCommandButton(buttonModelOpenOrbit, RibbonElementPriority.TOP);
 
@@ -410,8 +397,8 @@ public class OrbitMenu extends JRibbonFrame {
 
         JRibbonBand modelSaveBand = new JRibbonBand("Save", null);
 
-        JCommandButton buttonSaveModelOrbit = new JCommandButton("Save Model in Orbit", new DocumentSave3());
-        buttonSaveModelOrbit.setActionRichTooltip(new RichTooltip("Save Model in Orbit", "Save active model in Orbit."));
+        JCommandButton buttonSaveModelOrbit = new JCommandButton("Save Model on Server", new DocumentSave3());
+        buttonSaveModelOrbit.setActionRichTooltip(new RichTooltip("Save Model on Server", "Save active model on Server."));
         buttonSaveModelOrbit.addActionListener(oia == null ? null : oia.saveModelOrbitActionListener);
         modelSaveBand.addCommandButton(buttonSaveModelOrbit, RibbonElementPriority.TOP);
 
@@ -878,11 +865,19 @@ public class OrbitMenu extends JRibbonFrame {
         exclusionBand.addCommandButton(buttonTrainSetClassify, RibbonElementPriority.TOP);
 
         JCommandButton buttonLoadAndSet = new JCommandButton(em.getBtnLoad().getText(), new DocumentOpen5());
-        RichTooltip richTooltipLoadAndSet = new RichTooltip("Load and Set Exclusion Model", "Load an existing exclusion model and set it active.");
+        RichTooltip richTooltipLoadAndSet = new RichTooltip("Load and Set Exclusion Model (file system)", "Load an existing exclusion model and set it active.");
         richTooltipLoadAndSet.addDescriptionSection("This function can be used to combine a currently active main model (e.g. detail classification) with an existing exclusion model (which has already been saved to file via 'save nested exclusion model').");
         buttonLoadAndSet.addActionListener(oia == null ? null : em.getBtnLoad().getActionListeners()[0]);
         buttonLoadAndSet.setActionRichTooltip(richTooltipLoadAndSet);
         exclusionBand.addCommandButton(buttonLoadAndSet, RibbonElementPriority.MEDIUM);
+
+        JCommandButton buttonLoadAndSetServer = new JCommandButton(em.getBtnLoad().getText(), new DocumentOpen5());
+        RichTooltip richTooltipLoadAndSetServer = new RichTooltip("Load and Set Exclusion Model (server)", "Load an existing exclusion model and set it active.");
+        richTooltipLoadAndSetServer.addDescriptionSection("This function can be used to combine a currently active main model (e.g. detail classification) with an existing exclusion model (which has already been saved to file via 'save nested exclusion model').");
+        buttonLoadAndSetServer.addActionListener(oia == null ? null : em.getBtnLoadServer().getActionListeners()[0]);
+        buttonLoadAndSetServer.setActionRichTooltip(richTooltipLoadAndSetServer);
+        exclusionBand.addCommandButton(buttonLoadAndSetServer, RibbonElementPriority.MEDIUM);
+
 
         JCommandButton buttonClassify = new JCommandButton(em.getBtnClassify().getText(), new ApplicationsGraphics2());
         RichTooltip richTooltipClassify = new RichTooltip("Classify Trained Exclusion Model", "Classify active image using the already trained exclusion model.");
@@ -925,7 +920,6 @@ public class OrbitMenu extends JRibbonFrame {
         buttonExecuteLocal.addActionListener(oia == null ? null : oia.batchExportLocalActionListener);
         batchExecuteBand.addCommandButton(buttonExecuteLocal, RibbonElementPriority.TOP);
 
-        JCommandButton buttonExecuteScaleout = new JCommandButton("Scaleout Execution", new SystemRun3());
         RichTooltip richTooltipExecuteGrid = new RichTooltip("Scaleout (Grid/Cluster) Batch Execution", "Schedule a batch execution using a scaleout infrastructure.");
         richTooltipExecuteGrid.addDescriptionSection("Compared to the local execution this execution method has more overhead, but runs in parallel in a distributed environment.");
         richTooltipExecuteGrid.addDescriptionSection("Use it if you have many or very big (e.g. slides) image to analyze.");
@@ -940,7 +934,6 @@ public class OrbitMenu extends JRibbonFrame {
         buttonBatchROIAreas.addActionListener(oia == null ? null : oia.roiAreasBatchExportActionListener);
         batchExecuteBand.addCommandButton(buttonBatchROIAreas, RibbonElementPriority.MEDIUM);
 
-        JCommandButton buttonRetrieveExistingResults = new JCommandButton("Retrieve Existing Results", new GoDownSearch());
         RichTooltip richTooltipRetrieveExistingResults = new RichTooltip("Retrieve Existing Results", "Display existing results form current and previous batch jobs running on the grid.");
         richTooltipRetrieveExistingResults.addDescriptionSection("This function can be used to retrieve results if you closed the program after scheduling a grid batch execution.");
         buttonRetrieveExistingResults.setActionRichTooltip(richTooltipRetrieveExistingResults);
@@ -1480,5 +1473,13 @@ public class OrbitMenu extends JRibbonFrame {
 
     public JCommandButton getButtonopenFromOrbit() {
         return buttonopenFromOrbit;
+    }
+
+    public JCommandButton getButtonExecuteScaleout() {
+        return buttonExecuteScaleout;
+    }
+
+    public JCommandButton getButtonRetrieveExistingResults() {
+        return buttonRetrieveExistingResults;
     }
 }

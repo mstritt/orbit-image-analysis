@@ -181,6 +181,24 @@ public class ClassShape implements Serializable, Cloneable {
         return true;
     }
 
+    /**
+     * Checks only name,color and incExcMode
+     * @param o
+     * @return
+     */
+    public boolean equalsSimple(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ClassShape that = (ClassShape) o;
+
+        if (incExcMode != that.incExcMode) return false;
+        if (shapeType != that.shapeType) return false;
+        if (color != null ? !color.equals(that.color) : that.color != null) return false;
+        return name != null ? name.equals(that.name) : that.name == null;
+
+    }
+
 
     public List<Shape> getShapeList() {
         return shapeList;

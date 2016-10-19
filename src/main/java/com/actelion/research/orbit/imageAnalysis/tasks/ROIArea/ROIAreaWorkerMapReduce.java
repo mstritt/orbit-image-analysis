@@ -49,6 +49,7 @@ public class ROIAreaWorkerMapReduce extends OrbitWorker implements ITaskResultPr
     private OrbitModel model;
     private boolean useScaleout = false;
 
+
     public ROIAreaWorkerMapReduce() {
         // for result producer
     }
@@ -128,6 +129,7 @@ public class ROIAreaWorkerMapReduce extends OrbitWorker implements ITaskResultPr
     public double getProgressD() {
         return executor.getProgress();
     }
+
 
 
 }
