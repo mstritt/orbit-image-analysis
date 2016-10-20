@@ -36,8 +36,8 @@ apply plugin: 'license-report'
 
 ext.description = "OrbitImageAnalysis"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 ext.orbitVersion = new File("src/main/resources/version.txt").text;
 ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
@@ -133,7 +133,7 @@ task icons {
 
 
 dependencies {
-    compile 'com.actelion.research:lib-orbit-common:1.0.9'
+    compile 'com.actelion.research:lib-orbit-common:1.0.10'
 //    compile 'com.actelion.research:image-provider-omero:1.0.8'
     compile 'com.actelion.research:map-reduce-generic:1.0.7'
 //    compile 'com.actelion.research:map-reduce-exec-spark:1.0.1'
