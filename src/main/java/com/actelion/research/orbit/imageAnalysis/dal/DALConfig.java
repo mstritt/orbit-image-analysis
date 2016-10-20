@@ -73,7 +73,7 @@ public class DALConfig {
             try {
                 imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).newInstance();
             } catch (IllegalStateException e) {
-                final String m = e.getMessage() + "\n\nOrbit will continue with the fallback local filesystem image provider.\nHowever, the full functionality incl. features like annotations or working with whole slide images\nis only available in combination with a full image provider (e.g. Omero).";
+                final String m = e.getMessage() + "\n\nOrbit will continue with the fallback local filesystem image provider.";
                 logger.warn(m);
                 if (!GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance() && !ScaleoutMode.SCALEOUTMODE.get()) {
                     SwingUtilities.invokeLater(new Runnable() {

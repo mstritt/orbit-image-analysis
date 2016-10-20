@@ -134,11 +134,11 @@ task icons {
 
 dependencies {
     compile 'com.actelion.research:lib-orbit-common:1.0.10'
-//    compile 'com.actelion.research:image-provider-omero:1.0.8'
-    compile 'com.actelion.research:map-reduce-generic:1.0.7'
-//    compile 'com.actelion.research:map-reduce-exec-spark:1.0.1'
+    compile 'com.actelion.research:image-provider-omero:1.0.9'
+    compile 'com.actelion.research:map-reduce-generic:1.0.8'
+    compile 'com.actelion.research:map-reduce-exec-spark:1.0.2'
 //  compile 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
-//    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.0.4') {
+//    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.0.5') {
 //        exclude(module: 'OrbitImageAnalysis')
 //    }
 
