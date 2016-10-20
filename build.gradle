@@ -44,7 +44,8 @@ ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
 
 repositories {
     //mavenLocal()
-    mavenCentral()
+    //mavenCentral()
+    jcenter()
     maven {
         url 'http://artifacts.openmicroscopy.org/artifactory/maven/'
     }
