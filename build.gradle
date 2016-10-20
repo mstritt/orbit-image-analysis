@@ -44,7 +44,10 @@ ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
 
 repositories {
     //mavenLocal()
-    mavenCentral()
+    //mavenCentral()
+    maven {
+        url ' http://repo1.maven.org/maven2/'
+    }
     maven {
         url 'http://artifacts.openmicroscopy.org/artifactory/maven/'
     }
@@ -133,7 +136,7 @@ task icons {
 
 
 dependencies {
-    compile 'com.actelion.research:lib-orbit-common:1.0.8'
+    compile 'com.actelion.research:lib-orbit-common:1.0.9'
 //    compile 'com.actelion.research:image-provider-omero:1.0.8'
     compile 'com.actelion.research:map-reduce-generic:1.0.7'
 //    compile 'com.actelion.research:map-reduce-exec-spark:1.0.1'
@@ -204,6 +207,6 @@ dependencies {
     testCompile 'junit:junit:[4.0,)'
 }
 
-if (file('custom.gradle').exists()) {
-    apply from: 'custom.gradle'
-}
+//if (file('custom.gradle').exists()) {
+//    apply from: 'custom.gradle'
+//}
