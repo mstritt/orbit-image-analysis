@@ -76,6 +76,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.prefs.Preferences;
 
+import static com.actelion.research.orbit.imageAnalysis.dal.DALConfig.isLocalImageProvider;
+
 /**
  * Main class and frame of Orbit Image Analysis.<br>
  * To be used as a singleton. Call getInstance() to get the singleton.
@@ -683,7 +685,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     private boolean login() {
         logger.debug("login start");
-        if (DALConfig.isLocalImageProvider()) {
+        if (isLocalImageProvider()) {
             loginUser = GUEST_USER;
             menuLogOff.setEnabled(false);
             menuLogIn.setEnabled(true);
@@ -704,7 +706,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
     private void logoff() {
-        if (DALConfig.isLocalImageProvider()) {
+        if (isLocalImageProvider()) {
             return;
         }
         loginUser = GUEST_USER;
@@ -1378,7 +1380,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         logger.info("loadFileDirect called [method call]");
 
         // switch image provider
-        if (!DALConfig.isLocalImageProvider()) {
+        if (!isLocalImageProvider()) {
             if (JOptionPane.showConfirmDialog(this,
                     "To open a local file you have to switch to image provider local.\nDo you want to switch to image provider local now?\n\n(You can switch to remote image provider later via Image->Switch Local / Remote Image Provider)",
                     "Switch to local image provider?", JOptionPane.YES_NO_OPTION)
@@ -1387,7 +1389,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         }
 
-        if (DALConfig.isLocalImageProvider()) {
+        if (isLocalImageProvider()) {
             ImageProviderLocal ipl = (ImageProviderLocal)DALConfig.getImageProvider();
             try {
                 RawDataFile rdf = ipl.registerFile(file);
@@ -2962,13 +2964,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             DALConfig.switchLocalRemoteImageProvider();
             updateMenuImageProviderEntries();
 
-            String s = DALConfig.isLocalImageProvider() ? "Image provider local is active." : "Image provider remote is active.";
+            String s = isLocalImageProvider() ? "Image provider local is active." : "Image provider remote is active.";
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this, s, "Image Provider Changed", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
     public void updateMenuImageProviderEntries() {
-        String openButtonTitel = DALConfig.isLocalImageProvider() ? OrbitMenu.openFromLocalStr : OrbitMenu.openFromServerStr;
+        String openButtonTitel = isLocalImageProvider() ? OrbitMenu.openFromLocalStr : OrbitMenu.openFromServerStr;
         orbitMenu.getAmOpenOrbit().setText(openButtonTitel);
         orbitMenu.getButtonopenFromOrbit().setText(openButtonTitel);
         // tree / imagelist
@@ -2976,10 +2978,17 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             @Override
             public void run() {
                 imageList.setModel(new DefaultListModel()); // clear image list
-                rdTree.setEnabled(!DALConfig.isLocalImageProvider());
+                rdTree.setEnabled(!isLocalImageProvider());
                 orbitMenu.getSwitchImageProviderBtn().setEnabled(!DALConfig.onlyLocalImageProviderAvailable());
-                orbitMenu.getButtonExecuteScaleout().setEnabled(!DALConfig.onlyLocalImageProviderAvailable());
-                orbitMenu.getButtonRetrieveExistingResults().setEnabled(!DALConfig.onlyLocalImageProviderAvailable());
+                orbitMenu.getButtonExecuteScaleout().setEnabled(!DALConfig.isLocalImageProvider());
+                orbitMenu.getButtonRetrieveExistingResults().setEnabled(!DALConfig.isLocalImageProvider());
+                orbitMenu.getAmEntryOpenModelOrbit().setEnabled(!DALConfig.isLocalImageProvider());
+                orbitMenu.getAmSaveModelOrbit().setEnabled(!DALConfig.isLocalImageProvider());
+                orbitMenu.getButtonSaveModelOrbit().setEnabled(!DALConfig.isLocalImageProvider());
+                orbitMenu.getButtonLoadAndSetServer().setEnabled(!DALConfig.isLocalImageProvider());
+                orbitMenu.getButtonOrbitBrowser().setEnabled(!DALConfig.isLocalImageProvider());
+                orbitMenu.getButtonModelOpenOrbit().setEnabled(!DALConfig.isLocalImageProvider());
+
             }
         });
     }

@@ -91,9 +91,14 @@ public class ScriptEditor extends JInternalFrame {
                 outArea.setEditable(false);
                 DefaultCaret caret = (DefaultCaret) outArea.getCaret();
                 caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-                ThreadPane threadPane = new ThreadPane(outArea);
-                tabOutPane.add("Groovy " + (tabOutPane.getTabCount() + 1), threadPane);
-                //tabOutPane.setSelectedComponent(threadPane);
+                final ThreadPane threadPane = new ThreadPane(outArea);
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        tabOutPane.add("Groovy " + (tabOutPane.getTabCount() + 1), threadPane);
+                        tabOutPane.setSelectedComponent(threadPane);
+                    }
+                });
 
 
                 Thread thread = new Thread(new Runnable() {

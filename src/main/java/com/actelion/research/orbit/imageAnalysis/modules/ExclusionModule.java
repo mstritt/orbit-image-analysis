@@ -49,12 +49,15 @@ public class ExclusionModule extends AbstractOrbitModule {
     private final JButton btnSetupClasses = new JButton("Setup Classes");
     private final JButton btnConfigureClasses = new JButton("Configure Classes");
     private final JButton btnTrain = new JButton("Train, Set and Classify");
-    private final JButton btnLoad = new JButton("Load and Set Exclusion Model");
-    private final JButton btnLoadServer = new JButton("Load and Set Exclusion Model from Server");
+    private final JButton btnLoad = new JButton(btnLoadTextLocal);
+    private final JButton btnLoadServer = new JButton(btnLoadTextServer);
     private final JButton btnClassify = new JButton("Classify Trained Exclusion Model");
     private final JButton btnReset = new JButton("Reset Exclusion Model");
     private final JButton btnHelp = new JButton("Help");
     protected final Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+
+    public static final String btnLoadTextLocal = "Load and Set (local)";
+    public static final String btnLoadTextServer = "Load and Set (server)";
 
 
     public ExclusionModule() {

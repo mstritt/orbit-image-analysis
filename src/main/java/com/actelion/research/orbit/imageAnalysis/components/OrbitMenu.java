@@ -58,6 +58,13 @@ public class OrbitMenu extends JRibbonFrame {
     private JCommandButton buttonSwitchLocalRemote = null;
     private final JCommandButton buttonExecuteScaleout = new JCommandButton("Scaleout Execution", new SystemRun3());
     private final JCommandButton buttonRetrieveExistingResults = new JCommandButton("Retrieve Existing Results", new GoDownSearch());
+    private RibbonApplicationMenuEntrySecondary amEntryOpenModelOrbit;
+    private RibbonApplicationMenuEntrySecondary amSaveModelOrbit;
+    private final JCommandButton buttonLoadAndSetServer = new JCommandButton(ExclusionModule.btnLoadTextServer, new DocumentOpen5());
+    private final JCommandButton buttonSaveModelOrbit = new JCommandButton("Save Model on Server", new DocumentSave3());
+    private final JCommandButton buttonOrbitBrowser = new JCommandButton("Orbit Browser", new BrowserWippAddressBook());
+    private final JCommandButton buttonModelOpenOrbit = new JCommandButton("Open Model from Server", new DocumentOpen5());
+
 
 
 
@@ -210,7 +217,7 @@ public class OrbitMenu extends JRibbonFrame {
 
         // open model
         RibbonApplicationMenuEntryPrimary amEntryOpenModel = new RibbonApplicationMenuEntryPrimary(new DocumentOpen5(), "Open Model", null, JCommandButton.CommandButtonKind.POPUP_ONLY);
-        RibbonApplicationMenuEntrySecondary amEntryOpenModelOrbit = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Open Model from Server", oia == null ? null : oia.openModelOrbitActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
+        amEntryOpenModelOrbit = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Open Model from Server", oia == null ? null : oia.openModelOrbitActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
         amEntryOpenModelOrbit.setActionKeyTip("M");
         RibbonApplicationMenuEntrySecondary amEntryOpenModelFile = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Open Model from File", oia == null ? null : oia.openModelActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
         amEntryOpenModel.addSecondaryMenuGroup("Open Model", amEntryOpenModelOrbit, amEntryOpenModelFile);
@@ -218,8 +225,8 @@ public class OrbitMenu extends JRibbonFrame {
 
         // save model
         RibbonApplicationMenuEntryPrimary amEntrySaveModel = new RibbonApplicationMenuEntryPrimary(new DocumentSave3(), "Save Model", null, JCommandButton.CommandButtonKind.POPUP_ONLY);
-        RibbonApplicationMenuEntrySecondary amSaveModelOrbit = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Save Model in Orbit...", oia == null ? null : oia.saveModelOrbitActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
-        amSaveModelOrbit.setDescriptionText("Save model in Orbit");
+        amSaveModelOrbit = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Save Model on Server...", oia == null ? null : oia.saveModelOrbitActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
+        amSaveModelOrbit.setDescriptionText("Save model on Server");
         RibbonApplicationMenuEntrySecondary amSaveModel = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Save Model as...", oia == null ? null : oia.saveModelAsActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
         amSaveModel.setDescriptionText("Save model as file");
         RibbonApplicationMenuEntrySecondary amSaveModelExcl = new RibbonApplicationMenuEntrySecondary(new DocumentOpen5(), "Save nested Exclusion Model as...", oia == null ? null : oia.saveNestedExclusionModelActionListener, JCommandButton.CommandButtonKind.ACTION_ONLY);
@@ -379,7 +386,6 @@ public class OrbitMenu extends JRibbonFrame {
         JRibbonBand modelOpenBand = new JRibbonBand("Open", null);
         modelOpenBand.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(modelOpenBand.getControlPanel())));
 
-        JCommandButton buttonModelOpenOrbit = new JCommandButton("Open Model from Server", new DocumentOpen5());
         buttonModelOpenOrbit.setActionRichTooltip(new RichTooltip("Open Model from Server", "Load an existing model from Server."));
         buttonModelOpenOrbit.addActionListener(oia == null ? null : oia.openModelOrbitActionListener);
         modelOpenBand.addCommandButton(buttonModelOpenOrbit, RibbonElementPriority.TOP);
@@ -397,7 +403,6 @@ public class OrbitMenu extends JRibbonFrame {
 
         JRibbonBand modelSaveBand = new JRibbonBand("Save", null);
 
-        JCommandButton buttonSaveModelOrbit = new JCommandButton("Save Model on Server", new DocumentSave3());
         buttonSaveModelOrbit.setActionRichTooltip(new RichTooltip("Save Model on Server", "Save active model on Server."));
         buttonSaveModelOrbit.addActionListener(oia == null ? null : oia.saveModelOrbitActionListener);
         modelSaveBand.addCommandButton(buttonSaveModelOrbit, RibbonElementPriority.TOP);
@@ -864,15 +869,14 @@ public class OrbitMenu extends JRibbonFrame {
         buttonTrainSetClassify.setBackground(Color.magenta);
         exclusionBand.addCommandButton(buttonTrainSetClassify, RibbonElementPriority.TOP);
 
-        JCommandButton buttonLoadAndSet = new JCommandButton(em.getBtnLoad().getText(), new DocumentOpen5());
-        RichTooltip richTooltipLoadAndSet = new RichTooltip("Load and Set Exclusion Model (file system)", "Load an existing exclusion model and set it active.");
+        JCommandButton buttonLoadAndSet = new JCommandButton(ExclusionModule.btnLoadTextLocal, new DocumentOpen5());
+        RichTooltip richTooltipLoadAndSet = new RichTooltip(ExclusionModule.btnLoadTextLocal, "Load an existing exclusion model and set it active.");
         richTooltipLoadAndSet.addDescriptionSection("This function can be used to combine a currently active main model (e.g. detail classification) with an existing exclusion model (which has already been saved to file via 'save nested exclusion model').");
         buttonLoadAndSet.addActionListener(oia == null ? null : em.getBtnLoad().getActionListeners()[0]);
         buttonLoadAndSet.setActionRichTooltip(richTooltipLoadAndSet);
         exclusionBand.addCommandButton(buttonLoadAndSet, RibbonElementPriority.MEDIUM);
 
-        JCommandButton buttonLoadAndSetServer = new JCommandButton(em.getBtnLoad().getText(), new DocumentOpen5());
-        RichTooltip richTooltipLoadAndSetServer = new RichTooltip("Load and Set Exclusion Model (server)", "Load an existing exclusion model and set it active.");
+        RichTooltip richTooltipLoadAndSetServer = new RichTooltip(ExclusionModule.btnLoadTextServer, "Load an existing exclusion model and set it active.");
         richTooltipLoadAndSetServer.addDescriptionSection("This function can be used to combine a currently active main model (e.g. detail classification) with an existing exclusion model (which has already been saved to file via 'save nested exclusion model').");
         buttonLoadAndSetServer.addActionListener(oia == null ? null : em.getBtnLoadServer().getActionListeners()[0]);
         buttonLoadAndSetServer.setActionRichTooltip(richTooltipLoadAndSetServer);
@@ -980,7 +984,6 @@ public class OrbitMenu extends JRibbonFrame {
         manageFilesBand.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(manageFilesBand.getControlPanel()),
                 new IconRibbonBandResizePolicy(manageFilesBand.getControlPanel())));
 
-        JCommandButton buttonOrbitBrowser = new JCommandButton("Orbit Browser", new BrowserWippAddressBook());
         RichTooltip richTooltipOrbitBrowser = new RichTooltip("Orbit Browser", "Start the Orbit Browser to manage Orbit files.");
         richTooltipOrbitBrowser.addDescriptionSection("Use this tool to rename, move, delete or download files or raw data containers.");
         buttonOrbitBrowser.setActionRichTooltip(richTooltipOrbitBrowser);
@@ -1481,5 +1484,30 @@ public class OrbitMenu extends JRibbonFrame {
 
     public JCommandButton getButtonRetrieveExistingResults() {
         return buttonRetrieveExistingResults;
+    }
+
+    public RibbonApplicationMenuEntrySecondary getAmEntryOpenModelOrbit() {
+        return amEntryOpenModelOrbit;
+    }
+
+    public RibbonApplicationMenuEntrySecondary getAmSaveModelOrbit() {
+        return amSaveModelOrbit;
+    }
+
+    public JCommandButton getButtonLoadAndSetServer() {
+        return buttonLoadAndSetServer;
+    }
+
+    public JCommandButton getButtonSaveModelOrbit() {
+        return buttonSaveModelOrbit;
+    }
+
+    public JCommandButton getButtonOrbitBrowser() {
+        return buttonOrbitBrowser;
+    }
+
+
+    public JCommandButton getButtonModelOpenOrbit() {
+        return buttonModelOpenOrbit;
     }
 }
