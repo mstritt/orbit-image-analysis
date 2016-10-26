@@ -50,6 +50,7 @@ public class MetaTabs extends JTabbedPane {
         }
         add("Annotations", annotationPanel);
         add("Adjustments", adjustPanel);
+        setSelectedIndex(1); // tab file is active
     }
 
     public void addOrbitModule(AbstractOrbitModule module) {
