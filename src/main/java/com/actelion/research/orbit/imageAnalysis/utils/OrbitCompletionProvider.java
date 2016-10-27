@@ -54,6 +54,9 @@ public class OrbitCompletionProvider extends LanguageAwareCompletionProvider {
         //DefaultCompletionProvider cp = new GroovySourceCompletionProvider();
         DefaultCompletionProvider cp = new DefaultCompletionProvider();
 
+        String[] orbitExpressions = new String[]{"RawDataFile","DALConfig","DALConfig.imageProvider","LoadRawDataFile","OrbitModel","OrbitModel.LoadFromOrbit","ClassificationResult","OrbitHelper.Classify",
+        "getClassShapes()","ClassificationResult","List<KeyValue<String, Double>>","DALConfig.getImageProvider().authenticateUser","OrbitHelper.searchImages","RecognitionFrame","recognitionFrame.bimg.image.tiles.each"};
+
         cp.addCompletion(new BasicCompletion(cp, "abstract"));
         cp.addCompletion(new BasicCompletion(cp, "assert"));
         cp.addCompletion(new BasicCompletion(cp, "break"));
@@ -70,6 +73,10 @@ public class OrbitCompletionProvider extends LanguageAwareCompletionProvider {
         cp.addCompletion(new BasicCompletion(cp, "def"));
         cp.addCompletion(new BasicCompletion(cp, "each"));
         cp.addCompletion(new BasicCompletion(cp, "for"));
+
+        for (String expr: orbitExpressions)
+            cp.addCompletion(new BasicCompletion(cp, expr));
+
 
         // Add a couple of "shorthand" completions. These completions don't
         // require the input text to be the same thing as the replacement text.

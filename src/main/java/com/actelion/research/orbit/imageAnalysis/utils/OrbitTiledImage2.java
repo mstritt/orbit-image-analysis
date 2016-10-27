@@ -62,6 +62,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
     protected int originalBitsPerSample = 8;
     protected int rawDataFileId = -1; // not known
     protected TiledImagePainter tiledImagePainter = null; // optional: can be set for computing extreme stats based on low res image
+    private static LookupTableJAI defaultLookuptable = null;
 
     protected abstract String readInfoString(String filename) throws Exception;
 
@@ -69,6 +70,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
 
     private static void initCache(int tileWidth, int tileHeight) {
+        logger.info("(re-)creating tile cache");
         if (doCacheLock) OrbitTiledImage2.cacheLock.writeLock().lock();
         try {
             cacheTileWidth.set(tileWidth);
@@ -165,6 +167,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         if (redChannel != null || greenChannel != null || blueChannel != null) {
             bi = createImage(tile, bi, getSampleModel(), getColorModel());
             bi = mergeChannels(redChannel, greenChannel, blueChannel, tileX, tileY, redActive, greenActive, blueActive).getAsBufferedImage();
+            bi = correctSamplemodel(PlanarImage.wrapRenderedImage(bi)).getAsBufferedImage();
         }
 
         if (overlayChannel != null) {
@@ -295,7 +298,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
     }
 
-    private PlanarImage mergeChannels(OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, PlanarImage blueChannel, int tileX, int tileY, boolean redActive, boolean greenActive, boolean blueActive) {
+    private PlanarImage mergeChannels(final OrbitTiledImage2 redChannel, final OrbitTiledImage2 greenChannel, final PlanarImage blueChannel, int tileX, int tileY, boolean redActive, boolean greenActive, boolean blueActive) {
 
         PlanarImage red = redChannel == null ? null : PlanarImage.wrapRenderedImage(createImage(redChannel.getTile(tileX, tileY), null, redChannel.getSampleModel(), redChannel.getColorModel()));
         PlanarImage green = greenChannel == null ? null : PlanarImage.wrapRenderedImage(createImage(greenChannel.getTile(tileX, tileY), null, greenChannel.getSampleModel(), greenChannel.getColorModel()));
@@ -334,7 +337,9 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
                 pb.addSource(green); // g
                 pb.addSource(blue); // b
             }
-            return JAI.create("bandmerge", pb);
+            PlanarImage merged = JAI.create("bandmerge", pb);
+
+            return merged;
         } catch (Throwable e) {
             e.printStackTrace();
             return null;
@@ -383,6 +388,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         }
         return result;
     }
+
 
 
     public static PlanarImage adjustBrightness(PlanarImage src, final double b) {
@@ -525,6 +531,30 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
     }
 
+
+    /**
+     * Corrects the sample model, e.g. after channel merge.
+     * @param src
+     * @return
+     */
+    public static PlanarImage correctSamplemodel(PlanarImage src) {
+        PlanarImage result = JAI.create("lookup", src, getDefaultLookuptable());
+        result = makeCompatibleSamplemodel(src, result);
+        return result;
+    }
+
+    private static synchronized LookupTableJAI getDefaultLookuptable() {
+        if (defaultLookuptable==null) {
+            byte[][] lut = new byte[3][256];
+            for (int i = 0; i < 256; i++) {
+                lut[0][i] = ManipulationUtils.clamp(i);
+                lut[1][i] = ManipulationUtils.clamp(i);
+                lut[2][i] = ManipulationUtils.clamp(i);
+            }
+            defaultLookuptable = new LookupTableJAI(lut);
+        }
+        return defaultLookuptable;
+    }
 
     private static PlanarImage loadImageForStats(PlanarImage source, TiledImagePainter tip) {
         PlanarImage res = source;

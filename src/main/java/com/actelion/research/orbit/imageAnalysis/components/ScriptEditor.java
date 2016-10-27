@@ -165,7 +165,8 @@ public class ScriptEditor extends JInternalFrame {
                 "println(\"selected image: \"+iFrame);\n" +
                 "\n" +
                 "OrbitModel model = OIA.getModel();\n" +
-                "println(\"active model: \"+model);");
+                "println(\"active model: \"+model);" +
+                "\n\n// more script examples can be found on github:\n// https://github.com/mstritt/orbit-image-analysis/tree/master/src/main/groovy/com/actelion/research/orbit/imageAnalysis/scripts");
 
 
         splitPaneMain.setResizeWeight(1);

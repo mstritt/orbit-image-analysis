@@ -109,6 +109,7 @@ public class TiledImagePainter {
     private WritableRaster wr;
     private DataBuffer dataBuffer;
     private Raster tile;
+    private GraphicsConfiguration graphicsConfiguration;
 
     public TiledImagePainter() {
     }
@@ -601,6 +602,19 @@ public class TiledImagePainter {
     }
 
 
+    private synchronized GraphicsConfiguration getGraphicsConfig() {
+        if (graphicsConfiguration==null) {
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            if (!ge.isHeadlessInstance()) {
+                GraphicsDevice[] gs = ge.getScreenDevices();
+                if (gs != null && gs.length > 1) {
+                    graphicsConfiguration = gs[0].getDefaultConfiguration();
+                }
+            }
+        }
+        return graphicsConfiguration;
+    }
+
     public void drawImage(final Graphics2D graphics, double _vpOffsX, double _vpOffsY, double _vpWidth, double _vpHeight, double scale, int mipNum) {
         if (getImage() == null) return;
         double sc = scale / 100d;
@@ -674,7 +688,7 @@ public class TiledImagePainter {
                         wr = Raster.createWritableRaster(/*sampleModel*/ imageMerged.getSampleModel(),
                                 dataBuffer, new Point(0, 0));
                         //BufferedImage bim = new BufferedImage(imageMerged.getColorModel(),wr,imageMerged.getColorModel().isAlphaPremultiplied(),null);
-                        GraphicsConfiguration graphicConfig = graphics.getDeviceConfiguration();
+                        GraphicsConfiguration graphicConfig = getGraphicsConfig();
                         if (graphicConfig != null) {
                             bi = graphics.getDeviceConfiguration().createCompatibleImage(imageMerged.getSampleModel().getWidth(), imageMerged.getSampleModel().getHeight(), imageMerged.getColorModel().getTransparency());
                             bi.setData(wr);
