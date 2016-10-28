@@ -30,6 +30,9 @@ import groovyx.gpars.GParsPool
 /**
  * Perform image classifications using an Orbit model. Images are processed multithreaded.
  * Replace model id, image search, optional: authentificate with username and password if needed.
+ *
+ * Does not use map-reduce, instead the helper classify method is called directly (multi-threaded).
+ * Might be useful to some special things, e.g. classify inside segmented objects, ...
  */
 OrbitLogAppender.GUI_APPENDER = false;   // no GUI (error) popups
 DALConfig.getImageProvider().authenticateUser("root", "omero"); // optional: otherwise the scaleout user defined in OrbitOmero.conf is used

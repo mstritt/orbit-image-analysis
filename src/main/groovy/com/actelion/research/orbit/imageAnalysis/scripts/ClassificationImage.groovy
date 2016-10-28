@@ -35,6 +35,8 @@ import java.awt.image.WritableRaster
  * Mark all pixel with red channel < threshold. After running the script, drag the class image slider (bottom of the image)
  * to the right to see the classification map.
  *
+ * Demo to show how you can interact with Orbit objects.
+ *
  */
 
 final OrbitImageAnalysis OIA = OrbitImageAnalysis.getInstance(); // get the current (running) Orbit instance

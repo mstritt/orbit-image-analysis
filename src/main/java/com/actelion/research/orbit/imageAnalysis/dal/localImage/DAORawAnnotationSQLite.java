@@ -439,30 +439,6 @@ public class DAORawAnnotationSQLite {
         return rawAnnotation;
     }
 
-    public static void main(String[] args) throws SQLException {
-        DAORawAnnotationSQLite.createTable();
-
-//        RawAnnotation ra = new RawAnnotation();
-//        ra.setUserId("orbit");
-//        ra.setModifyDate(new Date());
-//        ra.setData(new byte[10]);
-//        ra.setDescription("test8");
-//        ra.setRawDataFileId(1);
-//
-//        int id = DAORawAnnotationSQLLite.InsertRawAnnotation(ra);
-//        System.out.println("id: "+id);
-
-//        RawAnnotation ra = DAORawAnnotationSQLLite.LoadRawAnnotation(8);
-//        System.out.println(ra);
-//
-//        ra.setDescription("test8 new");
-//        DAORawAnnotationSQLLite.UpdateRawAnnotation(ra);
-//        ra = DAORawAnnotationSQLLite.LoadRawAnnotation(8);
-//        System.out.println(ra);
-//
-//        DAORawAnnotationSQLLite.DeleteRawAnnotation(8);
-
-    }
 
 
 }

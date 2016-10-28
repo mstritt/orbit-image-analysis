@@ -185,6 +185,13 @@ public class ImageProviderLocal extends ImageProviderNoop {
     }
 
 
+    /**
+     * Small images (bmp,png,dcm.lif,zif) are loaded wie TiffConverter (JAI), tiff files via OrbitImageTiff (better performance) and everything else via Scifio.
+     * @param rdf
+     * @param level
+     * @return
+     * @throws Exception
+     */
     @Override
     public IOrbitImage createOrbitImage(RawDataFile rdf, int level) throws Exception {
         if (rdf==null) return null;

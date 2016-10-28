@@ -29,7 +29,6 @@ import loci.formats.tiff.TiffParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -39,6 +38,10 @@ import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Tiff image implementation, faster then via Scifio.
+ * In addition in handles the special tiff-pyramid format with several files: img.tif for fullr esolution, img.1.tiff for first layer (half resolution), .2.tiff for second layer and so on.
+ */
 public class OrbitImageTiff implements IOrbitImage {
 
     private static final Logger logger = LoggerFactory.getLogger(OrbitImageTiff.class);
@@ -367,34 +370,5 @@ public class OrbitImageTiff implements IOrbitImage {
                 '}';
     }
 
-    public static void main(String[] args) throws Exception {
-
-        //final String testImage = "D:\\pic\\Hamamatsu\\multitiff.tif";
-        final String testImage = "D:\\pic\\20881.tif";
-        OrbitImageTiff oit = new OrbitImageTiff(testImage,0);
-        System.out.println(oit);
-
-        //WritableRaster raster = (WritableRaster) oit.getTileData(0,0).createTranslatedChild(0,0);
-        //BufferedImage bi = new BufferedImage(oit.getColorModel(),  raster , oit.getColorModel().isAlphaPremultiplied(), null);
-        //OrbitTiledImage2 img = new OrbitTiledImageIOrbitImage(oit);
-        BufferedImage bi = oit.getThumbnail();
-
-        System.out.println("img: "+bi);
-        ImageIO.write(bi,"png",new File("d:/test.png"));
-        oit.close();
-
-
-/*
-        final String testImage = "D:\\pic\\20881.tif";
-        OrbitImageTiff oit = new OrbitImageTiff(testImage,5);
-        System.out.println(oit);
-        TiffParser tp = oit.getTp().get();
-        IFD ifd = oit.getIfd();
-        int thumbW = (int) ifd.getImageWidth();
-        int thumbH = (int) ifd.getImageLength();
-        int numBands = 3;
-        byte[] buf = tp.getSamples(ifd,new byte[thumbW*thumbH*numBands]);
-*/
-    }
 
 }

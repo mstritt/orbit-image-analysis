@@ -19,6 +19,9 @@
 import com.actelion.research.orbit.imageAnalysis.components.*
 import com.actelion.research.orbit.imageAnalysis.models.*
 
+/**
+ * Demo to show how active Orbit objects can be accessed.
+ */
 final OrbitImageAnalysis OIA = OrbitImageAnalysis.getInstance(); // get the current (running) Orbit instance
 // this allows us to query active objects like model and loaded images
 ImageFrame iFrame = OIA.getIFrame();

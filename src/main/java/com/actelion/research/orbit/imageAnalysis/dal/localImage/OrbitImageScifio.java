@@ -29,11 +29,9 @@ import net.imagej.axis.Axes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
 import java.awt.*;
 import java.awt.image.*;
-import java.io.File;
 import java.io.IOException;
 
 public class OrbitImageScifio implements IOrbitImage {
@@ -74,8 +72,10 @@ public class OrbitImageScifio implements IOrbitImage {
 
 
     public OrbitImageScifio(final String filename, int level) throws IOException, FormatException {
-        this.filename = filename+"["+level+"]";
+        this.filename = filename+"["+level+"]";    // level here is important because filename is part of key for hashing!
         this.level = level;
+
+        System.out.println("scifio image: "+this.filename);
 
         scifio = new ThreadLocal<SCIFIO>() {
             @Override
@@ -83,11 +83,6 @@ public class OrbitImageScifio implements IOrbitImage {
                 return new SCIFIO();
             }
         };
-
-//        Format format = scifio.get().format().getFormatFromClass(JPEG2000Format.class);
-//        System.out.println("enabled: "+format.isEnabled());
-//        Checker checker = format.createChecker();
-//        System.out.println("isFormat: "+ checker.isFormat(filename, new SCIFIOConfig().checkerSetOpen(true)));
 
         final SCIFIOConfig config = new SCIFIOConfig();
         config.checkerSetOpen(true);
@@ -109,7 +104,7 @@ public class OrbitImageScifio implements IOrbitImage {
         boolean levelOk;
         do {
             levelOk = true;
-            if (this.level >= numLevels) { // or just > ?
+            if (this.level >= numLevels) {
                 close();
                 throw new OrbitImageServletException("image pyramid level " + this.level + " does not exist for image " + filename);
             }
@@ -122,8 +117,12 @@ public class OrbitImageScifio implements IOrbitImage {
             width = iMeta.getAxisLength(Axes.X);
             height = iMeta.getAxisLength(Axes.Y);
 
-//      long optimalTileWidth2 = reader.get().getOptimalTileWidth(level);
-//      long optimalTileHeight2 = reader.get().getOptimalTileHeight(level);
+// reader.optimalTileWidth/height returns strange values. We set it to 512x512 for big images or full image size for small images
+
+//            long optimalTileWidth3 = reader.get().getOptimalTileWidth(level);
+//            long optimalTileHeight3 = reader.get().getOptimalTileHeight(level);
+//            System.out.println("optimal tile width: "+optimalTileWidth3+" x "+optimalTileHeight3);
+
             long optimalTileWidth2 = 512;
             long optimalTileHeight2 = 512;
             String ending = RawUtilsCommon.getExtension(filename, true);
@@ -147,7 +146,6 @@ public class OrbitImageScifio implements IOrbitImage {
 
             planarAxisCount = iMeta.getAxesLengths().length;
 
-            //numBandsOriginal = iMeta.;
             if (channelAxis<0) numBandsOriginal = 1;
             else numBandsOriginal = (int) iMeta.getAxisLength(channelAxis);
 
@@ -188,8 +186,6 @@ public class OrbitImageScifio implements IOrbitImage {
         else {
             bi = AWTImageTools.makeRGBImage(p.getBytes(),numBandsOriginal,planeWidth,planeHeight,interleaved);
         }
-     //   BufferedImage bi2 = new BufferedImage(planeWidth,planeHeight,BufferedImage.TYPE_INT_RGB);
-      //  bi2.getGraphics().drawImage(bi,0,0,null);
         return bi;
     }
 
@@ -203,11 +199,10 @@ public class OrbitImageScifio implements IOrbitImage {
         try {
            BufferedImage img = getPlane(tileX, tileY);
 
-           // ensure tiles have always full tileWifth and tileHeight (even at borders)
+           // ensure tiles have always full tileWidth and tileHeight (even at borders)
            if (img.getWidth()!=getTileWidth() || img.getHeight()!=getTileHeight())
            {
                BufferedImage bi = new BufferedImage(getTileWidth(), getTileHeight(), img.getType());
-               //BufferedImage bi = new BufferedImage(getTileWidth(), getTileHeight(), BufferedImage.TYPE_INT_RGB);
                bi.getGraphics().drawImage(img, 0, 0, null);
                img = bi;
            }
@@ -359,7 +354,6 @@ public class OrbitImageScifio implements IOrbitImage {
         try {
             logger.trace("thumbnail level: "+thumbLevel+" size:"+thumbW+"x"+thumbH);
             Plane p = reader.get().openPlane(thumbLevel,0);
-           // BufferedImage  thumb = getBufferedImage(p,(int)thumbW,(int)thumbH);
             BufferedImage thumb = AWTImageTools.makeRGBImage(p.getBytes(),numBandsOriginal,(int)thumbW,(int)thumbH,thumbInterleaved);
             if (thumbW>maxThumbWidth) {
                 int h = (int)(maxThumbWidth * (thumbH/(double)thumbW));
@@ -379,26 +373,11 @@ public class OrbitImageScifio implements IOrbitImage {
         return null;
     }
 
-    public static void main(String[] args) throws Exception {
-        //final String testImage = "C:\\temp\\495.svs";
-       // final String testImage = "C:\\temp\\brain.ndpi";
-      //  final String testImage = "D:\\pic\\Hamamatsu\\4x higher.ndpis";
-        //final String testImage = "D:\\pic\\fibers.jpg";
-       // final String testImage = "D:\\r08c17-2044837823.jp2";
-        final String testImage = "D:\\pic\\Hamamatsu\\multitiff.tif";
-      //  final String testImage = "D:\\pic\\mri\\MRI examples x Manuel\\Training Day2\\Dicoms\\Training_Day2_Rat1006_Brain\\30\\1\\0024.dcm";
-
-      // final String testImage = "D:\\TetraTest.bmp";
-
-        OrbitImageScifio oi = new OrbitImageScifio(testImage,0);
-        //OrbitTiledImage2 img = new OrbitTiledImageIOrbitImage(oi);
-        BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);
-      //  BufferedImage bi = new BufferedImage(img.getColorModel(),  (WritableRaster) img.getTile(1,1) , img.getColorModel().isAlphaPremultiplied(), null);
-
-        //BufferedImage bi = oi.getThumbnail();
-
-        System.out.println("img: "+bi);
-        ImageIO.write(bi,"png",new File("d:/test.png"));
-        oi.close();
-    }
+//    public static void main(String[] args) throws Exception {
+//        final String testImage = "C:\\temp\\brain.ndpi";
+//        OrbitImageScifio oi = new OrbitImageScifio(testImage,0);
+//        BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);
+//        System.out.println("img: "+bi);
+//        oi.close();
+//    }
 }

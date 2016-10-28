@@ -24,6 +24,9 @@ import com.actelion.research.orbit.imageAnalysis.utils.OrbitLogAppender
 /**
  * Perform a classification of an image using an Orbit model.
  * Replace model id, image id, username and password.
+ *
+ * MapReduce version, option to use scale-out infrastructure.
+ *
  */
 OrbitLogAppender.GUI_APPENDER = false;   // no GUI (error) popups
 DALConfig.getImageProvider().authenticateUser("root", "omero");   // authenticate to image server

@@ -27,6 +27,9 @@ import com.actelion.research.orbit.imageAnalysis.utils.OrbitHelper
 /**
  * Simple classification. Load image, apply model (local, single threaded).
  * Replace image id and model id.
+ *
+ * Simple classification using the OrbitHelper.Classify method.
+ *
  */
 RawDataFile rdf = DALConfig.imageProvider.LoadRawDataFile(7683);
 OrbitModel model = OrbitModel.LoadFromOrbit(2231929);

@@ -24,11 +24,15 @@ import com.actelion.research.orbit.imageAnalysis.models.OrbitModel
 import com.actelion.research.orbit.imageAnalysis.tasks.classification.ClassificationWorkerMapReduce
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitHelper
 
+/**
+ * Advanced script. Perform a classification using map-reduce (optional via scaleout-infrastructure) over a list of images and annotation groups.
+ * (The idea is that you can have several ROIs and process them using different groups.)
+ */
 final int modelId = 2226854; // model to load;
 String search = "test";   // replace it
 def groups=(1..4); // 4 annotation ground, change it to the number of groups you have
 
-final boolean scaleout = true; // can be used in scaleoutmode, too!
+final boolean scaleout = false; // can be used in scaleoutmode, too!
 final List<RawDataFile> missing = new ArrayList<>();
 final List<RawDataFile> rdfList = OrbitHelper.searchImages(search).findAll {    // we skip all images with no ROI annotation defined
     rf = new RecognitionFrame(it);
