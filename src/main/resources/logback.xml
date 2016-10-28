@@ -23,14 +23,14 @@
         </encoder>
     </appender>
 
-    <appender name="syslog" class="ch.qos.logback.classic.net.SyslogAppender">
+    <!--appender name="syslog" class="ch.qos.logback.classic.net.SyslogAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
         <syslogHost>cronos.actelion.com</syslogHost>
         <facility>USER</facility>
         <suffixPattern>OrbitImageAnalysis: [%property{user.name}] %d [%t] %-5p %c - %m%n%ex</suffixPattern>
-    </appender>
+    </appender-->
 
     <logger name="com.actelion.research" level="INFO" />
 
