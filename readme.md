@@ -5,7 +5,7 @@
 
 #####Available backends:
 
-* Image Provider Local (local file system via Scifio / Bioformats)
+* Image provider local (local file system via Scifio / Bioformats)
 * Omero image server (image-provider-omero)
 
 #####Scaleout via
