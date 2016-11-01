@@ -49,6 +49,7 @@ public class TiledImageWriter {
     private final AtomicBoolean painting = new AtomicBoolean(false);
     private long lastRepaint = 0;
     private RenderPos lastRenderPos = new RenderPos(0, 0, 0, 0, 0, 0);
+    private GraphicsConfiguration graphicsConfiguration;
 
     public TiledImageWriter(int width, int height, int tileWidth, int tileHeight) {
         this(width, height, TiledImageWriter.IMAGE_RGBA, tileWidth, tileHeight);
@@ -518,9 +519,9 @@ public class TiledImageWriter {
             WritableRaster wr = Raster.createWritableRaster(sampleModel,
                     dataBuffer, new Point(0, 0));
             BufferedImage bi;
-            GraphicsConfiguration graphicConfig = graphics.getDeviceConfiguration();
+            GraphicsConfiguration graphicConfig = getGraphicsConfig();
             if (graphicConfig != null) {
-                bi = graphics.getDeviceConfiguration().createCompatibleImage(sampleModel.getWidth(), sampleModel.getHeight(), colorModel.getTransparency());     // or volatil image???
+                bi = graphicConfig.createCompatibleImage(sampleModel.getWidth(), sampleModel.getHeight(), colorModel.getTransparency());     // or volatil image???
                 bi.setData(wr);
             } else {
                 bi = new BufferedImage(colorModel, wr, colorModel.isAlphaPremultiplied(), null);
@@ -554,6 +555,20 @@ public class TiledImageWriter {
         }
 
     }
+
+    private synchronized GraphicsConfiguration getGraphicsConfig() {
+        if (graphicsConfiguration==null) {
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            if (!ge.isHeadlessInstance()) {
+                GraphicsDevice[] gs = ge.getScreenDevices();
+                if (gs != null && gs.length > 1) {
+                    graphicsConfiguration = gs[0].getDefaultConfiguration();
+                }
+            }
+        }
+        return graphicsConfiguration;
+    }
+
 
 
     public AtomicBoolean getPainting() {

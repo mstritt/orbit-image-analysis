@@ -20,6 +20,7 @@
 package com.actelion.research.orbit.imageAnalysis.utils;
 
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
+import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.imaging.GBlur;
 import com.actelion.research.orbit.imageAnalysis.imaging.ManipulationUtils;
 import com.google.common.cache.Cache;
@@ -70,7 +71,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
 
     private static void initCache(int tileWidth, int tileHeight) {
-        logger.info("(re-)creating tile cache");
+        logger.info("(re-)creating tile cache ["+tileWidth+"x"+tileHeight+"]");
         if (doCacheLock) OrbitTiledImage2.cacheLock.writeLock().lock();
         try {
             cacheTileWidth.set(tileWidth);
@@ -207,7 +208,12 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         }
 
         // cache write lock will be set in initCache
-        if (useCache && (OrbitTiledImage2.tileCache == null || OrbitTiledImage2.cacheTileWidth.get() != tile.getWidth() || OrbitTiledImage2.cacheTileHeight.get() != tile.getHeight())) {
+        if (useCache && (OrbitTiledImage2.tileCache == null || tileSizeChanged(tile.getWidth(),tile.getHeight()))) {
+//            System.out.println("reason for init: useCache="+useCache+"; cache="+OrbitTiledImage2.tileCache);
+//            if (OrbitTiledImage2.tileCache!=null) {
+//                System.out.println("width="+OrbitTiledImage2.cacheTileWidth.get()+":"+tile.getWidth());
+//                System.out.println("height="+OrbitTiledImage2.cacheTileHeight.get()+":"+tile.getHeight());
+//            }
             initCache(tile.getWidth(), tile.getHeight());
         }
 
@@ -222,6 +228,23 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         }
         initialized = true;
         return tile;
+    }
+
+    /**
+     * Checks if the tilesize is different than the cache assumes (for max cache size computation).
+     * Workaround for LocalImageProvider: here TILE_SIZE_DEFAULT is assumed for tileSize, even if certain levels (e.g. overview plane) will have a different size.
+     * This is to avoid unnecessary cache-recreations.
+     * @param tileWidth
+     * @param tileHeight
+     * @return
+     */
+    private boolean tileSizeChanged(int tileWidth, int tileHeight) {
+        if (DALConfig.isLocalImageProvider()) {
+            tileWidth = OrbitUtils.TILE_SIZE_DEFAULT;
+            tileHeight = OrbitUtils.TILE_SIZE_DEFAULT;
+        }
+        boolean sizeChanged =  OrbitTiledImage2.cacheTileWidth.get() != tileWidth || OrbitTiledImage2.cacheTileHeight.get() != tileHeight;
+        return sizeChanged;
     }
 
 

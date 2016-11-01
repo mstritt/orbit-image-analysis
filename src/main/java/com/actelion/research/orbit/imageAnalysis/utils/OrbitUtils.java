@@ -54,7 +54,7 @@ import java.util.List;
 public class OrbitUtils {
     // label:  OrbitImageAnalysis240
     public static final String VERSION_STR = getVersion() + (ScaleoutMode.SCALEOUTMODE.get() ? "G" : "") + (OrbitUtils.DEVELOPMENTMODE ? " DEVELOPMENT" : "");
-    public static final boolean DEVELOPMENTMODE = false;
+    public static final boolean DEVELOPMENTMODE = true;
     public static final boolean TILEMODE = false;
     public static final boolean OFFLINE_MODE = false;
     public static final boolean DARKUI = true;
@@ -65,6 +65,7 @@ public class OrbitUtils {
     public static final String TAG = "OrbitImageAnalysis" + VERSION_STR.replaceAll("\\.", "");
     public static final double EPSILON = 0.000001d;
     public static final int TILE_SIZE = ScaleoutMode.SCALEOUTMODE.get() ? 256 : 256; // 512:256 for writing tiles
+    public static final int TILE_SIZE_DEFAULT = 512;
     public static final long PLANAR_IMAGE_CACHE = Runtime.getRuntime().maxMemory() / 7L;  // JAI cache
     public static final long DISK_IMAGE_CACHE = Runtime.getRuntime().maxMemory() / 5L;   // DiskMemImage cache
     // see OrbitTiledImage2.initCache for 3rd cache (the main tile cache). Currently uses maxMem/2 memory

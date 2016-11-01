@@ -690,9 +690,8 @@ public class TiledImagePainter {
                         //BufferedImage bim = new BufferedImage(imageMerged.getColorModel(),wr,imageMerged.getColorModel().isAlphaPremultiplied(),null);
                         GraphicsConfiguration graphicConfig = getGraphicsConfig();
                         if (graphicConfig != null) {
-                            bi = graphics.getDeviceConfiguration().createCompatibleImage(imageMerged.getSampleModel().getWidth(), imageMerged.getSampleModel().getHeight(), imageMerged.getColorModel().getTransparency());
+                            bi = graphicConfig.createCompatibleImage(imageMerged.getSampleModel().getWidth(), imageMerged.getSampleModel().getHeight(), imageMerged.getColorModel().getTransparency());
                             bi.setData(wr);
-                            //bi.createGraphics().drawImage(bim,0,0,null);
                         } else {
                             bi = new BufferedImage(imageMerged.getColorModel(), wr, imageMerged.getColorModel().isAlphaPremultiplied(), null);
                         }

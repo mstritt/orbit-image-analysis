@@ -2273,8 +2273,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
             // imageprovider shutdown
             try {
-                DALConfig.getImageProvider().close();
-            } catch (IOException e) {
+                if (DALConfig.getImageProvider()!=null)
+                    DALConfig.getImageProvider().close();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

@@ -21,6 +21,7 @@ package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 import io.scif.*;
 import io.scif.config.SCIFIOConfig;
@@ -71,7 +72,7 @@ public class OrbitImageScifio implements IOrbitImage {
    // private long[] axesLengthsPlanar;
 
 
-    public OrbitImageScifio(final String filename, int level) throws IOException, FormatException {
+    public OrbitImageScifio(final String filename, final int level) throws IOException, FormatException {
         this.filename = filename+"["+level+"]";    // level here is important because filename is part of key for hashing!
         this.level = level;
 
@@ -91,6 +92,7 @@ public class OrbitImageScifio implements IOrbitImage {
             @Override
             protected Reader initialValue() {
                 try {
+                    logger.debug("init scifio: "+filename+" ["+level+"]");
                     return scifio.get().initializer().initializeReader(filename,config);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -123,8 +125,8 @@ public class OrbitImageScifio implements IOrbitImage {
 //            long optimalTileHeight3 = reader.get().getOptimalTileHeight(level);
 //            System.out.println("optimal tile width: "+optimalTileWidth3+" x "+optimalTileHeight3);
 
-            long optimalTileWidth2 = 512;
-            long optimalTileHeight2 = 512;
+            long optimalTileWidth2 = OrbitUtils.TILE_SIZE_DEFAULT;
+            long optimalTileHeight2 = OrbitUtils.TILE_SIZE_DEFAULT;
             String ending = RawUtilsCommon.getExtension(filename, true);
             if (ending.equals("png") || ending.equals("jpg") || ending.equals("jpeg") || ending.equals("gif") || ending.equals("bmp")
                     || ((width * height) <= (2048L * 2048L))) {
