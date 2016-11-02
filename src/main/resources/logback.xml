@@ -4,13 +4,13 @@
         <file>${user.home}/orbittrace.log</file>
         <append>true</append>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n%ex</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{26} - %msg%n%ex</pattern>
         </encoder>
     </appender-->
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{26}:%L - %msg%n%ex{2}</pattern>
         </encoder>
     </appender>
 
@@ -19,13 +19,13 @@
             <level>INFO</level>
         </filter>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %-5level - %msg%n%ex{2}</pattern>
         </encoder>
     </appender>
 
     <!--appender name="syslog" class="ch.qos.logback.classic.net.SyslogAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
+            <level>WARN</level>
         </filter>
         <syslogHost>cronos.actelion.com</syslogHost>
         <facility>USER</facility>
@@ -38,7 +38,7 @@
         <!--appender-ref ref="FILE" /-->
         <appender-ref ref="STDOUT" />
         <appender-ref ref="Orbit" />
-        <appender-ref ref="syslog" />
+        <!--appender-ref ref="syslog" /-->
     </root>
 
 </configuration>

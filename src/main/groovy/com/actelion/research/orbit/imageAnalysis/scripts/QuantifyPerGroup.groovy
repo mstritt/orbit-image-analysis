@@ -18,12 +18,14 @@
  */
 
 
+
+
+
 import com.actelion.research.orbit.beans.RawDataFile
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel
 import com.actelion.research.orbit.imageAnalysis.tasks.classification.ClassificationWorkerMapReduce
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitHelper
-
 /**
  * Advanced script. Perform a classification using map-reduce (optional via scaleout-infrastructure) over a list of images and annotation groups.
  * (The idea is that you can have several ROIs and process them using different groups.)
@@ -61,6 +63,8 @@ groups.each {
                 OrbitModel model = OrbitModel.LoadFromOrbit(modelId);
                 model.setAnnotationGroup(group);
                 ClassificationWorkerMapReduce cw = new ClassificationWorkerMapReduce(model, rdfList, scaleout);
+                // SegmentationWorkerMapReduce cw = new SegmentationWorkerMapReduce(model,rdfList,scaleout);
+                //CellClassificationWorkerMapReduce cw = new CellClassificationWorkerMapReduce(model,rdfList,scaleout);
                 cw.setOnlyTilesinROI(true);
                 cw.setSkipNonExplicitROIImages(true);
                 cw.run();

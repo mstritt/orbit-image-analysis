@@ -240,16 +240,17 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
             if (!OrbitUtils.DEVELOPMENTMODE && !ScaleoutMode.SCALEOUTMODE.get()) {
                 try {
+                    PrintStream consoleOut = System.out;
+                    PrintStream consoleErr = System.err;
                     String homeDir = System.getProperty("user.home");
-                    System.setOut(new PrintStream(new File(homeDir + File.separator + "orbit.out.log")));
-                    System.setErr(new PrintStream(new File(homeDir + File.separator + "orbit.err.log")));
+                    System.setOut(new PrintStream(new OutputStreamCombiner(Arrays.asList(new OutputStream[]{consoleOut, new PrintStream(new File(homeDir + File.separator + "orbit.out.log"))}))));
+                    System.setErr(new PrintStream(new OutputStreamCombiner(Arrays.asList(new OutputStream[]{consoleErr, new PrintStream(new File(homeDir + File.separator + "orbit.err.log"))}))));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
 
         }
-
 
         System.out.println(getInfoString() + "\n");
         System.out.println("Optional parameters: [.orbit|image file(.jpg,.tif,.bmp,.png,.gif,.svs)|url|rdf id]");
@@ -313,8 +314,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             forceLogin();
         }
 
-        // if only local filesystem, switch to Image menu to show open from local file button (otherwise the classification task will be shown)
-        if (DALConfig.onlyLocalImageProviderAvailable()) {
+        // if local filesystem image provider, switch to Image menu to show open from local file button (otherwise the classification task will be shown)
+        if (DALConfig.isLocalImageProvider()) {
             getRibbon().setSelectedTask(getRibbon().getTask(0));
         }
 
@@ -843,7 +844,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             infoStr += "\nAvailable temporary disk space: " + freeSpace + " MB.";
         } else infoStr += "\nUnable to calculate available temporary disk space.";
 
-        System.out.println("cache: " + OrbitTiledImage2.tileCache);
+        //System.out.println("cache: " + OrbitTiledImage2.tileCache);
         infoStr += "\nTile memory size (Read): " + ((OrbitTiledImage2.tileCache == null) ? "0 tiles" : (OrbitTiledImage2.tileCache.size() + " tiles"));
         infoStr += "\nTile memory capacity (Write): " +
                 DiskMemImageOrbit.getCommonTileCache().getMemoryCapacity() / (1024L * 1024) + " MB";
@@ -4525,5 +4526,32 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     //</editor-fold>
 
+
+
+    private static class OutputStreamCombiner extends OutputStream {
+        private List<OutputStream> outputStreams;
+
+        public OutputStreamCombiner(List<OutputStream> outputStreams) {
+            this.outputStreams = outputStreams;
+        }
+
+        public void write(int b) throws IOException {
+            for (OutputStream os : outputStreams) {
+                os.write(b);
+            }
+        }
+
+        public void flush() throws IOException {
+            for (OutputStream os : outputStreams) {
+                os.flush();
+            }
+        }
+
+        public void close() throws IOException {
+            for (OutputStream os : outputStreams) {
+                os.close();
+            }
+        }
+    }
 
 }

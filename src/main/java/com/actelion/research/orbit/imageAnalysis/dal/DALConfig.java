@@ -144,16 +144,22 @@ public class DALConfig {
             logger.debug("external repository computers: " + externalRepositoryComputers);
 
 
-            localDBFile = System.getProperty("user.home")+File.separator+"orbit.db";
-            String userLocalDB = props.getProperty("localDBFile");
-            if (userLocalDB != null && userLocalDB.length() > 0) {
-                localDBFile = userLocalDB;
-            }
-            logger.info("local db file: "+localDBFile);
-            File dbFile = new File(localDBFile);
-            if (!dbFile.exists()) {
-                DAODataFileSQLite.createTable();
-                DAORawAnnotationSQLite.createTable();
+            try {
+                localDBFile = System.getProperty("user.home") + File.separator + "orbit.db";
+                String userLocalDB = props.getProperty("localDBFile");
+                if (userLocalDB != null && userLocalDB.length() > 0) {
+                    localDBFile = userLocalDB;
+                }
+                logger.info("local db file: " + localDBFile);
+                if (!ScaleoutMode.SCALEOUTMODE.get()) {
+                    File dbFile = new File(localDBFile);
+                    if (!dbFile.exists()) {
+                        DAODataFileSQLite.createTable();
+                        DAORawAnnotationSQLite.createTable();
+                    }
+                }
+            } catch (Exception ex) {
+                logger.error("Could not create the local database file: "+localDBFile, ex);
             }
 
         } catch (Exception e) {

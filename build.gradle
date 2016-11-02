@@ -131,6 +131,15 @@ task icons {
             })
 }
 
+configurations {
+    compile.exclude module:'slf4j-log4j12'
+    compile.exclude group:'com.codahale.metrics', module:'metrics-jvm'
+    compile.exclude group:'com.codahale.metrics', module:'metrics-core'
+    compile.exclude group:'com.codahale.metrics', module:'metrics-graphite'
+    compile.exclude group:'cglib', module:'cglib'
+    compile.exclude group:'quartz', module:'quartz'
+}
+
 
 dependencies {
     compile 'com.actelion.research:lib-orbit-common:1.0.10'
@@ -141,6 +150,14 @@ dependencies {
 //    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.0.5') {
 //        exclude(module: 'orbit-image-analysis')
 //    }
+
+    // explicite versions, see compile.excludes
+    compile 'org.quartz-scheduler:quartz:2.1.1'
+    compile 'org.sonatype.sisu.inject:cglib:2.2.1-v20090111'
+    compile 'io.dropwizard.metrics:metrics-core:3.1.2'
+    compile 'io.dropwizard.metrics:metrics-jvm:3.1.2'
+    compile 'io.dropwizard.metrics:metrics-graphite:3.1.2'
+
 
     compile 'com.thoughtworks.xstream:xstream:1.4.9'
     compile 'org.jaitools:jt-utils:1.4.0' // jai-tools
