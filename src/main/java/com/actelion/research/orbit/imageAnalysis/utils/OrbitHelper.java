@@ -266,7 +266,7 @@ public class OrbitHelper {
 
         // TODO: cell features???
         //System.out.println(segWorker.getSegmentationResult().get);
-        String taskRes = segWorker.getTaskResult() != null ? segWorker.getTaskResult().getResultStr() : "No segmentation reuslt";
+        String taskRes = segWorker.getTaskResult() != null ? segWorker.getTaskResult().getResultStr() : "No segmentation result";
         System.out.println("TaskResult:\n" + taskRes);
 
         SegmentationResult sr = segWorker.getSegmentationResult();
@@ -312,24 +312,36 @@ public class OrbitHelper {
     }
 
     private static ClassificationResult getClassificationResult(RecognitionFrame rf, OrbitModel model, List<Point> tiles, SegmentationResult segmentationResult) {
-        log.debug("{} cells segmented", segmentationResult.getObjectCount());
+        log.debug("{} cells segmented", segmentationResult==null?0: segmentationResult.getObjectCount());
 
         OrbitModel modelNoMip = new OrbitModel(model);
         modelNoMip.setMipLayer(0);
+        Map<String, Long> classCount = null;
 
-        // cell classification
-        ObjectClassificationWorker worker = new ObjectClassificationWorker(rf, modelNoMip, null, tiles);
-        worker.setGenerateTaskResult(false);
-        worker.run();
+        if (segmentationResult==null || segmentationResult.getObjectCount()==0) {
+            // no objects available, create dummy result with 0 counts per class
+            classCount = new HashMap<String, Long>(model.getClassShapes().size());
+            for (int idx=0; idx<model.getClassShapes().size(); idx++) {
+                String className = model.getClassShapes().get(idx).getName();
+                int cnt = 0;
+                classCount.put(className, (long) cnt);
+            }
+        } else {
 
-        Map<Integer, Integer> classIdxCount = worker.getClassCount();
-        Map<String, Long> classCount = new HashMap<String, Long>(classIdxCount.keySet().size());
-        for (Integer idx : classIdxCount.keySet()) {
-            String className = "ignored objects";
-            if (idx < model.getClassShapes().size())
-                className = model.getClassShapes().get(idx).getName();   // else count is ignoredCount
-            int cnt = classIdxCount.get(idx);
-            classCount.put(className, (long) cnt);
+            // object classification
+            ObjectClassificationWorker worker = new ObjectClassificationWorker(rf, modelNoMip, null, tiles);
+            worker.setGenerateTaskResult(false);
+            worker.run();
+
+            Map<Integer, Integer> classIdxCount = worker.getClassCount();
+            classCount = new HashMap<String, Long>(classIdxCount.keySet().size());
+            for (Integer idx : classIdxCount.keySet()) {
+                String className = "ignored objects";
+                if (idx < model.getClassShapes().size())
+                    className = model.getClassShapes().get(idx).getName();   // else count is ignoredCount
+                int cnt = classIdxCount.get(idx);
+                classCount.put(className, (long) cnt);
+            }
         }
 
         return new ClassificationResult(classCount, null, model);
