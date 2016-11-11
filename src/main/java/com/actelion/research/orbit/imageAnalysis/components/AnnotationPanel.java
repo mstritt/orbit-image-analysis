@@ -965,7 +965,7 @@ public class AnnotationPanel extends JPanel implements PropertyChangeListener {
                     int newId = DALConfig.getImageProvider().InsertRawAnnotation(currentAnnotation);
                     currentAnnotation.setRawAnnotationId(newId);
                 } catch (Exception e) {
-                    logger.error("error: ", e);
+                    logger.error("Annotation cannot be saved.\nProbably you don't have the permission to save annotations for this image.", e);
                 }
             } else {
                 logger.info("Annotation cannot be persisted because the image is not in Orbit.");
@@ -1030,10 +1030,10 @@ public class AnnotationPanel extends JPanel implements PropertyChangeListener {
             List<ImageAnnotation> annotations = new ArrayList<ImageAnnotation>();
             for (Object obj : list.getSelectedValues()) {
                 ImageAnnotation annotation = (ImageAnnotation) obj;
-                if (!(annotation.getUserId() == null || annotation.getUserId().equals("") || annotation.getUserId().equals(OrbitImageAnalysis.GUEST_USER) || annotation.getUserId().equals(OrbitImageAnalysis.loginUser) || DALConfig.getImageProvider().getAdminUsers().contains(OrbitImageAnalysis.loginUser) || DALConfig.getTemporaryUsers().contains(annotation.getUserId()))) {
-                    JOptionPane.showMessageDialog(this, "Only the owner of the annotation is able edit this annotation.\nThis annotation is owned by  " + annotation.getUserId() + " but login user is " + OrbitImageAnalysis.loginUser + ".", "Cannot edit annotation.", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+//                if (!(annotation.getUserId() == null || annotation.getUserId().equals("") || annotation.getUserId().equals(OrbitImageAnalysis.GUEST_USER) || annotation.getUserId().equals(OrbitImageAnalysis.loginUser) || DALConfig.getImageProvider().getAdminUsers().contains(OrbitImageAnalysis.loginUser) || DALConfig.getTemporaryUsers().contains(annotation.getUserId()))) {
+//                    JOptionPane.showMessageDialog(this, "Only the owner of the annotation is able edit this annotation.\nThis annotation is owned by  " + annotation.getUserId() + " but login user is " + OrbitImageAnalysis.loginUser + ".", "Cannot edit annotation.", JOptionPane.ERROR_MESSAGE);
+//                    return;
+//                }
                 annotations.add(annotation);
             }
             if (annotations.size() == 0) return;
@@ -1115,19 +1115,19 @@ public class AnnotationPanel extends JPanel implements PropertyChangeListener {
 
 
             // check rights
-            boolean rightsOk = true;
-            String otherOwner = "";
-            for (ImageAnnotation annotation : annotations) {
-                if (!(annotation.getUserId() == null || annotation.getUserId().equals("") || annotation.getUserId().equals(OrbitImageAnalysis.GUEST_USER) || annotation.getUserId().equals(OrbitImageAnalysis.loginUser) || DALConfig.getImageProvider().getAdminUsers().contains(OrbitImageAnalysis.loginUser) || DALConfig.getTemporaryUsers().contains(annotation.getUserId()))) {
-                    rightsOk = false;
-                    otherOwner = annotation.getUserId();
-                    break;
-                }
-            }
-            if (!rightsOk) {
-                JOptionPane.showMessageDialog(this, "Only the owner of the annotation is able remove the annotation(s).\nAt least one annotation is owned by  " + otherOwner + ".", "Cannot remove annotation.", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+//            boolean rightsOk = true;
+//            String otherOwner = "";
+//            for (ImageAnnotation annotation : annotations) {
+//                if (!(annotation.getUserId() == null || annotation.getUserId().equals("") || annotation.getUserId().equals(OrbitImageAnalysis.GUEST_USER) || annotation.getUserId().equals(OrbitImageAnalysis.loginUser) || DALConfig.getImageProvider().getAdminUsers().contains(OrbitImageAnalysis.loginUser) || DALConfig.getTemporaryUsers().contains(annotation.getUserId()))) {
+//                    rightsOk = false;
+//                    otherOwner = annotation.getUserId();
+//                    break;
+//                }
+//            }
+//            if (!rightsOk) {
+//                JOptionPane.showMessageDialog(this, "Only the owner of the annotation is able remove the annotation(s).\nAt least one annotation is owned by  " + otherOwner + ".", "Cannot remove annotation.", JOptionPane.ERROR_MESSAGE);
+//                return;
+//            }
 
             //	(OrbitAnnotation[])list.getSelectedValues();
             // remove in annotation list
