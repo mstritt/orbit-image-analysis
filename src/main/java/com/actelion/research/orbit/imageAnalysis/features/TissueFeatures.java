@@ -271,4 +271,47 @@ public class TissueFeatures {
         return featuresPerSample;
     }
 
+
+    public static double extractSD(double[] feats) {
+        return sumOrNan(feats[12],feats[13],feats[14]);
+    }
+
+    public static double extractEdge(double[] feats) {
+        return sumOrNan(feats[15],feats[16],feats[17]);
+    }
+
+    public static double extractMin(double[] feats) {
+        return sumOrNan(feats[6],feats[7],feats[8]);
+    }
+
+    public static double extractMax(double[] feats) {
+        return sumOrNan(feats[9],feats[10],feats[11]);
+    }
+
+    public static double extractMean(double[] feats) {
+        return sumOrNan(feats[3],feats[4],feats[5]);
+    }
+
+    public static double extractPix(double[] feats) {
+        return sumOrNan(feats[0],feats[1],feats[2]);
+    }
+
+    /**
+     * returns 0 if the value is Double.NaN, otherwise the value
+     * @param d
+     * @return
+     */
+    private static double v0(double d) {
+        return Double.isNaN(d)?0d:d;
+    }
+
+    private static double sumOrNan(double d1, double d2, double d3) {
+        if (Double.isNaN(d1)&&Double.isNaN(d2)&&Double.isNaN(d3)) {
+            return Double.NaN;
+        } else {
+            return v0(d1)+v0(d2)+v0(d3);
+        }
+    }
+
+
 }
