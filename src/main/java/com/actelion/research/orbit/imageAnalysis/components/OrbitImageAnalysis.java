@@ -2270,7 +2270,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             logger.debug("shutdown running workers");
             interruptAllWorkers();
             TiledImagePainter.executorService.shutdownNow();
-            //TiledImageWriter.executorService.shutdownNow();
 
             // imageprovider shutdown
             try {

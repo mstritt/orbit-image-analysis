@@ -41,7 +41,7 @@ import java.util.List;
 
 public class ImageList extends JList implements MouseListener, ComponentListener, PropertyChangeListener {
 
-    private Logger logger = LoggerFactory.getLogger(ImageList.class);
+    private static final Logger logger = LoggerFactory.getLogger(ImageList.class);
     private static final long serialVersionUID = 1L;
     public static String PROPERTY_LOAD_IMAGE = "loadImage";
     public static String PROPERTY_DISPLAY_META = "displayMetas";

@@ -69,8 +69,7 @@ public class OrbitImageScifio implements IOrbitImage {
     private long width;
     private long height;
     private int planarAxisCount;
-   // private long[] axesLengthsPlanar;
-
+    private int levelOffset = 0;
 
     public OrbitImageScifio(final String filename, final int level) throws IOException, FormatException {
         this.filename = filename+"["+level+"]";    // level here is important because filename is part of key for hashing!
@@ -93,16 +92,42 @@ public class OrbitImageScifio implements IOrbitImage {
             protected Reader initialValue() {
                 try {
                     logger.debug("init scifio: "+filename+" ["+level+"]");
-                    return scifio.get().initializer().initializeReader(filename,config);
+                    Reader reader =  scifio.get().initializer().initializeReader(filename,config);
+//                    ImageReader r = new ImageReader();
+//                    r.setFlattenedResolutions(false);
+//                    r.setId(filename);
+
+//                    BioFormatsFormat.Reader reader = new BioFormatsFormat.Reader();
+//                    reader.setContext(scifio.get().getContext());
+//                    reader.setSource(filename,config);
+//                    System.out.println(reader);
+                    return reader;
                 } catch (Exception e) {
                     e.printStackTrace();
                     return null;
                 }
             }
         };
+
         Metadata meta = reader.get().getMetadata();
 
-        numLevels =  reader.get().getImageCount();
+        // find biggest image in image set - assume this is the one the user wants to see (the WSI)
+       /*
+        long biggest=0;
+        for (int i=0; i<reader.get().getImageCount(); i++) {
+             ImageMetadata im = meta.get(i);
+             long size = im.getSize();
+             logger.trace("level:"+i+" size:"+size);
+             if (size>biggest) {
+                 biggest = size;
+                 levelOffset = i;
+             }
+        }
+         */
+        numLevels =  reader.get().getImageCount()-levelOffset;
+        this.level += levelOffset;
+
+        logger.debug("actual level: "+this.level+" / numLevels: "+numLevels);
         boolean levelOk;
         do {
             levelOk = true;
@@ -335,7 +360,9 @@ public class OrbitImageScifio implements IOrbitImage {
         return level;
     }
 
-
+    public int getLevelOffset() {
+        return levelOffset;
+    }
 
     public BufferedImage getThumbnail() {
          int thumbLevel = numLevels;
@@ -375,11 +402,14 @@ public class OrbitImageScifio implements IOrbitImage {
         return null;
     }
 
-//    public static void main(String[] args) throws Exception {
-//        final String testImage = "C:\\temp\\brain.ndpi";
-//        OrbitImageScifio oi = new OrbitImageScifio(testImage,0);
-//        BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);
-//        System.out.println("img: "+bi);
-//        oi.close();
-//    }
+    public static void main(String[] args) throws Exception {
+       // final String testImage = "D:\\pic\\vsi\\Image_02.vsi";
+        final String testImage = "D:\\pic\\vsi\\_Image_02_\\stack10001\\frame_t.ets";
+        //final String testImage = "D:\\pic\\Hamamatsu\\brain.ndpi";
+        OrbitImageScifio oi = new OrbitImageScifio(testImage,0);
+        System.out.println("wxh: "+oi.getWidth()+"x"+oi.getHeight());
+        BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);
+        System.out.println("img: "+bi);
+        oi.close();
+    }
 }

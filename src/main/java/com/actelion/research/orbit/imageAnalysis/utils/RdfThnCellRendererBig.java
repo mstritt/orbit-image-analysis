@@ -35,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.Hashtable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -62,7 +63,14 @@ public class RdfThnCellRendererBig extends JLabel implements IFileListCellRender
     protected ImageIcon dummyThn = new ImageIcon(new BufferedImage(RawUtilsCommon.THUMBNAIL_WIDTH, (int) (RawUtilsCommon.THUMBNAIL_WIDTH * 0.75d), BufferedImage.TYPE_INT_RGB));
     // private final ExecutorService executor = Executors.newSingleThreadExecutor();
 //   private final ExecutorService executor =  Executors.newCachedThreadPool();
-    private final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = new Thread(r);
+            thread.setDaemon(true);
+            return thread;
+        }
+    });
 
     private ContrastEnhancerThumbnail contrastEnhancer = new ContrastEnhancerThumbnail();
     private IImageProvider imageProvider;

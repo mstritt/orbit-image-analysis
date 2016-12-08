@@ -41,10 +41,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Problem with some old fluorescence TIFFs:
@@ -97,7 +94,14 @@ public class TiledImagePainter {
 
     //public final static ExecutorService executorService = Executors.newCachedThreadPool();
     //public final static ExecutorService executorService = Executors.newFixedThreadPool(1);
-    public final static ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    public final static ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = new Thread(r);
+            thread.setDaemon(true);
+            return thread;
+        }
+    });
 
     // private ContrastColor contrastColor = new ContrastColor();
     //private GaussianBlur gaussianBlur = new GaussianBlur();
@@ -1210,4 +1214,19 @@ public class TiledImagePainter {
 		}
 		*/
     }
+
+    /**
+     * Stops the rendering thread. Call at the end of an Orbit application!
+     */
+    /*
+    public static void shutDown() {
+        if (executorService!=null) {
+            try {
+                executorService.shutdown();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    */
 }

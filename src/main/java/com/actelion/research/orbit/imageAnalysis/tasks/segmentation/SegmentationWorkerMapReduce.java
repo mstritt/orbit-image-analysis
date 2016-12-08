@@ -158,4 +158,9 @@ public class SegmentationWorkerMapReduce extends OrbitWorker implements ITaskRes
     }
 
 
+//    public static void main(String[] args) throws Exception {
+//        SegmentationWorkerMapReduce worker = new SegmentationWorkerMapReduce(OrbitModel.LoadFromFile("d:/orbitModels/test.omo"),Collections.singletonList(DALConfig.getImageProvider().LoadRawDataFile(4017567)),false);
+//        worker.run();
+//    }
+
 }

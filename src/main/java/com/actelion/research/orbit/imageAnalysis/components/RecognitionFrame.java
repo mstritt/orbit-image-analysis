@@ -69,7 +69,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
 
     private static final long serialVersionUID = 1L;
     public static int maxClassShapesToPaint = 10000;
-    private Logger logger = LoggerFactory.getLogger(RecognitionFrame.class);
+    private static final Logger logger = LoggerFactory.getLogger(RecognitionFrame.class);
     private int windowSize = 4;
     private double targetRadius = 3.0d;  // just for drawing
     private double segmentationClassSize = 12.0d;
