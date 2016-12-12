@@ -208,13 +208,17 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         }
 
         // cache write lock will be set in initCache
-        if (useCache && (OrbitTiledImage2.tileCache == null || tileSizeChanged(tile.getWidth(),tile.getHeight()))) {
+
+        // re-init cache disabled. Too many problems due to different tile sizes (e.g. overview vs normal)
+        //  -> only init once...
+        if (useCache && (OrbitTiledImage2.tileCache == null /*|| tileSizeChanged(tile.getWidth(),tile.getHeight())*/)) {
 //            System.out.println("reason for init: useCache="+useCache+"; cache="+OrbitTiledImage2.tileCache);
 //            if (OrbitTiledImage2.tileCache!=null) {
 //                System.out.println("width="+OrbitTiledImage2.cacheTileWidth.get()+":"+tile.getWidth());
 //                System.out.println("height="+OrbitTiledImage2.cacheTileHeight.get()+":"+tile.getHeight());
 //            }
-            initCache(tile.getWidth(), tile.getHeight());
+
+               initCache(tile.getWidth(), tile.getHeight());
         }
 
         // the put is a "read" method because the cache is not rebuild (and put/get is threadsafe)
