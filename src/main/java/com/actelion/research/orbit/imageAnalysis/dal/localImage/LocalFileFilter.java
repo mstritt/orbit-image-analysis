@@ -45,7 +45,7 @@ public class LocalFileFilter implements FileFilter {
 
         // only list files containing max one point, e.g. 12345.1.tif will be excluded
         String[] split = fileName.split("\\.", -1);
-        if (split != null && split.length > 2) return false;
+        if (split != null &&  ((split.length) > 2 && (fileName.toLowerCase().endsWith(".tif") || fileName.toLowerCase().endsWith(".tiff")))) return false;
 
         String fileExtension;
         int mid = fileName.lastIndexOf(".");
