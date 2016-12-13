@@ -24,10 +24,7 @@ import com.actelion.research.orbit.beans.RawData;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.beans.RawMeta;
 import com.actelion.research.orbit.dal.IOrbitImage;
-import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAODataFileSQLite;
-import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAORawAnnotationSQLite;
-import com.actelion.research.orbit.imageAnalysis.dal.localImage.OrbitImageScifio;
-import com.actelion.research.orbit.imageAnalysis.dal.localImage.OrbitImageTiff;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.*;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitImagePlanar;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.TiffConverter;
@@ -203,7 +200,8 @@ public class ImageProviderLocal extends ImageProviderNoop {
             return new OrbitImageTiff(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
         }
         else {
-            return new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
+           // return new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
+            return new OrbitImageBioformats(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
         }
     }
 
@@ -220,7 +218,8 @@ public class ImageProviderLocal extends ImageProviderNoop {
                     bi = oi.getThumbnail();
                     oi.close();
                 }  else {
-                    OrbitImageScifio oi = new OrbitImageScifio(file.getAbsolutePath(), 0);
+                  //  OrbitImageScifio oi = new OrbitImageScifio(file.getAbsolutePath(), 0);
+                    OrbitImageBioformats oi = new OrbitImageBioformats(file.getAbsolutePath(), 0);
                     bi = oi.getThumbnail();
                     oi.close();
                 }
