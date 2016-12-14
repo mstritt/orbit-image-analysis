@@ -21,31 +21,28 @@ package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
-import io.scif.FormatException;
-import io.scif.gui.AWTImageTools;
+import loci.formats.FormatException;
+import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
+import loci.formats.gui.BufferedImageReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.media.jai.PlanarImage;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.Raster;
-import java.awt.image.SampleModel;
+import java.awt.image.*;
 import java.io.IOException;
 
 public class OrbitImageBioformats implements IOrbitImage {
 
     private static final Logger logger = LoggerFactory.getLogger(OrbitImageBioformats.class);
     final int maxThumbWidth = 300;
-    final protected ThreadLocal<ImageReader> reader;
+    final protected ThreadLocal<BufferedImageReader> reader;
     private String filename;
     private int optimalTileWidth;
     private int optimalTileHeight;
     private int numLevels;
     private int level;
-    private boolean signed = true;
     private boolean interleaved;
     private ColorModel colorModel;
     private SampleModel sampleModel;
@@ -66,12 +63,13 @@ public class OrbitImageBioformats implements IOrbitImage {
 
         System.out.println("bioformats image: "+this.filename);
 
-        reader = new ThreadLocal<ImageReader>() {
+        reader = new ThreadLocal<BufferedImageReader>() {
             @Override
-            protected ImageReader initialValue() {
+            protected BufferedImageReader initialValue() {
                 try {
                     logger.debug("init bioformats: "+filename+" ["+level+"]");
                     ImageReader r = new ImageReader();
+                    //r.setAllowOpenFiles(false);
                     r.setFlattenedResolutions(false);
                     r.setId(filename);
                     int series = 0;
@@ -89,7 +87,8 @@ public class OrbitImageBioformats implements IOrbitImage {
                         }
                     }
                     r.setResolution(level);
-                    return r;
+
+                    return BufferedImageReader.makeBufferedImageReader(r);
                 } catch (Exception e) {
                     e.printStackTrace();
                     return null;
@@ -97,7 +96,8 @@ public class OrbitImageBioformats implements IOrbitImage {
             }
         };
 
-        numLevels =  reader.get().getResolutionCount();
+        numLevels =  reader.get().getResolutionCount(); // TODO get real resolutions
+        //numLevels = getRealResolutionCount(reader.get());
 
         logger.debug("actual level: "+this.level+" / numLevels: "+numLevels);
         boolean levelOk;
@@ -127,6 +127,11 @@ public class OrbitImageBioformats implements IOrbitImage {
 
             optimalTileWidth = reader.get().getOptimalTileWidth();
             optimalTileHeight = reader.get().getOptimalTileHeight();
+
+//            optimalTileWidth = 512;
+//            optimalTileHeight = 512;
+
+            logger.info("optimal tile width: "+optimalTileWidth+" x "+optimalTileHeight);
 
 
             originalBitsPerSample = reader.get().getBitsPerPixel();
@@ -158,16 +163,26 @@ public class OrbitImageBioformats implements IOrbitImage {
         System.out.println(filename+" loaded: "+width+"x"+height);
     }
 
-
-    private BufferedImage getBufferedImage(byte[] p, int planeWidth, int planeHeight) {
-        BufferedImage bi;
-        if (numBandsOriginal==1)
-            bi = AWTImageTools.makeImage(p,planeWidth,planeHeight,signed);
-        else {
-            bi = AWTImageTools.makeRGBImage(p,numBandsOriginal,planeWidth,planeHeight,interleaved);
+    private int getRealResolutionCount(IFormatReader imageReader) throws IOException, FormatException {
+        ImageReader ir = new ImageReader();
+        ir.setFlattenedResolutions(false);
+        ir.setId(imageReader.getCurrentFile());
+        ir.setSeries(imageReader.getSeries());
+        int numRes = 1;
+        for (int lev=imageReader.getResolutionCount()-1; lev>=0; lev--) {
+            numRes = lev;
+            ir.setResolution(lev);
+            int thumbW = ir.getSizeX();
+            int thumbH = ir.getSizeY();
+            double diff = Math.abs((thumbW/(double)thumbH) - (imageReader.getSizeX()/(double)imageReader.getSizeY()));
+            System.out.println("diff: "+diff);
+            if (diff<0.001) break;
         }
-        return bi;
+        ir.close();
+        System.out.println("realres: "+numRes);
+        return numRes;
     }
+
 
     @Override
     public String readInfoString(String filename) throws OrbitImageServletException {
@@ -202,8 +217,10 @@ public class OrbitImageBioformats implements IOrbitImage {
         int y = optimalTileHeight * tileY;
         int w = (int) Math.min(optimalTileWidth, width - x);
         int h = (int) Math.min(optimalTileHeight, height - y);
-        byte[] bytes = reader.get().openBytes(0, x,y, w,h);
-        return getBufferedImage(bytes, w,h);
+        BufferedImageReader bir = reader.get();
+        if (bir.getResolution()!=this.level) bir.setResolution(this.level);
+        BufferedImage bi = bir.openImage(0, x,y, w,h);
+        return bi;
     }
 
     @Override
@@ -315,9 +332,10 @@ public class OrbitImageBioformats implements IOrbitImage {
                 if (diff<0.001) break;
             }
 
-            byte[] p = ir.openBytes(0);
-            ir.close();
-            BufferedImage thumb = AWTImageTools.makeRGBImage(p,numBandsOriginal,(int)thumbW,(int)thumbH,thumbInterleaved);
+            BufferedImageReader bir = BufferedImageReader.makeBufferedImageReader(ir);
+            BufferedImage thumb = bir.openImage(0);
+            bir.close();
+
             if (thumbW>maxThumbWidth) {
                 int h = (int)(maxThumbWidth * (thumbH/(double)thumbW));
                 BufferedImage img = new BufferedImage(maxThumbWidth,h, BufferedImage.TYPE_INT_RGB);
@@ -338,13 +356,13 @@ public class OrbitImageBioformats implements IOrbitImage {
 
     public static void main(String[] args) throws Exception {
      //   final String testImage = "D:\\pic\\vsi\\Image_02.vsi";
-       final String testImage = "D:\\pic\\vsi\\_Image_02_\\stack10001\\frame_t.ets";
-       // final String testImage = "D:\\pic\\Hamamatsu\\brain.ndpi";
+    //   final String testImage = "D:\\pic\\vsi\\_Image_02_\\stack10001\\frame_t.ets";
+        final String testImage = "D:\\pic\\Hamamatsu\\brain.ndpi";
 
-        OrbitImageBioformats oi = new OrbitImageBioformats(testImage,0);
+        OrbitImageBioformats oi = new OrbitImageBioformats(testImage,5);
         System.out.println("wxh: "+oi.getWidth()+"x"+oi.getHeight());
-       // BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);
-        BufferedImage bi = oi.getThumbnail();
+        BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);
+       // BufferedImage bi = oi.getThumbnail();
         System.out.println("img: "+bi);
         oi.close();
     }

@@ -32,8 +32,6 @@ import com.actelion.research.orbit.utils.Logger;
 import com.actelion.research.orbit.utils.RawMetaFactoryData;
 import com.actelion.research.orbit.utils.RawMetaFactoryFile;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
-import io.scif.SCIFIO;
-import org.scijava.Context;
 
 import javax.media.jai.PlanarImage;
 import javax.swing.*;
@@ -51,7 +49,6 @@ import java.util.prefs.Preferences;
 public class ImageProviderLocal extends ImageProviderNoop {
 
     private static final Logger logger = Logger.getLogger(ImageProviderLocal.class);
-    private Context context;
     private RawData rawData;
 
     public ImageProviderLocal() {
@@ -67,15 +64,6 @@ public class ImageProviderLocal extends ImageProviderNoop {
     public List<RawDataFile> browseImages(Object parentObj) throws Exception {
         List<RawDataFile> rdfList = new ArrayList<>();
         JFileChooser fileChooser = OrbitUtils.buildOpenFileFileChooser();
-        SCIFIO scifio = new SCIFIO();
-        context = scifio.getContext();
-//        Format[] formats = new Format[]{new TIFFFormat() {
-//            @Override
-//            public String getFormatName() {
-//                return "TIFF";
-//            }
-//        }};
-//        JFileChooser fileChooser = scifio.gui().buildFileChooser(scifio.gui().buildFileFilters(Arrays.asList(formats)));
 
         Preferences prefs = Preferences.userNodeForPackage(this.getClass());
         String dir = prefs.get("ImageProviderLocal.OpenFileCurrentDir", null);
@@ -237,8 +225,7 @@ public class ImageProviderLocal extends ImageProviderNoop {
 
     @Override
     public void close() throws IOException {
-        if (context!=null)
-            context.dispose();
+
     }
 
 

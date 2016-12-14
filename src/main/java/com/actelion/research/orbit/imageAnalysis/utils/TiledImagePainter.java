@@ -93,8 +93,8 @@ public class TiledImagePainter {
 
 
     //public final static ExecutorService executorService = Executors.newCachedThreadPool();
-    //public final static ExecutorService executorService = Executors.newFixedThreadPool(1);
-    public final static ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new ThreadFactory() {
+//    public final static ExecutorService executorService = Executors.newFixedThreadPool(1);
+    public final static ExecutorService executorService = Executors.newFixedThreadPool(Math.min(4,Runtime.getRuntime().availableProcessors()), new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {
             Thread thread = new Thread(r);

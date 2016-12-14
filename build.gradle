@@ -202,10 +202,10 @@ dependencies {
         exclude (module: 'netcdf')
         exclude (module: 'blitz')
     }
+    compile (group: 'ome', name:'formats-api', version:'5.3.0')
 
-    //compile 'io.scif:scifio:0.25.2'    // works with java 1.7
-    compile 'io.scif:scifio:0.30.0'  // only java 1.8
-    compile 'io.scif:scifio-bf-compat:2.0.0'
+//    compile 'io.scif:scifio:0.30.0'  // only java 1.8
+//    compile 'io.scif:scifio-bf-compat:2.0.0'
 
     compile 'org.codehaus.groovy:groovy-all:2.4.7'
     compile 'org.codehaus.gpars:gpars:1.2.1'

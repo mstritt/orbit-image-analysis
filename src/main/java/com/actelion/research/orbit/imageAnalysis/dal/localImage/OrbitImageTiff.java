@@ -21,8 +21,8 @@ package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
-import io.scif.gui.AWTImageTools;
 import loci.formats.FormatException;
+import loci.formats.gui.AWTImageTools;
 import loci.formats.tiff.IFD;
 import loci.formats.tiff.IFDList;
 import loci.formats.tiff.TiffParser;
