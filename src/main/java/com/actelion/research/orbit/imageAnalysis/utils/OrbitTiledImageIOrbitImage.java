@@ -23,6 +23,7 @@ import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 
 import java.awt.image.Raster;
+import java.io.IOException;
 
 @SuppressWarnings("unchecked")
 public class OrbitTiledImageIOrbitImage extends OrbitTiledImage2 {
@@ -85,4 +86,8 @@ public class OrbitTiledImageIOrbitImage extends OrbitTiledImage2 {
 //	}
 
 
+    @Override
+    public void close() throws IOException {
+         image.close();
+    }
 }

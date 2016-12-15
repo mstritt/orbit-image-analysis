@@ -21,6 +21,8 @@ package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
+import edu.emory.mathcs.backport.java.util.Collections;
 import loci.formats.FormatException;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
@@ -32,12 +34,15 @@ import javax.media.jai.PlanarImage;
 import java.awt.*;
 import java.awt.image.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OrbitImageBioformats implements IOrbitImage {
 
     private static final Logger logger = LoggerFactory.getLogger(OrbitImageBioformats.class);
     final int maxThumbWidth = 300;
     final protected ThreadLocal<BufferedImageReader> reader;
+    final List<BufferedImageReader> allReaders = Collections.synchronizedList(new ArrayList<BufferedImageReader>());
     private String filename;
     private int optimalTileWidth;
     private int optimalTileHeight;
@@ -57,11 +62,12 @@ public class OrbitImageBioformats implements IOrbitImage {
     private long width;
     private long height;
 
+
     public OrbitImageBioformats(final String filename, final int level) throws IOException, FormatException {
         this.filename = filename+"["+level+"]";    // level here is important because filename is part of key for hashing!
         this.level = level;
 
-        System.out.println("bioformats image: "+this.filename);
+        logger.info("bioformats image: "+this.filename);
 
         reader = new ThreadLocal<BufferedImageReader>() {
             @Override
@@ -87,8 +93,11 @@ public class OrbitImageBioformats implements IOrbitImage {
                         }
                     }
                     r.setResolution(level);
-
-                    return BufferedImageReader.makeBufferedImageReader(r);
+                    BufferedImageReader bir = BufferedImageReader.makeBufferedImageReader(r);
+                    synchronized (allReaders) {
+                        allReaders.add(bir); // remember for closing
+                    }
+                    return bir;
                 } catch (Exception e) {
                     e.printStackTrace();
                     return null;
@@ -112,37 +121,37 @@ public class OrbitImageBioformats implements IOrbitImage {
             height = reader.get().getSizeY();
             numBandsOriginal = reader.get().getSizeC();
 
-            /*
-            long optimalTileWidth2 = OrbitUtils.TILE_SIZE_DEFAULT;
-            long optimalTileHeight2 = OrbitUtils.TILE_SIZE_DEFAULT;
-            String ending = RawUtilsCommon.getExtension(filename, true);
-            if (ending.equals("png") || ending.equals("jpg") || ending.equals("jpeg") || ending.equals("gif") || ending.equals("bmp")
-                    || ((width * height) <= (2048L * 2048L))) {
-                optimalTileWidth2 = width;
-                optimalTileHeight2 = height;
-            }
-            optimalTileWidth = optimalTileWidth2;
-            optimalTileHeight = optimalTileHeight2;
-            */
-
-            optimalTileWidth = reader.get().getOptimalTileWidth();
-            optimalTileHeight = reader.get().getOptimalTileHeight();
-
-//            optimalTileWidth = 512;
-//            optimalTileHeight = 512;
-
-            logger.info("optimal tile width: "+optimalTileWidth+" x "+optimalTileHeight);
+//            int optimalTileWidth2 = OrbitUtils.TILE_SIZE_DEFAULT;
+//            int optimalTileHeight2 = OrbitUtils.TILE_SIZE_DEFAULT;
+//            String ending = RawUtilsCommon.getExtension(filename, true);
+//            if (ending.equals("png") || ending.equals("jpg") || ending.equals("jpeg") || ending.equals("gif") || ending.equals("bmp")
+//                    || ((width * height) <= (2048L * 2048L))) {
+//                optimalTileWidth2 = (int) width;
+//                optimalTileHeight2 = (int) height;
+//            }
+//            optimalTileWidth = optimalTileWidth2;
+//            optimalTileHeight = optimalTileHeight2;
 
 
-            originalBitsPerSample = reader.get().getBitsPerPixel();
-            interleaved = reader.get().isInterleaved();
+            BufferedImageReader bir = reader.get();
+            if (bir.getResolution()!=this.level) bir.setResolution(this.level);
+            optimalTileWidth = bir.getOptimalTileWidth();
+            optimalTileHeight = bir.getOptimalTileHeight();
+            if (optimalTileWidth< OrbitUtils.TILE_SIZE_DEFAULT && width>=OrbitUtils.TILE_SIZE_DEFAULT) optimalTileWidth = OrbitUtils.TILE_SIZE_DEFAULT;
+            if (optimalTileHeight< OrbitUtils.TILE_SIZE_DEFAULT && height>=OrbitUtils.TILE_SIZE_DEFAULT) optimalTileHeight = OrbitUtils.TILE_SIZE_DEFAULT;
+
+
+            logger.debug("optimal tile size: "+optimalTileWidth+" x "+optimalTileHeight);
+
+
+            originalBitsPerSample = bir.getBitsPerPixel();
+            interleaved = bir.isInterleaved();
             try {
                 BufferedImage img = getPlane(0, 0);
                 colorModel = img.getColorModel();
                 sampleModel = img.getSampleModel();
                 numBands = sampleModel.getNumBands();
-                //originalWasGrayScale = extents[channelAxis]==1;
-                originalWasGrayScale = false;
+                originalWasGrayScale = numBands==1;
                 tileGridXOffset = img.getTileGridXOffset();
                 tileGridYOffset = img.getTileGridYOffset();
                 minX = img.getMinX();
@@ -150,6 +159,11 @@ public class OrbitImageBioformats implements IOrbitImage {
             } catch (Exception e) {
                 if (this.level<numLevels-1) {
                     this.level++;
+                    synchronized (allReaders) {
+                        for (IFormatReader r : allReaders) {
+                            r.setResolution(this.level);
+                        }
+                    }
                     levelOk=false;
                     logger.debug("error loading level "+this.level+" trying next level");
                 }  else {
@@ -160,9 +174,10 @@ public class OrbitImageBioformats implements IOrbitImage {
 
         } while (!levelOk);
 
-        System.out.println(filename+" loaded: "+width+"x"+height);
+        logger.info(filename+" loaded ["+width+" x "+height+"]");
     }
 
+    @Deprecated
     private int getRealResolutionCount(IFormatReader imageReader) throws IOException, FormatException {
         ImageReader ir = new ImageReader();
         ir.setFlattenedResolutions(false);
@@ -179,7 +194,6 @@ public class OrbitImageBioformats implements IOrbitImage {
             if (diff<0.001) break;
         }
         ir.close();
-        System.out.println("realres: "+numRes);
         return numRes;
     }
 
@@ -219,7 +233,7 @@ public class OrbitImageBioformats implements IOrbitImage {
         int h = (int) Math.min(optimalTileHeight, height - y);
         BufferedImageReader bir = reader.get();
         if (bir.getResolution()!=this.level) bir.setResolution(this.level);
-        BufferedImage bi = bir.openImage(0, x,y, w,h);
+        BufferedImage bi = bir.openImage(0, x, y, w, h);
         return bi;
     }
 
@@ -295,11 +309,14 @@ public class OrbitImageBioformats implements IOrbitImage {
 
     @Override
     public void close() throws IOException {
-         if (reader!=null) {
-             try {
-                 reader.get().close();
-             } catch (Exception e) {}
-         }
+        synchronized (allReaders) {
+            for (IFormatReader r: allReaders) {
+                try {
+                    r.close();
+                } catch (Exception e) {
+                }
+            }
+        }
     }
 
     public int getNumLevels() {
@@ -314,7 +331,6 @@ public class OrbitImageBioformats implements IOrbitImage {
     public BufferedImage getThumbnail() {
          long thumbW=1;
          long thumbH=1;
-         boolean thumbInterleaved = interleaved; // but might change per layer!
 
         try {
             ImageReader ir = new ImageReader();
@@ -326,9 +342,8 @@ public class OrbitImageBioformats implements IOrbitImage {
                 ir.setResolution(lev);
                 thumbW = ir.getSizeX();
                 thumbH = ir.getSizeY();
-                thumbInterleaved = ir.isInterleaved();
                 double diff = Math.abs((thumbW/(double)thumbH) - (width/(double)height));
-                logger.trace("lev: "+lev+"  diff: "+diff+"  WxH: "+thumbW+"x"+thumbH);
+                logger.trace("thumb lev: "+lev+"  diff: "+diff+"  WxH: "+thumbW+"x"+thumbH);
                 if (diff<0.001) break;
             }
 
@@ -355,14 +370,10 @@ public class OrbitImageBioformats implements IOrbitImage {
     }
 
     public static void main(String[] args) throws Exception {
-     //   final String testImage = "D:\\pic\\vsi\\Image_02.vsi";
-    //   final String testImage = "D:\\pic\\vsi\\_Image_02_\\stack10001\\frame_t.ets";
-        final String testImage = "D:\\pic\\Hamamatsu\\brain.ndpi";
-
-        OrbitImageBioformats oi = new OrbitImageBioformats(testImage,5);
+        final String testImage = "D:\\pic\\testimg.jp2";
+        OrbitImageBioformats oi = new OrbitImageBioformats(testImage,0);
         System.out.println("wxh: "+oi.getWidth()+"x"+oi.getHeight());
         BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);
-       // BufferedImage bi = oi.getThumbnail();
         System.out.println("img: "+bi);
         oi.close();
     }

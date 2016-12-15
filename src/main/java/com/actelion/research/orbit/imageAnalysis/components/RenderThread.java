@@ -49,8 +49,8 @@ public class RenderThread extends Thread {
     private List<PropertyChangeListener> pcListeners = null;
 
     public RenderThread(Component parent) {
-        setPriority(Thread.MIN_PRIORITY);
-        setDaemon(false);
+        setPriority(Thread.NORM_PRIORITY);
+        setDaemon(true);
         this.parentComponent = parent;
     }
 
@@ -91,7 +91,7 @@ public class RenderThread extends Thread {
                     scheduleUpdate = false;
             } else {
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(25);
                 } catch (InterruptedException e) {
                 }
             }

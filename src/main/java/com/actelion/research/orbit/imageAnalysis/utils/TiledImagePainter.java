@@ -36,7 +36,9 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.*;
 import java.awt.image.renderable.ParameterBlock;
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -50,7 +52,7 @@ import java.util.concurrent.*;
  * The current workaround is to just use RMI for these images. However, the best way would be to convert all images on server-side via imagemagick to YcBcR encoding.
  * For all newer merged (NDPIS) fluo images (>1.12.2012) this should not happen.
  */
-public class TiledImagePainter {
+public class TiledImagePainter implements Closeable {
 
     public static final int CHANNEL_RED = 0;
     public static final int CHANNEL_GREEN = 1;
@@ -106,8 +108,6 @@ public class TiledImagePainter {
     // private ContrastColor contrastColor = new ContrastColor();
     //private GaussianBlur gaussianBlur = new GaussianBlur();
     // private MedianFilter medianFilter = new MedianFilter();
-
-// private final Cache combinedImageCache = new Cache(2);
 
     private BufferedImage bi;
     private WritableRaster wr;
@@ -1213,6 +1213,16 @@ public class TiledImagePainter {
 			}
 		}
 		*/
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (image!=null) image.close();
+        if (mipMaps!=null) {
+            for (TiledImagePainter tip: mipMaps) {
+                tip.close();
+            }
+        }
     }
 
     /**

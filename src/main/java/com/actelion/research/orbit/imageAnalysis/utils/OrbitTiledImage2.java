@@ -34,13 +34,15 @@ import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.image.*;
 import java.awt.image.renderable.ParameterBlock;
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 @SuppressWarnings("unchecked")
-public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedImage {
+public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedImage, Closeable {
     public final static int PHOTOMETRIC_YCbCr = 6;
     public final static int PHOTOMETRIC_RGB = 2;
     protected final static Logger logger = LoggerFactory.getLogger(OrbitTiledImage2.class);
@@ -707,5 +709,8 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         this.useCache = useCache;
     }
 
+    public void close() throws IOException {
+
+    }
 
 }

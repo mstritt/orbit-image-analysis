@@ -47,6 +47,7 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -366,6 +367,11 @@ public class ImageFrame extends JInternalFrame implements ComponentListener, Pro
                 recognitionFrame.getRenderThreadOriginal().removePropertyChangeListener(recognitionFrame);
                 recognitionFrame.getRenderThreadOriginal().interrupt();
                 recognitionFrame.getRenderThreadOriginal().stop();
+            }
+            try {
+                recognitionFrame.bimg.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             removePropertyChangeListener(this);
             firePropertyChange(IFRAME_CLOSING, null, this);
