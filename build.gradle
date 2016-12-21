@@ -198,11 +198,11 @@ dependencies {
        exclude (group:'javax.servlet', module: 'servlet-api')
     }
     compile (group: 'edu.ucar', name:'netcdf', version:'4.3.22')     // replacement of 4.3.19 used by formats-gpl which has a buggy pom (version LATEST does not work with gradle)
-    compile (group: 'ome', name:'formats-gpl', version:'5.3.0') { // 5.1.5   5.1.10   (5.2.1)
+    compile (group: 'ome', name:'formats-gpl', version:'5.3.1') { // 5.1.5   5.1.10   (5.2.1)
         exclude (module: 'netcdf')
         exclude (module: 'blitz')
     }
-    compile (group: 'ome', name:'formats-api', version:'5.3.0')
+    compile (group: 'ome', name:'formats-api', version:'5.3.1')
     compile (group: 'net.imglib2', name: 'imglib2', version: '3.2.1') // to avoid jpeg2000 problem: NoSuchMethodError: jj2000.j2k.fileformat.reader.FileFormatReader.<init>
 
 //    compile 'io.scif:scifio:0.30.0'  // only java 1.8
