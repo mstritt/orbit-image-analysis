@@ -82,6 +82,9 @@ public class OrbitImageBioformats implements IOrbitImage {
     private static final float HueCy5 = 0f / 360f;  // 60
     private static final float HueEGFP = 141f / 360f;
     private static final float HueDAPI = 202f / 360f;
+    private static final float HueFITC = 108f / 360f;
+    private static final float HueTRITC = 22f / 360f;
+
 
 
     public OrbitImageBioformats(final String filename, final int level) throws IOException, FormatException {
@@ -129,12 +132,16 @@ public class OrbitImageBioformats implements IOrbitImage {
                     r.setResolution(level);
                     BufferedImageReader bir;
                     if (doMergeChannels(r)) {
-                        // flue images
+                        // fluo images
 
                         if (channelNames==null) {
                             channelNames = new ArrayList<>(r.getSizeC());
                             for (int c=0; c<r.getSizeC(); c++) {
-                                channelNames.add(meta.getChannelName(0,c));
+                               // System.out.println("c="+c+" idx="+idx);
+                                String name = meta.getChannelName(r.getSeries(),c);
+                                if (name==null) name = "Channel"+c;
+                                System.out.println("channel name "+c+": "+name);
+                                channelNames.add(name);
                             }
                         }
 
@@ -255,6 +262,12 @@ public class OrbitImageBioformats implements IOrbitImage {
         } while (!levelOk);
 
         logger.info(filename+" loaded ["+width+" x "+height+"]");
+    }
+
+    private int getIndex(IFormatReader r, int channel) {
+        int[] nos = r.getZCTCoords(0);
+        int z = nos[0], t = nos[2];
+        return r.getIndex(z,channel,t);
     }
 
     private boolean doMergeChannels(IFormatReader r) {
@@ -393,6 +406,30 @@ public class OrbitImageBioformats implements IOrbitImage {
             }
             case "dapi": {
                 hue = HueDAPI;
+                break;
+            }
+            case "fitc": {
+                hue = HueFITC;
+                break;
+            }
+            case "tritc": {
+                hue = HueTRITC;
+                break;
+            }
+            case "channel0": {
+                hue = HueDAPI;
+                break;
+            }
+            case "channel1": {
+                hue = HueFITC;
+                break;
+            }
+            case "channel2": {
+                hue = HueTRITC;
+                break;
+            }
+            case "channel3": {
+                hue = HueCy5;
                 break;
             }
             default: {
@@ -625,8 +662,8 @@ public class OrbitImageBioformats implements IOrbitImage {
         //final String testImage = "D:\\pic\\czi\\20160211_FL_3ch_10x_1z_2sc_onl_jpegxr.czi";
         //final String testImage = "D:\\pic\\czi\\FL_5CH_2scenes_5z_online-jpegXR.czi";
         //final String testImage = "D:\\pic\\czi\\BF-20x-1z-1sc-off-jpegXR.czi";
-        //final String testImage = "D:\\pic\\Hamamatsu\\FL\\rgb.ndpis";
-        final String testImage = "D:\\pic\\vsi\\04_12_15_Slide1_Image_01.vsi";
+        final String testImage = "D:\\pic\\Hamamatsu\\FL\\rgb.ndpis";
+        //final String testImage = "D:\\pic\\vsi\\04_12_15_Slide1_Image_01.vsi";
 
         OrbitImageBioformats oi = new OrbitImageBioformats(testImage,0);
         System.out.println("wxh: "+oi.getWidth()+"x"+oi.getHeight());
