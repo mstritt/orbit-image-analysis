@@ -51,6 +51,7 @@ public class AnnotationPanel extends JPanel implements PropertyChangeListener {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(AnnotationPanel.class);
     private final JButton btnAddAnnotationPoly = new JButton(new ImageIcon(OrbitImageAnalysis.class.getResource(OrbitUtils.DARKUI ? "/resource/annoAddPoly_substance.png" : "/resource/annoAddPoly.png")));
+    private final JButton btnAddAnnotationMagneticLasso = new JButton(new ImageIcon(OrbitImageAnalysis.class.getResource(OrbitUtils.DARKUI ? "/resource/annoAddMagneticLasso_substance.png" : "/resource/annoAddPoly.png")));
     private final JButton btnAddAnnotationRect = new JButton(new ImageIcon(OrbitImageAnalysis.class.getResource(OrbitUtils.DARKUI ? "/resource/annoAddRect_substance.png" : "/resource/annoAddRect.png")));
     private final JButton btnEditAnnotation = new JButton(new ImageIcon(OrbitImageAnalysis.class.getResource("/resource/annoEdit.png")));
     private final JButton btnRemoveAnnotation = new JButton(new ImageIcon(OrbitImageAnalysis.class.getResource("/resource/annoRemove.png")));
@@ -74,7 +75,16 @@ public class AnnotationPanel extends JPanel implements PropertyChangeListener {
         public void actionPerformed(ActionEvent e) {
             OrbitImageAnalysis.getInstance().forceLogin();
             if (OrbitImageAnalysis.loginOk) {
-                prepareNewAnnotationPolygon();
+                prepareNewAnnotationPolygon(false);
+            }
+        }
+    };
+
+    public final ActionListener addMagneticLassoActionListener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            OrbitImageAnalysis.getInstance().forceLogin();
+            if (OrbitImageAnalysis.loginOk) {
+                prepareNewAnnotationPolygon(true);
             }
         }
     };
@@ -97,6 +107,8 @@ public class AnnotationPanel extends JPanel implements PropertyChangeListener {
 
         btnAddAnnotationPoly.setToolTipText("add polygon");
         btnAddAnnotationPoly.addActionListener(addPolygonActionListener);
+        btnAddAnnotationMagneticLasso.setToolTipText("<html><body>add magnetic lasso polygon<br/>hold left mouse button to draw, right-click to set fixed points, release left-mouse to finish</body></html>");
+        btnAddAnnotationMagneticLasso.addActionListener(addMagneticLassoActionListener);
         btnAddAnnotationRect.setToolTipText("add rectangle");
         btnAddAnnotationRect.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -418,6 +430,7 @@ public class AnnotationPanel extends JPanel implements PropertyChangeListener {
 //        btnPanel.add(btnMoveAnnotation,new GridBagConstraints(4, 0, 1, GridBagConstraints.RELATIVE, 1, 0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        btnPanel.add(btnAddAnnotationMagneticLasso);
         btnPanel.add(btnAddAnnotationPoly);
         btnPanel.add(btnAddAnnotationRect);
         btnPanel.add(btnMoveAnnotation);
@@ -869,7 +882,7 @@ public class AnnotationPanel extends JPanel implements PropertyChangeListener {
     }
 
 
-    private void prepareNewAnnotationPolygon() {
+    private void prepareNewAnnotationPolygon(final boolean magneticLasso) {
         ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
         if (iFrame != null) {
             logger.trace("mip layer: " + iFrame.getMipLayer());
@@ -884,7 +897,7 @@ public class AnnotationPanel extends JPanel implements PropertyChangeListener {
             currentAnnotation.setGroup(defaultGroup > 0 ? defaultGroup : 1);
             iFrame.recognitionFrame.getAnnotations().add(currentAnnotation);
 
-            iFrame.recognitionFrame.setSelectedTool(Tools.brush);
+            iFrame.recognitionFrame.setSelectedTool(magneticLasso? Tools.magneticLasso : Tools.brush);
             iFrame.recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_POLYGONEXT);
             iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
             iFrame.recognitionFrame.getMyListener().setCloseNextPolygonExt(cbClosed.isSelected());

@@ -34,6 +34,9 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.ref.WeakReference;
@@ -64,7 +67,21 @@ public class ShapePainterListener extends MouseInputAdapter {
     private List<IScaleableShape> rotationShapeList = null;
     private Point2D rotateCenter = null;
     private String className;
-    // private AtomicLong lastRepaint = new AtomicLong();
+
+    private byte[] magicLassoPixels = null;
+    private int mlOffsX = 0;
+    private int mlOffsY = 0;
+    private Dijkstraheap dijkstraheap;
+    int[] a = new int[10000];
+    int[] b = new int[10000];
+    int[] c = new int[10];
+    int[] storeX = new int[10000];
+    int[] storeY = new int[10000];
+    int storeCount = 0;
+    int mlSize = 500;
+    int mlSH = mlSize/2;
+    final Point mlStartPoint = new Point(0,0);
+
 
 
     /**
@@ -107,6 +124,35 @@ public class ShapePainterListener extends MouseInputAdapter {
 
         if (!acceptTool(recognitionFrame.getSelectedTool())) return;
 
+        if (recognitionFrame.getSelectedTool() == Tools.magneticLasso) {
+            if (e.getButton()!=MouseEvent.BUTTON1) {
+                // store old path
+                for (int i=0; i<c[0]+1; i++) {
+                    storeX[storeCount+i] = a[i]+mlOffsX;
+                    storeY[storeCount+i] = b[i]+mlOffsY;
+                }
+                storeCount += c[0]+1;
+            } else {
+                storeCount = 0;
+            }
+            mlStartPoint.setLocation(x,y);
+            Raster r = recognitionFrame.bimg.image.getData(new Rectangle(x-mlSH,y-mlSH,mlSize,mlSize));
+            mlOffsX = r.getMinX();
+            mlOffsY = r.getMinY();
+            BufferedImage bi = recognitionFrame.createBufferedImage(r);
+            BufferedImage img = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+            Graphics g = img.getGraphics();
+            g.drawImage(bi, 0, 0, null);
+            g.dispose();
+            magicLassoPixels = ((DataBufferByte)img.getData().getDataBuffer()).getData();
+            dijkstraheap = new Dijkstraheap(magicLassoPixels,mlSize,mlSize);
+            dijkstraheap.setPoint(x-mlOffsX,y-mlOffsY);
+            try {
+                dijkstraheap.myThread.join();
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+        }
 
         //double cx = ((JComponent)recognitionFrame.getParent()).getBounds().getCenterX();
         //double cy =  ((JComponent)recognitionFrame.getParent()).getBounds().getCenterY();
@@ -173,19 +219,21 @@ public class ShapePainterListener extends MouseInputAdapter {
                             mousePosStart = new Point(x, y);
                             rotationShapeList = null;
                         }
-                    } else // normal polygon
+                    } else // normal polygon or magnetic lasso
                     {
-                        curPoly = new PolygonExt();
-                        if (recognitionFrame.getSelectedTool() == Tools.roi) { // ROI-mode
-                            recognitionFrame.setROI(curPoly);
-                        } else { // normal tissue marking mode
-                            shapeList.add(curPoly);
-                            curPoly = (PolygonExt) shapeList.get(shapeList.size() - 1);  // use interface!!!
-                        }
-                        curPoly.addPoint(x, y);
-                        curPoly.setClosed(false);
-                        curPoly.setScale(recognitionFrame.getScale());
-                        curPoly.setViewPortOffs(offs);
+                            if (e.getButton() == MouseEvent.BUTTON1) {
+                                curPoly = new PolygonExt();
+                                if (recognitionFrame.getSelectedTool() == Tools.roi) { // ROI-mode
+                                    recognitionFrame.setROI(curPoly);
+                                } else { // normal tissue marking mode
+                                    shapeList.add(curPoly);
+                                    curPoly = (PolygonExt) shapeList.get(shapeList.size() - 1);  // use interface!!!
+                                }
+                                curPoly.addPoint(x, y);
+                                curPoly.setClosed(false);
+                                curPoly.setScale(recognitionFrame.getScale());
+                                curPoly.setViewPortOffs(offs);
+                            }
                     }
                 }
             } // switch shapeMode
@@ -208,6 +256,9 @@ public class ShapePainterListener extends MouseInputAdapter {
         recognitionFrame.repaint();
     }
 
+    private int toIndex(int x, int y, int width) {
+        return (y * width + x);
+    }
 
     private boolean removeFromShapeList(int x, int y, List<Shape> shapeList, String className) {
         int ployToDelete = -1;
@@ -305,15 +356,33 @@ public class ShapePainterListener extends MouseInputAdapter {
             curRect.setBounds(rx, ry, rw, rh);
             recognitionFrame.repaint();
             return;
-        } else { // brush
+        } else if (recognitionFrame.getSelectedTool() == Tools.magneticLasso) { // magnetic lasso
+
+            //curPoly.addPoint(x, y);
+            if (Math.abs(mlStartPoint.x-x)<mlSH && Math.abs(mlStartPoint.y-y)<mlSH) {
+                dijkstraheap.returnPath(x - mlOffsX, y - mlOffsY, a, b, c);
+                int np = c[0] + 1;
+                int[] ax = new int[storeCount + np];
+                int[] bx = new int[storeCount + np];
+                System.arraycopy(storeX, 0, ax, 0, storeCount);
+                System.arraycopy(storeY, 0, bx, 0, storeCount);
+                for (int i = 0; i < np; i++) {
+                    ax[i + storeCount] = a[i] + mlOffsX;
+                    bx[i + storeCount] = b[i] + mlOffsY;
+                }
+                curPoly.setPoly(new Polygon(ax, bx, np + storeCount));
+            }
+            recognitionFrame.repaint();
+        }
+        else  { // brush
             curPoly.addPoint(x, y);
-            //Rectangle r = curPoly.getBounds();
-            //repaint((int)r.getX()-1,(int)r.getY()-1,(int)r.getWidth()+1,(int)r.getHeight()+1);
             recognitionFrame.repaint();
         }
     }
 
     public void mouseReleased(MouseEvent e) {
+        if (e.getButton()!=MouseEvent.BUTTON1) return; // end only if first/left mouse button is released
+
         RecognitionFrame recognitionFrame = recognitionFrameRef.get();
         if (recognitionFrame == null) return;
         if (!acceptTool(recognitionFrame.getSelectedTool())) return;
@@ -376,6 +445,7 @@ public class ShapePainterListener extends MouseInputAdapter {
 
 
     private boolean acceptTool(Tools tool) {
+        if (tool.equals(Tools.magneticLasso)) return true;
         if (tool.equals(Tools.brush)) return true;
         if (tool.equals(Tools.rectangle)) return true;
         if (tool.equals(Tools.circle)) return true;

@@ -43,6 +43,7 @@ import java.awt.*;
 import java.awt.event.MouseListener;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.beans.PropertyChangeEvent;
@@ -109,7 +110,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
     private Point2D viewPortOffset = new Point2D.Double(0, 0);
     private Dimension2D viewPortSize = new Dimension2D_Double(0d, 0d);
 
-    public enum Tools {brush, rectangle, cell, circle, delete, finger, roi, moveAnnotation, rotateAnnotation}
+    public enum Tools {magneticLasso, brush, rectangle, cell, circle, delete, finger, roi, moveAnnotation, rotateAnnotation}
 
     ;
     private Tools selectedTool = Tools.finger;
@@ -1299,6 +1300,23 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
         } catch (Exception e) {
             logger.error("cannot load raw annotations", e);
         }
+    }
+
+
+    /**
+     * Creates a BufferedImage of the raster with 0,0 as origin and ColorModel from the current image (bimg.getImage()).
+     */
+    public BufferedImage createBufferedImage(final Raster r) {
+        WritableRaster writableRaster = r.createCompatibleWritableRaster(r.getWidth(),r.getHeight());
+        writableRaster.setDataElements(0, 0, r.createTranslatedChild(0,0));
+        DataBuffer dataBuffer = writableRaster.getDataBuffer();
+        WritableRaster wr = Raster.createWritableRaster(bimg.getImage().getColorModel().createCompatibleSampleModel(writableRaster.getWidth(),writableRaster.getHeight()),
+                dataBuffer, new Point(0, 0));
+        BufferedImage bi = new BufferedImage(bimg.getImage().getColorModel(),
+                wr,
+                bimg.getImage().getColorModel().isAlphaPremultiplied(),
+                null);
+        return bi;
     }
 
     /**

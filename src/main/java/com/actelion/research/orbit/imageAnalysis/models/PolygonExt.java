@@ -386,6 +386,7 @@ public class PolygonExt extends Polygon implements IScaleableShape, Cloneable {
     public void setPoly(Polygon p) {
         this.xpoints = p.xpoints.clone();
         this.ypoints = p.ypoints.clone();
+        this.npoints = p.npoints;
         this.bounds = (Rectangle) p.getBounds().clone();
     }
 
