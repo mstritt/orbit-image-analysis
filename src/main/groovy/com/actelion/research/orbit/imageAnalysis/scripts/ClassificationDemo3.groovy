@@ -46,7 +46,7 @@ GParsPool.withPool {
         ClassificationResult res = OrbitHelper.Classify(it.rawDataFileId, model);
         String resStr = it.fileName;
         List<KeyValue<String, Double>> norm = res.normalizeRatio();
-        (0..model.getClassShapes().size()-1) {
+        (0..model.getClassShapes().size()-1).each {
             resStr += "\t" + norm.get(it).value;
         }
         sb.append(resStr + "\n"); // append the result
