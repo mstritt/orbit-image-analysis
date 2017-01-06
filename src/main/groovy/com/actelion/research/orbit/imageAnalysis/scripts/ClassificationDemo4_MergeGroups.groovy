@@ -55,6 +55,7 @@ fromGroup = [2,3];     // modify me!
 OrbitModel model = OrbitModel.LoadFromOrbit(2246436); // the model to load  - to be replaced
 rdfList = OrbitHelper.searchImages("3096-a-5.jpg");  // search string - to be replaced
 
+model.setAnnotationGroup(toGroup);
 StringBuilder sb = new StringBuilder();
 GParsPool.withPool {
     rdfList.eachParallel {    // process each image parallel
