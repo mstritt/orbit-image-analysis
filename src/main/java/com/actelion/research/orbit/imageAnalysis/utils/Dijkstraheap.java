@@ -472,6 +472,7 @@ class Dijkstraheap implements Runnable {
         ty = y;
         myThreadRuns = true;
         myThread = new Thread(this);
+        myThread.setName("Dijkstraheap");
         myThread.start();
 
     }

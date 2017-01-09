@@ -34,9 +34,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
+import java.awt.image.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.ref.WeakReference;
@@ -72,16 +70,23 @@ public class ShapePainterListener extends MouseInputAdapter {
     private int mlOffsX = 0;
     private int mlOffsY = 0;
     private Dijkstraheap dijkstraheap;
-    int[] a = new int[10000];
-    int[] b = new int[10000];
-    int[] c = new int[10];
+    int mlSize = 700;
+    int mlSH = mlSize/2;
+    int[] a = new int[mlSize*5];
+    int[] b = new int[mlSize*5];
+    int[] c = new int[1];
     int[] storeX = new int[10000];
     int[] storeY = new int[10000];
     int storeCount = 0;
-    int mlSize = 500;
-    int mlSH = mlSize/2;
-    final Point mlStartPoint = new Point(0,0);
 
+    private static final byte[] invertTable;
+
+    static {
+        invertTable = new byte[256];
+        for (int i = 0; i < 256; i++) {
+            invertTable[i] = (byte) (255 - i);
+        }
+    }
 
 
     /**
@@ -127,6 +132,15 @@ public class ShapePainterListener extends MouseInputAdapter {
         if (recognitionFrame.getSelectedTool() == Tools.magneticLasso) {
             if (e.getButton()!=MouseEvent.BUTTON1) {
                 // store old path
+                if (storeX.length<storeCount+c[0]+1) {  // increase path store?
+                    int[] newStoreX = new int[storeX.length*2];
+                    int[] newStoreY = new int[storeY.length*2];
+                    System.arraycopy(storeX,0,newStoreX,0, storeX.length);
+                    System.arraycopy(storeY,0,newStoreY,0, storeY.length);
+                    storeX = newStoreX;
+                    storeY = newStoreY;
+                    logger.info("path store length increased to "+storeX.length);
+                }
                 for (int i=0; i<c[0]+1; i++) {
                     storeX[storeCount+i] = a[i]+mlOffsX;
                     storeY[storeCount+i] = b[i]+mlOffsY;
@@ -135,18 +149,45 @@ public class ShapePainterListener extends MouseInputAdapter {
             } else {
                 storeCount = 0;
             }
-            mlStartPoint.setLocation(x,y);
-            Raster r = recognitionFrame.bimg.image.getData(new Rectangle(x-mlSH,y-mlSH,mlSize,mlSize));
-            mlOffsX = r.getMinX();
-            mlOffsY = r.getMinY();
-            BufferedImage bi = recognitionFrame.createBufferedImage(r);
+            double scale = recognitionFrame.getScale() / 100d;
+//            Raster r = recognitionFrame.bimg.image.getData(new Rectangle(x-mlSH,y-mlSH,mlSize,mlSize));
+//            mlOffsX = r.getMinX();
+//            mlOffsY = r.getMinY();
+//            BufferedImage bi = recognitionFrame.createBufferedImage(r);
+
+            BufferedImage bi = null;
+            try {
+                System.out.println("x/y: "+x+" / "+y);
+                bi = recognitionFrame.getViewportImage(new Point2D.Double(x/scale,y/scale),mlSize,mlSize);
+                mlOffsX = x-mlSH;
+                mlOffsY = y-mlSH;
+                System.out.println("minX: "+mlOffsX);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+                bi = new BufferedImage(mlSize,mlSize,BufferedImage.TYPE_BYTE_GRAY); // fallback - just a black image
+                logger.warn("using fallback black image for magnetic lasso");
+            }
+
+//            try {
+//                ImageIO.write(bi,"png",new File(("d:/test.png")));
+//            } catch (IOException e1) {
+//                e1.printStackTrace();
+//            }
+
             BufferedImage img = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
             Graphics g = img.getGraphics();
             g.drawImage(bi, 0, 0, null);
             g.dispose();
-            magicLassoPixels = ((DataBufferByte)img.getData().getDataBuffer()).getData();
+
+            img = invertImage(img);
+
+            magicLassoPixels = ((DataBufferByte)img.getData().createTranslatedChild(mlOffsX,mlOffsY).getDataBuffer()).getData();
+       //     magicLassoPixels = ((DataBufferByte)img.getData().getDataBuffer()).getData();
             dijkstraheap = new Dijkstraheap(magicLassoPixels,mlSize,mlSize);
             dijkstraheap.setPoint(x-mlOffsX,y-mlOffsY);
+
+            System.out.println("mlOffsX/y: "+mlOffsX+" / "+mlOffsY+"  minX/Y: "+img.getMinX()+" / "+img.getMinY()+"  pointX/Y: "+(x-mlOffsX)+" / "+(y-mlOffsY));
+
             try {
                 dijkstraheap.myThread.join();
             } catch (InterruptedException e1) {
@@ -256,6 +297,15 @@ public class ShapePainterListener extends MouseInputAdapter {
         recognitionFrame.repaint();
     }
 
+    private static BufferedImage invertImage(final BufferedImage src) {
+        final int w = src.getWidth();
+        final int h = src.getHeight();
+        final BufferedImage dst = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_GRAY);
+        final BufferedImageOp invertOp = new LookupOp(new ByteLookupTable(0, invertTable), null);
+        return invertOp.filter(src, dst);
+    }
+
+
     private int toIndex(int x, int y, int width) {
         return (y * width + x);
     }
@@ -357,9 +407,9 @@ public class ShapePainterListener extends MouseInputAdapter {
             recognitionFrame.repaint();
             return;
         } else if (recognitionFrame.getSelectedTool() == Tools.magneticLasso) { // magnetic lasso
-
-            //curPoly.addPoint(x, y);
-            if (Math.abs(mlStartPoint.x-x)<mlSH && Math.abs(mlStartPoint.y-y)<mlSH) {
+            double scale = recognitionFrame.getScale() / 100d;
+            if ((x-mlOffsX>=0) && (y-mlOffsY>=0) && (x-mlOffsX<mlSize) && (y-mlOffsY<mlSize))
+            {
                 dijkstraheap.returnPath(x - mlOffsX, y - mlOffsY, a, b, c);
                 int np = c[0] + 1;
                 int[] ax = new int[storeCount + np];
@@ -367,8 +417,8 @@ public class ShapePainterListener extends MouseInputAdapter {
                 System.arraycopy(storeX, 0, ax, 0, storeCount);
                 System.arraycopy(storeY, 0, bx, 0, storeCount);
                 for (int i = 0; i < np; i++) {
-                    ax[i + storeCount] = a[i] + mlOffsX;
-                    bx[i + storeCount] = b[i] + mlOffsY;
+                    ax[i + storeCount] = (int)((a[i]) + mlOffsX);
+                    bx[i + storeCount] = (int)((b[i]) + mlOffsY);
                 }
                 curPoly.setPoly(new Polygon(ax, bx, np + storeCount));
             }
