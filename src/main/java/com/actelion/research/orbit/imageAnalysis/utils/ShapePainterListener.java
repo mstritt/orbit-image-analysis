@@ -70,7 +70,7 @@ public class ShapePainterListener extends MouseInputAdapter {
     private int mlOffsX = 0;
     private int mlOffsY = 0;
     private Dijkstraheap dijkstraheap;
-    int mlSize = 700;
+    int mlSize = 1000;
     int mlSH = mlSize/2;
     int[] a = new int[mlSize*5];
     int[] b = new int[mlSize*5];
@@ -179,7 +179,7 @@ public class ShapePainterListener extends MouseInputAdapter {
             g.drawImage(bi, 0, 0, null);
             g.dispose();
 
-            img = invertImage(img);
+            img = invertImage(img);  //???
 
             magicLassoPixels = ((DataBufferByte)img.getData().createTranslatedChild(mlOffsX,mlOffsY).getDataBuffer()).getData();
        //     magicLassoPixels = ((DataBufferByte)img.getData().getDataBuffer()).getData();
@@ -188,11 +188,11 @@ public class ShapePainterListener extends MouseInputAdapter {
 
             System.out.println("mlOffsX/y: "+mlOffsX+" / "+mlOffsY+"  minX/Y: "+img.getMinX()+" / "+img.getMinY()+"  pointX/Y: "+(x-mlOffsX)+" / "+(y-mlOffsY));
 
-            try {
-                dijkstraheap.myThread.join();
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
+//            try {
+//                dijkstraheap.myThread.join();
+//            } catch (InterruptedException e1) {
+//                e1.printStackTrace();
+//            }
         }
 
         //double cx = ((JComponent)recognitionFrame.getParent()).getBounds().getCenterX();
