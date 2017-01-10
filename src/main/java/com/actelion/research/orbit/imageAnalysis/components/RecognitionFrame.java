@@ -1319,6 +1319,31 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
         return bi;
     }
 
+    public BufferedImage getViewportImage(Point2D center, int vpWidth, int vpHeight) throws Exception {
+
+        if (bimg==null) throw new Exception("no image tiledImagePainter available (bimg=null)");
+
+        double vpX = -(vpWidth/2d);
+        double vpY = -(vpHeight/2d);
+        BufferedImage bi = new BufferedImage(vpWidth,vpHeight,BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = (Graphics2D) bi.getGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+
+        double sc = scale / 100d;
+        double vpOffsX = center.getX()*sc +vpX;
+        double vpOffsY = center.getY()*sc +vpY;
+        g2d.translate(-vpOffsX,-vpOffsY);
+        g2d.scale(sc, sc);
+
+        bimg.drawImage(g2d,vpOffsX,vpOffsY,vpWidth,vpHeight,scale,0);
+        bi.flush();
+        return bi;
+    }
+
     /**
      * loads the mu meter per pixel meta data from raw meta database
      */
