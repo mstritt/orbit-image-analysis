@@ -56,8 +56,12 @@ class Dijkstraheap implements Runnable {
     private double ew;//Exponential        Weight - set by setEWeight
     private double pw;//Exponential Potence Weight - set by setPWeight
 
+    private final ThreadLocal<int[]> tempxTL;
+    private final ThreadLocal<int[]> tempyTL;
+
+
     //initializes Dijkstra with the image
-    public Dijkstraheap(byte[] image, int x, int y) {
+    public Dijkstraheap(byte[] image, int imgWidth, int imgHeight) {
 
 
         //initializes weights for edge cost
@@ -68,28 +72,43 @@ class Dijkstraheap implements Runnable {
         pw = 30;
 
         //initializes all other matrices
-        imagePixels = new byte[x * y];
-        //	imageCosts  = new int [x*y];
+        imagePixels = new byte[imgWidth * imgHeight];
+        //	imageCosts  = new int [imgWidth*imgHeight];
         pixelCosts = new PriorityQueue<PixelNode>();
-        whereFrom = new int[x * y];
-        visited = new boolean[x * y];
-        width = x;
-        height = y;
+        whereFrom = new int[imgWidth * imgHeight];
+        visited = new boolean[imgWidth * imgHeight];
+        width = imgWidth;
+        height = imgHeight;
+
+        tempxTL = new ThreadLocal<int[]>() {
+            @Override
+            protected int[] initialValue() {
+                return new int[width * height];
+            }
+        };
+
+        tempyTL = new ThreadLocal<int[]>() {
+            @Override
+            protected int[] initialValue() {
+                return new int[width * height];
+            }
+        };
+
 
 
         //for debug reasons
         //used to store
-        pCosts = new double[x][y];
+        pCosts = new double[imgWidth][imgHeight];
 
 
         //copy image matrice
-        for (int j = 0; j < y; j++) {
-            for (int i = 0; i < x; i++) {
-                imagePixels[j * x + i] =
-                        image[j * x + i];
-                //imageCosts [j*x+i] = INF;
-                visited[j * x + i] = false;
-                //		System.out.print((imagePixels[j*x+i]&0xff)+ " ");
+        for (int j = 0; j < imgHeight; j++) {
+            for (int i = 0; i < imgWidth; i++) {
+                imagePixels[j * imgWidth + i] =
+                        image[j * imgWidth + i];
+                //imageCosts [j*imgWidth+i] = INF;
+                visited[j * imgWidth + i] = false;
+                //		System.out.print((imagePixels[j*imgWidth+i]&0xff)+ " ");
             }
             //	    System.out.println("");
         }
@@ -115,7 +134,7 @@ class Dijkstraheap implements Runnable {
 
 
         Dijkstraheap dj = new Dijkstraheap(teste, 10, 10);
-        dj.setPoint(1, 7);
+        dj.setPoint(1, 7);     //1,7
         int[] a = new int[10000];
         int[] b = new int[10000];
         int[] c = new int[10];
@@ -128,7 +147,7 @@ class Dijkstraheap implements Runnable {
             e.printStackTrace();
         }
 
-        dj.returnPath(8, 2, a, b, c);
+        dj.returnPath(8, 2, a, b, c);     // 8,2
 
 
         System.out.println("a: "+Arrays.toString(a));
@@ -137,6 +156,8 @@ class Dijkstraheap implements Runnable {
 
     }
 
+
+
     //converts x, y coordinates to vector index
     private int toIndex(int x, int y) {
         return (y * width + x);
@@ -144,6 +165,7 @@ class Dijkstraheap implements Runnable {
 
     //initializes gradient vector
     private void initGradient() {
+
         gradientx = new double[height * width];
         gradienty = new double[height * width];
         gradientr = new double[height * width];
@@ -201,9 +223,6 @@ class Dijkstraheap implements Runnable {
             if (gradientr[i] < grmin) grmin = gradientr[i];
             if (gradientr[i] > grmax) grmax = gradientr[i];
         }
-        //TAKE ME OUT!!!
-
-        //	grmin += 600;
 
 
     }
@@ -394,24 +413,33 @@ class Dijkstraheap implements Runnable {
         return ans;
     }
 
-    public void returnPath(int x, int y, int[] vx, int[] vy, int[] mylength) {
-        //returns the path given mouse position
+    /**
+     *  Returns the path and costs given mouse position.
+     *  x,y: destination
+     *  vx, vy: path coords
+     *  myLength: length at array pos 0
+     *  returns costs of that path
+     *
+     */
+    public double returnPath(int x, int y, int[] vx, int[] vy, int[] mylength) {
         //System.out.println(pCosts[x][y] + " my cost " + gradientr[toIndex(x,y)]+ " grmin " + grmin + " grmax " + grmax);
 
-        int[] tempx = new int[width * height];
-        int[] tempy = new int[width * height];
 
         if (visited[toIndex(x, y)] == false) {
             //attempt to get path before creating it
             //this might occur because of the thread
             mylength[0] = 0;
-            return;
+            return Double.MAX_VALUE;
         }
         int length = 0;
         int myx = x;
         int myy = y;
         int nextx;
         int nexty;
+
+        int[] tempx = tempxTL.get();
+        int[] tempy = tempyTL.get();
+
         do { //while we haven't found the seed
             length++;
             nextx = whereFrom[toIndex(myx, myy)] % width;
@@ -446,14 +474,15 @@ class Dijkstraheap implements Runnable {
         //path is from last point to first
         //we need to invert it
         //	System.out.println("Caminho ");
+        double costs = 0;
         for (int i = 0; i <= count; i++) {
-
             vx[i] = tempx[count - i];
             vy[i] = tempy[count - i];
+            costs += pCosts[vx[i]][vy[i]];
             //System.out.println("( "+vx[i] + " , " + vy[i] + " )");
         }
 
-        return;
+        return costs;
 
     }
 
@@ -547,7 +576,13 @@ class Dijkstraheap implements Runnable {
         return ty;
     }
 
+    public boolean isMyThreadRuns() {
+        return myThreadRuns;
+    }
 
+    public void setMyThreadRuns(boolean myThreadRuns) {
+        this.myThreadRuns = myThreadRuns;
+    }
 }
 
 

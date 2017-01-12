@@ -66,18 +66,30 @@ public class ShapePainterListener extends MouseInputAdapter {
     private Point2D rotateCenter = null;
     private String className;
 
-    private byte[] magicLassoPixels = null;
+   // private byte[] magicLassoPixels = null;
     private int mlOffsX = 0;
     private int mlOffsY = 0;
-    private Dijkstraheap dijkstraheap;
+    private Dijkstraheap dijkstraheapCCW = null;
+    private Dijkstraheap dijkstraheapCW = null;
     int mlSize = 1000;
     int mlSH = mlSize/2;
-    int[] a = new int[mlSize*5];
-    int[] b = new int[mlSize*5];
-    int[] c = new int[1];
+
+    int[] a = null;
+    int[] b = null;
+    int[] c  = null;
+    // for CCW version
+    int[] a1 = new int[mlSize*5];
+    int[] b1 = new int[mlSize*5];
+    int[] c1 = new int[1];
+    // for CW version
+    int[] a2 = new int[mlSize*5];
+    int[] b2 = new int[mlSize*5];
+    int[] c2 = new int[1];
     int[] storeX = new int[10000];
     int[] storeY = new int[10000];
     int storeCount = 0;
+    private int startMLX;
+    private int startMLY;
 
     private static final byte[] invertTable;
 
@@ -132,20 +144,22 @@ public class ShapePainterListener extends MouseInputAdapter {
         if (recognitionFrame.getSelectedTool() == Tools.magneticLasso) {
             if (e.getButton()!=MouseEvent.BUTTON1) {
                 // store old path
-                if (storeX.length<storeCount+c[0]+1) {  // increase path store?
-                    int[] newStoreX = new int[storeX.length*2];
-                    int[] newStoreY = new int[storeY.length*2];
-                    System.arraycopy(storeX,0,newStoreX,0, storeX.length);
-                    System.arraycopy(storeY,0,newStoreY,0, storeY.length);
-                    storeX = newStoreX;
-                    storeY = newStoreY;
-                    logger.info("path store length increased to "+storeX.length);
+                if (a!=null && b!=null && c!=null) {   // path already set
+                    if (storeX.length < storeCount + c[0] + 1) {  // increase path store?
+                        int[] newStoreX = new int[storeX.length * 2];
+                        int[] newStoreY = new int[storeY.length * 2];
+                        System.arraycopy(storeX, 0, newStoreX, 0, storeX.length);
+                        System.arraycopy(storeY, 0, newStoreY, 0, storeY.length);
+                        storeX = newStoreX;
+                        storeY = newStoreY;
+                        logger.info("path store length increased to " + storeX.length);
+                    }
+                    for (int i = 0; i < c[0] + 1; i++) {
+                        storeX[storeCount + i] = a[i] + mlOffsX;
+                        storeY[storeCount + i] = b[i] + mlOffsY;
+                    }
+                    storeCount += c[0] + 1;
                 }
-                for (int i=0; i<c[0]+1; i++) {
-                    storeX[storeCount+i] = a[i]+mlOffsX;
-                    storeY[storeCount+i] = b[i]+mlOffsY;
-                }
-                storeCount += c[0]+1;
             } else {
                 storeCount = 0;
             }
@@ -157,11 +171,9 @@ public class ShapePainterListener extends MouseInputAdapter {
 
             BufferedImage bi = null;
             try {
-                System.out.println("x/y: "+x+" / "+y);
                 bi = recognitionFrame.getViewportImage(new Point2D.Double(x/scale,y/scale),mlSize,mlSize);
                 mlOffsX = x-mlSH;
                 mlOffsY = y-mlSH;
-                System.out.println("minX: "+mlOffsX);
             } catch (Exception e1) {
                 e1.printStackTrace();
                 bi = new BufferedImage(mlSize,mlSize,BufferedImage.TYPE_BYTE_GRAY); // fallback - just a black image
@@ -179,17 +191,22 @@ public class ShapePainterListener extends MouseInputAdapter {
             g.drawImage(bi, 0, 0, null);
             g.dispose();
 
-            img = invertImage(img);  //???
+            byte[]  magicLassoPixels = ((DataBufferByte)img.getData().createTranslatedChild(mlOffsX,mlOffsY).getDataBuffer()).getData();
+            if (dijkstraheapCCW !=null) dijkstraheapCCW.setMyThreadRuns(false); // stop old thread
+            dijkstraheapCCW = new Dijkstraheap(magicLassoPixels,mlSize,mlSize);
+            dijkstraheapCCW.setPoint(x-mlOffsX,y-mlOffsY);
 
-            magicLassoPixels = ((DataBufferByte)img.getData().createTranslatedChild(mlOffsX,mlOffsY).getDataBuffer()).getData();
-       //     magicLassoPixels = ((DataBufferByte)img.getData().getDataBuffer()).getData();
-            dijkstraheap = new Dijkstraheap(magicLassoPixels,mlSize,mlSize);
-            dijkstraheap.setPoint(x-mlOffsX,y-mlOffsY);
+            img = invertImage(img);  //???    left invert, right not
+            byte[]  magicLassoPixelsCW = ((DataBufferByte)img.getData().createTranslatedChild(mlOffsX,mlOffsY).getDataBuffer()).getData();
+            if (dijkstraheapCW !=null) dijkstraheapCW.setMyThreadRuns(false); // stop old thread
+            dijkstraheapCW = new Dijkstraheap(magicLassoPixelsCW,mlSize,mlSize);
+            dijkstraheapCW.setPoint(x-mlOffsX,y-mlOffsY);
 
-            System.out.println("mlOffsX/y: "+mlOffsX+" / "+mlOffsY+"  minX/Y: "+img.getMinX()+" / "+img.getMinY()+"  pointX/Y: "+(x-mlOffsX)+" / "+(y-mlOffsY));
+            startMLX = x;
+            startMLY = y;
 
 //            try {
-//                dijkstraheap.myThread.join();
+//                dijkstraheapCCW.myThread.join();
 //            } catch (InterruptedException e1) {
 //                e1.printStackTrace();
 //            }
@@ -407,18 +424,28 @@ public class ShapePainterListener extends MouseInputAdapter {
             recognitionFrame.repaint();
             return;
         } else if (recognitionFrame.getSelectedTool() == Tools.magneticLasso) { // magnetic lasso
-            double scale = recognitionFrame.getScale() / 100d;
             if ((x-mlOffsX>=0) && (y-mlOffsY>=0) && (x-mlOffsX<mlSize) && (y-mlOffsY<mlSize))
             {
-                dijkstraheap.returnPath(x - mlOffsX, y - mlOffsY, a, b, c);
+                double cost1 = dijkstraheapCCW.returnPath(x - mlOffsX, y - mlOffsY, a1, b1, c1);
+                double cost2 = dijkstraheapCW.returnPath(x - mlOffsX, y - mlOffsY, a2, b2, c2);
+                if (cost1<cost2) {   // decide which version is the better one (depends if the user draws CW or CCW around an object)
+                    a = a1;
+                    b = b1;
+                    c = c1;
+                } else {
+                    a = a2;
+                    b = b2;
+                    c = c2;
+                }
+
                 int np = c[0] + 1;
                 int[] ax = new int[storeCount + np];
                 int[] bx = new int[storeCount + np];
                 System.arraycopy(storeX, 0, ax, 0, storeCount);
                 System.arraycopy(storeY, 0, bx, 0, storeCount);
                 for (int i = 0; i < np; i++) {
-                    ax[i + storeCount] = (int)((a[i]) + mlOffsX);
-                    bx[i + storeCount] = (int)((b[i]) + mlOffsY);
+                    ax[i + storeCount] = a[i] + mlOffsX;
+                    bx[i + storeCount] = b[i] + mlOffsY;
                 }
                 curPoly.setPoly(new Polygon(ax, bx, np + storeCount));
             }
