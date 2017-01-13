@@ -41,7 +41,7 @@ long[] rgb = [0,0,0];
 long cnt=0;
 recognitionFrame.bimg.image.getTileIndices(null).each {
     Point tileIdx = it;
-    if (OrbitUtils.isTileInROI((int)tileIdx.x,(int)tileIdx.y,null,null)) {   // fuzzy! (but fast)
+    if (OrbitUtils.isTileInROI((int)tileIdx.x,(int)tileIdx.y,recognitionFrame.bimg.image, null,null)) {   // fuzzy! (but fast)
         Raster r = recognitionFrame.bimg.image.getTile((int) tileIdx.x, (int) tileIdx.y);
         for (int y = 0; y < r.getHeight(); y++)
             for (int x = 0; x < r.getWidth(); x++) {
