@@ -88,8 +88,6 @@ public class ShapePainterListener extends MouseInputAdapter {
     int[] storeX = new int[10000];
     int[] storeY = new int[10000];
     int storeCount = 0;
-    private int startMLX;
-    private int startMLY;
 
     private static final byte[] invertTable;
 
@@ -180,30 +178,21 @@ public class ShapePainterListener extends MouseInputAdapter {
                 logger.warn("using fallback black image for magnetic lasso");
             }
 
-//            try {
-//                ImageIO.write(bi,"png",new File(("d:/test.png")));
-//            } catch (IOException e1) {
-//                e1.printStackTrace();
-//            }
-
             BufferedImage img = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
             Graphics g = img.getGraphics();
             g.drawImage(bi, 0, 0, null);
             g.dispose();
 
-            byte[]  magicLassoPixels = ((DataBufferByte)img.getData().createTranslatedChild(mlOffsX,mlOffsY).getDataBuffer()).getData();
+            byte[]  magicLassoPixelsCCW = ((DataBufferByte)img.getData().createTranslatedChild(mlOffsX,mlOffsY).getDataBuffer()).getData();
             if (dijkstraheapCCW !=null) dijkstraheapCCW.setMyThreadRuns(false); // stop old thread
-            dijkstraheapCCW = new Dijkstraheap(magicLassoPixels,mlSize,mlSize);
+            dijkstraheapCCW = new Dijkstraheap(magicLassoPixelsCCW,mlSize,mlSize);
             dijkstraheapCCW.setPoint(x-mlOffsX,y-mlOffsY);
 
-            img = invertImage(img);  //???    left invert, right not
+            img = invertImage(img);  // to get the soebel filter gradient in the other direction
             byte[]  magicLassoPixelsCW = ((DataBufferByte)img.getData().createTranslatedChild(mlOffsX,mlOffsY).getDataBuffer()).getData();
             if (dijkstraheapCW !=null) dijkstraheapCW.setMyThreadRuns(false); // stop old thread
             dijkstraheapCW = new Dijkstraheap(magicLassoPixelsCW,mlSize,mlSize);
             dijkstraheapCW.setPoint(x-mlOffsX,y-mlOffsY);
-
-            startMLX = x;
-            startMLY = y;
 
 //            try {
 //                dijkstraheapCCW.myThread.join();
