@@ -21,8 +21,6 @@ package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
-import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
-import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import loci.common.services.ServiceFactory;
 import loci.formats.FormatException;
@@ -31,14 +29,17 @@ import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
 import loci.formats.gui.AWTImageTools;
 import loci.formats.gui.BufferedImageReader;
+import loci.formats.in.NDPIReader;
 import loci.formats.meta.IMetadata;
 import loci.formats.services.OMEXMLService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
 import java.awt.*;
 import java.awt.image.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,6 +86,14 @@ public class OrbitImageBioformats implements IOrbitImage {
     private static final float HueFITC = 108f / 360f;
     private static final float HueTRITC = 22f / 360f;
 
+    public static final String chanAlexa594 = "alexa594";
+    public static final String chanEGFP = "egfp";
+    public static final String chanCy5 = "cy5";
+    public static final String chanCy3 = "cy3";
+    public static final String chanTritc = "tritc";
+    public static final String chanFitc = "fitc";
+    public static final String chanDapi = "dapi";
+    public static final String chanUnknown = "unknown";
 
 
     public OrbitImageBioformats(final String filename, final int level) throws IOException, FormatException {
@@ -99,8 +108,13 @@ public class OrbitImageBioformats implements IOrbitImage {
             protected BufferedImageReader initialValue() {
                 try {
                     logger.debug("init bioformats: "+filename+" ["+level+"]"+" ["+exclicitSeries+"]");
-                    ImageReader r = new ImageReader();
-                    //r.setAllowOpenFiles(false);
+                    IFormatReader r;
+                    if (filename.toLowerCase().endsWith("ndpis")) {
+                        r = new NDPISReaderOrbit();
+                    } else {
+                        r = new ImageReader();
+                    }
+                   // r.setAllowOpenFiles(true);
                     r.setFlattenedResolutions(false);
                     ServiceFactory factory = new ServiceFactory();
                     OMEXMLService service = factory.getInstance(OMEXMLService.class);
@@ -139,7 +153,12 @@ public class OrbitImageBioformats implements IOrbitImage {
                             for (int c=0; c<r.getSizeC(); c++) {
                                // System.out.println("c="+c+" idx="+idx);
                                 String name = meta.getChannelName(r.getSeries(),c);
-                                if (name==null) name = "Channel"+c;
+                                if (name==null) {
+                                    name = "Channel"+c;
+                                    if (filename.toLowerCase().endsWith("ndpis")) {
+                                        name = getChannelNameNDPIS(r,c);
+                                    }
+                                 }
                                 System.out.println("channel name "+c+": "+name);
                                 channelNames.add(name);
                             }
@@ -264,6 +283,60 @@ public class OrbitImageBioformats implements IOrbitImage {
         logger.info(filename+" loaded ["+width+" x "+height+"]");
     }
 
+
+    private String getChannelNameFilename(String filename) {
+        String fn = filename.toLowerCase();
+        if (fn.contains("dapi")) return chanDapi;
+        if (fn.contains("fitc")) return chanFitc;
+        if (fn.contains("tritc")) return chanTritc;
+        if (fn.contains("cy5")) return chanCy5;
+        if (fn.contains("cy3")) return chanCy3;
+        if (fn.contains("alexa")) return chanAlexa594;
+        if (fn.contains("gfp")) return chanEGFP;
+        return null;
+    }
+
+    private String getChannelNameNDPIS(IFormatReader reader, int channel) {
+        String channelFn = reader.getSeriesUsedFiles()[channel+1];
+        String name = getChannelNameFilename(channelFn);
+        if (name!=null) {
+            logger.debug("channel name by filename: "+name);
+            return name; // by filename
+        }
+        else {  // open ndpi file
+            NDPIReader ndpiReader = null;
+            try {
+                ndpiReader = new NDPIReader();
+                ndpiReader.setId(channelFn); // [0] is ndpis file
+                String[] vals = reader.getMetadataValue(";NDP Shading Data\r;Version").toString().split(";");
+                for (String val : vals) {
+                    if (val.startsWith("Name=")) {
+                        logger.info("channel: " + val);
+                        if (val.toLowerCase().contains("dapi")) return chanDapi;
+                        if (val.toLowerCase().contains("fitc")) return chanFitc;
+                        if (val.toLowerCase().contains("tritc")) return chanTritc;
+                        if (val.toLowerCase().contains("cy5")) return chanCy5;
+                        if (val.toLowerCase().contains("cy3")) return chanCy3;
+                        if (val.toLowerCase().contains("alexa")) return chanAlexa594;
+                        if (val.toLowerCase().contains("gfp")) return chanEGFP;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                logger.debug("channel name by ndpi");
+                if (ndpiReader!=null) {
+                    try {
+                        ndpiReader.close();
+                    } catch (IOException e) {
+                    }
+                }
+            }
+        }
+        return chanUnknown; // default
+    }
+
+
     private int getIndex(IFormatReader r, int channel) {
         int[] nos = r.getZCTCoords(0);
         int z = nos[0], t = nos[2];
@@ -359,7 +432,7 @@ public class OrbitImageBioformats implements IOrbitImage {
                     for (int ix = 0; ix < w; ix++) {
                         int s = 0;
                         for (int b = 0; b < bit.getSampleModel().getNumBands(); b++) {
-                            int intens = bit.getRaster().getSample(ix, iy, 0);
+                            int intens = bit.getRaster().getSample(ix, iy, b);
                             if (is16bit) {
                                 intens = autoscale(intens, pixels, minIntens, maxIntens);
                             }
@@ -392,27 +465,31 @@ public class OrbitImageBioformats implements IOrbitImage {
                 hue = HueAlexa594;
                 break;
             }
-            case "cy3": {
+            case chanAlexa594: {
+                hue = HueAlexa594;
+                break;
+            }
+            case chanCy3: {
                 hue = HueCy3;
                 break;
             }
-            case "cy5": {
+            case chanCy5: {
                 hue = HueCy5;
                 break;
             }
-            case "egfp": {
+            case chanEGFP: {
                 hue = HueEGFP;
                 break;
             }
-            case "dapi": {
+            case chanDapi: {
                 hue = HueDAPI;
                 break;
             }
-            case "fitc": {
+            case chanFitc: {
                 hue = HueFITC;
                 break;
             }
-            case "tritc": {
+            case chanTritc: {
                 hue = HueTRITC;
                 break;
             }
@@ -430,6 +507,10 @@ public class OrbitImageBioformats implements IOrbitImage {
             }
             case "channel3": {
                 hue = HueCy5;
+                break;
+            }
+            case "channel4": {
+                hue = HueEGFP;
                 break;
             }
             default: {
@@ -662,16 +743,22 @@ public class OrbitImageBioformats implements IOrbitImage {
         //final String testImage = "D:\\pic\\czi\\20160211_FL_3ch_10x_1z_2sc_onl_jpegxr.czi";
         //final String testImage = "D:\\pic\\czi\\FL_5CH_2scenes_5z_online-jpegXR.czi";
         //final String testImage = "D:\\pic\\czi\\BF-20x-1z-1sc-off-jpegXR.czi";
-        final String testImage = "D:\\pic\\Hamamatsu\\FL\\rgb.ndpis";
+        final String testImage = "D:\\pic\\Hamamatsu\\fl5\\CD68-Cy3.5_SMA-Cy5.5_Gal3-Fluorescein_Saline60_ELB0246-0376 - 2016-11-09 10.09.14.ndpis";
         //final String testImage = "D:\\pic\\vsi\\04_12_15_Slide1_Image_01.vsi";
 
         OrbitImageBioformats oi = new OrbitImageBioformats(testImage,0);
-        System.out.println("wxh: "+oi.getWidth()+"x"+oi.getHeight());
-        BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);
-        System.out.println("img: "+bi);
 
-        OrbitTiledImage2 oti = new OrbitTiledImageIOrbitImage(oi);
-        oti.getTile(0,0);
+        System.out.println("wxh: "+oi.getWidth()+"x"+oi.getHeight()+" cm: "+oi.getColorModel());
+        BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(10,10).createTranslatedChild(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);
+        //bi = oi.getThumbnail();
+        System.out.println("img: "+bi);
+        ImageIO.write(bi,"jpeg",new File("d:/test.jpg"));
+//        oi.getTileData(1,1);
+//        OrbitTiledImage2 oti = new OrbitTiledImageIOrbitImage(oi);
+//        oti.getTile(0,0);
+//        oti.getTile(1,0);
+//        oti.getTile(2,0);
+//        oti.getTile(3,0);
 
         oi.close();
     }
