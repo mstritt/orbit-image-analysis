@@ -151,13 +151,9 @@ public class OrbitImageBioformats implements IOrbitImage {
                         if (channelNames==null) {
                             channelNames = new ArrayList<>(r.getSizeC());
                             for (int c=0; c<r.getSizeC(); c++) {
-                               // System.out.println("c="+c+" idx="+idx);
                                 String name = meta.getChannelName(r.getSeries(),c);
                                 if (name==null) {
                                     name = "Channel"+c;
-                                    if (filename.toLowerCase().endsWith("ndpis")) {
-                                        name = getChannelNameNDPIS(r,c);
-                                    }
                                  }
                                 System.out.println("channel name "+c+": "+name);
                                 channelNames.add(name);
@@ -477,6 +473,10 @@ public class OrbitImageBioformats implements IOrbitImage {
                 hue = HueCy5;
                 break;
             }
+            case "cy5 2 (650)": {
+                hue = HueCy5;
+                break;
+            }
             case chanEGFP: {
                 hue = HueEGFP;
                 break;
@@ -485,11 +485,23 @@ public class OrbitImageBioformats implements IOrbitImage {
                 hue = HueDAPI;
                 break;
             }
+            case "dapi 2 (387)": {
+                hue = HueDAPI;
+                break;
+            }
             case chanFitc: {
                 hue = HueFITC;
                 break;
             }
+            case "fitc 2 (485)": {
+                hue = HueFITC;
+                break;
+            }
             case chanTritc: {
+                hue = HueTRITC;
+                break;
+            }
+            case "tritc 2 (560)": {
                 hue = HueTRITC;
                 break;
             }

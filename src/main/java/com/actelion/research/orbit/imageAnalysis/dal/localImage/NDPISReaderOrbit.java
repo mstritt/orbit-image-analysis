@@ -17,6 +17,7 @@
  *
  */
 
+
 package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import loci.common.DataTools;
@@ -42,6 +43,7 @@ public class NDPISReaderOrbit extends FormatReader {
 
     private String[] ndpiFiles;
     private NDPIReader[] readers;
+    private final static int CHANNELTAG = 65434;
 
     // -- Constructor --
 
@@ -122,9 +124,7 @@ public class NDPISReaderOrbit extends FormatReader {
         readers[channel].setResolution(getResolution());
 //        int cIndex = channel < readers[channel].getSizeC() ? channel : 0;
  //       int plane = readers[channel].getIndex(zct[0], cIndex, zct[2]);
-// check channel / series NR
-       // readers[channel].openBytes(0, buf, x, y, w, h);
-        byte[] bufRGB = DataTools.allocate(w, h, 3); // w*h*RGB
+        byte[] bufRGB = DataTools.allocate(w, h, 3); // w*h*RGB  - maybe this should be reused...
         bufRGB = readers[channel].openBytes(0, bufRGB, x, y, w, h);
         int intens;
         if (readers[channel].isInterleaved()) {
@@ -205,8 +205,8 @@ public class NDPISReaderOrbit extends FormatReader {
                 int index = Integer.parseInt(key.replaceAll("Image", ""));
                 ndpiFiles[index] = new Location(parent, value).getAbsolutePath();
                 readers[index] = new NDPIReader();
-               // readers[index].setFlattenedResolutions(hasFlattenedResolutions());
-                readers[index].setFlattenedResolutions(false);
+                readers[index].setFlattenedResolutions(hasFlattenedResolutions());
+               // readers[index].setFlattenedResolutions(false);
             }
         }
 
@@ -222,6 +222,13 @@ public class NDPISReaderOrbit extends FormatReader {
         }
 
         MetadataStore store = makeFilterMetadata();
+        for (int c=0; c<readers.length; c++) {     // populate channel names based on IFD entry
+            if (c>0) // 0 is already open
+                readers[c].setId(ndpiFiles[c]);
+            String channelName = readers[c].getIFDs().get(0).getIFDStringValue(CHANNELTAG);
+            System.out.println("cn: "+channelName);
+            store.setChannelName(channelName, getSeries(), c);
+        }
         MetadataTools.populatePixels(store, this);
     }
 
