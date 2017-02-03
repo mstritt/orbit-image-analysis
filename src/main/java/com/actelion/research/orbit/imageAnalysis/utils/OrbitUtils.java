@@ -54,7 +54,7 @@ import java.util.List;
 public class OrbitUtils {
     // label:  OrbitImageAnalysis2432
     public static final String VERSION_STR = getVersion() + (ScaleoutMode.SCALEOUTMODE.get() ? "G" : "") + (OrbitUtils.DEVELOPMENTMODE ? " DEVELOPMENT" : "");
-    public static final boolean DEVELOPMENTMODE = false;
+    public static final boolean DEVELOPMENTMODE = true;
     public static final boolean TILEMODE = false;
     public static final boolean OFFLINE_MODE = false;
     public static final boolean DARKUI = true;
@@ -736,7 +736,7 @@ public class OrbitUtils {
      */
     public static Raster getModifiedRaster(final Raster readRaster, final FeatureDescription featureDescription, final ColorModel colorModel, boolean useCache, int tileX, int tileY, String name) {
         if ((!(readRaster instanceof ModifiedRaster)) && (featureDescription.getDeconvChannel() > 0)) {
-            PointAndName key = new PointAndName(tileX, tileY, name + readRaster.hashCode(), 100, 100, 100, 0, 0, 0, 0, null, null, null, null, true, true, true, featureDescription.getDeconvChannel(), featureDescription.getDeconvName());
+            PointAndName key = new PointAndName(tileX, tileY, name + readRaster.hashCode(), 100, 100, 100, 0, 0, 0, 0, null, null, null, null, true, true, true, featureDescription.getDeconvChannel(), featureDescription.getDeconvName(),null);
             Raster cachedRaster = null;
             if (useCache) OrbitTiledImage2.tileCache.getIfPresent(key);
             if (cachedRaster != null) {

@@ -142,11 +142,11 @@ configurations {
 
 
 dependencies {
-    compile 'com.actelion.research:lib-orbit-common:1.0.10'
+    compile 'com.actelion.research:lib-orbit-common:1.1.0'
     compile 'com.actelion.research:image-provider-omero:1.2.3'
     compile 'com.actelion.research:map-reduce-generic:1.0.8'
     compile 'com.actelion.research:map-reduce-exec-spark:1.0.2'
-//  compile 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
+  //  compile 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
 //    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.0.5') {
 //        exclude(module: 'orbit-image-analysis')
 //    }
@@ -198,11 +198,11 @@ dependencies {
        exclude (group:'javax.servlet', module: 'servlet-api')
     }
     compile (group: 'edu.ucar', name:'netcdf', version:'4.3.22')     // replacement of 4.3.19 used by formats-gpl which has a buggy pom (version LATEST does not work with gradle)
-    compile (group: 'ome', name:'formats-gpl', version:'5.3.2') { // 5.1.5   5.1.10   (5.2.1)
+    compile (group: 'ome', name:'formats-gpl', version:'5.3.2') { // 5.1.5   5.1.10   (5.2.1) 5.3.2
         exclude (module: 'netcdf')
         exclude (module: 'blitz')
     }
-    compile (group: 'ome', name:'formats-api', version:'5.3.2')
+ //   compile (group: 'ome', name:'formats-api', version:'5.3.2')
     compile (group: 'net.imglib2', name: 'imglib2', version: '3.2.1') // to avoid jpeg2000 problem: NoSuchMethodError: jj2000.j2k.fileformat.reader.FileFormatReader.<init>
 
 //    compile 'io.scif:scifio:0.30.0'  // only java 1.8

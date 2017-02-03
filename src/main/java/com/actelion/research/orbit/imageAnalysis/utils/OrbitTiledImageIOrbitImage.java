@@ -90,4 +90,8 @@ public class OrbitTiledImageIOrbitImage extends OrbitTiledImage2 {
     public void close() throws IOException {
          image.close();
     }
+
+    public IOrbitImage getOrbitImage() {
+        return image;
+    }
 }

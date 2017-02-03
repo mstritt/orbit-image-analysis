@@ -130,11 +130,11 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
     @Override
     public Raster getTile(int tileX, int tileY) {
-        return getTile(tileX, tileY, 100, 100, 0, 0, 0, 0, 0, null, null, null, null, true, true, true, 0, Colour_Deconvolution.DECONV_NONE);
+        return getTile(tileX, tileY, 100, 100, 0, 0, 0, 0, 0, null, null, null, null, true, true, true, 0, Colour_Deconvolution.DECONV_NONE,null);
     }
 
-    public Raster getTile(int tileX, int tileY, double gamma, double contrast, double brightness, int blur, double redAdjust, double greenAdjust, double blueAdjust, OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, OrbitTiledImage2 blueChannel, OrbitTiledImage2 overlayChannel, boolean redActive, boolean greenActive, boolean blueActive, int deconvChannel, String deconvName) {
-        PointAndName tileP = new PointAndName(tileX, tileY, filename, gamma, contrast, brightness, blur, redAdjust, greenAdjust, blueAdjust, redChannel, greenChannel, blueChannel, overlayChannel, redActive, greenActive, blueActive, deconvChannel, deconvName);
+    public Raster getTile(int tileX, int tileY, double gamma, double contrast, double brightness, int blur, double redAdjust, double greenAdjust, double blueAdjust, OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, OrbitTiledImage2 blueChannel, OrbitTiledImage2 overlayChannel, boolean redActive, boolean greenActive, boolean blueActive, int deconvChannel, String deconvName, float[] channelContributions) {
+        PointAndName tileP = new PointAndName(tileX, tileY, filename, gamma, contrast, brightness, blur, redAdjust, greenAdjust, blueAdjust, redChannel, greenChannel, blueChannel, overlayChannel, redActive, greenActive, blueActive, deconvChannel, deconvName, channelContributions);
         if (doCacheLock) OrbitTiledImage2.cacheLock.readLock().lock();
         try {
             if (useCache && OrbitTiledImage2.tileCache != null) {
@@ -146,6 +146,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         }
 
         // not in cache
+
         Raster tile = getTileData(tileX, tileY);
 
         if (tile.getNumBands() == 1) {

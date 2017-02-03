@@ -20,6 +20,8 @@
 package com.actelion.research.orbit.imageAnalysis.utils;
 
 import com.actelion.research.orbit.beans.RawDataFile;
+import com.actelion.research.orbit.dal.IOrbitImage;
+import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.imaging.ManipulationUtils;
@@ -94,7 +96,7 @@ public class TiledImagePainter implements Closeable {
     final private OrbitUtils.ImageAdjustCachedParams cachedParams = new OrbitUtils.ImageAdjustCachedParams();
 
 
-    //public final static ExecutorService executorService = Executors.newCachedThreadPool();
+//    public final static ExecutorService executorService = Executors.newCachedThreadPool();
 //    public final static ExecutorService executorService = Executors.newFixedThreadPool(1);
     public final static ExecutorService executorService = Executors.newFixedThreadPool(Math.min(4,Runtime.getRuntime().availableProcessors()), new ThreadFactory() {
         @Override
@@ -540,12 +542,19 @@ public class TiledImagePainter implements Closeable {
 
         // bandmerge op
         OrbitTiledImage2 imageMerged = getImage();
+        float[] channelContributions = null;
+        if (imageMerged instanceof OrbitTiledImageIOrbitImage) {
+            IOrbitImage oi =  ((OrbitTiledImageIOrbitImage) imageMerged).getOrbitImage();
+            if (oi instanceof IOrbitImageMultiChannel) {
+                channelContributions = ((IOrbitImageMultiChannel) oi).getChannelContributions();
+            }
+        }
 
         for (int tj = topIndex; tj <= bottomIndex; tj++) {
             for (int ti = leftIndex; ti <= rightIndex; ti++) {
                 tile = null;
                 try {
-                    tile = imageMerged.getTile(ti, tj, gamma, contrast, brightness, blur, redAdjust, greenAdjust, blueAdjust, redChannel, greenChannel, blueChannel, overlayChannel, redActive, greenActive, blueActive, deconvChannel, deconvName);
+                    tile = imageMerged.getTile(ti, tj, gamma, contrast, brightness, blur, redAdjust, greenAdjust, blueAdjust, redChannel, greenChannel, blueChannel, overlayChannel, redActive, greenActive, blueActive, deconvChannel, deconvName, channelContributions);
                 } catch (Exception e) {
                     // tile not available (e.g. thread stopped), so do nothing
                 }
@@ -664,6 +673,14 @@ public class TiledImagePainter implements Closeable {
 
         // bandmerge op
         final OrbitTiledImage2 imageMerged = getImage();
+        float[] channelContributionsTemp = null;
+        if (imageMerged instanceof OrbitTiledImageIOrbitImage) {
+            IOrbitImage oi =  ((OrbitTiledImageIOrbitImage) imageMerged).getOrbitImage();
+            if (oi instanceof IOrbitImageMultiChannel) {
+                channelContributionsTemp = ((IOrbitImageMultiChannel) oi).getChannelContributions();
+            }
+        }
+        final float[] channelContributions = channelContributionsTemp;
         final List<Callable<Void>> taskList = new ArrayList<Callable<Void>>();
         for (int tji = topIndex; tji <= bottomIndex; tji++) {
             for (int tii = leftIndex; tii <= rightIndex; tii++) {
@@ -680,7 +697,7 @@ public class TiledImagePainter implements Closeable {
 
                         tile = null;
                         try {
-                            tile = imageMerged.getTile(ti, tj, gamma, contrast, brightness, blur, redAdjust, greenAdjust, blueAdjust, redChannel, greenChannel, blueChannel, overlayChannel, redActive, greenActive, blueActive, deconvChannel, deconvName);
+                            tile = imageMerged.getTile(ti, tj, gamma, contrast, brightness, blur, redAdjust, greenAdjust, blueAdjust, redChannel, greenChannel, blueChannel, overlayChannel, redActive, greenActive, blueActive, deconvChannel, deconvName, channelContributions);
                         } catch (Exception e) {
                             // tile not available (e.g. thread stopped), so do nothing
                             return null; // s.th. went wrong (e.g. no network), so nothing to render
@@ -713,7 +730,8 @@ public class TiledImagePainter implements Closeable {
                         int xInTile = getImage().tileXToX(ti);
                         int yInTile = getImage().tileYToY(tj);
                         AffineTransform tx = AffineTransform.getTranslateInstance(xInTile, yInTile);
-                        synchronized (graphics) {
+                        synchronized (graphics)
+                        {
                             graphics.drawRenderedImage(bi, tx);
                         }
                         return null;
@@ -1196,6 +1214,25 @@ public class TiledImagePainter implements Closeable {
         if (mipMaps != null) {
             for (TiledImagePainter tip : mipMaps) {
                 tip.setDeconvName(deconvName);
+            }
+        }
+    }
+
+    /**
+     * Sets the channelContributions in the image and all images of mip layers if the image is a IOrbitImageMultiChannel (otherwise it does nothing).
+     * @param channelContributions
+     */
+    public void setChannelContributions(final float[] channelContributions) {
+        if (image !=null && image instanceof OrbitTiledImageIOrbitImage) {
+            IOrbitImage oi = ((OrbitTiledImageIOrbitImage) image).getOrbitImage();
+            if (oi instanceof IOrbitImageMultiChannel) {
+                final IOrbitImageMultiChannel oim = (IOrbitImageMultiChannel) oi;
+                oim.setChannelContributions(channelContributions);
+            }
+        }
+        if (mipMaps != null) {
+            for (TiledImagePainter tip : mipMaps) {
+                tip.setChannelContributions(channelContributions);
             }
         }
     }

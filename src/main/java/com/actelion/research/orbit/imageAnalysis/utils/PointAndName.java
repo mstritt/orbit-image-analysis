@@ -20,6 +20,7 @@
 package com.actelion.research.orbit.imageAnalysis.utils;
 
 import java.awt.*;
+import java.util.Arrays;
 
 public class PointAndName extends Point {
     private static final long serialVersionUID = 1L;
@@ -42,8 +43,9 @@ public class PointAndName extends Point {
     private boolean blueActive;
     private int deconvChannel;
     private String deconvName;
+    private float[] channelContributions;
 
-    public PointAndName(int x, int y, String name, double gamma, double contrast, double brightness, int blur, double redAdjust, double greenAdjust, double blueAdjust, OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, OrbitTiledImage2 blueChannel, OrbitTiledImage2 overlayChannel, boolean redActive, boolean greenActive, boolean blueActive, int deconvChannel, String deconvName) {
+    public PointAndName(int x, int y, String name, double gamma, double contrast, double brightness, int blur, double redAdjust, double greenAdjust, double blueAdjust, OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, OrbitTiledImage2 blueChannel, OrbitTiledImage2 overlayChannel, boolean redActive, boolean greenActive, boolean blueActive, int deconvChannel, String deconvName, float[] channelContributions) {
         this.x = x;
         this.y = y;
         super.x = x;
@@ -65,6 +67,7 @@ public class PointAndName extends Point {
         this.blueActive = blueActive;
         this.deconvChannel = deconvChannel;
         this.deconvName = deconvName;
+        this.channelContributions = channelContributions;
     }
 
     @Override
@@ -95,8 +98,10 @@ public class PointAndName extends Point {
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (overlayChannel != null ? !overlayChannel.equals(that.overlayChannel) : that.overlayChannel != null)
             return false;
-        return redChannel != null ? redChannel.equals(that.redChannel) : that.redChannel == null;
+        if (redChannel != null ? !redChannel.equals(that.redChannel) : that.redChannel != null)
+            return false;
 
+        return Arrays.equals(channelContributions, that.channelContributions);
     }
 
     @Override
@@ -128,6 +133,7 @@ public class PointAndName extends Point {
         result = 31 * result + (blueActive ? 1 : 0);
         result = 31 * result + deconvChannel;
         result = 31 * result + (deconvName != null ? deconvName.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(channelContributions);
         return result;
     }
 }

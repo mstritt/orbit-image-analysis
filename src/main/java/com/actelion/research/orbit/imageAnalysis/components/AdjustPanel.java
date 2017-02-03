@@ -20,7 +20,11 @@
 package com.actelion.research.orbit.imageAnalysis.components;
 
 import com.actelion.research.orbit.beans.RawMeta;
+import com.actelion.research.orbit.dal.IOrbitImage;
+import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.utils.RawMetaFactoryFile;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
@@ -36,6 +40,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -55,6 +60,8 @@ public class AdjustPanel extends JPanel {
     private final JCheckBox redCb = new JCheckBox("red    ", true);
     private final JCheckBox greenCb = new JCheckBox("green", true);
     private final JCheckBox blueCb = new JCheckBox("blue  ", true);
+
+    private final JPanel multiChannelPanel = new JPanel();
 
     private final JComboBox deconvCb = new JComboBox(Colour_Deconvolution.stainings);
     private final JRadioButton deconvChannel0 = new JRadioButton("Disable", true);
@@ -289,6 +296,10 @@ public class AdjustPanel extends JPanel {
         add(greenPanel, new GridBagConstraints(0, y++, GridBagConstraints.REMAINDER, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
         add(bluePanel, new GridBagConstraints(0, y++, GridBagConstraints.REMAINDER, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
+        multiChannelPanel.setLayout(new BoxLayout(multiChannelPanel,BoxLayout.Y_AXIS));
+        multiChannelPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        add(multiChannelPanel, new GridBagConstraints(0, y++, GridBagConstraints.REMAINDER, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
+
         add(new JLabel("Color Deconvolution"), new GridBagConstraints(0, y++, 1, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, insetsL, 0, 0));
         add(deconvCb, new GridBagConstraints(0, y++, GridBagConstraints.REMAINDER, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
         add(radioBtnPanel, new GridBagConstraints(0, y++, GridBagConstraints.REMAINDER, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
@@ -310,6 +321,12 @@ public class AdjustPanel extends JPanel {
     }
 
     public void resetValues() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                multiChannelPanel.removeAll();
+            }
+        });
         brightnessSlider.setValue(brightnessSlider.getDefValue());
         contrastSlider.setValue(contrastSlider.getDefValue());
         gammaSlider.setValue(contrastSlider.getDefValue());
@@ -422,7 +439,56 @@ public class AdjustPanel extends JPanel {
         }
     }
 
-    public boolean loadAdjustments(ImageFrame iFrame) {
+    public boolean loadAdjustments(final ImageFrame iFrame) {
+        // add multichannel components
+        if (iFrame!=null) {
+            OrbitTiledImage2 img = iFrame.recognitionFrame.bimg.getImage();
+            if (img instanceof OrbitTiledImageIOrbitImage) {
+                IOrbitImage oi = ((OrbitTiledImageIOrbitImage) img).getOrbitImage();
+                if (oi instanceof IOrbitImageMultiChannel) {
+                    final IOrbitImageMultiChannel oim = (IOrbitImageMultiChannel) oi;
+                    if (oim.getChannelNames()!=null && oim.getChannelNames().length>0) {
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                multiChannelPanel.add(new JLabel("Fluorescence Channels"));
+                                JPanel cp = new JPanel(new GridBagLayout());
+                                Insets insetsL = new Insets(5, 5, 0, 5);
+                                Insets insets = new Insets(0, 5, 0, 5);
+                                int y = 0;
+                                final float multiplier = 0.01f;
+                                for (int c=0; c<oim.getChannelNames().length; c++) {
+                                    final int channelNr = c;
+                                    String channelName = oim.getChannelNames()[c];
+                                    final DoubleClickSlider slider = new DoubleClickSlider(0,200, 100);
+                                    slider.addChangeListener(new ChangeListener() {
+                                        @Override
+                                        public void stateChanged(ChangeEvent e) {
+                                            float[] contribs = oim.getChannelContributions();
+                                            if (contribs==null) {
+                                                contribs = new float[oim.getChannelNames().length];
+                                                Arrays.fill(contribs,1f);
+                                            }
+                                            float val = slider.getValue() * multiplier;
+                                            contribs[channelNr] = val;
+                                            iFrame.recognitionFrame.bimg.setChannelContributions(contribs);
+                                            updateIFrame(iFrame);
+                                        }
+                                    });
+                                    cp.add(new JLabel(channelName), new GridBagConstraints(0, y++, 1, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, insetsL, 0, 0));
+                                    cp.add(DoubleClickSlider.wrapToPanelWithValue(slider, 0, multiplier), new GridBagConstraints(0, y++, GridBagConstraints.REMAINDER, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
+                                }
+                                multiChannelPanel.add(cp);
+                                OrbitImageAnalysis.getInstance().getSplitPanePropLoupe().resetToPreferredSizes();
+
+                            }
+                        });
+                    }
+                }
+            }
+        }
+        
+        // other adjustments
         if (iFrame != null && iFrame.getRdf() != null) {
             try {
                 List<RawMeta> rms = DALConfig.getImageProvider().LoadRawMetasByRawDataFileAndName(iFrame.getRdf().getRawDataFileId(), RawUtilsCommon.STR_META_IMAGEADJUSTMENTS);

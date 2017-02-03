@@ -209,6 +209,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private long lastErrorTime = 0;
     private boolean modifiedClassShapes = false;
     private OrbitMenu orbitMenu;
+    JSplitPane splitPanePropLoupe;
 
     static {
         ScaleoutMode.SCALEOUTMODE.set(false);
@@ -525,7 +526,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             iFrame.addPropertyChangeListener(loupeWithScale.getLoupe());
         }
 
-        JSplitPane splitPanePropLoupe = new JSplitPane(JSplitPane.VERTICAL_SPLIT, metaBar, loupeWithScale);
+        splitPanePropLoupe = new JSplitPane(JSplitPane.VERTICAL_SPLIT, metaBar, loupeWithScale);
         splitPanePropLoupe.setOneTouchExpandable(true);
         splitPanePropLoupe.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0), "none");
         splitPanePropLoupe.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0), "none");
@@ -4522,6 +4523,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     public void setModifiedClassShapes(boolean modifiedClassShapes) {
         this.modifiedClassShapes = modifiedClassShapes;
     }
+
+
+
+    public JSplitPane getSplitPanePropLoupe() {
+        return splitPanePropLoupe;
+    }
+
 
     //</editor-fold>
 
