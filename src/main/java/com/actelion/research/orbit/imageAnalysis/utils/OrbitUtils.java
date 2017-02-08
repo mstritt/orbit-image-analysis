@@ -52,9 +52,9 @@ import java.util.*;
 import java.util.List;
 
 public class OrbitUtils {
-    // label:  OrbitImageAnalysis2432
+    // label:  OrbitImageAnalysis2433
     public static final String VERSION_STR = getVersion() + (ScaleoutMode.SCALEOUTMODE.get() ? "G" : "") + (OrbitUtils.DEVELOPMENTMODE ? " DEVELOPMENT" : "");
-    public static final boolean DEVELOPMENTMODE = true;
+    public static final boolean DEVELOPMENTMODE = false;
     public static final boolean TILEMODE = false;
     public static final boolean OFFLINE_MODE = false;
     public static final boolean DARKUI = true;

@@ -88,7 +88,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
             tileCache = CacheBuilder.
                     newBuilder().
                     maximumSize(maxSize).
-                    expireAfterWrite(5, TimeUnit.MINUTES).
+                    expireAfterWrite(15, TimeUnit.MINUTES).
                     build();
 
         } finally {

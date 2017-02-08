@@ -325,6 +325,7 @@ public class AdjustPanel extends JPanel {
             @Override
             public void run() {
                 multiChannelPanel.removeAll();
+                OrbitImageAnalysis.getInstance().getSplitPanePropLoupe().resetToPreferredSizes();
             }
         });
         brightnessSlider.setValue(brightnessSlider.getDefValue());

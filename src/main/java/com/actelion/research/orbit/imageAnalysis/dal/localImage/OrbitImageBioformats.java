@@ -22,6 +22,7 @@ package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
+import com.actelion.research.orbit.imageAnalysis.utils.ScaleoutMode;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import loci.common.services.ServiceFactory;
@@ -54,7 +55,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
     private static final Logger logger = LoggerFactory.getLogger(OrbitImageBioformats.class);
     public static final Cache<ROIDef, BufferedImage> tileCache = CacheBuilder.
             newBuilder().
-            //maximumSize(maxSize).
+                    maximumSize(40). // 40 tiles  - should be enough to fill a screen
                     expireAfterWrite(5, TimeUnit.MINUTES).
                     build();
     final int maxThumbWidth = 300;
@@ -87,6 +88,8 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
 
     private float[] channelContributions = null;
     private float[] hueMap;
+
+    private boolean useCache = !ScaleoutMode.SCALEOUTMODE.get();
 
     private static final float HueAlexa594 = 0f / 360f;
     private static final float HueCy3 = 40f / 360f;
@@ -398,13 +401,12 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
             int[] pix = new int[3];
             for (int c = 0; c < sizeC; c++) {
                 if (isChannelActive(c)) {
-                    // TODO: try to read from cache!
                     int index = reader.get().getIndex(z, c, t);
                     ROIDef roiDef = new ROIDef(filename,level, index,x,y,w,h);
-                    BufferedImage bit = OrbitImageBioformats.tileCache.getIfPresent(roiDef);
+                    BufferedImage bit = useCache? OrbitImageBioformats.tileCache.getIfPresent(roiDef): null;
                     if (bit==null) {
                         bit = reader.get().openImage(index, x, y, w, h);
-                        OrbitImageBioformats.tileCache.put(roiDef,bit);
+                        if (useCache) OrbitImageBioformats.tileCache.put(roiDef,bit);
                     }
                     //bit = AWTImageTools.autoscale(bit,minMaxCache.get(originalFilename).getMin()[c] , minMaxCache.get(originalFilename).getMax()[c]);
                     Object pixels = AWTImageTools.getPixels(bit, 0, 0, 1, 1);
@@ -866,7 +868,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         //final String testImage = "D:\\pic\\czi\\20160211_FL_3ch_10x_1z_2sc_onl_jpegxr.czi";
         //final String testImage = "D:\\pic\\czi\\FL_5CH_2scenes_5z_online-jpegXR.czi";
         //final String testImage = "D:\\pic\\czi\\BF-20x-1z-1sc-off-jpegXR.czi";
-        final String testImage = "D:\\pic\\Hamamatsu\\fl5\\CD68-Cy3.5_SMA-Cy5.5_Gal3-Fluorescein_Saline60_ELB0246-0376 - 2016-11-09 10.09.14.ndpis";
+        final String testImage = "D:\\pic\\Hamamatsu\\fl4\\test1.ndpis";
         //final String testImage = "D:\\pic\\vsi\\04_12_15_Slide1_Image_01.vsi";
 
         OrbitImageBioformats oi = new OrbitImageBioformats(testImage,0);

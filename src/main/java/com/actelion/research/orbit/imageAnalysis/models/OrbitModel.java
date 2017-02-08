@@ -382,6 +382,16 @@ public class OrbitModel implements Serializable, Cloneable {
     public void prepareModelforSaving(List<ImageFrame> iFrames) {
         if (classShapesToRestore == null) return; // old deserialized model
 
+        // check for multiple-shape bug -> remove duplicate shapes
+        int cnt=0;
+        for (ClassShape cs: classShapesToRestore) {
+            cnt += cs.getShapeList().size();
+        }
+        if (cnt>10000) {
+            logger.info("more than 10000 class shapes - trying to remove duplicate shapes");
+            cleanUpShapesToRestore();
+        }
+
         // collect open images
         HashSet<Integer> openRDFs = new HashSet<>();
         if (iFrames != null) {
@@ -406,10 +416,11 @@ public class OrbitModel implements Serializable, Cloneable {
                         }
                     }
                 }
-                if (csNew.getShapeList().size()>0) {
-                    classShapesToAdd.add(csNew);
-                }
             }
+            if (csNew.getShapeList().size()>0) {
+                classShapesToAdd.add(csNew);
+            }
+
         }
 
 
@@ -455,7 +466,38 @@ public class OrbitModel implements Serializable, Cloneable {
             }
             if (!found) classShapesToRestore.add(csNew);
         }
+    }
 
+
+    public void cleanUpShapesToRestore() {
+        if (classShapesToRestore!=null) {
+            for (int csI=0; csI<classShapesToRestore.size(); csI++) {
+                logger.info("shapes to restore before ["+csI+"]: "+classShapesToRestore.get(csI).getShapeList().size());
+                ClassShape cs = classShapesToRestore.get(csI);
+                List<Shape> shapeList = new ArrayList<>();
+                for (Shape shape: cs.getShapeList()) {
+                    boolean toAdd = true;
+                    if (shape instanceof PolygonExt) {
+                       PolygonExt pe = (PolygonExt) shape;
+                       for (Shape shape2: shapeList) {
+                           if (shape2 instanceof PolygonExt) {
+                               PolygonExt pe2 = (PolygonExt) shape2;
+                               if (pe2.equalsExact(pe)) {
+                                   toAdd = false;
+                                   break;
+                               }
+                           }
+                       }
+                    }
+                    if (toAdd) {
+                        shapeList.add(shape);
+                    }
+                }
+
+                cs.setShapeList(shapeList);
+                logger.info("shapes to restore after ["+csI+"]: "+classShapesToRestore.get(csI).getShapeList().size());
+            }
+        }
     }
 
     /**
@@ -763,14 +805,5 @@ public class OrbitModel implements Serializable, Cloneable {
     }
 
 
-    public static void main(String[] args) {
-        String fn = "d:/test.omo";
-        OrbitModel model = new OrbitModel();
-        model.saveModel(fn);
-
-        model = OrbitModel.LoadFromFile(fn);
-        System.out.println(model);
-
-    }
 
 }

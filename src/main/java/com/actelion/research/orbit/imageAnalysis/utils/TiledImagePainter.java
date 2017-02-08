@@ -684,7 +684,6 @@ public class TiledImagePainter implements Closeable {
         final List<Callable<Void>> taskList = new ArrayList<Callable<Void>>();
         for (int tji = topIndex; tji <= bottomIndex; tji++) {
             for (int tii = leftIndex; tii <= rightIndex; tii++) {
-
                 final int tj = tji;
                 final int ti = tii;
                 final Callable<Void> renderTile = new Callable<Void>() {
