@@ -24,26 +24,41 @@ import com.actelion.research.orbit.imageAnalysis.models.OrbitModel
 import com.actelion.research.orbit.imageAnalysis.utils.ClassificationResult
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitHelper
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitLogAppender
+import groovyx.gpars.GParsPool
 
 
 /**
- * Iterates over all annotations and outputs classification results per annotation.
+ * Iterates over all annotations and outputs classification results per image x annotation.
  */
-def model = OrbitModel.LoadFromOrbit(2230681); // replace model id
-def searchStr = "3096-a-5.jpg";  // replace search string
+def model = OrbitModel.LoadFromOrbit(2248470) // replace model id
+def searchStr = "ELB123-123 SR"  // replace search string
 
-OrbitLogAppender.GUI_APPENDER = false;   // no GUI (error) popups
-DALConfig.getImageProvider().authenticateUser("root", "omero"); // optional: otherwise the scaleout user defined in OrbitOmero.conf is used
-images = OrbitHelper.searchImages(searchStr);
-images.each {
-    RawDataFile rdf = it;
-    DALConfig.getImageProvider().LoadRawAnnotationsByRawDataFile(rdf.rawDataFileId, RawAnnotation.ANNOTATION_TYPE_IMAGE).each {
-        ImageAnnotation anno = new ImageAnnotation(it);
-        ClassificationResult res = OrbitHelper.Classify(rdf,model,null,1,anno.getFirstShape());
-        print anno.description;
-        res.normalizeRatio().each {
-            print "; "+it.key+": "+it.value;
+OrbitLogAppender.GUI_APPENDER = false   // no GUI (error) popups
+//DALConfig.getImageProvider().authenticateUser("root", "omero"); // optional: otherwise the scaleout user defined in OrbitOmero.conf is used
+images = OrbitHelper.searchImages(searchStr)
+StringBuilder sb = new StringBuilder("Image\tAnnotation")
+model.classShapes.each {      // append header
+    sb.append("\t"+it.name)
+}
+sb.append("\n")
+GParsPool.withPool {
+    images.eachParallel { // attention: images will be computed in parallel, thus the output order is shuffled
+        RawDataFile rdf = it
+        StringBuilder sbImage = new StringBuilder()
+        DALConfig.getImageProvider().LoadRawAnnotationsByRawDataFile(rdf.rawDataFileId, RawAnnotation.ANNOTATION_TYPE_IMAGE).each {
+            ImageAnnotation anno = new ImageAnnotation(it)
+            ClassificationResult res = OrbitHelper.Classify(rdf, model, null, 1, anno.getFirstShape())
+            String s = rdf.fileName + "\t" + anno.description
+            res.normalizeRatio().each {
+                s += "\t" + it.value
+            }
+            s += "\n"
+            sbImage.append(s)
+            print s
         }
-        println "";
+        sb.append(sbImage.toString())
     }
 }
+println "\n\n\nResult:\n"
+println sb.toString()
+println "done"
