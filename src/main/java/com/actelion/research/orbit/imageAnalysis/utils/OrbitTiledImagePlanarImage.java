@@ -76,8 +76,11 @@ public class OrbitTiledImagePlanarImage extends OrbitTiledImage2 {
         return null;
     }
 
+    /**
+     * will ignore channelContributions
+     */
     @Override
-    public Raster getTileData(int arg0, int arg1) {
+    public Raster getTileData(int arg0, int arg1, float[] channelContributions) {
         return image.getTile(arg0, arg1);
     }
 

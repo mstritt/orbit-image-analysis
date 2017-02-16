@@ -63,6 +63,7 @@ public class FeatureDescription implements Serializable, Cloneable {
 
     private boolean forSecondarySegmentationModel = false;
     private boolean cytoplasmaSegmentation = false;
+    private String[] activeFluoChannels;
 
 
     public FeatureDescription() {
@@ -74,7 +75,7 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.windowSize = windowSize;
     }
 
-    public FeatureDescription(int windowSize, int sampleSize, int featureSet, int minSegmentationSize, boolean minAreaClassification, int numBlur, boolean skipRed, boolean skipGreen, boolean skipBlue, double segmentationScale, int[] featureClasses, boolean deactivateWatershed, int deconvChannel, String deconvName, boolean useImageAdjustments) {
+    public FeatureDescription(int windowSize, int sampleSize, int featureSet, int minSegmentationSize, boolean minAreaClassification, int numBlur, boolean skipRed, boolean skipGreen, boolean skipBlue, double segmentationScale, int[] featureClasses, boolean deactivateWatershed, int deconvChannel, String deconvName, boolean useImageAdjustments, String[] activeFluoChannels) {
         this.windowSize = windowSize;
         this.sampleSize = sampleSize;
         this.featureSet = featureSet;
@@ -90,6 +91,7 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.deconvChannel = deconvChannel;
         this.deconvName = deconvName;
         this.useImageAdjustments = useImageAdjustments;
+        this.activeFluoChannels = activeFluoChannels;
     }
 
 
@@ -330,6 +332,14 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.cytoplasmaSegmentation = cytoplasmaSegmentation;
     }
 
+    public String[] getActiveFluoChannels() {
+        return activeFluoChannels;
+    }
+
+    public void setActiveFluoChannels(String[] activeFluoChannels) {
+        this.activeFluoChannels = activeFluoChannels;
+    }
+
     public FeatureDescription clone() {
         try {
             return ((FeatureDescription) super.clone());
@@ -369,6 +379,7 @@ public class FeatureDescription implements Serializable, Cloneable {
                 ", graphCut=" + graphCut +
                 ", useImageAdjustments=" + useImageAdjustments +
                 ", cytoplasmaSegmentation=" + cytoplasmaSegmentation +
+                ", activeFluoChannels=" +Arrays.toString(activeFluoChannels) +
                 '}';
     }
 }

@@ -44,6 +44,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -353,7 +355,6 @@ public class TiledImagePainter implements Closeable {
         try {
             PlanarImage pi = getModifiedImage(fd);
             r = pi.getExtendedData(region, BorderExtender.createInstance(BorderExtender.BORDER_COPY));
-            //r =pi.getData(region);
         } catch (Exception e) {
             e.printStackTrace();
             r = null;
@@ -365,6 +366,19 @@ public class TiledImagePainter implements Closeable {
 
         return r;
     }
+
+    private IOrbitImageMultiChannel getMultiChannelImage() {
+            OrbitTiledImage2 img = this.image;
+            if (img instanceof OrbitTiledImageIOrbitImage) {
+                IOrbitImage oi = ((OrbitTiledImageIOrbitImage) img).getOrbitImage();
+                if (oi instanceof IOrbitImageMultiChannel) {
+                    final IOrbitImageMultiChannel oim = (IOrbitImageMultiChannel) oi;
+                    return oim;
+                }
+            }
+        return null;
+    }
+
 
 
     public int getType() {
@@ -380,6 +394,20 @@ public class TiledImagePainter implements Closeable {
      */
     public PlanarImage getModifiedImage(FeatureDescription featureDescription) {
         PlanarImage pi = image;
+
+        if (pi instanceof OrbitTiledImage2) {
+            // fluo channels for classification
+            IOrbitImageMultiChannel multiChannelImage = getMultiChannelImage(); // might return null
+            if (multiChannelImage!=null && featureDescription.getActiveFluoChannels()!=null && featureDescription.getActiveFluoChannels().length>0 && multiChannelImage.getChannelNames()!=null && multiChannelImage.getChannelNames().length>0) {
+                HashSet<String> activeChannelLookup = new HashSet<>(Arrays.asList(featureDescription.getActiveFluoChannels()));
+                float[] channelContributions = new float[multiChannelImage.getChannelNames().length];
+                for (int c=0; c<channelContributions.length; c++) {
+                    String channelName = OrbitUtils.cleanChannelName(multiChannelImage.getChannelNames()[c]);
+                    channelContributions[c] = activeChannelLookup.contains(channelName)? 1f : 0f;
+                }
+                ((OrbitTiledImage2) pi).setChannelContributionsClassification(channelContributions);
+            }
+        }
 
         if (featureDescription.getNumBlur() > 0) {
             MedianFilter medianFilter = new MedianFilter();

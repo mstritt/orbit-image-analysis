@@ -274,7 +274,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
             originalBitsPerSample = bir.getBitsPerPixel();
             interleaved = bir.isInterleaved();
             try {
-                BufferedImage img = getPlane(0, 0);
+                BufferedImage img = getPlane(0, 0, null);
                 colorModel = img.getColorModel();
                 sampleModel = img.getSampleModel();
                 numBands = sampleModel.getNumBands();
@@ -359,8 +359,13 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
 
     @Override
     public Raster getTileData(int tileX, int tileY) {
+        return getTileData(tileX, tileY, null);
+    }
+
+    @Override
+    public Raster getTileData(int tileX, int tileY, float[] channelContributions) {
         try {
-           BufferedImage img = getPlane(tileX, tileY);
+           BufferedImage img = getPlane(tileX, tileY, channelContributions!=null?channelContributions:this.channelContributions);
            // ensure tiles have always full tileWidth and tileHeight (even at borders)
            if (img.getWidth()!=getTileWidth() || img.getHeight()!=getTileHeight())
            {
@@ -379,7 +384,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         }
     }
 
-    protected BufferedImage getPlane(int tileX, int tileY) throws Exception {
+    protected BufferedImage getPlane(int tileX, int tileY, final float[] channelContributions) throws Exception {
         int x = optimalTileWidth * tileX;
         int y = optimalTileHeight * tileY;
         int w = (int) Math.min(optimalTileWidth, width - x);
@@ -730,6 +735,8 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         }
         return null;
     }
+
+
 
     @Override
     public String[] getChannelNames() {

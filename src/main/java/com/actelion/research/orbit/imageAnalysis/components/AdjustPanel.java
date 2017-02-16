@@ -452,7 +452,12 @@ public class AdjustPanel extends JPanel {
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
-                                multiChannelPanel.add(new JLabel("Fluorescence Channels"));
+                                JLabel fluoLabel = new JLabel("Fluorescence Channels:");
+                                Box  b1 = Box.createHorizontalBox();
+                                b1.setBorder(BorderFactory.createEmptyBorder(13,0,7,0));
+                                b1.add(fluoLabel);
+                                b1.add(Box.createHorizontalGlue());
+                                multiChannelPanel.add(b1);
                                 JPanel cp = new JPanel(new GridBagLayout());
                                 Insets insetsL = new Insets(5, 5, 0, 5);
                                 Insets insets = new Insets(0, 5, 0, 5);

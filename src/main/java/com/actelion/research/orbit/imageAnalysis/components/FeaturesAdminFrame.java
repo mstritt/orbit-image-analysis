@@ -19,6 +19,8 @@
 
 package com.actelion.research.orbit.imageAnalysis.components;
 
+import com.actelion.research.orbit.dal.IOrbitImage;
+import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.gui.DoubleTextField;
 import com.actelion.research.orbit.gui.IntInputVerifier;
 import com.actelion.research.orbit.gui.IntegerTextField;
@@ -26,6 +28,8 @@ import com.actelion.research.orbit.imageAnalysis.components.legacy.JComboCheckBo
 import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
 import com.actelion.research.orbit.imageAnalysis.models.FeatureDescription;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import imageJ.Colour_Deconvolution;
 
@@ -35,6 +39,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -60,6 +65,8 @@ public class FeaturesAdminFrame extends JDialog {
     private JCheckBox cbForSecondarySegmentationModel = null;
     private JCheckBox cbCytoplasmaSegmentation = null;
     private JComboCheckBox cbFeatureClasses = null;
+    private JComboCheckBox cbFluoChannels = null;
+
     private final JRadioButton deconvChannel0 = new JRadioButton("Disable", true);
     private final JRadioButton deconvChannel1 = new JRadioButton("Stain 1", false);
     private final JRadioButton deconvChannel2 = new JRadioButton("Stain 2", false);
@@ -211,6 +218,28 @@ public class FeaturesAdminFrame extends JDialog {
         panel.add(cbFeatureClasses);
         setCompBounds(panel, frameWidth - 50, 0);
         panelClassification.add(panel);
+
+
+        // fluo channels
+        if (featureDescription.getActiveFluoChannels()!=null) {
+            setCbActiveFluoChannels(featureDescription.getActiveFluoChannels());
+        }
+        else {
+            IOrbitImageMultiChannel multiChanImage = getOpenMultiChannelImage();
+            if (multiChanImage!=null && multiChanImage.getChannelNames()!=null && multiChanImage.getChannelNames().length>0) {
+                setCbActiveFluoChannels(multiChanImage.getChannelNames());
+            }
+        }
+
+        if (cbFluoChannels==null)
+            cbFluoChannels = new JComboCheckBox();
+        panel = new JPanel(new GridLayout(1, 2));
+        lab = new JLabel("active fluorescence channels:");
+        panel.add(lab);
+        panel.add(cbFluoChannels);
+        setCompBounds(panel, frameWidth - 50, 0);
+        panelClassification.add(panel);
+
 
         cbUseImageAdjustments = new JCheckBox("Use image adjustments *", featureDescription.isUseImageAdjustments());
         cbUseImageAdjustments.setToolTipText("load image adjustments from database before classification (brightness, contrast, gamma) - use with care!");
@@ -444,6 +473,26 @@ public class FeaturesAdminFrame extends JDialog {
         setLocation((size.width - getWidth()) / 2, (size.height - getHeight()) / 2);
     }
 
+    /**
+     * returns the IOrbitImageMultiChannel if an image is open and selected and a IOrbitImageMultiChannel image, null otherwise.
+     */
+    private IOrbitImageMultiChannel getOpenMultiChannelImage() {
+        ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+        if (iFrame!=null) {
+            OrbitTiledImage2 img = iFrame.recognitionFrame.bimg.getImage();
+            if (img instanceof OrbitTiledImageIOrbitImage) {
+                IOrbitImage oi = ((OrbitTiledImageIOrbitImage) img).getOrbitImage();
+                if (oi instanceof IOrbitImageMultiChannel) {
+                    final IOrbitImageMultiChannel oim = (IOrbitImageMultiChannel) oi;
+                    return oim;
+                }
+            }
+        }
+
+
+        return null;
+    }
+
 
     private void updateValues(FeatureDescription featureDescription) {
         this.featureDescription = featureDescription;
@@ -517,8 +566,46 @@ public class FeaturesAdminFrame extends JDialog {
         tfFixedROI.setText(Integer.toString(OrbitImageAnalysis.getInstance().getModel().getFixedCircularROI()));
         tfROIX.setText(Integer.toString(OrbitImageAnalysis.getInstance().getModel().getFixedROIOffsetX()));
         tfROIY.setText(Integer.toString(OrbitImageAnalysis.getInstance().getModel().getFixedROIOffsetY()));
+
+        setCbActiveFluoChannels(featureDescription.getActiveFluoChannels());
     }
 
+
+    private void setCbActiveFluoChannels(final String[] activeFluoChannels) {
+        List<String> fluoChannels = new ArrayList<>();
+        String selectedChannels = "";
+        if (activeFluoChannels!=null &&activeFluoChannels.length>0) {
+            for (int i=0;i<activeFluoChannels.length; i++) {
+                String channel = OrbitUtils.cleanChannelName(activeFluoChannels[i]);
+                selectedChannels += channel;
+                if (i<activeFluoChannels.length-1) selectedChannels += ";";
+                fluoChannels.add(channel);
+            }
+        }
+        IOrbitImageMultiChannel multiChanImage = getOpenMultiChannelImage();
+        if (multiChanImage!=null && multiChanImage.getChannelNames()!=null && multiChanImage.getChannelNames().length>0) {
+            for (String channel: multiChanImage.getChannelNames()) {
+                channel = OrbitUtils.cleanChannelName(channel);
+                if (!fluoChannels.contains(channel)) {
+                    fluoChannels.add(channel);
+                }
+            }
+        }
+        if (fluoChannels.size()>0) {
+            Collections.sort(fluoChannels);
+        }
+        else {
+            selectedChannels = OrbitUtils.CHANNEL_NAME_ALL;
+            fluoChannels.add(OrbitUtils.CHANNEL_NAME_ALL);
+        }
+        
+        if (cbFluoChannels==null) {
+            cbFluoChannels = new JComboCheckBox(fluoChannels);
+        } else {
+            cbFluoChannels.setChoices(fluoChannels);
+        }
+        cbFluoChannels.setText(selectedChannels);
+    }
 
     private void setCompBounds(Component comp, int width, int y) {
         comp.setMaximumSize(new Dimension(width, btnHeight));
@@ -661,6 +748,12 @@ public class FeaturesAdminFrame extends JDialog {
         featureDescription.setUseImageAdjustments(cbUseImageAdjustments.isSelected());
         featureDescription.setForSecondarySegmentationModel(cbForSecondarySegmentationModel.isSelected());
         featureDescription.setCytoplasmaSegmentation(cbCytoplasmaSegmentation.isSelected());
+
+        // fluo channels
+        String[] activeFluoChannels = cbFluoChannels.getCheckedItems();
+        if (activeFluoChannels!=null && activeFluoChannels.length>0) {
+            featureDescription.setActiveFluoChannels(activeFluoChannels);
+        }
 
         firePropertyChange(FEATURES_DONE, null, featureDescription);
         this.dispose();

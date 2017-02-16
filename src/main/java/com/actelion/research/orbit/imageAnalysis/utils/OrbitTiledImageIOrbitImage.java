@@ -20,6 +20,7 @@
 package com.actelion.research.orbit.imageAnalysis.utils;
 
 import com.actelion.research.orbit.dal.IOrbitImage;
+import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 
 import java.awt.image.Raster;
@@ -77,8 +78,12 @@ public class OrbitTiledImageIOrbitImage extends OrbitTiledImage2 {
     }
 
     @Override
-    public Raster getTileData(int arg0, int arg1) {
-        return image.getTileData(arg0, arg1);
+    public Raster getTileData(int arg0, int arg1, float[] channelContributions) {
+        if (image instanceof IOrbitImageMultiChannel) {
+            return  ((IOrbitImageMultiChannel)image).getTileData(arg0, arg1, channelContributions);
+        } else {
+            return image.getTileData(arg0, arg1);
+        }
     }
 
 //	public BufferedImage getBufferedImage() {

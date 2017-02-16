@@ -54,7 +54,7 @@ import java.util.List;
 public class OrbitUtils {
     // label:  OrbitImageAnalysis2433
     public static final String VERSION_STR = getVersion() + (ScaleoutMode.SCALEOUTMODE.get() ? "G" : "") + (OrbitUtils.DEVELOPMENTMODE ? " DEVELOPMENT" : "");
-    public static final boolean DEVELOPMENTMODE = false;
+    public static final boolean DEVELOPMENTMODE = true;
     public static final boolean TILEMODE = false;
     public static final boolean OFFLINE_MODE = false;
     public static final boolean DARKUI = true;
@@ -93,6 +93,8 @@ public class OrbitUtils {
     public static final String orbitTutorialsURL = "http://www.orbit.bio/tutorials";
     public static final String orbitImageProviderURL = "http://www.orbit.bio/setup";
 
+    public static final String CHANNEL_NAME_ALL = "<ALL CHANNELS>";
+
     static {
         Logger root = LoggerFactory.getLogger("com.actelion.research");
         if (root instanceof ch.qos.logback.classic.Logger)   // can only set if logback implementation
@@ -119,6 +121,16 @@ public class OrbitUtils {
         }
     }
 
+
+    /**
+     * replaces " " by "_" in channelName
+     * @param channelName
+     * @return
+     */
+    public static String cleanChannelName(String channelName) {
+        if (channelName==null) return null;
+        return channelName.replaceAll(" ","_");
+    }
 
     public static TissueFeatures createTissueFeatures(final FeatureDescription featureDescription, final TiledImagePainter bimg) {
         if (DEEPORBIT) return new TissueFeaturesCircular(featureDescription, bimg);
@@ -743,14 +755,13 @@ public class OrbitUtils {
                 return cachedRaster;
             } else {
                 Rectangle oriBounds = readRaster.getBounds();
-//				WritableRaster r = new ByteInterleavedRaster(readRaster.getSampleModel(), readRaster.getDataBuffer(), new Point(readRaster.getMinX(), readRaster.getMinY()));
                 WritableRaster r = Raster.createWritableRaster(readRaster.getSampleModel(), readRaster.getDataBuffer(), new Point(readRaster.getMinX(), readRaster.getMinY()));
                 r.setDataElements(0, 0, readRaster);
                 WritableRaster wr = Raster.createWritableRaster(r.getSampleModel(), r.getDataBuffer(), new Point(0, 0));
 
                 BufferedImage bb = new BufferedImage(colorModel, wr, colorModel.isAlphaPremultiplied(), null);
                 if (featureDescription.getDeconvChannel() > 0) {
-                    //bb = Colour_Deconvolution.getProcessedImage(bb, featureDescription.getDeconvName(), featureDescription.getDeconvChannel() - 1, null);
+                    bb = Colour_Deconvolution.getProcessedImage(bb, featureDescription.getDeconvName(), featureDescription.getDeconvChannel() - 1, null);
                 }
                 ModifiedRaster rbb = new ModifiedRaster(bb.getRaster().createTranslatedChild(oriBounds.x, oriBounds.y));
                 if (useCache) OrbitTiledImage2.tileCache.put(key, rbb);
