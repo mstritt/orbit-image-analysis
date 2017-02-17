@@ -36,6 +36,7 @@ import java.util.ArrayList;
  * NDPISReader is the file format reader for Hamamatsu .ndpis files.
  *
  * @author Melissa Linkert melissa at glencoesoftware.com
+ * @author Manuel Stritt
  */
 public class NDPISReaderOrbit extends FormatReader {
 
@@ -88,12 +89,8 @@ public class NDPISReaderOrbit extends FormatReader {
     public byte[] openBytes(int no, int x, int y, int w, int h)
             throws FormatException, IOException
     {
-        //int[] zct = getZCTCoords(no);
-        //int channel = zct[1];
         int ch = getRGBChannelCount();
         int bpp = FormatTools.getBytesPerPixel(getPixelType());
-        //int ch = 3;
-        //int bpp = 1;
         byte[] newBuffer;
         try {
             newBuffer = DataTools.allocate(w, h, ch, bpp);
@@ -122,11 +119,10 @@ public class NDPISReaderOrbit extends FormatReader {
         readers[channel].setId(ndpiFiles[channel]);
         readers[channel].setSeries(getSeries());
         readers[channel].setResolution(getResolution());
-//        int cIndex = channel < readers[channel].getSizeC() ? channel : 0;
- //       int plane = readers[channel].getIndex(zct[0], cIndex, zct[2]);
         byte[] bufRGB = DataTools.allocate(w, h, 3); // w*h*RGB  - maybe this should be reused...
         bufRGB = readers[channel].openBytes(0, bufRGB, x, y, w, h);
         int intens;
+        // each channel is RGB data (with usually only one band used), thus we sum up the intensities
         if (readers[channel].isInterleaved()) {
             for (int i = 0; i < buf.length; i++) {
                 intens = bufRGB[i * 3] + bufRGB[i * 3 + 1] + bufRGB[i * 3 + 2];
@@ -206,7 +202,6 @@ public class NDPISReaderOrbit extends FormatReader {
                 ndpiFiles[index] = new Location(parent, value).getAbsolutePath();
                 readers[index] = new NDPIReader();
                 readers[index].setFlattenedResolutions(hasFlattenedResolutions());
-               // readers[index].setFlattenedResolutions(false);
             }
         }
 
@@ -226,7 +221,6 @@ public class NDPISReaderOrbit extends FormatReader {
             if (c>0) // 0 is already open
                 readers[c].setId(ndpiFiles[c]);
             String channelName = readers[c].getIFDs().get(0).getIFDStringValue(CHANNELTAG);
-            System.out.println("cn: "+channelName);
             store.setChannelName(channelName, getSeries(), c);
         }
         MetadataTools.populatePixels(store, this);

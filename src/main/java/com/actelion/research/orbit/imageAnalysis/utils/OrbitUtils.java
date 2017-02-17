@@ -129,7 +129,10 @@ public class OrbitUtils {
      */
     public static String cleanChannelName(String channelName) {
         if (channelName==null) return null;
-        return channelName.replaceAll(" ","_");
+        channelName = channelName.trim();
+        channelName = channelName.replaceAll(";","_");
+        //channelName = channelName.replaceAll(" ","_");
+        return channelName;
     }
 
     public static TissueFeatures createTissueFeatures(final FeatureDescription featureDescription, final TiledImagePainter bimg) {

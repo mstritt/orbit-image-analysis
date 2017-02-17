@@ -578,7 +578,7 @@ public class FeaturesAdminFrame extends JDialog {
             for (int i=0;i<activeFluoChannels.length; i++) {
                 String channel = OrbitUtils.cleanChannelName(activeFluoChannels[i]);
                 selectedChannels += channel;
-                if (i<activeFluoChannels.length-1) selectedChannels += ";";
+                if (i<activeFluoChannels.length-1) selectedChannels += "; ";
                 fluoChannels.add(channel);
             }
         }
