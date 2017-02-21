@@ -157,6 +157,10 @@ public class DALConfig {
                         DAODataFileSQLite.createTable();
                         DAORawAnnotationSQLite.createTable();
                     }
+                    // check for column raw_data_dile.series
+                    if (!DAODataFileSQLite.ColumnSeriesExist()) {
+                       DAODataFileSQLite.createColumnSeries();
+                    }
                 }
             } catch (Exception ex) {
                 logger.error("Could not create the local database file: "+localDBFile, ex);

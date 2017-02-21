@@ -84,8 +84,8 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
     protected static final Map<String,MinMaxPerChan> minMaxCache = new ConcurrentHashMap<>();
     private String[] channelNames;
     protected static final ColorModel rgbColorModel = new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB).getColorModel();
-    public static int exclicitSeries = 0;
-
+    private int series = 0;
+    
     private float[] channelContributions = null;
     private float[] hueMap;
 
@@ -95,7 +95,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
     private static final float HueCy3 = 40f / 360f;
     private static final float HueCy5 = 0f / 360f;  // 60
     private static final float HueEGFP = 141f / 360f;
-    private static final float HueDAPI = 202f / 360f;
+    private static final float HueDAPI = 240f / 360f; // 202
     private static final float HueFITC = 108f / 360f;
     private static final float HueTRITC = 22f / 360f;
 
@@ -116,9 +116,10 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
 //                        build();
 //    }
 
-    public OrbitImageBioformats(final String filename, final int level) throws IOException, FormatException {
+    public OrbitImageBioformats(final String filename, final int level, final int series) throws IOException, FormatException {
         this.originalFilename = filename;
-        this.filename = filename+"["+level+"]"+" ["+exclicitSeries+"]";    // level/series here is important because filename is part of key for hashing!
+        this.series = series;
+        this.filename = filename+"["+level+"]"+" ["+ series +"]";    // level/series here is important because filename is part of key for hashing!
         this.level = level;
 
         logger.info("bioformats image: "+this.filename);
@@ -129,42 +130,16 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
             @Override
             protected BufferedImageReader initialValue() {
                 try {
-                    logger.debug("init bioformats: "+filename+" ["+level+"]"+" ["+exclicitSeries+"]");
-                    IFormatReader r;
-                    if (filename.toLowerCase().endsWith("ndpis")) {
-                        r = new NDPISReaderOrbit();
-                    } else {
-                        r = new ImageReader();
-                    }
-                   // r.setAllowOpenFiles(true);
-                    r.setFlattenedResolutions(false);
+                    logger.debug("init bioformats: "+filename+" ["+level+"]"+" ["+ series +"]");
+                    IFormatReader r = getIFormatReader(filename);
                     ServiceFactory factory = new ServiceFactory();
                     OMEXMLService service = factory.getInstance(OMEXMLService.class);
                     IMetadata meta = service.createOMEXMLMetadata();
                     r.setMetadataStore(meta);
-
+                    
                     r.setId(filename);
-
-
-                    int series = 0;
-                    if (!filename.toLowerCase().endsWith("vsi")) {
-                        String[] file2series = r.getSeriesUsedFiles();
-                        if (file2series != null && file2series.length > 0) {
-                            for (int i = 0; i < file2series.length; i++) {
-                                String fn = file2series[i];
-                                if (fn.equals(r.getCurrentFile())) {
-                                    series = i;
-                                    logger.debug("selected series: " + series);
-                                }
-                            }
-                            r.setSeries(series);
-                        }
-                    }
-
-                    // explicit series
-                    // com.actelion.research.orbit.imageAnalysis.dal.localImage.OrbitImageBioformats.exclicitSeries=0
-                    if (exclicitSeries >0) r.setSeries(exclicitSeries);
-
+                    //setReaderSeries(r, filename);
+                    r.setSeries(series);
                     r.setResolution(level);
                     BufferedImageReader bir;
                     if (doMergeChannels(r)) {
@@ -305,6 +280,41 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
     }
 
 
+    private IFormatReader getIFormatReader(String filename) {
+        IFormatReader r;
+        if (filename.toLowerCase().endsWith("ndpis")) {
+            r = new NDPISReaderOrbit();
+        } else {
+            r = new ImageReader();
+        }
+        // r.setAllowOpenFiles(true);
+        r.setFlattenedResolutions(false);
+        return r;
+    }
+
+    private void setReaderSeries(IFormatReader r, String filename) {
+        int series = 0;
+        if (!filename.toLowerCase().endsWith("vsi")) {
+            String[] file2series = r.getSeriesUsedFiles();
+            if (file2series != null && file2series.length > 0) {
+                for (int i = 0; i < file2series.length; i++) {
+                    String fn = file2series[i];
+                    if (fn.equals(r.getCurrentFile())) {
+                        series = i;
+                        logger.debug("selected series: " + series);
+                    }
+                }
+                r.setSeries(series);
+            }
+        }
+
+        // explicit series
+        // com.actelion.research.orbit.imageAnalysis.dal.localImage.OrbitImageBioformats.series=0
+        if (this.series >0) r.setSeries(this.series);
+    }
+
+
+    @Deprecated
     private String getChannelNameFilename(String filename) {
         String fn = filename.toLowerCase();
         if (fn.contains("dapi")) return chanDapi;
@@ -700,8 +710,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
          long thumbH=1;
 
         try {
-            ImageReader ir = new ImageReader();
-            ir.setFlattenedResolutions(false);
+            IFormatReader ir = getIFormatReader(reader.get().getCurrentFile());
             ir.setId(reader.get().getCurrentFile());
             ir.setSeries(reader.get().getSeries());
 
@@ -814,6 +823,10 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         }
     }
 
+    public int getSeries() {
+        return series;
+    }
+
     private class ROIDef {
         String filename;
         int level,index,x,y,w,h;
@@ -878,7 +891,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         final String testImage = "D:\\pic\\Hamamatsu\\fl4\\test1.ndpis";
         //final String testImage = "D:\\pic\\vsi\\04_12_15_Slide1_Image_01.vsi";
 
-        OrbitImageBioformats oi = new OrbitImageBioformats(testImage,0);
+        OrbitImageBioformats oi = new OrbitImageBioformats(testImage,0, 0);
 
         System.out.println("wxh: "+oi.getWidth()+"x"+oi.getHeight()+" cm: "+oi.getColorModel());
         BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(10,10).createTranslatedChild(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);

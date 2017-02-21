@@ -21,7 +21,8 @@ package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import com.actelion.research.orbit.beans.RawAnnotation;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
-import com.actelion.research.orbit.utils.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -33,8 +34,7 @@ import java.util.List;
  *
  */
 public class DAORawAnnotationSQLite {
-
-    public static Logger logger = Logger.getLogger(DAORawAnnotationSQLite.class);
+    private static final Logger logger = LoggerFactory.getLogger(DAORawAnnotationSQLite.class);
 
     protected static Connection getConnection() throws SQLException {
         try {

@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
@@ -657,8 +658,12 @@ public class OrbitUtils {
 
 
     public static JFileChooser buildOpenFileFileChooser() {
+        return buildOpenFileFileChooser(null);
+    }
+
+    public static JFileChooser buildOpenFileFileChooser(final ChangeListener seriesChangeListener) {
         JFileChooser fileChooser = new JFileChooser();
-        ImagePreview preview = new ImagePreview(fileChooser);
+        ImagePreviewWithSeries preview = new ImagePreviewWithSeries(fileChooser, seriesChangeListener);
         fileChooser.setAccessory(preview);
         fileChooser.setMultiSelectionEnabled(true);
         fileChooser.setDialogTitle("Open File(s)");

@@ -22,8 +22,9 @@ package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
-import com.actelion.research.orbit.utils.Logger;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.sql.*;
@@ -33,7 +34,6 @@ import java.util.List;
 
 public class DAODataFileSQLite {
 
-    public static Logger logger = Logger.getLogger(DAODataFileSQLite.class);
 
     protected static Connection getConnection() throws SQLException {
         try {
@@ -51,8 +51,7 @@ public class DAODataFileSQLite {
     }
 
 
-
-
+    private static final Logger logger = LoggerFactory.getLogger(DAODataFileSQLite.class);
     private static final String searchQueryFilename =
             "select * from raw_data_file rdf where UPPER(rdf.filename) like ";
 
@@ -77,13 +76,15 @@ public class DAODataFileSQLite {
                     "  REFERENCE_DATE DATE, " +
                     "  MODIFY_DATE DATE, " +
                     "  USER_ID TEXT, " +
-                    "  MD5 TEXT " +
+                    "  MD5 TEXT, " +
+                    "  SERIES INTEGER" +
                     ")";
             stmt.executeUpdate(sql);
             stmt.close();
 
             execStmt("CREATE INDEX RAW_DATA_FILE_DATA ON RAW_DATA_FILE (RAW_DATA_ID) ",conn);
             execStmt("CREATE INDEX RAW_DATA_FILE_FILENAME ON RAW_DATA_FILE (FILENAME) ",conn);
+            execStmt("CREATE INDEX RAW_DATA_FILE_FILENAME_SERIES ON RAW_DATA_FILE (FILENAME,SERIES) ",conn);
             execStmt("CREATE INDEX RAW_DATA_FILE_PATH_NAME ON RAW_DATA_FILE (PATH, FILENAME) ",conn);
             execStmt("CREATE INDEX RAW_DATA_FILE_NAME_MD5 ON RAW_DATA_FILE (FILENAME, MD5) ",conn);
             execStmt("CREATE INDEX RAW_DATA_FILE_TYPE ON RAW_DATA_FILE (FILETYPE) ",conn);
@@ -102,6 +103,31 @@ public class DAODataFileSQLite {
         }
     }
 
+    public static boolean createColumnSeries() throws SQLException {
+        Connection conn = getConnection();
+        Statement stmt = null;
+        try {
+            stmt = conn.createStatement();
+            String sql = "ALTER TABLE RAW_DATA_FILE ADD COLUMN SERIES INTEGER DEFAULT 0";
+            stmt.executeUpdate(sql);
+            stmt.close();
+
+            execStmt("CREATE INDEX RAW_DATA_FILE_FILENAME_SERIES ON RAW_DATA_FILE (FILENAME,SERIES) ",conn);
+
+            logger.info("column series created");
+            return true;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            return false;
+        } finally {
+            try {
+                conn.close();
+            } catch (Exception e) {
+            }
+        }
+    }
+
+
     private static void execStmt(String sql, Connection conn) throws SQLException {
         Statement stmt;
         stmt = conn.createStatement();
@@ -116,8 +142,8 @@ public class DAODataFileSQLite {
         try {
 
             PreparedStatement ps = conn.prepareStatement("insert into raw_data_file " +
-                    "(raw_data_id,path,filename,filesize,filetype,flags,REFERENCE_DATE,MODIFY_DATE,USER_ID,BIOSAMPLE_ID,MD5) " +
-                    "values (?,?,?,?,?,?,?,?,?,?,?)");
+                    "(raw_data_id,path,filename,filesize,filetype,flags,REFERENCE_DATE,MODIFY_DATE,USER_ID,BIOSAMPLE_ID,MD5,SERIES) " +
+                    "values (?,?,?,?,?,?,?,?,?,?,?,?)");
 
             ps.setInt(1, dataFile.getRawDataId());
             ps.setString(2, dataFile.getDataPath());
@@ -136,6 +162,7 @@ public class DAODataFileSQLite {
             ps.setString(9, dataFile.getUserId());
             ps.setInt(10, dataFile.getBioSampleId());
             ps.setString(11, dataFile.getMd5());
+            ps.setInt(12, dataFile.getSeriesNum());
 
             ps.executeUpdate();
             ps.close();
@@ -172,7 +199,7 @@ public class DAODataFileSQLite {
 
             PreparedStatement ps = conn.prepareStatement("update raw_data_file set " +
                     "raw_data_id=?,path=?,filename=?,filesize=?,filetype=?,flags=?,REFERENCE_DATE=?,MODIFY_DATE=?,USER_ID=?,BIOSAMPLE_ID=?,MD5=? " +
-                    "where raw_data_file_id = ?");
+                    "where raw_data_file_id=?");
 
             ps.setInt(1, dataFile.getRawDataId());
             ps.setString(2, dataFile.getDataPath());
@@ -396,7 +423,7 @@ public class DAODataFileSQLite {
      * @return rdfId if exists, -1 otherwise
      * @throws SQLException
      */
-    public static int ExistRawDataFile(String absolutepath) throws SQLException {
+    public static int ExistRawDataFile(String absolutepath, int series) throws SQLException {
         int id = -1;
         Connection conn = getConnection();
         try {
@@ -404,9 +431,10 @@ public class DAODataFileSQLite {
             File file = new File(absolutepath);
             String filename = file.getName();
             PreparedStatement ps = conn.prepareStatement(
-                    "select raw_data_file_id from raw_data_file where FILENAME=? and MD5=?");
+                    "select raw_data_file_id from raw_data_file where FILENAME=? and SERIES=? and MD5=?");
             ps.setString(1, filename);
-            ps.setString(2, md5);
+            ps.setInt(2,series);
+            ps.setString(3, md5);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 id = rs.getInt("RAW_DATA_FILE_ID");
@@ -422,6 +450,29 @@ public class DAODataFileSQLite {
             }
         }
         return id;
+    }
+
+
+    /**
+     * checks of column 'series' exist in table raw_data_file
+     */
+    public static boolean ColumnSeriesExist() throws SQLException {
+        Connection conn = getConnection();
+        try {
+            String sql = "select series from raw_data_file limit 1";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            rs.close();
+            ps.close();
+        } catch (Exception ex) {
+            return false;
+        } finally {
+            try {
+                conn.close();
+            } catch (Exception e) {
+            }
+        }
+        return true;
     }
 
 
@@ -689,11 +740,15 @@ public class DAODataFileSQLite {
         rawDataFile.setModifyDate(rs.getTimestamp("MODIFY_DATE"));
         rawDataFile.setUserId(rs.getString("USER_ID"));
         rawDataFile.setMd5(rs.getString("MD5"));
+        rawDataFile.setSeriesNum(rs.getInt("SERIES"));
         //rawDataFile.setBioSampleId(rs.getInt("BIOSAMPLE_ID"));
         return rawDataFile;
     }
 
 
+    public static void main(String[] args) throws SQLException {
+        System.out.println(DAODataFileSQLite.ColumnSeriesExist());
+    }
 
 
 }

@@ -1394,8 +1394,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         if (isLocalImageProvider()) {
             ImageProviderLocal ipl = (ImageProviderLocal)DALConfig.getImageProvider();
             try {
-                RawDataFile rdf = ipl.registerFile(file);
+                RawDataFile rdf = ipl.registerFile(file,0);
                 loadFile(rdf);
+                logger.info("image with series 0 loaded. To load another series of this file please use the open file dialog");
             } catch (SQLException e) {
                 logger.error("Cannot register file: "+e.getMessage());
             }

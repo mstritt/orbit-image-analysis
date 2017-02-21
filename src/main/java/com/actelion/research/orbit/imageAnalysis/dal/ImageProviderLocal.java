@@ -24,17 +24,22 @@ import com.actelion.research.orbit.beans.RawData;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.beans.RawMeta;
 import com.actelion.research.orbit.dal.IOrbitImage;
-import com.actelion.research.orbit.imageAnalysis.dal.localImage.*;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAODataFileSQLite;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAORawAnnotationSQLite;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.OrbitImageBioformats;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.OrbitImageTiff;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitImagePlanar;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.TiffConverter;
-import com.actelion.research.orbit.utils.Logger;
 import com.actelion.research.orbit.utils.RawMetaFactoryData;
 import com.actelion.research.orbit.utils.RawMetaFactoryFile;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
+import org.slf4j.LoggerFactory;
 
 import javax.media.jai.PlanarImage;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -46,10 +51,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.prefs.Preferences;
 
-public class ImageProviderLocal extends ImageProviderNoop {
+public class ImageProviderLocal extends ImageProviderNoop implements ChangeListener {
 
-    private static final Logger logger = Logger.getLogger(ImageProviderLocal.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ImageProviderLocal.class);
     private RawData rawData;
+    private static int series = 0;
 
     public ImageProviderLocal() {
         rawData = new RawData();
@@ -63,7 +69,7 @@ public class ImageProviderLocal extends ImageProviderNoop {
     @Override
     public List<RawDataFile> browseImages(Object parentObj) throws Exception {
         List<RawDataFile> rdfList = new ArrayList<>();
-        JFileChooser fileChooser = OrbitUtils.buildOpenFileFileChooser();
+        JFileChooser fileChooser = OrbitUtils.buildOpenFileFileChooser(this);
 
         Preferences prefs = Preferences.userNodeForPackage(this.getClass());
         String dir = prefs.get("ImageProviderLocal.OpenFileCurrentDir", null);
@@ -81,7 +87,7 @@ public class ImageProviderLocal extends ImageProviderNoop {
             File[] files = fileChooser.getSelectedFiles();
             if (files != null && files.length > 0) {
                 for (File file : files) {
-                    RawDataFile rdf = registerFile(file);
+                    RawDataFile rdf = registerFile(file,series);
                     rdfList.add(rdf);
                 }
             }
@@ -91,9 +97,9 @@ public class ImageProviderLocal extends ImageProviderNoop {
         return rdfList;
     }
 
-    public RawDataFile registerFile(File file) throws SQLException {
+    public RawDataFile registerFile(File file, int series) throws SQLException {
         String fn = file.getAbsolutePath();
-        int id = DAODataFileSQLite.ExistRawDataFile(fn);
+        int id = DAODataFileSQLite.ExistRawDataFile(fn,series);
         RawDataFile rdf;
         if (id>0) {
             rdf = DAODataFileSQLite.LoadRawDataFile(id);
@@ -102,9 +108,11 @@ public class ImageProviderLocal extends ImageProviderNoop {
                 DAODataFileSQLite.UpdateRawDataFile(rdf);
             }
         } else {
-            rdf = createRDF(file.getAbsolutePath());
+            rdf = createRDF(file.getAbsolutePath(),series);
             DAODataFileSQLite.InsertRawDataFile(rdf);
         }
+       //RawDataFile rdf = createRDF(file.getAbsolutePath(),series);
+
         return rdf;
     }
 
@@ -114,7 +122,7 @@ public class ImageProviderLocal extends ImageProviderNoop {
     }
 
 
-    public RawDataFile createRDF(String fn) {
+    public RawDataFile createRDF(String fn,int series) {
         File file = new File(fn);
         String md5 = "";
         try {
@@ -131,6 +139,7 @@ public class ImageProviderLocal extends ImageProviderNoop {
         rdf.setReferenceDate(new Date(file.lastModified()));
         rdf.setRawDataId(rawData.getRawDataId());
         rdf.setMd5(md5);
+        rdf.setSeriesNum(series);
         return rdf;
     }
 
@@ -189,7 +198,7 @@ public class ImageProviderLocal extends ImageProviderNoop {
         }
         else {
            // return new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
-            return new OrbitImageBioformats(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
+            return new OrbitImageBioformats(rdf.getDataPath() + File.separator + rdf.getFileName(), level, rdf.getSeriesNum());
         }
     }
 
@@ -207,7 +216,8 @@ public class ImageProviderLocal extends ImageProviderNoop {
                     oi.close();
                 }  else {
                   //  OrbitImageScifio oi = new OrbitImageScifio(file.getAbsolutePath(), 0);
-                    OrbitImageBioformats oi = new OrbitImageBioformats(file.getAbsolutePath(), 0);
+                    logger.debug("loading thumbnail of file "+filename+", series: "+series);
+                    OrbitImageBioformats oi = new OrbitImageBioformats(file.getAbsolutePath(), 0, series);
                     bi = oi.getThumbnail();
                     oi.close();
                 }
@@ -323,8 +333,18 @@ public class ImageProviderLocal extends ImageProviderNoop {
     }
 
 
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        if (e.getSource() instanceof Integer) {
+            this.series = (Integer) e.getSource();
+            logger.debug("series set to "+this.series);
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         ImageProviderLocal.DBCleanup();
 
     }
+
+
 }
