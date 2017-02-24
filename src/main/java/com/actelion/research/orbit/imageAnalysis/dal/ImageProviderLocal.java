@@ -69,8 +69,8 @@ public class ImageProviderLocal extends ImageProviderNoop implements ChangeListe
     @Override
     public List<RawDataFile> browseImages(Object parentObj) throws Exception {
         List<RawDataFile> rdfList = new ArrayList<>();
+        this.series = 0;
         JFileChooser fileChooser = OrbitUtils.buildOpenFileFileChooser(this);
-
         Preferences prefs = Preferences.userNodeForPackage(this.getClass());
         String dir = prefs.get("ImageProviderLocal.OpenFileCurrentDir", null);
         if (dir != null) {

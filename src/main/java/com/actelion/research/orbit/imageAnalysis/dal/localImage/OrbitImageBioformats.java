@@ -138,6 +138,12 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
                     r.setMetadataStore(meta);
                     
                     r.setId(filename);
+
+                    if (series>=r.getSeriesCount()) {
+                        close();
+                        throw new OrbitImageServletException("image series " + series + " does not exist for image " + filename+" Max series count: "+r.getSeriesCount());
+                    }
+
                     //setReaderSeries(r, filename);
                     r.setSeries(series);
                     r.setResolution(level);
@@ -152,7 +158,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
                                 if (name==null) {
                                     name = "Channel"+c;
                                  }
-                                System.out.println("channel name "+c+": "+name);
+                                logger.debug("channel name "+c+": "+name);
                                 channelNames[c] = name;
                             }
                         }
@@ -206,6 +212,10 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
                 }
             }
         };
+
+        if (reader.get()==null) {
+            throw new OrbitImageServletException("could not initialize reader for image " + filename);
+        }
 
         numLevels =  reader.get().getResolutionCount();
         //numLevels = getRealResolutionCount(reader.get());
@@ -292,6 +302,10 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         return r;
     }
 
+    /**
+     * special vsi/etc treatment - not needed anymore
+     */
+    @Deprecated
     private void setReaderSeries(IFormatReader r, String filename) {
         int series = 0;
         if (!filename.toLowerCase().endsWith("vsi")) {

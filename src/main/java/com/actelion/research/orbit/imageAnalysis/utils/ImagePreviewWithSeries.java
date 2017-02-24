@@ -19,12 +19,15 @@
 
 package com.actelion.research.orbit.imageAnalysis.utils;
 
+import com.actelion.research.orbit.gui.IntInputVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.NumberFormatter;
+import java.io.File;
 
 
 public class ImagePreviewWithSeries extends JPanel  {
@@ -37,14 +40,15 @@ public class ImagePreviewWithSeries extends JPanel  {
           SpinnerNumberModel spinnerModel;
           Integer current = new Integer(0);
           Integer min = new Integer(0);
-          Integer max = new Integer(999);
+          Integer max = new Integer(9999);
           Integer step = new Integer(1);
           spinnerModel = new SpinnerNumberModel(current, min, max, step);
           seriesSpinner = new JSpinner(spinnerModel);
           JFormattedTextField tf = ((JSpinner.DefaultEditor) seriesSpinner.getEditor()).getTextField();
-          tf.setEditable(false);
+          tf.setInputVerifier(new IntInputVerifier(0,min,max));
+          ((NumberFormatter) tf.getFormatter()).setAllowsInvalid(false);
 
-          JLabel label = new JLabel("Series:");
+          JLabel label = new JLabel("Series / Scene:");
           setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
           JPanel seriesPanel = new JPanel();
           seriesPanel.add(label);
@@ -62,6 +66,9 @@ public class ImagePreviewWithSeries extends JPanel  {
                  if (ImagePreviewWithSeries.this.seriesChangeListner!=null) {
                      ImagePreviewWithSeries.this.seriesChangeListner.stateChanged(new ChangeEvent(new Integer(series)));
                  }
+                 File[] files = fc.getSelectedFiles();
+                 fc.setSelectedFiles(null);
+                 fc.setSelectedFiles(files);
              }
          });
 

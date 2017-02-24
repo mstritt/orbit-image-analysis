@@ -142,14 +142,14 @@ public class TiledImagePainter implements Closeable {
     }
 
 
-    public void loadImage(Object inputStrOrURL, int imageNum) throws Exception {
-        loadImage(inputStrOrURL, imageNum, false);
+    public void loadImage(Object inputStrOrURL, int imagePyramidNum) throws Exception {
+        loadImage(inputStrOrURL, imagePyramidNum, false);
     }
 
-    public synchronized void loadImage(Object inputStrOrURL, int imageNum, boolean loadRemote) throws Exception {
+    public synchronized void loadImage(Object inputStrOrURL, int imagePyramidNum, boolean loadRemote) throws Exception {
 
         if (inputStrOrURL instanceof RawDataFile) {
-            origImage = new OrbitTiledImageIOrbitImage(DALConfig.getImageProvider().createOrbitImage(((RawDataFile) inputStrOrURL), imageNum));
+            origImage = new OrbitTiledImageIOrbitImage(DALConfig.getImageProvider().createOrbitImage(((RawDataFile) inputStrOrURL), imagePyramidNum));
             imageName = ((RawDataFile) inputStrOrURL).getFileName();
             imageAdjustments = OrbitUtils.getAndParseImageAdjustments(((RawDataFile) inputStrOrURL).getRawDataFileId());
         } else if (inputStrOrURL instanceof URL) {
@@ -178,7 +178,7 @@ public class TiledImagePainter implements Closeable {
         this.sourceImage = inputStrOrURL;
         setImage(origImage);
         // is a previewImage available? use full size of preview image if possible (last parameter)
-        if ((imageNum == 0) && generateMipMaps && ((origImage.getWidth() > 5000) || (origImage.getHeight() > 5000))) {
+        if ((imagePyramidNum == 0) && generateMipMaps && ((origImage.getWidth() > 5000) || (origImage.getHeight() > 5000))) {
             loadMipMaps(inputStrOrURL);
         }
 
