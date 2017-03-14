@@ -786,7 +786,7 @@ public class OrbitModel implements Serializable, Cloneable {
         sb.append("fixedROIOffsetX: " + fixedROIOffsetX + "\n");
         sb.append("fixedROIOffsetY: " + fixedROIOffsetY + "\n");
         sb.append("AnnotationGroup: " + annotationGroup + "\n");
-        sb.append("ExclusionLevel: " + exclusionLevel);
+        sb.append("ExclusionLevel: " + exclusionLevel+"\n");
         sb.append("applyExclusionOnNegativeChannel: " + applyExclusionOnNegativeChannel + "\n");
         sb.append("loadAnnotationsAsNegativeROI: " + loadAnnotationsAsInversROI + "\n");
         sb.append("performErodeDiliate: " + performErodeDiliate + "\n");

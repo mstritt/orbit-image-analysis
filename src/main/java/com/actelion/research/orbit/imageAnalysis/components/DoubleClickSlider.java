@@ -23,6 +23,8 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -30,17 +32,35 @@ public class DoubleClickSlider extends JSlider {
 
     private static final long serialVersionUID = 1L;
     private int defValue = 0;
+    private int minValue = 0;
+    private int lastVal = defValue;
+    private boolean toggle = false;
+    private final JCheckBox checkbox = new JCheckBox("",true);
 
     /**
-     * a slider which sets the value to the default value  when it is double-clicked
+     * A slider which sets the value to the default value  when it is double-clicked.
      *
      * @param min
      * @param max
      * @param defValue
      */
     public DoubleClickSlider(int min, int max, int defValue) {
+        this(min,max,defValue,false);
+    }
+    
+    /**
+     * A slider which sets the value to the default value  when it is double-clicked.
+     * If toggle=true a toggle checkbox will be added which sets the value to default value (e.g. enable/disable).
+     *
+     * @param min
+     * @param max
+     * @param defValue
+     */
+    public DoubleClickSlider(int min, int max, int defValue, boolean toggle) {
         super(min, max, defValue);
         this.defValue = defValue;
+        this.minValue = min;
+        this.toggle = toggle;
         setPaintLabels(false);
         setPaintTicks(false);
         //setMajorTickSpacing(50);
@@ -71,6 +91,20 @@ public class DoubleClickSlider extends JSlider {
         return defValue;
     }
 
+    @Override
+    public void setValue(int n) {
+        super.setValue(n);
+        updateCheckbox();
+    }
+
+    private void updateCheckbox() {
+        if (getValue() > minValue) {
+            checkbox.setSelected(true);
+        } else {
+            checkbox.setSelected(false);
+        }
+    }
+
     /**
      * Returns a panel with a label next to the slider showing the value of the slider.<br/>
      * The value will be (value+offset)*multiplier.<br/>
@@ -87,13 +121,32 @@ public class DoubleClickSlider extends JSlider {
         final JLabel label = new JLabel(val);
         final JPanel panel = new JPanel(new BorderLayout());
         panel.add(slider, BorderLayout.CENTER);
+        if (slider.toggle) {
+            panel.add(slider.checkbox, BorderLayout.WEST);
+        }
         panel.add(label, BorderLayout.EAST);
+
+        if (slider.toggle) {
+            slider.checkbox.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (!slider.checkbox.isSelected()) {
+                        slider.lastVal = slider.getValue();
+                        slider.setValue(slider.minValue);
+                    } else {
+                        slider.setValue(slider.lastVal>slider.minValue? slider.lastVal: slider.defValue);
+                    }
+                }
+            });
+        }
 
         // add listener
         slider.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent paramChangeEvent) {
                 String val = String.format(fmt, (slider.getValue() + offset) * multiplier);
-                label.setText(val);
+                 //checkbox.setText(val);
+                 label.setText(val);
+                 slider.updateCheckbox();
             }
         });
         return panel;

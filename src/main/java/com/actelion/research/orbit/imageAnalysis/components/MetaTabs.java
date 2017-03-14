@@ -130,7 +130,7 @@ public class MetaTabs extends JTabbedPane {
     public void loadImageAdjustments(ImageFrame imageFrame) {
         if (imageFrame != null && imageFrame.recognitionFrame != null) {
             TiledImagePainter tip = imageFrame.recognitionFrame.bimg;
-            adjustPanel.setAdjustmentValues((int) tip.getBrightness(), (int) tip.getContrast(), (int) tip.getRedAdjust(), (int) tip.getGreenAdjust(), (int) tip.getBlueAdjust(), (int) tip.getGamma(), tip.isRedActive(), tip.isGreenActive(), tip.isBlueActive(), tip.getDeconvChannel(), tip.getDeconvName());
+            adjustPanel.setAdjustmentValues((int) tip.getBrightness(), (int) tip.getContrast(), (int) tip.getRedAdjust(), (int) tip.getGreenAdjust(), (int) tip.getBlueAdjust(), (int) tip.getGamma(), tip.isRedActive(), tip.isGreenActive(), tip.isBlueActive(), tip.getDeconvChannel(), tip.getDeconvName(), imageFrame);
         }
     }
 

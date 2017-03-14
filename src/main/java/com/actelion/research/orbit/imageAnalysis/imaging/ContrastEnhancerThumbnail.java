@@ -33,7 +33,7 @@ public class ContrastEnhancerThumbnail {
 
     private BorderExtender border = BorderExtender.createInstance(BorderExtender.BORDER_COPY);
     private ContrastEnhancer contrastEnhancer = new ContrastEnhancer();
-
+    private static double d = 0.05d;
 
     /**
      * Enhance contrast in low-contrast thumbnail images.
@@ -45,8 +45,8 @@ public class ContrastEnhancerThumbnail {
         ImagePlus ip = ManipulationUtils.toImagePlus(PlanarImage.wrapRenderedImage(img), null, border);
         ImageStatistics stats = ImageStatistics.getStatistics(ip.getProcessor(), Measurements.MIN_MAX, null);
         double diff = Math.abs(stats.max - stats.min);
+        stats.histMin = Math.max(8, stats.histMin);
         if (diff < 80 && diff > 4) {
-            double d = 0.05d;
             contrastEnhancer.stretchHistogram(ip.getProcessor(), d, stats);
             img = ManipulationUtils.toPlanarImage(ip.getProcessor()).getAsBufferedImage();
         }
@@ -63,8 +63,9 @@ public class ContrastEnhancerThumbnail {
         ImagePlus ip = ManipulationUtils.toImagePlus(PlanarImage.wrapRenderedImage(img), null, border);
         ImageStatistics stats = ImageStatistics.getStatistics(ip.getProcessor(), Measurements.MIN_MAX, null);
         double diff = Math.abs(stats.max - stats.min);
+        System.out.println("histMin: "+stats.histMin);
+        stats.histMin = Math.max(8, stats.histMin);
         if (diff < 80 && diff > 10) {
-            double d = 0.05d;
             contrastEnhancer.stretchHistogram(ip.getProcessor(), d, stats);
             img = ManipulationUtils.toPlanarImage(ip.getProcessor()).getAsBufferedImage();
         }

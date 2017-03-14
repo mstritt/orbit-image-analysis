@@ -54,7 +54,9 @@ public class ExclusionAdminFrame extends JDialog {
             cbClassSeg.setSelected(model.isUseExclusionForSegmentation());
             cbNegChannel.setSelected(model.isApplyExclusionOnNegativeChannel());
             cbErodeDilate.setSelected(model.isPerformErodeDiliate());
-            cbExclusionLevel.setSelectedItem(model.getExclusionLevel());
+            int exclLevel = model.getExclusionLevel();
+            if (model.getExclusionModel()!=null) exclLevel = model.getExclusionModel().getExclusionLevel();
+            cbExclusionLevel.setSelectedItem(exclLevel);
         }
 
         okBtn.addActionListener(new ActionListener() {

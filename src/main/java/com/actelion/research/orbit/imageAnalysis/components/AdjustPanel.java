@@ -244,7 +244,7 @@ public class AdjustPanel extends JPanel {
         JLabel gammaLabel = new JLabel("Gamma:");
         JLabel brightnessLabel = new JLabel("Brightness:");
         JLabel contrastLabel = new JLabel("Contrast:");
-        JLabel channelsLabel = new JLabel("Channels:");
+        JLabel channelsLabel = new JLabel("RGB Channels:");
         JLabel blurLabel = new JLabel("Blur:");
 
         // layout
@@ -300,7 +300,7 @@ public class AdjustPanel extends JPanel {
         multiChannelPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(multiChannelPanel, new GridBagConstraints(0, y++, GridBagConstraints.REMAINDER, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
-        add(new JLabel("Color Deconvolution"), new GridBagConstraints(0, y++, 1, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, insetsL, 0, 0));
+        add(new JLabel("Color Deconvolution"), new GridBagConstraints(0, y++, 1, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, insetsL, 0, 5));
         add(deconvCb, new GridBagConstraints(0, y++, GridBagConstraints.REMAINDER, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
         add(radioBtnPanel, new GridBagConstraints(0, y++, GridBagConstraints.REMAINDER, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
 
@@ -345,7 +345,7 @@ public class AdjustPanel extends JPanel {
         deconvChannel3.setSelected(false);
     }
 
-    public void setAdjustmentValues(int brightness, int contrast, int red, int green, int blue, int gamma, boolean redSelected, boolean greenSelected, boolean blueSelected, int deconvChannel, String deconvName) {
+    public void setAdjustmentValues(int brightness, int contrast, int red, int green, int blue, int gamma, boolean redSelected, boolean greenSelected, boolean blueSelected, int deconvChannel, String deconvName, final ImageFrame iFrame) {
         gammaSlider.setValue(gamma);
         brightnessSlider.setValue(brightness);
         contrastSlider.setValue(contrast);
@@ -360,6 +360,7 @@ public class AdjustPanel extends JPanel {
         if (deconvChannel == 2) deconvChannel2.setSelected(true);
         if (deconvChannel == 3) deconvChannel3.setSelected(true);
         deconvCb.setSelectedItem(deconvName);
+        loadAdjustments(iFrame); // to add fluo channels
     }
 
     /**
@@ -399,7 +400,23 @@ public class AdjustPanel extends JPanel {
         if (deconvChannel1.isSelected()) deconvChannel = 1;
         if (deconvChannel2.isSelected()) deconvChannel = 2;
         if (deconvChannel3.isSelected()) deconvChannel = 3;
-        return "bri:" + brightnessSlider.getValue() + ";con:" + contrastSlider.getValue() + ";r:" + redSlider.getValue() + ";g:" + greenSlider.getValue() + ";b:" + blueSlider.getValue() + ";gamma:" + gammaSlider.getValue() + ";deconvChan:" + deconvChannel + ";deconvName:" + deconvName;
+        String channelContributions = "";
+        IOrbitImageMultiChannel oim = getMultiChannelImage();
+        if (oim!=null) {
+            if (oim.getChannelContributions()!=null && oim.getChannelContributions().length>0) {
+                for (int c=0; c<oim.getChannelContributions().length; c++) {
+                    channelContributions += oim.getChannelContributions()[c];
+                    if (c<oim.getChannelContributions().length-1) channelContributions+="_";
+                }
+            }
+        }
+
+        String s = "bri:" + brightnessSlider.getValue() + ";con:" + contrastSlider.getValue() + ";r:" + redSlider.getValue() + ";g:" + greenSlider.getValue() + ";b:" + blueSlider.getValue() + ";gamma:" + gammaSlider.getValue() + ";deconvChan:" + deconvChannel + ";deconvName:" + deconvName;
+        if (channelContributions.length()>0) {
+            s += ";channelContributions:"+channelContributions;
+        }
+        System.out.println("s: "+s);
+        return s;
     }
 
 
@@ -440,7 +457,60 @@ public class AdjustPanel extends JPanel {
         }
     }
 
+    private IOrbitImageMultiChannel getMultiChannelImage() {
+        ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+        if (iFrame!=null) {
+            OrbitTiledImage2 img = iFrame.recognitionFrame.bimg.getImage();
+            if (img instanceof OrbitTiledImageIOrbitImage) {
+                IOrbitImage oi = ((OrbitTiledImageIOrbitImage) img).getOrbitImage();
+                if (oi instanceof IOrbitImageMultiChannel) {
+                    final IOrbitImageMultiChannel oim = (IOrbitImageMultiChannel) oi;
+                    return oim;
+                }
+            }
+        }
+        return null;
+    }
+
     public boolean loadAdjustments(final ImageFrame iFrame) {
+        boolean adjustmentsSet = false;
+        // other adjustments
+        if (iFrame != null && iFrame.getRdf() != null) {
+            try {
+                List<RawMeta> rms = DALConfig.getImageProvider().LoadRawMetasByRawDataFileAndName(iFrame.getRdf().getRawDataFileId(), RawUtilsCommon.STR_META_IMAGEADJUSTMENTS);
+                if (rms != null && rms.size() > 0) {
+                    RawMeta rm = rms.get(0);
+                    setAdjustmentValues(rm.getValue());
+                    logger.debug("Image adjustments loaded. RawMeta: " + rm);
+                    iFrame.recognitionFrame.bimg.setBrightness(brightnessSlider.getValue());
+                    iFrame.recognitionFrame.bimg.setContrast(contrastSlider.getValue());
+                    iFrame.recognitionFrame.bimg.setRedAdjust(redSlider.getValue());
+                    iFrame.recognitionFrame.bimg.setGreenAdjust(greenSlider.getValue());
+                    iFrame.recognitionFrame.bimg.setBlueAdjust(blueSlider.getValue());
+                    iFrame.recognitionFrame.bimg.setGamma(gammaSlider.getValue());
+                    if (deconvCb.getSelectedItem() != null)
+                        iFrame.recognitionFrame.bimg.setDeconvName((String) deconvCb.getSelectedItem());
+                    if (deconvChannel0.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(0);
+                    if (deconvChannel1.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(1);
+                    if (deconvChannel2.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(2);
+                    if (deconvChannel3.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(3);
+
+                    // channel contributions
+                    OrbitUtils.ImageAdjustments ia = OrbitUtils.parseImageAdjustments(rm.getValue());
+                    if (ia!=null) {
+                        IOrbitImageMultiChannel oim = getMultiChannelImage();
+                        if (oim!=null) {
+                            oim.setChannelContributions(ia.getChannelContributions());
+                        }
+                    }
+
+                } else adjustmentsSet = false;
+                adjustmentsSet = true;
+            } catch (Exception e) {
+                logger.error("Cannot load image adjustment meta data from database", e);
+            }
+        }
+
         // add multichannel components
         if (iFrame!=null) {
             OrbitTiledImage2 img = iFrame.recognitionFrame.bimg.getImage();
@@ -452,6 +522,7 @@ public class AdjustPanel extends JPanel {
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
+                                multiChannelPanel.removeAll();
                                 JLabel fluoLabel = new JLabel("Fluorescence Channels:");
                                 Box  b1 = Box.createHorizontalBox();
                                 b1.setBorder(BorderFactory.createEmptyBorder(13,0,7,0));
@@ -466,7 +537,10 @@ public class AdjustPanel extends JPanel {
                                 for (int c=0; c<oim.getChannelNames().length; c++) {
                                     final int channelNr = c;
                                     String channelName = oim.getChannelNames()[c];
-                                    final DoubleClickSlider slider = new DoubleClickSlider(0,200, 100);
+                                    final DoubleClickSlider slider = new DoubleClickSlider(0,200, 100, true);
+                                    if (oim.getChannelContributions()!=null) {
+                                        slider.setValue((int)(oim.getChannelContributions()[c]/multiplier)); // restore values
+                                    }
                                     slider.addChangeListener(new ChangeListener() {
                                         @Override
                                         public void stateChanged(ChangeEvent e) {
@@ -493,34 +567,8 @@ public class AdjustPanel extends JPanel {
                 }
             }
         }
-        
-        // other adjustments
-        if (iFrame != null && iFrame.getRdf() != null) {
-            try {
-                List<RawMeta> rms = DALConfig.getImageProvider().LoadRawMetasByRawDataFileAndName(iFrame.getRdf().getRawDataFileId(), RawUtilsCommon.STR_META_IMAGEADJUSTMENTS);
-                if (rms != null && rms.size() > 0) {
-                    RawMeta rm = rms.get(0);
-                    setAdjustmentValues(rm.getValue());
-                    logger.debug("Image adjustments loaded. RawMeta: " + rm);
-                    iFrame.recognitionFrame.bimg.setBrightness(brightnessSlider.getValue());
-                    iFrame.recognitionFrame.bimg.setContrast(contrastSlider.getValue());
-                    iFrame.recognitionFrame.bimg.setRedAdjust(redSlider.getValue());
-                    iFrame.recognitionFrame.bimg.setGreenAdjust(greenSlider.getValue());
-                    iFrame.recognitionFrame.bimg.setBlueAdjust(blueSlider.getValue());
-                    iFrame.recognitionFrame.bimg.setGamma(gammaSlider.getValue());
-                    if (deconvCb.getSelectedItem() != null)
-                        iFrame.recognitionFrame.bimg.setDeconvName((String) deconvCb.getSelectedItem());
-                    if (deconvChannel0.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(0);
-                    if (deconvChannel1.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(1);
-                    if (deconvChannel2.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(2);
-                    if (deconvChannel3.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(3);
-                } else return false;
-                return true;
-            } catch (Exception e) {
-                logger.error("Cannot load image adjustment meta data from database", e);
-            }
-        }
-        return false;
+
+        return adjustmentsSet;
     }
 
     public JCheckBox getRedCb() {

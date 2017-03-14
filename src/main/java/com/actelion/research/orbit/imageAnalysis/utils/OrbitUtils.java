@@ -810,6 +810,7 @@ public class OrbitUtils {
         int blue = 0;
         int deconvChannel = 0;
         String deconvName = Colour_Deconvolution.DECONV_NONE;
+        float[] channelContributions = null;
 
         String[] split = vals.split(";");
         if (split != null && split.length >= 5) {
@@ -824,6 +825,17 @@ public class OrbitUtils {
                 deconvChannel = Integer.parseInt(split[6].split(":")[1]);
             if (split.length > 7)
                 deconvName = split[7].split(":")[1];
+            if (split.length > 8) {
+                if (split[8].split(":")[0].equalsIgnoreCase("channelContributions")) {
+                    String[] contribs = split[8].split(":")[1].split("_");   // e.g. 1.5699999_0.79999995
+                    if (contribs!=null) {
+                        channelContributions = new float[contribs.length];
+                        for (int c=0; c<contribs.length; c++) {
+                            channelContributions[c] = Float.parseFloat(contribs[c]);
+                        }
+                    }
+                }
+            }
         } else {
             logger.error("Cannot parse value string. Please ensure that it is in the format bri:<brightness>;con:<contrast>;r:<red>;g:<green>;b:<blue>;gamma:<gamma>;deconvChan:<deconvolution channel>;deconvName:<deconvolution name>. Current string is " + vals);
         }
@@ -836,6 +848,7 @@ public class OrbitUtils {
         ia.setBlue(blue);
         ia.setDeconvChannel(deconvChannel);
         ia.setDeconvName(deconvName);
+        ia.setChannelContributions(channelContributions);
         return ia;
     }
 
@@ -848,6 +861,7 @@ public class OrbitUtils {
         private int blue = 0;
         private int deconvChannel = 0;
         private String deconvName = Colour_Deconvolution.DECONV_NONE;
+        private float[] channelContributions;
 
         public ImageAdjustments() {
         }
@@ -914,6 +928,14 @@ public class OrbitUtils {
 
         public void setRed(int red) {
             this.red = red;
+        }
+
+        public float[] getChannelContributions() {
+            return channelContributions;
+        }
+
+        public void setChannelContributions(float[] channelContributions) {
+            this.channelContributions = channelContributions;
         }
     }
 
