@@ -50,6 +50,7 @@ public class ImageList extends JList implements MouseListener, ComponentListener
     private boolean exhaustiveSearch = false;
     private boolean[] scrollChange = new boolean[5];
     private int scrollIdx = 0;
+    private List<RawData> lastRawDataList = null;
 
     public ImageList(IFileListCellRenderer renderer) {
         super();
@@ -183,13 +184,20 @@ public class ImageList extends JList implements MouseListener, ComponentListener
 
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(RdfSearchBox.RDF_SEARCH)) {
+            lastRawDataList = null;
             fillImageList((String) evt.getNewValue());
         } else if (evt.getPropertyName().equals(RdfSearchBox.SEARCHMODE_FAST)) {
             exhaustiveSearch = false;
         } else if (evt.getPropertyName().equals(RdfSearchBox.SEARCHMODE_EXHAUSTIVE)) {
             exhaustiveSearch = true;
         } else if (evt.getPropertyName().equals(RDFListOIA.RAWDATA_SELECTED)) {
-            loadRawDatas((List<RawData>) evt.getNewValue());
+            List<RawData> rdList = (List<RawData>) evt.getNewValue();
+            if (rdList!=null && rdList.size()>0) {
+                lastRawDataList = rdList;
+                loadRawDatas(rdList);
+            }
+        }  else if (evt.getPropertyName().equals("SERIES_CHANGED")) {
+            loadRawDatas(lastRawDataList);
         }
 
 

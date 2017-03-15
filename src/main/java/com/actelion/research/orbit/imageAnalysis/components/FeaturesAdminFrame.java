@@ -138,7 +138,7 @@ public class FeaturesAdminFrame extends JDialog {
         panelClassification.add(panel);
 
         panel = new JPanel(new GridLayout(1, 2));
-        lab = new JLabel("Channels used:");
+        lab = new JLabel("RGB channels used:");
         panel.add(lab);
         JPanel colPanel = new JPanel();
         cbRed = new JCheckBox("red", !featureDescription.isSkipRed());
@@ -213,7 +213,7 @@ public class FeaturesAdminFrame extends JDialog {
         cbFeatureClasses = new JComboCheckBox(classList);
         cbFeatureClasses.setText(selected);
         panel = new JPanel(new GridLayout(1, 2));
-        lab = new JLabel("classes for retrieving features/histograms:");
+        lab = new JLabel("Classes for retrieving features/histograms:");
         panel.add(lab);
         panel.add(cbFeatureClasses);
         setCompBounds(panel, frameWidth - 50, 0);
@@ -234,22 +234,13 @@ public class FeaturesAdminFrame extends JDialog {
         if (cbFluoChannels==null)
             cbFluoChannels = new JComboCheckBox();
         panel = new JPanel(new GridLayout(1, 2));
-        lab = new JLabel("active fluorescence channels:");
+        lab = new JLabel("Active fluorescence channels:");
         panel.add(lab);
         panel.add(cbFluoChannels);
         setCompBounds(panel, frameWidth - 50, 0);
         panelClassification.add(panel);
 
 
-        cbUseImageAdjustments = new JCheckBox("Use image adjustments *", featureDescription.isUseImageAdjustments());
-        cbUseImageAdjustments.setToolTipText("load image adjustments from database before classification (brightness, contrast, gamma) - use with care!");
-        setCompBounds(cbUseImageAdjustments, frameWidth, 0);
-        panelClassification.add(cbUseImageAdjustments);
-
-        JLabel imageAdjustmentWarning = new JLabel("<html><body>* If activated, image adjustments like gamma, brightness and contrast from the image<br/>adjustment panel are taken into account." +
-                "<br/>Please use it with care, because it will influence the quantification results,<br/>thus you might get an unwanted bias." +
-                "<br/>If you really want to use it, please double-check that the image adjustments are saved.</body></html>");
-        panelClassification.add(imageAdjustmentWarning);
 
         tabs.add("Classification", panelClassification);
 
@@ -457,6 +448,27 @@ public class FeaturesAdminFrame extends JDialog {
 
         tabs.add("ROI", panelROI);
 
+
+        // image adjustments
+
+        JPanel panelImageAdjustments = new JPanel();
+        panelImageAdjustments.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
+
+        cbUseImageAdjustments = new JCheckBox("Use image adjustments *", featureDescription.isUseImageAdjustments());
+        cbUseImageAdjustments.setToolTipText("load image adjustments from database before classification (brightness, contrast, gamma) - use with care!");
+        setCompBounds(cbUseImageAdjustments, frameWidth, 0);
+        panelImageAdjustments.add(cbUseImageAdjustments);
+
+        JLabel imageAdjustmentWarning = new JLabel("<html><body>* If activated, image adjustments like gamma, brightness and contrast from the image<br/>adjustment panel are taken into account." +
+                "<br/>Please use it with care, because it will influence the quantification results,<br/>thus you might get an unwanted bias." +
+                "<br/>If you really want to use it, please double-check that the image adjustments are saved.</body></html>");
+        panelImageAdjustments.add(imageAdjustmentWarning);
+
+
+        tabs.add("Image Adjustments", panelImageAdjustments);
+
+
+        // layout
 
         setLayout(new BorderLayout());
         add(tabs, BorderLayout.CENTER);
