@@ -1,6 +1,6 @@
 /*
  *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2016 Actelion Pharmaceuticals Ltd., Gewerbestrasse 16, CH-4123 Allschwil, Switzerland.
+ *     Copyright (C) 2009 - 2017 Actelion Pharmaceuticals Ltd., Gewerbestrasse 16, CH-4123 Allschwil, Switzerland.
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -53,9 +53,9 @@ import java.util.*;
 import java.util.List;
 
 public class OrbitUtils {
-    // label:  OrbitImageAnalysis2433
+    // label:  OrbitImageAnalysis2434
     public static final String VERSION_STR = getVersion() + (ScaleoutMode.SCALEOUTMODE.get() ? "G" : "") + (OrbitUtils.DEVELOPMENTMODE ? " DEVELOPMENT" : "");
-    public static final boolean DEVELOPMENTMODE = true;
+    public static final boolean DEVELOPMENTMODE = false;
     public static final boolean TILEMODE = false;
     public static final boolean OFFLINE_MODE = false;
     public static final boolean DARKUI = true;

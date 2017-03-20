@@ -1,9 +1,3 @@
-import loci.common.services.ServiceFactory
-import loci.formats.IFormatReader
-import loci.formats.ImageReader
-import loci.formats.meta.IMetadata
-import loci.formats.services.OMEXMLService
-
 /*
  *     Orbit, a versatile image analysis software for biological image-based quantification.
  *     Copyright (C) 2009 - 2017 Actelion Pharmaceuticals Ltd., Gewerbestrasse 16, CH-4123 Allschwil, Switzerland.
@@ -22,6 +16,12 @@ import loci.formats.services.OMEXMLService
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+import loci.common.services.ServiceFactory
+import loci.formats.IFormatReader
+import loci.formats.ImageReader
+import loci.formats.meta.IMetadata
+import loci.formats.services.OMEXMLService
 
 /**
  * Reports the pixel size of an image.

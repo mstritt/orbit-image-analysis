@@ -32,10 +32,7 @@ import ij.WindowManager
 
 import java.awt.*
 import java.awt.image.BufferedImage
-import java.awt.image.DataBuffer
 import java.awt.image.Raster
-import java.awt.image.WritableRaster
-
 
 final OrbitImageAnalysis OIA = OrbitImageAnalysis.getInstance(); // get the current (running) Orbit instance
 ImageFrame iFrame = OIA.getIFrame();
@@ -47,7 +44,7 @@ recognitionFrame.bimg.image.getTileIndices(null).each {
     Point tileIdx = it;
     if (OrbitUtils.isTileInROI((int)tileIdx.x,(int)tileIdx.y,recognitionFrame.bimg.image,null,null)) {   // fuzzy! (but fast)
         Raster r = recognitionFrame.bimg.image.getTile((int) tileIdx.x, (int) tileIdx.y);
-        BufferedImage bi = createBufferedImage(r,recognitionFrame);
+        BufferedImage bi = recognitionFrame.createBufferedImage(r);
         ImagePlus ip = new ImagePlus("tile",bi);
         WindowManager.setTempCurrentImage(ip);
         String output = IJ.runMacro(
@@ -60,20 +57,3 @@ recognitionFrame.bimg.image.getTileIndices(null).each {
 }
 
 DALConfig.getImageProvider().close();  // only close if not executed within Orbit
-
-
-/**
- * Can be replaced with recognitionFrame.createBufferedImage since Orbit >= 2.44
- */
-public BufferedImage createBufferedImage(final Raster r, RecognitionFrame rf) {
-    WritableRaster writableRaster = r.createCompatibleWritableRaster(r.getWidth(),r.getHeight());
-    writableRaster.setDataElements(0, 0, r.createTranslatedChild(0,0));
-    DataBuffer dataBuffer = writableRaster.getDataBuffer();
-    WritableRaster wr = Raster.createWritableRaster(rf.bimg.image.getColorModel().createCompatibleSampleModel(writableRaster.getWidth(),writableRaster.getHeight()),
-            dataBuffer, new Point(0, 0));
-    BufferedImage bi = new BufferedImage(rf.bimg.image.getColorModel(),
-            wr,
-            rf.bimg.image.getColorModel().isAlphaPremultiplied(),
-            null);
-    return bi;
-}

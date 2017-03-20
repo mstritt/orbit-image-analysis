@@ -1,13 +1,6 @@
-import com.actelion.research.orbit.beans.RawAnnotation
-import com.actelion.research.orbit.beans.RawDataFile
-import com.actelion.research.orbit.imageAnalysis.dal.DALConfig
-import com.actelion.research.orbit.imageAnalysis.models.*
-
-import java.awt.Point
-
 /*
  *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2016 Actelion Pharmaceuticals Ltd., Gewerbestrasse 16, CH-4123 Allschwil, Switzerland.
+ *     Copyright (C) 2009 - 2017 Actelion Pharmaceuticals Ltd., Gewerbestrasse 16, CH-4123 Allschwil, Switzerland.
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -23,6 +16,13 @@ import java.awt.Point
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+import com.actelion.research.orbit.beans.RawAnnotation
+import com.actelion.research.orbit.beans.RawDataFile
+import com.actelion.research.orbit.imageAnalysis.dal.DALConfig
+import com.actelion.research.orbit.imageAnalysis.models.*
+
+import java.awt.Point
 
 // This script reads all annotations from an image and outputs the points. Can be used to convert the annotations to s.th. else, e.g. Omero annotations.
 
