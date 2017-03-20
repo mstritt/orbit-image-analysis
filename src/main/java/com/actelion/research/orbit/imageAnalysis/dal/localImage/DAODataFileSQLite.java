@@ -746,9 +746,4 @@ public class DAODataFileSQLite {
     }
 
 
-    public static void main(String[] args) throws SQLException {
-        System.out.println(DAODataFileSQLite.ColumnSeriesExist());
-    }
-
-
 }

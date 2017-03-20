@@ -23,6 +23,7 @@ import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.ScaleoutMode;
+import com.actelion.research.orbit.utils.ChannelToHue;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import loci.common.services.ServiceFactory;
@@ -91,30 +92,6 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
 
     private boolean useCache = !ScaleoutMode.SCALEOUTMODE.get();
 
-    private static final float HueAlexa594 = 0f / 360f;
-    private static final float HueCy3 = 40f / 360f;
-    private static final float HueCy5 = 0f / 360f;  // 60
-    private static final float HueEGFP = 141f / 360f;
-    private static final float HueDAPI = 240f / 360f; // 202
-    private static final float HueFITC = 108f / 360f;
-    private static final float HueTRITC = 22f / 360f;
-
-    public static final String chanAlexa594 = "alexa594";
-    public static final String chanEGFP = "egfp";
-    public static final String chanCy5 = "cy5";
-    public static final String chanCy3 = "cy3";
-    public static final String chanTritc = "tritc";
-    public static final String chanFitc = "fitc";
-    public static final String chanDapi = "dapi";
-    public static final String chanUnknown = "unknown";
-
-//    static {
-//        tileCache = CacheBuilder.
-//                newBuilder().
-//                //maximumSize(maxSize).
-//                        expireAfterWrite(5, TimeUnit.MINUTES).
-//                        build();
-//    }
 
     public OrbitImageBioformats(final String filename, final int level, final int series) throws IOException, FormatException {
         this.originalFilename = filename;
@@ -158,7 +135,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
                                 if (name==null) {
                                     name = "Channel"+c;
                                  }
-                                logger.debug("channel name "+c+": "+name);
+                                logger.info("channel name "+c+": "+name);
                                 channelNames[c] = name;
                             }
                         }
@@ -328,19 +305,6 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
     }
 
 
-    @Deprecated
-    private String getChannelNameFilename(String filename) {
-        String fn = filename.toLowerCase();
-        if (fn.contains("dapi")) return chanDapi;
-        if (fn.contains("fitc")) return chanFitc;
-        if (fn.contains("tritc")) return chanTritc;
-        if (fn.contains("cy5")) return chanCy5;
-        if (fn.contains("cy3")) return chanCy3;
-        if (fn.contains("alexa")) return chanAlexa594;
-        if (fn.contains("gfp")) return chanEGFP;
-        return null;
-    }
-
 
     private int getIndex(IFormatReader r, int channel) {
         int[] nos = r.getZCTCoords(0);
@@ -478,96 +442,6 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         }  // fluo
     }
 
-    private String standardizeChannelName(String name) {
-        String stdName = name.toLowerCase();
-        switch (stdName) {
-            case "alexa fluor 594": {
-                stdName = chanAlexa594;
-                break;
-            }
-        }
-        return stdName;
-    }
-
-    private float getHue(int c) {
-        float hue;
-        switch (channelNames[c].toLowerCase()) {
-
-            case chanAlexa594: {
-                hue = HueAlexa594;
-                break;
-            }
-            case  "alexa fluor 594": {
-                hue = HueAlexa594;
-                break;
-            }
-            case chanCy3: {
-                hue = HueCy3;
-                break;
-            }
-            case chanCy5: {
-                hue = HueCy5;
-                break;
-            }
-            case "cy5 2 (650)": {
-                hue = HueCy5;
-                break;
-            }
-            case chanEGFP: {
-                hue = HueEGFP;
-                break;
-            }
-            case chanDapi: {
-                hue = HueDAPI;
-                break;
-            }
-            case "dapi 2 (387)": {
-                hue = HueDAPI;
-                break;
-            }
-            case chanFitc: {
-                hue = HueFITC;
-                break;
-            }
-            case "fitc 2 (485)": {
-                hue = HueFITC;
-                break;
-            }
-            case chanTritc: {
-                hue = HueTRITC;
-                break;
-            }
-            case "tritc 2 (560)": {
-                hue = HueTRITC;
-                break;
-            }
-            case "channel0": {
-                hue = HueDAPI;
-                break;
-            }
-            case "channel1": {
-                hue = HueFITC;
-                break;
-            }
-            case "channel2": {
-                hue = HueTRITC;
-                break;
-            }
-            case "channel3": {
-                hue = HueCy5;
-                break;
-            }
-            case "channel4": {
-                hue = HueEGFP;
-                break;
-            }
-            default: {
-                hue = HueDAPI;
-                break;
-            }
-        }
-        return hue;
-    }
 
     /**
      *  see AWTImageTools.autoscale()
@@ -793,7 +667,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         if (channelNames==null) return null;
         float[] hues = new float[channelNames.length];
         for (int c=0; c<channelNames.length; c++) {
-            hues[c] = getHue(c);
+            hues[c] = ChannelToHue.getHue(channelNames[c].toLowerCase());
         }
         return hues;
     }

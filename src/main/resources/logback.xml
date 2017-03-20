@@ -23,22 +23,12 @@
         </encoder>
     </appender>
 
-    <!--appender name="syslog" class="ch.qos.logback.classic.net.SyslogAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>WARN</level>
-        </filter>
-        <syslogHost>cronos.actelion.com</syslogHost>
-        <facility>USER</facility>
-        <suffixPattern>OrbitImageAnalysis: [%property{user.name}] %d [%t] %-5p %c - %m%n%ex</suffixPattern>
-    </appender-->
-
     <logger name="com.actelion.research" level="INFO" />
 
     <root level="WARN">
         <!--appender-ref ref="FILE" /-->
         <appender-ref ref="STDOUT" />
         <appender-ref ref="Orbit" />
-        <!--appender-ref ref="syslog" /-->
     </root>
 
 </configuration>

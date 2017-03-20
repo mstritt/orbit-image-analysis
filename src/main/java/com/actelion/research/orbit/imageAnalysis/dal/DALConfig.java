@@ -26,6 +26,7 @@ import com.actelion.research.orbit.imageAnalysis.utils.ICustomMenu;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.ScaleoutMode;
+import com.actelion.research.orbit.utils.ChannelToHue;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
@@ -165,6 +166,27 @@ public class DALConfig {
             } catch (Exception ex) {
                 logger.error("Could not create the local database file: "+localDBFile, ex);
             }
+
+            // channelNames -> hue values
+            String channelHues = props.getProperty("channelHues");   // e.g. channelHues=dapi:203,tritc=50
+            if (channelHues!=null) {
+                String[] hues= channelHues.split(",");
+                if (hues!=null && hues.length>0) {
+                    for (String chanHue: hues) {
+                        String[] nameHue = chanHue.split(":");
+                        if (nameHue!=null && nameHue.length==2) {
+                            try {
+                                float f = Float.parseFloat(nameHue[1].trim());
+                                ChannelToHue.userHueMap.put(nameHue[0].trim(), f/360f);
+                                logger.info("setting custom channel hue: "+nameHue[0]+": "+nameHue[1]);
+                            } catch (Exception e) {
+                                logger.warn("error parsing hue value "+nameHue[1]+" for channel name "+nameHue[0]);
+                            }
+                        }
+                    }
+                }
+            }
+
 
         } catch (Exception e) {
             throw new RuntimeException(e);
