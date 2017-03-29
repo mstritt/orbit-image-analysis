@@ -34,6 +34,7 @@ import com.actelion.research.orbit.imageAnalysis.utils.TiffConverter;
 import com.actelion.research.orbit.utils.RawMetaFactoryData;
 import com.actelion.research.orbit.utils.RawMetaFactoryFile;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
+import loci.formats.FormatException;
 import org.slf4j.LoggerFactory;
 
 import javax.media.jai.PlanarImage;
@@ -194,10 +195,13 @@ public class ImageProviderLocal extends ImageProviderNoop implements ChangeListe
             PlanarImage pi = TiffConverter.loadFromFile(rdf.getDataPath() + File.separator + rdf.getFileName());
             return new OrbitImagePlanar(pi, rdf.getFileName());
         } else if (ending.equals("tif")||ending.equals("tiff"))  {
-            return new OrbitImageTiff(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
+            try {
+                return new OrbitImageTiff(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
+            } catch (FormatException e) {  // for tiff files >=16 bits per sample
+                return new OrbitImageBioformats(rdf.getDataPath() + File.separator + rdf.getFileName(), level, rdf.getSeriesNum());
+            }
         }
         else {
-           // return new OrbitImageScifio(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
             return new OrbitImageBioformats(rdf.getDataPath() + File.separator + rdf.getFileName(), level, rdf.getSeriesNum());
         }
     }
@@ -211,9 +215,16 @@ public class ImageProviderLocal extends ImageProviderNoop implements ChangeListe
         } else {
             try {
                 if (ending.equals("tif") || ending.equals(".tiff")) {
-                    OrbitImageTiff oi = new OrbitImageTiff(file.getAbsolutePath(), 0);
-                    bi = oi.getThumbnail();
-                    oi.close();
+                    try {
+                        OrbitImageTiff oi = new OrbitImageTiff(file.getAbsolutePath(), 0);
+                        bi = oi.getThumbnail();
+                        oi.close();
+                    }  catch (FormatException e) {  // for tiff files >=16 bits per sample
+                        OrbitImageBioformats oi = new OrbitImageBioformats(file.getAbsolutePath(), 0, series);
+                        bi = oi.getThumbnail();
+                        oi.close();
+                    }
+                    
                 }  else {
                   //  OrbitImageScifio oi = new OrbitImageScifio(file.getAbsolutePath(), 0);
                     logger.debug("loading thumbnail of file "+filename+", series: "+series);

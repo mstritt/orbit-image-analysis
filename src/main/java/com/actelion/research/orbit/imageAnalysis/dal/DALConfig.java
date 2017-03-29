@@ -177,7 +177,7 @@ public class DALConfig {
                         if (nameHue!=null && nameHue.length==2) {
                             try {
                                 float f = Float.parseFloat(nameHue[1].trim());
-                                ChannelToHue.userHueMap.put(nameHue[0].trim(), f/360f);
+                                ChannelToHue.userHueMap.put(nameHue[0].trim().toLowerCase(), f/360f);
                                 logger.info("setting custom channel hue: "+nameHue[0]+": "+nameHue[1]);
                             } catch (Exception e) {
                                 logger.warn("error parsing hue value "+nameHue[1]+" for channel name "+nameHue[0]);

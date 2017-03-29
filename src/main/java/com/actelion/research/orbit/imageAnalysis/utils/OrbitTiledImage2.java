@@ -65,7 +65,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
     protected boolean originalWasGrayScale = false;
     protected int originalBitsPerSample = 8;
     protected int rawDataFileId = -1; // not known
-    protected TiledImagePainter tiledImagePainter = null; // optional: can be set for computing extreme stats based on low res image
+    protected TiledImagePainter tiledImagePainterStats = null; // optional: can be set for computing extreme stats based on low res image
     private static LookupTableJAI defaultLookuptable = null;
     private float[] channelContributionsClassification = null; // (fluo)channel contributions (currently only 1 or 0) used for classification
 
@@ -200,13 +200,13 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
         if (gamma != 100) {
             bi = createImage(tile, bi, getSampleModel(), getColorModel());
-            bi = adjustGamma(PlanarImage.wrapRenderedImage(bi), gamma, cachedParams, tiledImagePainter).getAsBufferedImage();
+            bi = adjustGamma(PlanarImage.wrapRenderedImage(bi), gamma, cachedParams, tiledImagePainterStats).getAsBufferedImage();
         }
 
 
         if ((redAdjust != 0) || (greenAdjust != 0) || (blueAdjust != 0) || contrast != 100) {
             bi = createImage(tile, bi, getSampleModel(), getColorModel());
-            bi = adjustContrast(PlanarImage.wrapRenderedImage(bi), redAdjust, greenAdjust, blueAdjust, (float) contrast / 100f, brightness, cachedParams, tiledImagePainter).getAsBufferedImage();
+            bi = adjustContrast(PlanarImage.wrapRenderedImage(bi), redAdjust, greenAdjust, blueAdjust, (float) contrast / 100f, brightness, cachedParams, tiledImagePainterStats).getAsBufferedImage();
         }
 
         if (((redActive == false) && (redChannel == null)) || ((greenActive == false) && (greenChannel == null)) || ((blueActive == false) && (blueChannel == null))) {
@@ -464,27 +464,28 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
      * @param gammaValueOrig [100..350 -> will be converted to 1..3,5]
      * @return
      */
-    public static PlanarImage adjustGamma(PlanarImage source, double gammaValueOrig, OrbitUtils.ImageAdjustCachedParams cachedParams, TiledImagePainter tipForStats) {
+    public static PlanarImage adjustGamma(final PlanarImage source, double gammaValueOrig, final OrbitUtils.ImageAdjustCachedParams cachedParams, final TiledImagePainter tipForStats) {
         ParameterBlock pb;
-        if (!cachedParams.isGammaExtremaSet()) {
-            PlanarImage statImg = loadImageForStats(source, tipForStats);
+        synchronized (cachedParams) {
+            if (!cachedParams.isGammaExtremaSet()) {
+                PlanarImage statImg = loadImageForStats(source, tipForStats);  // will take lowres image if image pyramid is available
 
-            final int numScan = 200;
-            int skipW = Math.max(1, source.getWidth() / numScan);
-            int skipH = Math.max(1, source.getHeight() / numScan);
-            //	System.out.println("gamma extreme calc "+skipW+" / "+skipH);
-            // TODO: use low res image for extreme calculation (otherwise all tiles are loaded...)
+                final int numScan = 200;
+                int skipW = Math.max(1, source.getWidth() / numScan);
+                int skipH = Math.max(1, source.getHeight() / numScan);
+                //	System.out.println("gamma extreme calc "+skipW+" / "+skipH);
 
-            pb = new ParameterBlock();
-            pb.addSource(statImg);   // The source image
-            pb.add(null);        // The region of the image to scan
-            pb.add(skipW);         // The horizontal sampling rate
-            pb.add(skipH);         // The vertical sampling rate
-            RenderedOp op = JAI.create("extrema", pb);
-            double[][] extrema = (double[][]) op.getProperty("extrema"); // [0][r,g,b] minimum, [1][r,g,b] maximum
-            cachedParams.setGammaMin(Math.min(Math.min(extrema[0][0], extrema[0][1]), extrema[0][2]));
-            cachedParams.setGammaMax(Math.max(Math.max(extrema[1][0], extrema[1][1]), extrema[1][2]));
-            cachedParams.setGammaExtremaSet(true);
+                pb = new ParameterBlock();
+                pb.addSource(statImg);   // The source image
+                pb.add(null);        // The region of the image to scan
+                pb.add(skipW);         // The horizontal sampling rate
+                pb.add(skipH);         // The vertical sampling rate
+                RenderedOp op = JAI.create("extrema", pb);
+                double[][] extrema = (double[][]) op.getProperty("extrema"); // [0][r,g,b] minimum, [1][r,g,b] maximum
+                cachedParams.setGammaMin(Math.min(Math.min(extrema[0][0], extrema[0][1]), extrema[0][2]));
+                cachedParams.setGammaMax(Math.max(Math.max(extrema[1][0], extrema[1][1]), extrema[1][2]));
+                cachedParams.setGammaExtremaSet(true);
+            }
         }
 
         double minValue = cachedParams.getGammaMin();
@@ -599,7 +600,8 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         PlanarImage res = source;
         if (tip != null && tip.hasMipMaps()) {
             res = tip.getMipMaps()[tip.getMipMaps().length - 1].getImage();
-            logger.trace("stat image loaded via tiledImagePainter");
+            //res = tip.getImage();
+            logger.trace("stat image loaded via tiledImagePainterStats");
         }
         return res;
     }
@@ -729,5 +731,13 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
     public void setChannelContributionsClassification(float[] channelContributionsClassification) {
         this.channelContributionsClassification = channelContributionsClassification;
+    }
+
+    public TiledImagePainter getTiledImagePainterStats() {
+        return tiledImagePainterStats;
+    }
+
+    public void setTiledImagePainterStats(TiledImagePainter tiledImagePainterStats) {
+        this.tiledImagePainterStats = tiledImagePainterStats;
     }
 }

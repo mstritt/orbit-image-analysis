@@ -183,6 +183,16 @@ public class TiledImagePainter implements Closeable {
         }
 
         origImage = null;
+
+        if (image!=null && mipMaps!=null) {
+            image.setTiledImagePainterStats(this);
+            for (TiledImagePainter mip: mipMaps) {
+                if (mip.getImage()!=null) {
+                    mip.getImage().setTiledImagePainterStats(this);
+                }
+            }
+        }
+
     }
 
 

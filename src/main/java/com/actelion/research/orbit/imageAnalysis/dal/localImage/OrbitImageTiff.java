@@ -39,7 +39,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Tiff image implementation, faster then via Scifio.
+ * Tiff image implementation, faster then via Bioformats.
  * In addition in handles the special tiff-pyramid format with several files: img.tif for fullr esolution, img.1.tiff for first layer (half resolution), .2.tiff for second layer and so on.
  */
 public class OrbitImageTiff implements IOrbitImage {
@@ -91,7 +91,7 @@ public class OrbitImageTiff implements IOrbitImage {
             numLevels = n;
         }
 
-        System.out.println("numLevel: "+numLevels+" multiFileTiff: "+multiFileTiff);
+        logger.debug("numLevel: "+numLevels+" multiFileTiff: "+multiFileTiff);
 
         // open correct file for multiFileTiff
         if (multiFileTiff && level>0) {
@@ -150,6 +150,10 @@ public class OrbitImageTiff implements IOrbitImage {
         this.minX = 0;
         this.minY = 0;
 
+//        if (this.originalBitsPerSample>=16) {
+//            throw new FormatException("Cannot handle tiff files with >= 16 bits per sample");
+//        }
+
         final int samples = numBands;
         buffer = new ThreadLocal<byte[]>() {
             @Override
@@ -174,8 +178,7 @@ public class OrbitImageTiff implements IOrbitImage {
             // ensure tiles have always full tileWifth and tileHeight (even at borders)
             if (image.getWidth()!=getTileWidth() || image.getHeight()!=getTileHeight())
             {
-                BufferedImage bi = new BufferedImage(getTileWidth(), getTileHeight(), image.getType());
-                //BufferedImage bi = new BufferedImage(getTileWidth(), getTileHeight(), BufferedImage.TYPE_INT_RGB);
+                BufferedImage bi = new BufferedImage(getTileWidth(), getTileHeight(), BufferedImage.TYPE_INT_RGB);   // must be RGB
                 bi.getGraphics().drawImage(image, 0, 0, null);
                 image = bi;
             }
@@ -193,6 +196,7 @@ public class OrbitImageTiff implements IOrbitImage {
         if (numBandsOriginal==1)
             bi = AWTImageTools.makeImage(data,planeWidth,planeHeight,signed);
         else {
+            // for bitsPerSample>=16 this will downscale, but unfortunately via cutoff... in future Bioformats TiffReader should be user (but cannot handle resolutions currently (5.3.4))
             bi = AWTImageTools.makeRGBImage(data,numBandsOriginal,planeWidth,planeHeight,interleaved);
         }
 

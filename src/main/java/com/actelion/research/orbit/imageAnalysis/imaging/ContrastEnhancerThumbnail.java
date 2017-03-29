@@ -63,7 +63,6 @@ public class ContrastEnhancerThumbnail {
         ImagePlus ip = ManipulationUtils.toImagePlus(PlanarImage.wrapRenderedImage(img), null, border);
         ImageStatistics stats = ImageStatistics.getStatistics(ip.getProcessor(), Measurements.MIN_MAX, null);
         double diff = Math.abs(stats.max - stats.min);
-        System.out.println("histMin: "+stats.histMin);
         stats.histMin = Math.max(8, stats.histMin);
         if (diff < 80 && diff > 10) {
             contrastEnhancer.stretchHistogram(ip.getProcessor(), d, stats);

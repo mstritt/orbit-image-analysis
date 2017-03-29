@@ -372,6 +372,9 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         }
     }
 
+    /**
+     * Returns a BufferedImage of type BufferedImage.TYPE_INT_RGB
+     */
     protected BufferedImage getPlane(int tileX, int tileY, final float[] channelContributions) throws Exception {
         int x = optimalTileWidth * tileX;
         int y = optimalTileHeight * tileY;
@@ -380,8 +383,16 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         BufferedImageReader bir = reader.get();
         if (bir.getResolution()!=this.level) bir.setResolution(this.level);
 
+        // ensure to return always a bufferedImage of type TYPE_INT_RGB !!!
+
         if (!doMergeChannels(bir)) {   // brightfield
-            return bir.openImage(0,x,y,w,h);
+            BufferedImage bi = bir.openImage(0,x,y,w,h);
+            if (bi!=null && bi.getType()==BufferedImage.TYPE_INT_RGB) return bi;
+            else {
+                BufferedImage biRGB = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+                biRGB.getGraphics().drawImage(bi, 0, 0, null);
+                return biRGB;
+            }
         }
         else {   // fluo -> merge channels
             BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
