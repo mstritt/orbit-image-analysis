@@ -164,10 +164,24 @@ public class ImageProviderLocal extends ImageProviderNoop implements ChangeListe
         RawMetaFactoryFile rmff = new RawMetaFactoryFile(rdfId,new Date(),"orbit");
         rmList.add(rmff.createMetaStr("Filename",rdf.getFileName()));
         rmList.add(rmff.createMetaStr("Filesize", RawUtilsCommon.formatFileSize(rdf.getFileSize())));
+        rmList.add(rmff.createMetaInt("Orbit ID", rdf.getRawDataFileId()));
+        if (rdf.getReferenceDate() != null)
+            rmList.add(rmff.createMetaDate("Create Date", rdf.getReferenceDate()));
+        if (rdf.getModifyDate() != null)
+            rmList.add(rmff.createMetaDate("Update Date", rdf.getModifyDate()));
         if (image!=null) {
-            rmList.add(rmff.createMetaInt("ImageLength", image.getHeight()));
-            rmList.add(rmff.createMetaInt("ImageWidth", image.getWidth()));
+            rmList.add(rmff.createMetaInt(RawUtilsCommon.STR_META_IMAGE_IMAGEHEIGHT, image.getHeight()));
+            rmList.add(rmff.createMetaInt(RawUtilsCommon.STR_META_IMAGE_IMAGEWIDTH, image.getWidth()));
+
+            if (image instanceof OrbitImageBioformats) {
+                OrbitImageBioformats oib = (OrbitImageBioformats) image;
+                if (oib.getPixelsPhysicalSizeX()!=null &&  oib.getPixelsPhysicalSizeX().value()!=null) {
+                    rmList.add(rmff.createMetaDouble(RawUtilsCommon.STR_META_IMAGE_SCALE, oib.getPixelsPhysicalSizeX().value().doubleValue()));
+                }
+
+            }
         }
+
         return rmList;
     }
 
@@ -191,10 +205,10 @@ public class ImageProviderLocal extends ImageProviderNoop implements ChangeListe
     public IOrbitImage createOrbitImage(RawDataFile rdf, int level) throws Exception {
         if (rdf==null) return null;
         String ending = RawUtilsCommon.getExtension(rdf.getFileName());
-        if (ending.equals("bmp")||ending.equals("png")||ending.equals("dcm")||ending.equals("lif")||ending.equals("ziv")) {
+        if (ending.equals("bmp")||ending.equals("png")) {
             PlanarImage pi = TiffConverter.loadFromFile(rdf.getDataPath() + File.separator + rdf.getFileName());
             return new OrbitImagePlanar(pi, rdf.getFileName());
-        } else if (ending.equals("tif")||ending.equals("tiff"))  {
+        } else if (!OrbitUtils.isOME_TIFF(rdf.getFileName()) && (ending.equals("tif")||ending.equals("tiff")))  {
             try {
                 return new OrbitImageTiff(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
             } catch (FormatException e) {  // for tiff files >=16 bits per sample
@@ -210,11 +224,11 @@ public class ImageProviderLocal extends ImageProviderNoop implements ChangeListe
         File file = new File(filename);
         String ending = RawUtilsCommon.getExtension(file.getName()) ;
         BufferedImage bi = null;
-        if (ending.equals("bmp")||ending.equals("png")||ending.equals("dcm")||ending.equals("lif")||ending.equals("ziv")) {
+        if (ending.equals("bmp")||ending.equals("png")) {
             bi = TiffConverter.getDownsampledImage(file.getPath(), 300, -1, 1, false);
         } else {
             try {
-                if (ending.equals("tif") || ending.equals(".tiff")) {
+                if (!OrbitUtils.isOME_TIFF(filename) && (ending.equals("tif")||ending.equals("tiff"))) {
                     try {
                         OrbitImageTiff oi = new OrbitImageTiff(file.getAbsolutePath(), 0);
                         bi = oi.getThumbnail();

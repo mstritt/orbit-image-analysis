@@ -43,14 +43,16 @@ public class MetaTabs extends JTabbedPane {
         rawDataFileMetas = new MetaTable();
         limsMetas = new MetaTable();
 
+        int activeTab = 3;  // Adjustments
         add("Container", new JScrollPane(rawDataMetas));
         add("File", new JScrollPane(rawDataFileMetas));
         if (DALConfig.isShowLIMSMetas()) {
             add("LIMS", new JScrollPane(limsMetas));
+            activeTab++;
         }
         add("Annotations", annotationPanel);
         add("Adjustments", adjustPanel);
-        setSelectedIndex(1); // tab file is active
+        setSelectedIndex(activeTab); // tab Adjustments is active
     }
 
     public void addOrbitModule(AbstractOrbitModule module) {

@@ -99,7 +99,7 @@ public class OrbitUtils {
     static {
         Logger root = LoggerFactory.getLogger("com.actelion.research");
         if (root instanceof ch.qos.logback.classic.Logger)   // can only set if logback implementation
-            ((ch.qos.logback.classic.Logger) root).setLevel(DEVELOPMENTMODE ? Level.DEBUG : Level.INFO);
+            ((ch.qos.logback.classic.Logger) root).setLevel(DEVELOPMENTMODE ? Level.TRACE : Level.INFO);
 
         if (ScaleoutMode.SCALEOUTMODE.get()) {
             DALConfig.getImageProvider().setPooledConnectionEnabled(false);
@@ -120,6 +120,13 @@ public class OrbitUtils {
             e.printStackTrace();
             return 0;
         }
+    }
+
+    public static boolean isOME_TIFF(String filename) {
+        if (filename==null) return false;
+        String fn = filename.toLowerCase();
+        if (fn.endsWith("ome.tiff")||fn.endsWith("ome.tif")||fn.endsWith("ome.tf2")||fn.endsWith("ome.tf8")||fn.endsWith("ome.btf")) return true;
+        else return false;
     }
 
 
