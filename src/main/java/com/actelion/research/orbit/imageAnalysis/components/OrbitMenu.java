@@ -125,7 +125,7 @@ public class OrbitMenu extends JRibbonFrame {
         addBatchTask(ribbon);
         addToolsTask(ribbon);
         addCustomTask(ribbon);
-        addChannelsTask(ribbon);
+       // addChannelsTask(ribbon);
         addWindowsTask(ribbon);
         addHelpTask(ribbon);
 
