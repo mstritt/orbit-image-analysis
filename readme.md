@@ -4,7 +4,7 @@
 ### A versatile image analysis software for biological image-based quantification.
 
 #####News:
-* 2.43: Using bioformats 5.3.0 (direct, no Scifio anymore), support for multi series (e.g. VSI images) and CZI with JPEG-XR compression.
+* 2.52: Using bioformats 5.4.0, multichannel (fluo) support, multi series support, works with Omero 5.2.x, Ice36
 
 #####Available backends:
 
