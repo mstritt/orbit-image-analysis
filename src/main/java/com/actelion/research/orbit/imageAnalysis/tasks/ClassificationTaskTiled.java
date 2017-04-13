@@ -152,7 +152,7 @@ public class ClassificationTaskTiled extends PropertyChangeEmitter implements Ca
             }
 
             // apply raster modifications like color deconvolution
-            readRaster = OrbitUtils.getModifiedRaster(readRaster, featureDescription, bimg.getImage().getColorModel(), true, tileNum.x, tileNum.y, "modifiedRaster");
+            readRaster = OrbitUtils.getModifiedRaster(readRaster, featureDescription, bimg.getImage().getColorModel(), true, tileNum.x, tileNum.y, "modifiedRaster", bimg.getImage().getLevel());
 
             WritableRaster writeRaster = null;
             if (writeClassificationImage) {

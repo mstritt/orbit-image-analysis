@@ -748,8 +748,8 @@ public class OrbitUtils {
      * @param readRaster
      * @return
      */
-    public static Raster getModifiedRaster(final Raster readRaster, final FeatureDescription featureDescription, final ColorModel colorModel) {
-        return getModifiedRaster(readRaster, featureDescription, colorModel, false, 0, 0, "");
+    public static Raster getModifiedRaster(final Raster readRaster, final FeatureDescription featureDescription, final ColorModel colorModel, final int level) {
+        return getModifiedRaster(readRaster, featureDescription, colorModel, false, 0, 0, "", level);
     }
 
     /**
@@ -761,9 +761,9 @@ public class OrbitUtils {
      * @param readRaster
      * @return
      */
-    public static Raster getModifiedRaster(final Raster readRaster, final FeatureDescription featureDescription, final ColorModel colorModel, boolean useCache, int tileX, int tileY, String name) {
+    public static Raster getModifiedRaster(final Raster readRaster, final FeatureDescription featureDescription, final ColorModel colorModel, boolean useCache, int tileX, int tileY, String name, int level) {
         if ((!(readRaster instanceof ModifiedRaster)) && (featureDescription.getDeconvChannel() > 0)) {
-            PointAndName key = new PointAndName(tileX, tileY, name + readRaster.hashCode(), 100, 100, 100, 0, 0, 0, 0, null, null, null, null, true, true, true, featureDescription.getDeconvChannel(), featureDescription.getDeconvName(),null);
+            PointAndName key = new PointAndName(tileX, tileY, name + readRaster.hashCode(),level, 100, 100, 100, 0, 0, 0, 0, null, null, null, null, true, true, true, featureDescription.getDeconvChannel(), featureDescription.getDeconvName(),null);
             Raster cachedRaster = null;
             if (useCache) OrbitTiledImage2.tileCache.getIfPresent(key);
             if (cachedRaster != null) {

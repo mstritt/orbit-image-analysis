@@ -68,6 +68,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
     protected TiledImagePainter tiledImagePainterStats = null; // optional: can be set for computing extreme stats based on low res image
     private static LookupTableJAI defaultLookuptable = null;
     private float[] channelContributionsClassification = null; // (fluo)channel contributions (currently only 1 or 0) used for classification
+    protected int level = 0; // used for caching identifier
 
     protected abstract String readInfoString(String filename) throws Exception;
 
@@ -143,7 +144,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
      */
     public Raster getTile(int tileX, int tileY, double gamma, double contrast, double brightness, int blur, double redAdjust, double greenAdjust, double blueAdjust, OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, OrbitTiledImage2 blueChannel, OrbitTiledImage2 overlayChannel, boolean redActive, boolean greenActive, boolean blueActive, int deconvChannel, String deconvName, final float[] channelContributions) {
         float[] channelContributionsCloned = channelContributions==null? null: Arrays.copyOf(channelContributions, channelContributions.length);
-        PointAndName tileP = new PointAndName(tileX, tileY, filename, gamma, contrast, brightness, blur, redAdjust, greenAdjust, blueAdjust, redChannel, greenChannel, blueChannel, overlayChannel, redActive, greenActive, blueActive, deconvChannel, deconvName, channelContributionsCloned);
+        PointAndName tileP = new PointAndName(tileX, tileY, filename, level, gamma, contrast, brightness, blur, redAdjust, greenAdjust, blueAdjust, redChannel, greenChannel, blueChannel, overlayChannel, redActive, greenActive, blueActive, deconvChannel, deconvName, channelContributionsCloned);
         if (doCacheLock) OrbitTiledImage2.cacheLock.readLock().lock();
         try {
             if (useCache && OrbitTiledImage2.tileCache != null) {
@@ -681,36 +682,32 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
     }
 
 
+    public int getLevel() {
+        return level;
+    }
+
     @Override
     public String toString() {
-        String s = "filename=" + filename + "; width=" + width + "; height=" + height + "; numBands=" + numBands + "; tileWidth=" + tileWidth + "; tileHeight=" + tileHeight + "; maxTileX=" + getMaxTileX() + "; maxTileY=" + getMaxTileY() + "; colorModel=" + colorModel.getColorSpace().getType() + "; sampleModel=" + sampleModel + "; OriginalBitePerSample=" + originalBitsPerSample;
+        String s = "filename=" + filename + "; level="+level+"; width=" + width + "; height=" + height + "; numBands=" + numBands + "; tileWidth=" + tileWidth + "; tileHeight=" + tileHeight + "; maxTileX=" + getMaxTileX() + "; maxTileY=" + getMaxTileY() + "; colorModel=" + colorModel.getColorSpace().getType() + "; sampleModel=" + sampleModel + "; OriginalBitePerSample=" + originalBitsPerSample;
         return s;
     }
 
-
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((filename == null) ? 0 : filename.hashCode());
-        return result;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        OrbitTiledImage2 that = (OrbitTiledImage2) o;
+
+        if (level != that.level) return false;
+        return filename != null ? filename.equals(that.filename) : that.filename == null;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (!(obj instanceof OrbitTiledImage2))
-            return false;
-        OrbitTiledImage2 other = (OrbitTiledImage2) obj;
-        if (filename == null) {
-            if (other.filename != null)
-                return false;
-        } else if (!filename.equals(other.filename))
-            return false;
-        return true;
+    public int hashCode() {
+        int result = filename != null ? filename.hashCode() : 0;
+        result = 31 * result + level;
+        return result;
     }
 
     public boolean isUseCache() {

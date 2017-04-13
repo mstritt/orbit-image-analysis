@@ -149,7 +149,7 @@ public class TiledImagePainter implements Closeable {
     public synchronized void loadImage(Object inputStrOrURL, int imagePyramidNum, boolean loadRemote) throws Exception {
 
         if (inputStrOrURL instanceof RawDataFile) {
-            origImage = new OrbitTiledImageIOrbitImage(DALConfig.getImageProvider().createOrbitImage(((RawDataFile) inputStrOrURL), imagePyramidNum));
+            origImage = new OrbitTiledImageIOrbitImage(DALConfig.getImageProvider().createOrbitImage(((RawDataFile) inputStrOrURL), imagePyramidNum),imagePyramidNum);
             imageName = ((RawDataFile) inputStrOrURL).getFileName();
             imageAdjustments = OrbitUtils.getAndParseImageAdjustments(((RawDataFile) inputStrOrURL).getRawDataFileId());
         } else if (inputStrOrURL instanceof URL) {

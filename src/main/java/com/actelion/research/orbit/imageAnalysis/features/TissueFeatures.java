@@ -128,7 +128,7 @@ public class TissueFeatures {
             // The modifyRaster works very slow. As optimization the getData() method in OrbitTiledImage2 could be overwritten (copy code from PlanarImage) with featureDescription as argument, then this new method
             // would use the getTile() method with featureDescription as argument and not the standard getTile method. This would make use of the tile caching mechanism in OrbitTiledImage2.
             // However, normally such large shapes are not used at all.
-            r2 = OrbitUtils.getModifiedRaster(r2, featureDescription, bimg.getImage().getColorModel());
+            r2 = OrbitUtils.getModifiedRaster(r2, featureDescription, bimg.getImage().getColorModel(), bimg.getImage().getLevel());
             if (r2 == null) System.out.println("r2 is null!!");
             buf = r2.getPixels(x - windowSize, y - windowSize, (windowSize * 2) + 1, (windowSize * 2) + 1, buf);
             p = r2.getPixel(x, y, p);

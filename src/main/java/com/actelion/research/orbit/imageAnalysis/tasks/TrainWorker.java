@@ -322,7 +322,7 @@ public class TrainWorker extends OrbitWorker {
             if (bb.getWidth() * bb.getHeight() < 1024L * 1024 * 20) {
                 // max 20*3=60MB memory per virtual tile, otherwise we read pixelwise and hope for good real tile caching
                 readRaster = bimg.getData(new Rectangle(bb.x - windowSize, bb.y - windowSize, bb.width + (windowSize * 2 + 1), bb.height + (windowSize * 2 + 1)), featureDescription);
-                readRaster = OrbitUtils.getModifiedRaster(readRaster, featureDescription, bimg.getImage().getColorModel());
+                readRaster = OrbitUtils.getModifiedRaster(readRaster, featureDescription, bimg.getImage().getColorModel(), bimg.getImage().getLevel() );
             }
             for (int x = bb.x; x < bb.x + bb.width; x++)
                 for (int y = bb.y; y < bb.y + bb.height; y++) {

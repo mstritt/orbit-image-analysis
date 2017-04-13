@@ -32,8 +32,13 @@ public class OrbitTiledImageIOrbitImage extends OrbitTiledImage2 {
     protected IOrbitImage image = null;
 
     public OrbitTiledImageIOrbitImage(IOrbitImage image) throws Exception {
+        this(image,0);
+    }
+
+    public OrbitTiledImageIOrbitImage(IOrbitImage image, int level) throws Exception {
         //super("");
         this.image = image;
+        this.level = level;
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.tileWidth = image.getTileWidth();

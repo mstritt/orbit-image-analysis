@@ -25,6 +25,7 @@ import java.util.Arrays;
 public class PointAndName extends Point {
     private static final long serialVersionUID = 1L;
     private String name = "";
+    private int level;
     private int x;
     private int y;
     private double gamma;
@@ -45,12 +46,13 @@ public class PointAndName extends Point {
     private String deconvName;
     private float[] channelContributions;
 
-    public PointAndName(int x, int y, String name, double gamma, double contrast, double brightness, int blur, double redAdjust, double greenAdjust, double blueAdjust, OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, OrbitTiledImage2 blueChannel, OrbitTiledImage2 overlayChannel, boolean redActive, boolean greenActive, boolean blueActive, int deconvChannel, String deconvName, float[] channelContributions) {
+    public PointAndName(int x, int y, String name, int level, double gamma, double contrast, double brightness, int blur, double redAdjust, double greenAdjust, double blueAdjust, OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, OrbitTiledImage2 blueChannel, OrbitTiledImage2 overlayChannel, boolean redActive, boolean greenActive, boolean blueActive, int deconvChannel, String deconvName, float[] channelContributions) {
         this.x = x;
         this.y = y;
         super.x = x;
         super.y = y;
         this.name = name;
+        this.level = level;
         this.gamma = gamma;
         this.contrast = contrast;
         this.brightness = brightness;
@@ -78,29 +80,27 @@ public class PointAndName extends Point {
 
         PointAndName that = (PointAndName) o;
 
-        if (blueActive != that.blueActive) return false;
-        if (java.lang.Double.compare(that.blueAdjust, blueAdjust) != 0) return false;
-        if (blur != that.blur) return false;
-        if (java.lang.Double.compare(that.brightness, brightness) != 0) return false;
-        if (java.lang.Double.compare(that.contrast, contrast) != 0) return false;
-        if (deconvChannel != that.deconvChannel) return false;
-        if (java.lang.Double.compare(that.gamma, gamma) != 0) return false;
-        if (greenActive != that.greenActive) return false;
-        if (java.lang.Double.compare(that.greenAdjust, greenAdjust) != 0) return false;
-        if (redActive != that.redActive) return false;
-        if (java.lang.Double.compare(that.redAdjust, redAdjust) != 0) return false;
+        if (level != that.level) return false;
         if (x != that.x) return false;
         if (y != that.y) return false;
-        if (blueChannel != null ? !blueChannel.equals(that.blueChannel) : that.blueChannel != null) return false;
-        if (deconvName != null ? !deconvName.equals(that.deconvName) : that.deconvName != null) return false;
-        if (greenChannel != null ? !greenChannel.equals(that.greenChannel) : that.greenChannel != null)
-            return false;
+        if (java.lang.Double.compare(that.gamma, gamma) != 0) return false;
+        if (java.lang.Double.compare(that.contrast, contrast) != 0) return false;
+        if (java.lang.Double.compare(that.brightness, brightness) != 0) return false;
+        if (blur != that.blur) return false;
+        if (java.lang.Double.compare(that.redAdjust, redAdjust) != 0) return false;
+        if (java.lang.Double.compare(that.greenAdjust, greenAdjust) != 0) return false;
+        if (java.lang.Double.compare(that.blueAdjust, blueAdjust) != 0) return false;
+        if (redActive != that.redActive) return false;
+        if (greenActive != that.greenActive) return false;
+        if (blueActive != that.blueActive) return false;
+        if (deconvChannel != that.deconvChannel) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (redChannel != null ? !redChannel.equals(that.redChannel) : that.redChannel != null) return false;
+        if (greenChannel != null ? !greenChannel.equals(that.greenChannel) : that.greenChannel != null) return false;
+        if (blueChannel != null ? !blueChannel.equals(that.blueChannel) : that.blueChannel != null) return false;
         if (overlayChannel != null ? !overlayChannel.equals(that.overlayChannel) : that.overlayChannel != null)
             return false;
-        if (redChannel != null ? !redChannel.equals(that.redChannel) : that.redChannel != null)
-            return false;
-
+        if (deconvName != null ? !deconvName.equals(that.deconvName) : that.deconvName != null) return false;
         return Arrays.equals(channelContributions, that.channelContributions);
     }
 
@@ -109,6 +109,7 @@ public class PointAndName extends Point {
         int result = super.hashCode();
         long temp;
         result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + level;
         result = 31 * result + x;
         result = 31 * result + y;
         temp = java.lang.Double.doubleToLongBits(gamma);
