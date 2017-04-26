@@ -137,7 +137,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
                     //setReaderSeries(r, filename);
                     r.setSeries(series);
                     r.setResolution(level);
-                    is16bit = r.getBitsPerPixel()>=16;
+                    is16bit = r.getBitsPerPixel()>8;
                     logger.debug("is16bit: "+is16bit);
                     BufferedImageReader bir;
                     if (doMergeChannels(r)) {       // TODO: minMax for 1-channel grayscale image!
@@ -816,20 +816,15 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
 
 
     public static void main(String[] args) throws Exception {
-        //final String testImage = "D:\\pic\\testimg.jp2";
-        //final String testImage = "D:\\pic\\czi\\20160211_FL_3ch_10x_1z_2sc_onl_jpegxr.czi";
-        //final String testImage = "D:\\pic\\czi\\FL_5CH_2scenes_5z_online-jpegXR.czi";
-        //final String testImage = "D:\\pic\\czi\\BF-20x-1z-1sc-off-jpegXR.czi";
-        final String testImage = "D:\\pic\\Hamamatsu\\fl4\\test1.ndpis";
-        //final String testImage = "D:\\pic\\vsi\\04_12_15_Slide1_Image_01.vsi";
-
+        final String testImage = "C:\\images\\test14bit.czi";
+        ChannelToHue.userHueMap.put("af488", 120f/360f);
         OrbitImageBioformats oi = new OrbitImageBioformats(testImage,0, 0);
 
         System.out.println("wxh: "+oi.getWidth()+"x"+oi.getHeight()+" cm: "+oi.getColorModel());
         BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(10,10).createTranslatedChild(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);
         //bi = oi.getThumbnail();
         System.out.println("img: "+bi);
-        ImageIO.write(bi,"jpeg",new File("d:/test.jpg"));
+        ImageIO.write(bi,"jpeg",new File("c:/images/test.jpg"));
 //        oi.getTileData(1,1);
 //        OrbitTiledImage2 oti = new OrbitTiledImageIOrbitImage(oi);
 //        oti.getTile(0,0);
