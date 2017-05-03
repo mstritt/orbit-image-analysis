@@ -133,7 +133,7 @@ public class SegmentationTestPattern {
         shapeList.add(p2);
         shapeList.add(p3);
         ObjectSegmentationWorker ndw = new ObjectSegmentationWorker(null, null, null, null);
-        shapeList = ndw.joinTileSegments(segRes).getShapeList();
+        shapeList = ndw.joinTileSegments(segRes,false).getShapeList();
 
         assertNotNull(shapeList);
         System.out.println("numShapes: " + shapeList.size());

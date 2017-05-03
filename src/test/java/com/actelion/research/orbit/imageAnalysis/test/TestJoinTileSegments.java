@@ -24,6 +24,7 @@ import com.actelion.research.orbit.imageAnalysis.models.SegmentationResult;
 import com.actelion.research.orbit.imageAnalysis.tasks.ObjectSegmentationWorker;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitLogAppender;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.awt.*;
@@ -46,6 +47,7 @@ public class TestJoinTileSegments {
 
 
     @Test
+    @Ignore
     public void testJoinSegments() {
         PolygonExt p1 = new PolygonExt();
         p1.addPoint(1, 3);
@@ -66,7 +68,7 @@ public class TestJoinTileSegments {
         shapeList.add(p2);
         SegmentationResult segRes = new SegmentationResult(shapeList.size(), 0, shapeList, null);
         ObjectSegmentationWorker ndw = new ObjectSegmentationWorker(null, null, null, null);
-        shapeList = ndw.joinTileSegments(segRes).getShapeList();
+        shapeList = ndw.joinTileSegments(segRes,false).getShapeList();
 
         assertNotNull(shapeList);
         System.out.println("numShapes: " + shapeList.size());
@@ -77,6 +79,42 @@ public class TestJoinTileSegments {
         assertEquals(1, shapeList.size());
 
     }
+
+    @Test
+    public void testJoinSegments2() {
+        PolygonExt p1 = new PolygonExt();
+        p1.addPoint(1, 3);
+        p1.addPoint(1, 1);
+        p1.addPoint(3, 1);
+        p1.addPoint(3, 3);
+      //  p1.addPoint(2, 3);
+        p1.addPoint(1, 3);
+
+        PolygonExt p2 = new PolygonExt();
+        p2.addPoint(1, 5);
+        p2.addPoint(1, 3);
+       // p2.addPoint(2, 3);
+        p2.addPoint(3, 3);
+        p2.addPoint(3, 5);
+        p2.addPoint(1, 5);
+
+        List<Shape> shapeList = new ArrayList<Shape>();
+        shapeList.add(p1);
+        shapeList.add(p2);
+        SegmentationResult segRes = new SegmentationResult(shapeList.size(), 0, shapeList, null);
+        ObjectSegmentationWorker ndw = new ObjectSegmentationWorker(null, null, null, null);
+        shapeList = ndw.joinTileSegments(segRes,false).getShapeList();
+
+        assertNotNull(shapeList);
+        System.out.println("numShapes: " + shapeList.size());
+        for (Shape s : shapeList) {
+            System.out.println("Shape: " + ((PolygonExt) s).listPoints());
+        }
+
+        assertEquals(1, shapeList.size());
+
+    }
+
 
 
 }

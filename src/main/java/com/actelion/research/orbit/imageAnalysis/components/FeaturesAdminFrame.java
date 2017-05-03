@@ -688,10 +688,10 @@ public class FeaturesAdminFrame extends JDialog {
             return;
         }
 
-        if (cbDoCombineCrossTiles.isSelected() && cbCytoplasmaSegmentation.isSelected()) {
-            JOptionPane.showMessageDialog(FeaturesAdminFrame.this, "'Combine large connecting objects' and Cytoplasma Segmentation cannot be used together.\n(It would result in exactly one large object because all cytoplasma borders are connecting.)", "Cytoplasma Segmentation and Combine Objects active.", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+//        if (cbDoCombineCrossTiles.isSelected() && cbCytoplasmaSegmentation.isSelected()) {
+//            JOptionPane.showMessageDialog(FeaturesAdminFrame.this, "'Combine large connecting objects' and Cytoplasma Segmentation cannot be used together.\n(It would result in exactly one large object because all cytoplasma borders are connecting.)", "Cytoplasma Segmentation and Combine Objects active.", JOptionPane.ERROR_MESSAGE);
+//            return;
+//        }
 
 
         OrbitImageAnalysis.getInstance().getModel().setFixedCircularROI(OrbitUtils.parseInt(tfFixedROI.getText(), 0));

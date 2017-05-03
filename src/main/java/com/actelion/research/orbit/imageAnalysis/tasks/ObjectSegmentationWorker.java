@@ -410,7 +410,8 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
             // now join tile-overlapping segments (if activated)
             if (mergeTileSegments) {
-                allSegmentsAndFeatures = joinTileSegments(allSegmentsAndFeatures);
+                allSegmentsAndFeatures = joinTileSegments(allSegmentsAndFeatures,true);
+                //allSegmentsAndFeatures = filterEdgeSegments(allSegmentsAndFeatures);
             }
 
             if (allSegmentsAndFeatures.getShapeList() != null) {
@@ -802,6 +803,44 @@ public class ObjectSegmentationWorker extends OrbitWorker {
     }
 
 
+    public SegmentationResult filterEdgeSegments(SegmentationResult segResult) {
+        if (segResult == null || segResult.getShapeList() == null || segResult.getShapeList().size() == 0)
+            return segResult;
+
+        List<Shape> filteredSegments = new ArrayList<Shape>(segResult.getShapeList().size());
+        List<double[]> featureList = new ArrayList<>(segResult.getFeatureList().size());
+
+        for (int i=0; i<segResult.getShapeList().size(); i++) {
+            Shape shape = segResult.getShapeList().get(i);
+            if (shape instanceof PolygonExt) {
+                PolygonExt poly = (PolygonExt) shape;
+                int cntBorder = 0;
+                int tileWidth = rf.bimg.getImage().getTileWidth();
+                int tileHeight = rf.bimg.getImage().getTileHeight();
+                int dist = 2;
+                for (int p=0; p<poly.npoints; p++) {
+                   if ((poly.xpoints[p] % tileWidth <= dist) || (poly.ypoints[p] % tileHeight <= dist)) cntBorder++;
+                    if ((poly.xpoints[p] % tileWidth >= tileWidth-dist) || (poly.ypoints[p] % tileHeight >= tileHeight - dist)) cntBorder++;
+                }
+                System.out.println("cntBorder: "+cntBorder);
+                if (cntBorder<3) {
+                    filteredSegments.add(shape);
+                    if (segResult.getFeatureList().size()>i)
+                        featureList.add(segResult.getFeatureList().get(i));
+                }
+            }  else {
+                filteredSegments.add(shape);
+                if (segResult.getFeatureList().size()>i)
+                    featureList.add(segResult.getFeatureList().get(i));
+            }
+        }
+
+        segResult.setShapeList(filteredSegments);
+        segResult.setFeatureList(featureList);
+        segResult.setObjectCount(filteredSegments.size());
+        return segResult;
+    }
+
     /**
      * Merge shapes and sort points in shapes.
      * This version loops as long changes are made. Sorting of points in shapes at the end.
@@ -809,15 +848,15 @@ public class ObjectSegmentationWorker extends OrbitWorker {
      * @param segResult
      * @return
      */
-    public SegmentationResult joinTileSegments(SegmentationResult segResult) {
+    public SegmentationResult joinTileSegments(SegmentationResult segResult, boolean onlyCrossTiles) {
         // is called!!!
         if (segResult == null || segResult.getShapeList() == null || segResult.getShapeList().size() < 2)
             return segResult;
         boolean change = true;
         while (change) {
             int numSegments = segResult.getShapeList().size();
-            System.out.println("merging, numSegments=" + numSegments);
-            segResult = joinTileSegmentsStep(segResult);
+            logger.debug("merging, numSegments=" + numSegments);
+            segResult = joinTileSegmentsStep(segResult,onlyCrossTiles);
             change = segResult.getShapeList().size() != numSegments;
         }
         logger.debug("merging, final segments before sorting=" + segResult.getShapeList().size());
@@ -826,7 +865,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         return segResult;
     }
 
-    public SegmentationResult joinTileSegmentsStep(SegmentationResult segResult) {
+    public SegmentationResult joinTileSegmentsStep(SegmentationResult segResult, boolean onlyCrossTiles) {
         if (segResult == null || segResult.getShapeList() == null || segResult.getShapeList().size() < 2)
             return segResult;
         List<Shape> mergedSegments = new ArrayList<Shape>(segResult.getShapeList().size());
@@ -839,23 +878,30 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             if (s1 instanceof PolygonExt) {
                 if (mergedIdx.contains(i)) continue;
                 PolygonExt poly1 = (PolygonExt) s1;
-                for (int j = i + 1; j < segResult.getShapeList().size(); j++) {
-                    if (mergedIdx.contains(j)) continue;
-                    Shape s2 = segResult.getShapeList().get(j);
-                    if (s2 instanceof PolygonExt) {
-                        PolygonExt poly2 = (PolygonExt) s2;
-                        Rectangle r1 = s1.getBounds();
-                        r1.grow(mergeMinDistance, mergeMinDistance);
-                        if (r1.intersects(s2.getBounds())) {
-                            nearest = nearestPoints(poly1, poly2, nearest);
-                            if (nearest[0].distance(nearest[1]) < mergeMinDistance) { // really merge
-                                Polygon merged = mergePolysSorted(poly1, poly2);
-                                mergedSegments.add(merged);
-                                if (mergedFeatures != null && segResult.getFeatureList() != null && segResult.getFeatureList().size() > i && segResult.getFeatureList().size() > j) {
-                                    mergedFeatures.add(mergeFeatures(segResult.getFeatureList().get(i), segResult.getFeatureList().get(j), merged));
+                if (!poly1.isClosed()) {
+                    for (int j = i + 1; j < segResult.getShapeList().size(); j++) {
+                        if (mergedIdx.contains(j)) continue;
+                        Shape s2 = segResult.getShapeList().get(j);
+                        if (s2 instanceof PolygonExt) {
+                            PolygonExt poly2 = (PolygonExt) s2;
+                            if (!poly2.isClosed()) {
+                                if (!onlyCrossTiles || onDifferentTiles(poly1, poly2)) {
+                                    Rectangle r1 = s1.getBounds();
+                                    r1.grow(mergeMinDistance, mergeMinDistance);
+                                    if (r1.intersects(s2.getBounds())) {
+                                        nearest = nearestPoints(poly1, poly2, nearest);
+                                        if (nearest[0].distance(nearest[1]) < mergeMinDistance) { // really merge
+                                            PolygonExt merged = mergePolysSorted(poly1, poly2);
+                                            merged.setClosed(true); // merge marker
+                                            mergedSegments.add(merged);
+                                            if (mergedFeatures != null && segResult.getFeatureList() != null && segResult.getFeatureList().size() > i && segResult.getFeatureList().size() > j) {
+                                                mergedFeatures.add(mergeFeatures(segResult.getFeatureList().get(i), segResult.getFeatureList().get(j), merged));
+                                            }
+                                            mergedIdx.add(i);
+                                            mergedIdx.add(j);
+                                        }
+                                    }
                                 }
-                                mergedIdx.add(i);
-                                mergedIdx.add(j);
                             }
                         }
                     }
@@ -877,6 +923,37 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         return segResult;
     }
 
+    @Deprecated
+    private boolean checkMaxOpenDist(PolygonExt merged) {
+        if (merged.npoints>1) {
+            for (int i = 1; i < merged.npoints; i++) {
+                double dist = Point.distance(merged.xpoints[i-1],merged.ypoints[i-1],merged.xpoints[i],merged.ypoints[i]);
+                if (dist>500) {
+                    System.out.println("dist: "+dist);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks if first points in polygons are on different tiles (using the recognition frame).
+     */
+    public boolean onDifferentTiles(PolygonExt p1, PolygonExt p2) {
+        if (rf == null) throw new IllegalStateException("recognition frame not set (is null)");
+        // check scale? (or not)
+        if (p1.npoints==0 && p2.npoints==0) return false;
+        if (p1.npoints==0 || p2.npoints==0) return true;
+        int tx1 = rf.bimg.getImage().XToTileX(p1.xpoints[0]);
+        int tx2 = rf.bimg.getImage().XToTileX(p2.xpoints[0]);
+        if (tx1 != tx2) return true;
+        int ty1 = rf.bimg.getImage().YToTileY(p1.ypoints[0]);
+        int ty2 = rf.bimg.getImage().YToTileY(p2.ypoints[0]);
+        if (ty1 != ty2) return true;
+        return false;
+    }
+        
     /*
     private List<Shape> sortPointsInPolys(List<Shape> segments) {
         if (segments == null || segments.size() == 0) return segments;
@@ -986,7 +1063,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
     }
     */
 
-    private Polygon mergePolysSorted(Polygon p1, Polygon p2) {
+    private PolygonExt mergePolysSorted(Polygon p1, Polygon p2) {
         int[] closestIdx = nearestPointsIndex(p1, p2);
         List<Point> pList = new ArrayList<Point>(p1.npoints + p2.npoints);
         // add points from p1 until closest point
@@ -1007,7 +1084,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         }
 
         // remove duplicate followup points
-        List<Point> finalList = new ArrayList<>(pList.size());
+        ArrayList<Point> finalList = new ArrayList<>(pList.size());
         finalList.add(pList.get(0));
         for (int i = 1; i < pList.size(); i++) {
             Point last = pList.get(i - 1);
@@ -1016,6 +1093,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                 finalList.add(curr);
             }
         }
+
 
         // reconstruct polygon
         PolygonExt newP = new PolygonExt();
