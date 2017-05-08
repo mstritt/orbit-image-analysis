@@ -62,6 +62,7 @@ public class FeaturesAdminFrame extends JDialog {
     private JCheckBox cbGreen = null;
     private JCheckBox cbBlue = null;
     private JCheckBox cbDeactivateWatershed = null;
+    private JCheckBox cbFilterTileEdgeShapes = null;
     private JCheckBox cbForSecondarySegmentationModel = null;
     private JCheckBox cbCytoplasmaSegmentation = null;
     private JComboCheckBox cbFeatureClasses = null;
@@ -84,7 +85,7 @@ public class FeaturesAdminFrame extends JDialog {
 
 
     private int frameWidth = 600;
-    private int frameHeight = 650;
+    private int frameHeight = 700;
     private int btnHeight = 25;
     private int selectedTab = 0;
     private FeatureDescription featureDescription = null;
@@ -326,10 +327,15 @@ public class FeaturesAdminFrame extends JDialog {
         setCompBounds(cbDisableWatershed, frameWidth, 0);
         panelSegmentation.add(cbDisableWatershed);
 
-        cbDoCombineCrossTiles = new JCheckBox("Combine large connecting objects:", featureDescription.isCombineObjectsCrossTiles());
+        cbDoCombineCrossTiles = new JCheckBox("Combine large connecting objects", featureDescription.isCombineObjectsCrossTiles());
         cbDoCombineCrossTiles.setToolTipText("combine objects across tiles");
         setCompBounds(cbDoCombineCrossTiles, frameWidth, 0);
         panelSegmentation.add(cbDoCombineCrossTiles);
+
+        cbFilterTileEdgeShapes = new JCheckBox("Discard tile border objects", featureDescription.isFilterTileEdgeShapes());
+        cbFilterTileEdgeShapes.setToolTipText("discards objects at tile borders, e.g. objects which are divided by tiles");
+        setCompBounds(cbFilterTileEdgeShapes, frameWidth, 0);
+        panelSegmentation.add(cbFilterTileEdgeShapes);
 
         panel = new JPanel(new GridLayout(1, 2));
         lab = new JLabel("Dilate:");
@@ -559,6 +565,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfSegmentationScale.setText(featureDescription.getSegmentationScale() + "");
         cbDisableWatershed.setSelected(featureDescription.isDisableWatershed());
         cbDoCombineCrossTiles.setSelected(featureDescription.isCombineObjectsCrossTiles());
+        cbFilterTileEdgeShapes.setSelected(featureDescription.isFilterTileEdgeShapes());
         tfNumDilate.setText(Integer.toString(featureDescription.getNumDilate()));
         tfNumErode.setText(Integer.toString(featureDescription.getNumErode()));
         cbDilateBeforeErode.setSelected(featureDescription.isDilateBeforeErode());
@@ -751,6 +758,7 @@ public class FeaturesAdminFrame extends JDialog {
         // v2 features
         featureDescription.setDisableWatershed(cbDisableWatershed.isSelected());
         featureDescription.setCombineObjectsCrossTiles(cbDoCombineCrossTiles.isSelected());
+        featureDescription.setFilterTileEdgeShapes(cbFilterTileEdgeShapes.isSelected());
         featureDescription.setDilateBeforeErode(cbDilateBeforeErode.isSelected());
         featureDescription.setNumDilate(tfNumDilate.getInt());
         featureDescription.setNumErode(tfNumErode.getInt());

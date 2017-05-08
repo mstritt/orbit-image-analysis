@@ -46,6 +46,7 @@ public class FeatureDescription implements Serializable, Cloneable {
     private boolean skipGreen = false;
     private boolean skipBlue = false;
     private boolean deactivateWatershed = false;     // used for 'large object detection' (a combination of watershed disabled, crossTileJoin enabled, dilate and erode)
+    private boolean filterTileEdgeShapes = false;
     private double segmentationScale = 1d;
     private int[] featureClasses = null;
     private int deconvChannel = 0;
@@ -75,7 +76,7 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.windowSize = windowSize;
     }
 
-    public FeatureDescription(int windowSize, int sampleSize, int featureSet, int minSegmentationSize, boolean minAreaClassification, int numBlur, boolean skipRed, boolean skipGreen, boolean skipBlue, double segmentationScale, int[] featureClasses, boolean deactivateWatershed, int deconvChannel, String deconvName, boolean useImageAdjustments, String[] activeFluoChannels) {
+    public FeatureDescription(int windowSize, int sampleSize, int featureSet, int minSegmentationSize, boolean minAreaClassification, int numBlur, boolean skipRed, boolean skipGreen, boolean skipBlue, double segmentationScale, int[] featureClasses, boolean deactivateWatershed, boolean filterTileEdgeShapes, int deconvChannel, String deconvName, boolean useImageAdjustments, String[] activeFluoChannels) {
         this.windowSize = windowSize;
         this.sampleSize = sampleSize;
         this.featureSet = featureSet;
@@ -88,6 +89,7 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.segmentationScale = segmentationScale;
         this.featureClasses = featureClasses;
         this.deactivateWatershed = deactivateWatershed;
+        this.filterTileEdgeShapes = filterTileEdgeShapes;
         this.deconvChannel = deconvChannel;
         this.deconvName = deconvName;
         this.useImageAdjustments = useImageAdjustments;
@@ -340,6 +342,14 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.activeFluoChannels = activeFluoChannels;
     }
 
+    public boolean isFilterTileEdgeShapes() {
+        return filterTileEdgeShapes;
+    }
+
+    public void setFilterTileEdgeShapes(boolean filterTileEdgeShapes) {
+        this.filterTileEdgeShapes = filterTileEdgeShapes;
+    }
+
     public FeatureDescription clone() {
         try {
             return ((FeatureDescription) super.clone());
@@ -366,6 +376,7 @@ public class FeatureDescription implements Serializable, Cloneable {
                 ", skipGreen=" + skipGreen +
                 ", skipBlue=" + skipBlue +
                 ", deactivateWatershed=" + deactivateWatershed +
+                ", filterTileEdgeShapes=" + filterTileEdgeShapes +
                 ", segmentationScale=" + segmentationScale +
                 ", featureClasses=" + Arrays.toString(featureClasses) +
                 ", deconvChannel=" + deconvChannel +

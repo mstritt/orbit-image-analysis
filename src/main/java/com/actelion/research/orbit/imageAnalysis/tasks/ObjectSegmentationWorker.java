@@ -80,6 +80,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
     private double plasmaScale = 1d;
     private SegmentationResult segmentationResult = new SegmentationResult();
     private boolean mergeTileSegments = false;
+    private boolean filterTileEdgeShapes = false;
     private int mergeMinDistance = 4; // min distance to merge large objects across tiles
     private int heatmapFeature = -1; // >-1 means generate heatmap for feature nr features-heatmapFeature
     private int numThreads = Runtime.getRuntime().availableProcessors();
@@ -239,6 +240,9 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                     setDoErode(numErode > 0);
                     setGraphCutSmoothness(segmentationModel.getFeatureDescription().getGraphCut());
                 }
+            }
+            if (segmentationModel != null) {
+                setFilterTileEdgeShapes(segmentationModel.getFeatureDescription().isFilterTileEdgeShapes());
             }
             final int numSamples = rf.bimg.getImage().getNumBands();
 
@@ -408,10 +412,13 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             }
             allSegmentsAndFeatures.setSecondaryObjectCount(allSecondaryCount);
 
+            if (filterTileEdgeShapes) {
+                allSegmentsAndFeatures = filterEdgeSegments(allSegmentsAndFeatures);
+            }
+
             // now join tile-overlapping segments (if activated)
             if (mergeTileSegments) {
-                allSegmentsAndFeatures = joinTileSegments(allSegmentsAndFeatures,true);
-                //allSegmentsAndFeatures = filterEdgeSegments(allSegmentsAndFeatures);
+                allSegmentsAndFeatures = joinTileSegments(allSegmentsAndFeatures,false);
             }
 
             if (allSegmentsAndFeatures.getShapeList() != null) {
@@ -803,12 +810,19 @@ public class ObjectSegmentationWorker extends OrbitWorker {
     }
 
 
+    /**
+     * Removes tile-border shapes
+     */
     public SegmentationResult filterEdgeSegments(SegmentationResult segResult) {
         if (segResult == null || segResult.getShapeList() == null || segResult.getShapeList().size() == 0)
             return segResult;
 
+        if (rf == null) throw new IllegalStateException("recognition frame not set (is null)");
         List<Shape> filteredSegments = new ArrayList<Shape>(segResult.getShapeList().size());
         List<double[]> featureList = new ArrayList<>(segResult.getFeatureList().size());
+
+        int dist = 2;
+        int maxEdgeCnt = 6;
 
         for (int i=0; i<segResult.getShapeList().size(); i++) {
             Shape shape = segResult.getShapeList().get(i);
@@ -817,13 +831,12 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                 int cntBorder = 0;
                 int tileWidth = rf.bimg.getImage().getTileWidth();
                 int tileHeight = rf.bimg.getImage().getTileHeight();
-                int dist = 2;
                 for (int p=0; p<poly.npoints; p++) {
                    if ((poly.xpoints[p] % tileWidth <= dist) || (poly.ypoints[p] % tileHeight <= dist)) cntBorder++;
-                    if ((poly.xpoints[p] % tileWidth >= tileWidth-dist) || (poly.ypoints[p] % tileHeight >= tileHeight - dist)) cntBorder++;
+                   if ((poly.xpoints[p] % tileWidth >= tileWidth-dist) || (poly.ypoints[p] % tileHeight >= tileHeight - dist)) cntBorder++;
                 }
                 System.out.println("cntBorder: "+cntBorder);
-                if (cntBorder<3) {
+                if (cntBorder<maxEdgeCnt) {
                     filteredSegments.add(shape);
                     if (segResult.getFeatureList().size()>i)
                         featureList.add(segResult.getFeatureList().get(i));
@@ -878,13 +891,11 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             if (s1 instanceof PolygonExt) {
                 if (mergedIdx.contains(i)) continue;
                 PolygonExt poly1 = (PolygonExt) s1;
-                if (!poly1.isClosed()) {
                     for (int j = i + 1; j < segResult.getShapeList().size(); j++) {
                         if (mergedIdx.contains(j)) continue;
                         Shape s2 = segResult.getShapeList().get(j);
                         if (s2 instanceof PolygonExt) {
                             PolygonExt poly2 = (PolygonExt) s2;
-                            if (!poly2.isClosed()) {
                                 if (!onlyCrossTiles || onDifferentTiles(poly1, poly2)) {
                                     Rectangle r1 = s1.getBounds();
                                     r1.grow(mergeMinDistance, mergeMinDistance);
@@ -892,7 +903,6 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                                         nearest = nearestPoints(poly1, poly2, nearest);
                                         if (nearest[0].distance(nearest[1]) < mergeMinDistance) { // really merge
                                             PolygonExt merged = mergePolysSorted(poly1, poly2);
-                                            merged.setClosed(true); // merge marker
                                             mergedSegments.add(merged);
                                             if (mergedFeatures != null && segResult.getFeatureList() != null && segResult.getFeatureList().size() > i && segResult.getFeatureList().size() > j) {
                                                 mergedFeatures.add(mergeFeatures(segResult.getFeatureList().get(i), segResult.getFeatureList().get(j), merged));
@@ -902,10 +912,8 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                                         }
                                     }
                                 }
-                            }
                         }
                     }
-                }
             }
         }
 
@@ -919,7 +927,6 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         }
         segResult.setShapeList(mergedSegments);
         segResult.setFeatureList(mergedFeatures);
-        //return sortPointsInPolys(mergedSegments);
         return segResult;
     }
 
@@ -1490,6 +1497,14 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
     public void setMergeTileSegments(boolean mergeTileSegments) {
         this.mergeTileSegments = mergeTileSegments;
+    }
+
+    public boolean isFilterTileEdgeShapes() {
+        return filterTileEdgeShapes;
+    }
+
+    public void setFilterTileEdgeShapes(boolean filterTileEdgeShapes) {
+        this.filterTileEdgeShapes = filterTileEdgeShapes;
     }
 
     public int getMergeMinDistance() {

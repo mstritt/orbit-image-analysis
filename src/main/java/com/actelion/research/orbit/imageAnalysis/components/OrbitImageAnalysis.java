@@ -104,7 +104,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private static volatile OrbitImageAnalysis instance = null;
     private Toolkit toolkit;
     final public String START_PIC = null; //"/image_small.jpg";
-    final public String startModel = "d:\\orbitModels\\test.apar";
+    final public String startModel = "D:\\orbitModels\\simple-segmentation_v5.omo";
 
 
     public static final String LOGO_NAME = "/resource/Orbital_bones32.png";
@@ -602,7 +602,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 if (Runtime.getRuntime().availableProcessors() < 2) {
                     JOptionPane.showConfirmDialog(null, "Orbit Image Analysis is optimized for a multi-core CPU.\nYour PC has only " + Runtime.getRuntime().availableProcessors() + " cores.\nYou can still run Orbit on this PC, but it is strongly recommended to use a better PC.", "Please use a better computer for Orbit.", JOptionPane.WARNING_MESSAGE);
                 }
-                //		loadModel(new File(startModel), true,true);   // TODO
+                //loadModel(new File(startModel), true,true);   // TODO
 
             }
         });
@@ -2419,6 +2419,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             segModel.getFeatureDescription().setDisableWatershed(featureDescription.isDisableWatershed());
             segModel.getFeatureDescription().setCombineObjectsCrossTiles(featureDescription.isCombineObjectsCrossTiles());
             segModel.getFeatureDescription().setDilateBeforeErode(featureDescription.isDilateBeforeErode());
+            segModel.getFeatureDescription().setFilterTileEdgeShapes(featureDescription.isFilterTileEdgeShapes());
             segModel.getFeatureDescription().setNumDilate(featureDescription.getNumDilate());
             segModel.getFeatureDescription().setNumErode(featureDescription.getNumErode());
             segModel.getFeatureDescription().setRemoveOutliers(featureDescription.getRemoveOutliers());
