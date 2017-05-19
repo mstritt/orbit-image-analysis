@@ -25,9 +25,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
 
+/**
+ * Wrapper for OrbitModel. Lazy loading of actual model.
+ */
 public class ModelAnnotation extends RawAnnotation {
 
     private OrbitModel model;
+    private RawAnnotation rawAnnotation = null;
 
     public ModelAnnotation(RawAnnotation ra) throws IOException, ClassNotFoundException {
         modifyDate = ra.getModifyDate();
@@ -36,9 +40,7 @@ public class ModelAnnotation extends RawAnnotation {
         setRawAnnotationId(ra.getRawAnnotationId());
         setRawDataFileId(ra.getRawDataFileId());
         setUserId(ra.getUserId());
-        ByteArrayInputStream is = new ByteArrayInputStream(ra.getData());
-        model = OrbitModel.LoadFromInputStream(is);
-        is.close();
+        this.rawAnnotation = ra;
     }
 
     public ModelAnnotation(OrbitModel model, String elb, String name, String userId) {
@@ -60,11 +62,24 @@ public class ModelAnnotation extends RawAnnotation {
     }
 
     @Override
-    public byte[] getData() {
-        return model.getAsByteArray();
+    public  byte[] getData() {
+        return getModel().getAsByteArray();
     }
 
-    public OrbitModel getModel() {
+    public synchronized OrbitModel getModel() {
+        if (model==null) {
+            ByteArrayInputStream is = null;
+            try {
+                is = new ByteArrayInputStream(rawAnnotation.getData());
+                model = OrbitModel.LoadFromInputStream(is);
+            } finally {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         return model;
     }
 }

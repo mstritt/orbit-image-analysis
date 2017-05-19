@@ -550,8 +550,11 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
                         rbb = rbb.intersection(roiBB);
                     }
                 }
-                classImage.drawImage(g2d, rbb.x, rbb.y, rbb.width, rbb.height, getScale() * classImageScale, opacity);
+                Composite composite  = g2d.getComposite();
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+                classImage.drawImage(g2d, rbb.x, rbb.y, rbb.width, rbb.height, getScale() * classImageScale); // opacity
                 //classImage.drawImage(g2d, viewPortOffset.x,viewPortOffset.y,viewPortSize.width,viewPortSize.height,getScale()*classImageScale,opacity);
+                g2d.setComposite(composite);
                 g2d.setTransform(af);
             }
 

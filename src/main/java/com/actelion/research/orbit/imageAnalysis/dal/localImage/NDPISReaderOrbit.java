@@ -159,7 +159,11 @@ public class NDPISReaderOrbit extends FormatReader {
         }
     }
 
-    // -- Internal FormatReader API methods --
+    public String[] getNdpiFiles() {
+        return ndpiFiles;
+    }
+
+// -- Internal FormatReader API methods --
 
     /* @see loci.formats.FormatReader#initFile(String) */
     @Override

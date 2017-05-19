@@ -267,7 +267,7 @@ public class TiledImagePainter implements Closeable {
                     pi = new OrbitTiledImageIOrbitImage(DALConfig.getImageProvider().createOrbitImage((RawDataFile) inputStrOrURL, mipNum));
                 } catch (Throwable ex1) {
                     if (logger.isTraceEnabled())
-                        logger.trace("Error getting width from remote image.");
+                        logger.trace("layer "+mipNum+"  does not exist (or cannot be read)");
                     mipNum = -1;
                     break;
                 }
@@ -525,7 +525,7 @@ public class TiledImagePainter implements Closeable {
      * @param mipNum    set to -1 for automatic MIP selection
      */
     @Deprecated
-    public synchronized void drawImageSingleThread(Graphics2D graphics, double _vpOffsX, double _vpOffsY, double _vpWidth, double _vpHeight, double scale, int mipNum) {
+    private synchronized void drawImageSingleThread(Graphics2D graphics, double _vpOffsX, double _vpOffsY, double _vpWidth, double _vpHeight, double scale, int mipNum) {
         if (getImage() == null) return;
         double sc = scale / 100d;
 
@@ -846,8 +846,9 @@ public class TiledImagePainter implements Closeable {
                 logger.error("Error mipmap width=0");
                 return null;
             }
-            //System.out.println("length: "+mipMaps.length+" last dims: "+mipMaps[mipMaps.length-1].getImage().getWidth());
+            logger.trace("requesting layer "+(mipMaps.length - 1)+" / "+mipMaps.length+" layerwidth: "+mipMaps[mipMaps.length-1].getImage().getWidth());
             image.getGraphics().drawImage(mipMaps[mipMaps.length - 1].getImage().getAsBufferedImage(), 0, 0, sizeX, sizeY, null);
+            logger.trace("retrieved");
             return image;
         } else {
             Object source = null;

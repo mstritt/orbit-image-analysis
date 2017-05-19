@@ -20,6 +20,8 @@
 package com.actelion.research.orbit.imageAnalysis.utils;
 
 import org.jaitools.tiledimage.DiskMemImageOrbit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.TiledImage;
@@ -35,6 +37,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class TiledImageWriter {
 
+    private static final Logger logger = LoggerFactory.getLogger(TiledImageWriter.class);
     protected transient TiledImage image;
     public static int IMAGE_RGBA = 0;
     public static int IMAGE_RGB = 1;
@@ -133,12 +136,7 @@ public class TiledImageWriter {
 
         TiledImagePainter painter = new TiledImagePainter(inputImage, "");
         Graphics2D g2d = image.createGraphics();
-        try { // 03.05.2010 Manuel (exception with JRE 1.5, with JRE 1.6 fine)
-            painter.drawImage(g2d, xOffs, yOffs, width, height, 100d, -1);
-        } catch (Throwable e) {
-            //System.out.println("TiledImageWriter Error",e);
-            //e.printStackTrace();
-        }
+        painter.drawImage(g2d, xOffs, yOffs, width, height, 100d, -1);
     }
 
     public TiledImageWriter(BufferedImage inputImage) {
@@ -312,10 +310,9 @@ public class TiledImageWriter {
      * @param _vpWidth
      * @param _vpHeight
      * @param scale
-     * @param opacity
      */
-    public void drawImage(final Graphics2D graphics, final int _vpOffsX, final int _vpOffsY, final int _vpWidth, final int _vpHeight, final double scale, final float opacity) {
-        drawImageSingleThread(graphics, _vpOffsX, _vpOffsY, _vpWidth, _vpHeight, scale, opacity);
+    public void drawImage(final Graphics2D graphics, final int _vpOffsX, final int _vpOffsY, final int _vpWidth, final int _vpHeight, final double scale) {
+        drawImageSingleThread(graphics, _vpOffsX, _vpOffsY, _vpWidth, _vpHeight, scale);
         //drawImageMultiThread(graphics,_vpOffsX,_vpOffsY,_vpWidth,_vpHeight,scale, opacity);
     }
 
@@ -327,7 +324,6 @@ public class TiledImageWriter {
      * @param _vpWidth
      * @param _vpHeight
      * @param scale
-     * @param opacity
      */
         /*
 	  public void drawImageMultiThread(final Graphics2D graphics, final int _vpOffsX, final int _vpOffsY, final int _vpWidth, final int _vpHeight, final double scale, final float opacity) {
@@ -399,12 +395,13 @@ public class TiledImageWriter {
 						 }
 
 
-						 float[] scales = {1f, 1f, 1f, opacity};
-						 float[] offsets = new float[4];
-						 RescaleOp rop = new RescaleOp(scales, offsets, null);
-						 int xInTile = (int) (getImage().tileXToX(ti));
-						 int yInTile = (int) (getImage().tileYToY(tj));
-						 ((Graphics2D) graphics).drawImage(bi, rop, xInTile, yInTile);
+//						 float[] scales = {1f, 1f, 1f, opacity};
+//						 float[] offsets = new float[4];
+//						 RescaleOp rop = new RescaleOp(scales, offsets, null);
+						 int xInTile = (getImage().tileXToX(ti));
+						 int yInTile = (getImage().tileYToY(tj));
+//						 ((Graphics2D) graphics).drawImage(bi, rop, xInTile, yInTile);
+                         graphics.drawImage(bi, xInTile, yInTile, null);
 						 return null;
 					 }
 				 };
@@ -418,7 +415,7 @@ public class TiledImageWriter {
 			  executorService.invokeAll (taskList);
 			  executorService.shutdownNow();
 		  } catch (Exception e) {
-			  logger.warn("error rendering classification tile", e);
+              logger.warn("error rendering classification tile", e);
 		  }
 
 	 }
@@ -434,9 +431,8 @@ public class TiledImageWriter {
      * @param _vpWidth
      * @param _vpHeight
      * @param scale
-     * @param opacity
      */
-    public void drawImageSingleThread(Graphics2D graphics, int _vpOffsX, int _vpOffsY, int _vpWidth, int _vpHeight, double scale, float opacity) {
+    public void drawImageSingleThread(Graphics2D graphics, int _vpOffsX, int _vpOffsY, int _vpWidth, int _vpHeight, double scale) {
         TiledImageWriter.timeOut.set(System.currentTimeMillis());
         if (painting.get()) return;
         painting.set(true);
@@ -539,12 +535,13 @@ public class TiledImageWriter {
             }
 
 
-            float[] scales = {1f, 1f, 1f, opacity};
-            float[] offsets = new float[4];
-            RescaleOp rop = new RescaleOp(scales, offsets, null);
+//            float[] scales = {1f, 1f, 1f, opacity};
+//            float[] offsets = new float[4];
+//            RescaleOp rop = new RescaleOp(scales, offsets, null);
             int xPos = getImage().tileXToX(ti);
             int yPos = getImage().tileYToY(tj);
-            graphics.drawImage(bi, rop, xPos, yPos);
+            graphics.drawImage(bi, xPos, yPos, null);
+//            graphics.drawImage(bi, rop, xPos, yPos);
             //  AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity);
             //  AffineTransform tx = AffineTransform.getTranslateInstance(xInTile,yInTile);
             //  graphics.drawRenderedImage( bi, tx);

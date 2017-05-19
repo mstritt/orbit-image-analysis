@@ -75,7 +75,7 @@ public class OrbitModel implements Serializable, Cloneable {
     private int mipLayer = 0; // the images mipLayer used for training the model
 
     /**
-     * constructs a model with default classShapes and defaultFeatureDescriptors, classifier and structure are set to null.
+     * Constructs a model with default classShapes and defaultFeatureDescriptors, classifier and structure are set to null.
      */
     public OrbitModel() {
         // upd 28.06.2010: default class shapes and feature descriptors
@@ -89,7 +89,7 @@ public class OrbitModel implements Serializable, Cloneable {
     }
 
     /**
-     * constructs a model with a (already build) classifier.
+     * Constructs a model with a (already build) classifier.
      *
      * @param classifier
      * @param structure
@@ -312,6 +312,7 @@ public class OrbitModel implements Serializable, Cloneable {
     public static List<ModelAnnotation> LoadFromOrbitUser(String userId) throws Exception {
         List<ModelAnnotation> modelList = new ArrayList<>();
         List<RawAnnotation> annoList = DALConfig.getImageProvider().LoadRawAnnotationsByType(RawAnnotation.ANNOTATION_TYPE_MODEL);
+        logger.trace("models loaded from image provider");
         for (RawAnnotation rawAnnotation : annoList) {
             if (rawAnnotation.getRawAnnotationType() == RawAnnotation.ANNOTATION_TYPE_MODEL) {
                 if ((userId == null || userId.length() == 0) || userId.equals(rawAnnotation.getUserId())) {
@@ -803,7 +804,5 @@ public class OrbitModel implements Serializable, Cloneable {
         sb.append("------\n");
         return sb.toString();
     }
-
-
 
 }
