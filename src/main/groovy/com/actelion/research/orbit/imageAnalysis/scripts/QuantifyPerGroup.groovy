@@ -31,8 +31,8 @@ import com.actelion.research.orbit.imageAnalysis.utils.OrbitHelper
  * (The idea is that you can have several ROIs and process them using different groups.)
  */
 final int modelId = 2226854; // model to load;
-String search = "test";   // replace it
-def groups=(1..4); // 4 annotation ground, change it to the number of groups you have
+String search = "ELB0226-0800";   // replace it
+def groups=(2..2); // 4 annotation ground, change it to the number of groups you have
 
 final boolean scaleout = false; // can be used in scaleoutmode, too!
 final List<RawDataFile> missing = new ArrayList<>();

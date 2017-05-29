@@ -42,8 +42,8 @@ long[] rgb = [0,0,0];
 long cnt=0;
 recognitionFrame.bimg.image.tiles.each {
     Raster r = it;
-    for (int y=0; y<r.getHeight(); y++)
-        for (int x=0; x<r.getWidth(); x++) {
+    for (int y=r.minY; y<r.minY+r.height; y++)
+        for (int x=r.minX; x<r.minY+r.height; x++) {
             if (OrbitUtils.isInROI(x,y,recognitionFrame.getROI(),null)) {
                 for (int c = 0; c < rgb.length; c++) {
                     rgb[c] += r.getSample(x, y, c);

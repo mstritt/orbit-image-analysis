@@ -58,8 +58,8 @@ recognitionFrame.bimg.image.getTileIndices(null).each  {
     Point tileIdx = it;
     Raster r = recognitionFrame.bimg.image.getTile((int)tileIdx.x,(int)tileIdx.y);
     WritableRaster classRaster = recognitionFrame.classImage.image.getWritableTile((int)tileIdx.x,(int)tileIdx.y);
-    for (int y=0; y<r.getHeight(); y++)
-        for (int x=0; x<r.getWidth(); x++) {
+    for (int y=r.minY; y<r.minY + r.height; y++)
+        for (int x=r.minX; x<r.minX + r.width; x++) {
             if (OrbitUtils.isInROI(x,y,recognitionFrame.getROI(),null)) {
                 if (r.getSample(x, y, 0) < threshold) {
                     classRaster.setPixel(x, y, col);
