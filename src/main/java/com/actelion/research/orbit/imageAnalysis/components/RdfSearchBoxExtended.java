@@ -41,7 +41,11 @@ public class RdfSearchBoxExtended extends RdfSearchBox {
     }
 
     public RdfSearchBoxExtended(boolean showViewModeButtons, boolean showConcatMode) {
-        super(showViewModeButtons, showConcatMode);
+        super(showViewModeButtons, showConcatMode,true);
+    }
+
+    public RdfSearchBoxExtended(boolean showViewModeButtons, boolean showConcatMode, boolean showFileFilter) {
+        super(showViewModeButtons, showConcatMode, showFileFilter);
     }
 
     @Override

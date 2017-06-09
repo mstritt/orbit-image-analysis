@@ -142,15 +142,16 @@ configurations {
 
 
 dependencies {
-    compile 'com.actelion.research:lib-orbit-common:1.1.3'
-    compile 'com.actelion.research:image-provider-omero:1.4.3'
+    compile 'com.actelion.research:lib-orbit-common:1.1.9'
+    compile 'com.actelion.research:libOrbit:2.4.11'
+//    compile 'com.actelion.research:image-provider-omero:1.4.3'
     compile 'com.actelion.research:map-reduce-generic:1.0.8'
-    compile 'com.actelion.research:map-reduce-exec-spark:1.0.2'
+//    compile 'com.actelion.research:map-reduce-exec-spark:1.0.2'
 //    compile 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
-//    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.1.2') {
-//        exclude(module: 'orbit-image-analysis')
-//    }
-//    compile 'com.actelion.research:imageproviderorbit:1.0.15'
+    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.1.3') {
+        exclude(module: 'orbit-image-analysis')
+    }
+    compile 'com.actelion.research:imageproviderorbit:1.0.26'
 
 // only used for image-provider-omero development
 //    compile(group: 'omero', name: 'blitz', version: '5.2.7-ice36-b40') {   // 5.2.7-ice36-b40   5.3.0-ice36-b59
@@ -206,7 +207,7 @@ dependencies {
     compile (group: 'org.codelibs', name:'jcifs', version:'1.3.18.1') {  // for SmbUtils     (exclude javax.servlet-api because Spark needs a different version)
        exclude (group:'javax.servlet', module: 'servlet-api')
     }
-    compile (group: 'ome', name:'formats-gpl', version:'5.4.1') {
+    compile (group: 'ome', name:'formats-gpl', version:'5.5.1') {
         exclude (module: 'blitz')
     }
     compile (group: 'net.imglib2', name: 'imglib2', version: '3.2.1') // to avoid jpeg2000 problem: NoSuchMethodError: jj2000.j2k.fileformat.reader.FileFormatReader.<init>

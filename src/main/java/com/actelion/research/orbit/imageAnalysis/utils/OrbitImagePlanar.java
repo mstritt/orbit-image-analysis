@@ -23,6 +23,7 @@ import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 
 import javax.media.jai.PlanarImage;
+import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
@@ -48,6 +49,7 @@ public class OrbitImagePlanar implements IOrbitImage {
         return image.getTile(tileX, tileY);
     }
 
+   
     @Override
     public String getFilename() {
         return name;
@@ -121,5 +123,10 @@ public class OrbitImagePlanar implements IOrbitImage {
     @Override
     public void close() throws IOException {
 
+    }
+
+    @Override
+    public BufferedImage getOverviewImage() {
+        return null;
     }
 }

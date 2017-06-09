@@ -327,7 +327,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
         // left panel
 
-        RdfSearchBox searchBox = new RdfSearchBoxExtended(false, false);
+        RdfSearchBox searchBox = new RdfSearchBoxExtended(false, false, false);
 
 
         imageList = new ImageList(new RdfThnCellRendererBig(DALConfig.getImageProvider()));
@@ -1740,6 +1740,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             String title = iFrame.getTitle();
             if (levelNum == RawUtilsCommon.LEVEL_LABEL) title += " [Label]";
             if (levelNum == RawUtilsCommon.LEVEL_OVERVIEW) title += " [Overview]";
+
+
+
             ImageFrame newFrame = new ImageFrame(new RecognitionFrame(iFrame.recognitionFrame, rdf, levelNum));
             if (newFrame.recognitionFrame == null || newFrame.recognitionFrame.bimg == null || newFrame.recognitionFrame.bimg.getImage() == null) {
                 return; // not available

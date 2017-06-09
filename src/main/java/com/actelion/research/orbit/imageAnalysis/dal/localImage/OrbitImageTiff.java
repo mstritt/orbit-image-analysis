@@ -191,6 +191,11 @@ public class OrbitImageTiff implements IOrbitImage {
         }
     }
 
+    @Override
+    public BufferedImage getOverviewImage() {
+        return null;
+    }
+
     private BufferedImage getBufferedImage(final byte[] data, int planeWidth, int planeHeight) {
         BufferedImage bi;
         if (numBandsOriginal==1)

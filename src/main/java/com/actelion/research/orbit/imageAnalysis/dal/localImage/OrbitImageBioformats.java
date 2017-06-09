@@ -326,6 +326,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         return getTileData(tileX, tileY, null);
     }
 
+
     @Override
     public Raster getTileData(int tileX, int tileY, float[] channelContributions) {
         try {
@@ -346,6 +347,11 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public BufferedImage getOverviewImage() {
+        return null;
     }
 
     /**
