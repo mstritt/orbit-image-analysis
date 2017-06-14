@@ -25,10 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * provides add/remove-PropertyChangeListener and firePropertyChangeEvent methods.
+ * Provides add/remove-PropertyChangeListener and firePropertyChangeEvent methods.
  *
- * @author stritma1
- * @since 19.03.2010
  */
 public class PropertyChangeEmitter {
 
