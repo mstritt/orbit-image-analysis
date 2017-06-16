@@ -998,6 +998,13 @@ public class OrbitMenu extends JRibbonFrame {
         buttonDBCleanup.addActionListener(oia == null ? null : oia.dbCleanupActionListener);
         manageFilesBand.addCommandButton(buttonDBCleanup, RibbonElementPriority.MEDIUM);
 
+        JCommandButton buttonChannelColorAssignmentReset = new JCommandButton("Channel/Color Reset", new SystemRun5());
+        RichTooltip richTooltipResetChannelColors = new RichTooltip("Channel/Color Reset", "Reset custom channel/colors settings which have been defined in the adjustment settings.");
+        richTooltipResetChannelColors.addDescriptionSection("Afterwards Orbit will use the default channel color assignments.");
+        buttonChannelColorAssignmentReset.setActionRichTooltip(richTooltipResetChannelColors);
+        buttonChannelColorAssignmentReset.addActionListener(oia == null ? null : oia.resetCustomHuesActionListener);
+        manageFilesBand.addCommandButton(buttonChannelColorAssignmentReset, RibbonElementPriority.MEDIUM);
+
 
         // save image
 

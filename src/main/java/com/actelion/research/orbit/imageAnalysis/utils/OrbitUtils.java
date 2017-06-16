@@ -53,7 +53,7 @@ import java.util.*;
 import java.util.List;
 
 public class OrbitUtils {
-    // label:  OrbitImageAnalysis26
+    // label:  OrbitImageAnalysis262
     public static final String VERSION_STR = getVersion() + (ScaleoutMode.SCALEOUTMODE.get() ? "G" : "") + (OrbitUtils.DEVELOPMENTMODE ? " DEVELOPMENT" : "");
     public static final boolean DEVELOPMENTMODE = false;
     public static final boolean TILEMODE = false;
@@ -95,6 +95,8 @@ public class OrbitUtils {
     public static final String orbitImageProviderURL = "http://www.orbit.bio/setup";
 
     public static final String CHANNEL_NAME_ALL = "<ALL CHANNELS>";
+
+    public static final String CHANNEL_NAME2HUE = "channel_name2hue_";
 
     static {
         Logger root = LoggerFactory.getLogger("com.actelion.research");

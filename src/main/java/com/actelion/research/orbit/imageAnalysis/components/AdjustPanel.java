@@ -26,6 +26,7 @@ import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
+import com.actelion.research.orbit.utils.ChannelToHue;
 import com.actelion.research.orbit.utils.RawMetaFactoryFile;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 import imageJ.Colour_Deconvolution;
@@ -36,13 +37,11 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.*;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 
 public class AdjustPanel extends JPanel {
@@ -71,6 +70,8 @@ public class AdjustPanel extends JPanel {
 
     private final JButton saveBtn = new JButton("save adjustments");
     private final JButton resetBtn = new JButton("reset values");
+
+    protected final Preferences channelPrefs = Preferences.userNodeForPackage(ChannelToHue.class);
 
     public AdjustPanel() {
 
@@ -531,12 +532,15 @@ public class AdjustPanel extends JPanel {
                                 multiChannelPanel.add(b1);
                                 JPanel cp = new JPanel(new GridBagLayout());
                                 Insets insetsL = new Insets(5, 5, 0, 5);
+                                Insets insetsCP = new Insets(6, 5, 0, 5);
                                 Insets insets = new Insets(0, 5, 0, 5);
                                 int y = 0;
                                 final float multiplier = 0.01f;
                                 for (int c=0; c<oim.getChannelNames().length; c++) {
                                     final int channelNr = c;
-                                    String channelName = oim.getChannelNames()[c];
+                                    final String channelName = oim.getChannelNames()[c];
+                                    final float hue = ChannelToHue.getHue(channelName);
+                                    final Color channelColor = Color.getHSBColor(hue,1f,1f);
                                     final DoubleClickSlider slider = new DoubleClickSlider(0,200, 100, true);
                                     if (oim.getChannelContributions()!=null) {
                                         slider.setValue((int)(oim.getChannelContributions()[c]/multiplier)); // restore values
@@ -555,8 +559,49 @@ public class AdjustPanel extends JPanel {
                                             updateIFrame(iFrame);
                                         }
                                     });
+
+                                    JComponent colorPicker = new JComponent() {
+                                        {
+                                            int w = 12;
+                                            int h = 12;
+                                            setSize(w,h);
+                                            setPreferredSize(new Dimension(w,h));
+                                            setMinimumSize(new Dimension(w,h));
+                                            setMaximumSize(new Dimension(w,h));
+                                        }
+                                        @Override
+                                        protected void paintComponent(Graphics g) {
+                                            g.setColor(channelColor);
+                                            g.fillRect(0,0,getWidth(),getHeight());
+                                        }
+                                    };
+
+                                    colorPicker.addMouseListener(new MouseAdapter() {
+                                        @Override
+                                        public void mouseClicked(MouseEvent e) {
+                                            OrbitImageAnalysis.getInstance().forceLogin();
+                                            if (OrbitImageAnalysis.loginOk) {
+                                                HueColorChooser hcc = new HueColorChooser(hue);
+                                                hcc.setVisible(true);
+                                                if (hcc.getReturnValue() == JOptionPane.OK_OPTION) {
+                                                    ChannelToHue.userHueMap.put(channelName.toLowerCase(), hcc.getSelectedHue());
+                                                    ChannelToHue.hueMap.put(channelName.toLowerCase(), hcc.getSelectedHue());
+                                                    //OrbitTiledImage2.tileCache.invalidateAll();    // does not work... ?
+                                                    OrbitTiledImage2.tileCache = null;
+                                                    logger.info("selected hue for channel " + channelName + ": " + hcc.getSelectedHue());
+                                                    channelPrefs.putFloat(OrbitUtils.CHANNEL_NAME2HUE + channelName.toLowerCase(), hcc.getSelectedHue());
+                                                }
+                                                hcc.dispose();
+                                            }
+                                            e.consume();
+                                        }
+                                    });
+
                                     cp.add(new JLabel(channelName), new GridBagConstraints(0, y++, 1, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, insetsL, 0, 0));
-                                    cp.add(DoubleClickSlider.wrapToPanelWithValue(slider, 0, multiplier), new GridBagConstraints(0, y++, GridBagConstraints.REMAINDER, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
+                                    cp.add(DoubleClickSlider.wrapToPanelWithValue(slider, 0, multiplier), new GridBagConstraints(0, y, 1, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
+                                    cp.add(colorPicker, new GridBagConstraints(1, y, 1, 1, 0, 1, GridBagConstraints.NORTHEAST, GridBagConstraints.NONE, insetsCP, 0, 0));
+                                    y++;
+
                                 }
                                 multiChannelPanel.add(cp);
                                 OrbitImageAnalysis.getInstance().getSplitPanePropLoupe().resetToPreferredSizes();

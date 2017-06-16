@@ -41,6 +41,7 @@ import com.actelion.research.orbit.imageAnalysis.tasks.classification.Classifica
 import com.actelion.research.orbit.imageAnalysis.tasks.histogram.HistogramWorkerMapReduce;
 import com.actelion.research.orbit.imageAnalysis.tasks.segmentation.SegmentationWorkerMapReduce;
 import com.actelion.research.orbit.imageAnalysis.utils.*;
+import com.actelion.research.orbit.utils.ChannelToHue;
 import com.actelion.research.orbit.utils.Logger;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 import org.jaitools.tilecache.DiskCachedTile;
@@ -74,6 +75,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import static com.actelion.research.orbit.imageAnalysis.dal.DALConfig.isLocalImageProvider;
@@ -3664,12 +3666,22 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     public final ActionListener retrieveExistingResultsActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-            try {
-                addInternalFrame(DALConfig.getScaleOut().createExistingResultView());
-            } catch (Exception e1) {
-                e1.printStackTrace();
-                logger.error("error adding result retriever frame: ", e1);
-            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    addInternalFrame(DALConfig.getScaleOut().createExistingResultView());
+                                } catch (Exception e1) {
+                                    e1.printStackTrace();
+                                    logger.error("error adding result retriever frame: ", e1);
+                                }
+                            }
+                        });
+                }
+            }).start();
         }
     };
 
@@ -3701,6 +3713,36 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         }
     };
+
+    public final ActionListener resetCustomHuesActionListener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            forceLogin();
+            if (loginOk) {
+                if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+                        "Do you really want to reset all custom channel/color assignments?\nAfterwards Orbit will use the default assignments.",
+                        "Reset channel/color assignments", JOptionPane.YES_NO_OPTION)
+                        == JOptionPane.YES_OPTION) {
+                    try {
+                        resetChannelColorAssignmentsPreferences();
+                        JOptionPane.showMessageDialog(OrbitImageAnalysis.this,"Channel/color assignments successfully reset.\nYou have to restart Orbit to realize the settings.","Channel/color assignment reset",JOptionPane.INFORMATION_MESSAGE);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                        logger.error("Channel/color assignment reset error: " + e1.getMessage());
+                    }
+                }
+            }
+        }
+    };
+
+    private void resetChannelColorAssignmentsPreferences() throws BackingStoreException {
+        Preferences channelPrefs = Preferences.userNodeForPackage(ChannelToHue.class);
+        for (String key: channelPrefs.keys()) {
+            if (key.startsWith(OrbitUtils.CHANNEL_NAME2HUE)) {
+                channelPrefs.remove(key);
+            }
+        }
+    }
+
 
     public String askForDir() {
         logger.trace("ask for dir");

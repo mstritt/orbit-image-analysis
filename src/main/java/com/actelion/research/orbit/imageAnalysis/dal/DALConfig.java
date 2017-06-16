@@ -42,6 +42,7 @@ import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.prefs.Preferences;
 
 public class DALConfig {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DALConfig.class);
@@ -182,6 +183,20 @@ public class DALConfig {
                             } catch (Exception e) {
                                 logger.warn("error parsing hue value "+nameHue[1]+" for channel name "+nameHue[0]);
                             }
+                        }
+                    }
+                }
+            }
+            // read user channel2hues from preferences
+            if (!ScaleoutMode.SCALEOUTMODE.get()) {
+                Preferences channelPrefs = Preferences.userNodeForPackage(ChannelToHue.class);
+                for (String key: channelPrefs.keys()) {
+                    if (key.startsWith(OrbitUtils.CHANNEL_NAME2HUE)) {
+                        String channelName = key.replaceFirst(OrbitUtils.CHANNEL_NAME2HUE,"").toLowerCase();
+                        float hue = channelPrefs.getFloat(key,-1f);
+                        if (hue>=0f) {
+                            ChannelToHue.userHueMap.put(channelName, hue);
+                            logger.info("setting custom channel hue (preferences): "+channelName+": "+hue);
                         }
                     }
                 }

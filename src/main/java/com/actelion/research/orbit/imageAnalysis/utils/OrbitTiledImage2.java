@@ -54,7 +54,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
     public static AtomicInteger cacheTileHeight = new AtomicInteger(OrbitUtils.TILE_SIZE);
     private static final ReentrantReadWriteLock cacheLock = new ReentrantReadWriteLock();
     private static final boolean doCacheLock = false;
-    private boolean useCache = !ScaleoutMode.SCALEOUTMODE.get();
+    private boolean useCache =  !ScaleoutMode.SCALEOUTMODE.get();
     protected int photometric = PHOTOMETRIC_YCbCr;
     //protected static final ColorModel rgbColorModel = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.TYPE_YCbCr), new int[]{8,8,8}, false, false, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
     protected static final ColorModel rgbColorModel = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[]{8, 8, 8}, false, false, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
@@ -149,7 +149,10 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         try {
             if (useCache && OrbitTiledImage2.tileCache != null) {
                 Raster cachedRaster = OrbitTiledImage2.tileCache.getIfPresent(tileP);
-                if (initialized && cachedRaster != null) return cachedRaster;
+                if (initialized && cachedRaster != null) {
+                    //logger.trace("cache hit");
+                    return cachedRaster;
+                } 
             }
         } finally {
             if (doCacheLock) OrbitTiledImage2.cacheLock.readLock().unlock();
