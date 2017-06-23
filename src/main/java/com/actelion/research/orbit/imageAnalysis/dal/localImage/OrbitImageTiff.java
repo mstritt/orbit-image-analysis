@@ -19,6 +19,7 @@
 
 package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
+import com.actelion.research.orbit.beans.MinMaxPerChan;
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import loci.formats.FormatException;
@@ -168,8 +169,11 @@ public class OrbitImageTiff implements IOrbitImage {
         return "";
     }
 
+    /**
+     * Analysis is ignored here - works only for 8bit images
+     */
     @Override
-    public Raster getTileData(int tileX, int tileY) {
+    public Raster getTileData(int tileX, int tileY, boolean analysis) {
         try {
             byte[] buf = buffer.get();
             byte[] data = tp.get().getTile(ifd,buf,tileY,tileX);
@@ -189,6 +193,16 @@ public class OrbitImageTiff implements IOrbitImage {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public MinMaxPerChan getMinMaxAnalysis() {
+        return null;
+    }
+
+    @Override
+    public boolean is16bit() {
+        return false;
     }
 
     @Override
@@ -239,13 +253,13 @@ public class OrbitImageTiff implements IOrbitImage {
 
     @Override
     public ColorModel getColorModel() {
-        if (colorModel==null) getTileData(0,0);    // initialize first time
+        if (colorModel==null) getTileData(0,0,false);    // initialize first time
         return colorModel;
     }
 
     @Override
     public SampleModel getSampleModel() {
-        if (sampleModel==null) getTileData(0,0);   // initialize first time
+        if (sampleModel==null) getTileData(0,0,false);   // initialize first time
         return sampleModel;
     }
 

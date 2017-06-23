@@ -19,6 +19,7 @@
 
 package com.actelion.research.orbit.imageAnalysis.utils;
 
+import com.actelion.research.orbit.beans.MinMaxPerChan;
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 
@@ -45,11 +46,33 @@ public class OrbitImagePlanar implements IOrbitImage {
     }
 
     @Override
-    public Raster getTileData(int tileX, int tileY) {
-        return image.getTile(tileX, tileY);
+    public Raster getTileData(int tileX, int tileY, boolean analysis) {
+        if (image instanceof IOrbitImage) {
+            return ((IOrbitImage) image).getTileData(tileX,tileY,analysis);
+        } else {
+            return image.getTile(tileX, tileY);
+        }
     }
 
-   
+    @Override
+    public MinMaxPerChan getMinMaxAnalysis() {
+        if (image instanceof IOrbitImage) {
+            return ((IOrbitImage) image).getMinMaxAnalysis();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public boolean is16bit() {
+        if (image instanceof IOrbitImage) {
+            return ((IOrbitImage) image).is16bit();
+        } else {
+            return false;
+        }
+    }
+
+
     @Override
     public String getFilename() {
         return name;

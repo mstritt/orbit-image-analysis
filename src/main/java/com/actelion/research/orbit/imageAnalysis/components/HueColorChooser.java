@@ -26,6 +26,7 @@ public class HueColorChooser extends JDialog implements ChangeListener {
         setResizable(false);
         setModal(true);
 
+        selectedHue = initialHue;
         hsb[0] = initialHue;
         hsb[1] = 1f;
         hsb[2] = 1f;

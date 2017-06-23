@@ -19,6 +19,8 @@
 
 package com.actelion.research.orbit.imageAnalysis.utils;
 
+import com.actelion.research.orbit.dal.IOrbitImage;
+import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 
 import javax.media.jai.PlanarImage;
@@ -80,8 +82,15 @@ public class OrbitTiledImagePlanarImage extends OrbitTiledImage2 {
      * will ignore channelContributions
      */
     @Override
-    public Raster getTileData(int arg0, int arg1, float[] channelContributions) {
-        return image.getTile(arg0, arg1);
+    public Raster getTileData(int tileX, int tileY, float[] channelContributions, boolean analysis) {
+        if (image instanceof IOrbitImageMultiChannel) {
+            return ((IOrbitImageMultiChannel) image).getTileData(tileX,tileY,channelContributions,analysis);
+        } else
+        if (image instanceof IOrbitImage) {
+            return ((IOrbitImage) image).getTileData(tileX,tileY,analysis);
+        } else {
+            return image.getTile(tileX, tileY);
+        }
     }
 
 

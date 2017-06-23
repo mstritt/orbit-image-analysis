@@ -23,6 +23,8 @@ import com.actelion.research.orbit.beans.RawAnnotation;
 import com.actelion.research.orbit.beans.RawData;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.beans.RawMeta;
+import com.actelion.research.orbit.dal.IOrbitImage;
+import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.gui.AbstractOrbitTree;
 import com.actelion.research.orbit.gui.RdfSearchBox;
@@ -1581,6 +1583,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                         if (metaBar.getRawDataFileMetas().getMetaHash().containsKey("Fluorescence Channels")) {
                             iFrame.recognitionFrame.setGaugeColor(Color.white);  // channels->assume fluorescence -> white
                         }
+                        if (getMultiChannelImage(iFrame)!=null) {     // fluo image
+                            iFrame.recognitionFrame.setGaugeColor(Color.white);  
+                        }
 
                     }
 
@@ -1608,6 +1613,20 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     }
 
+
+    private IOrbitImageMultiChannel getMultiChannelImage(ImageFrame iFrame) {
+        if (iFrame!=null) {
+            OrbitTiledImage2 img = iFrame.recognitionFrame.bimg.getImage();
+            if (img instanceof OrbitTiledImageIOrbitImage) {
+                IOrbitImage oi = ((OrbitTiledImageIOrbitImage) img).getOrbitImage();
+                if (oi instanceof IOrbitImageMultiChannel) {
+                    final IOrbitImageMultiChannel oim = (IOrbitImageMultiChannel) oi;
+                    return oim;
+                }
+            }
+        }
+        return null;
+    }
 
     private void loadAnnotations(ImageFrame iFrame, boolean onlySyncWithMetabar) {
         metaBar.getAnnotationPanel().clear();

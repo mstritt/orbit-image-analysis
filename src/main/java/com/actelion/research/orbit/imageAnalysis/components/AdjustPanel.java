@@ -38,6 +38,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -473,6 +474,24 @@ public class AdjustPanel extends JPanel {
         return null;
     }
 
+    private List<IOrbitImageMultiChannel> getMultiChannelImages() {
+        List<IOrbitImageMultiChannel> images = new ArrayList<>();
+        List<ImageFrame> iFrames = OrbitImageAnalysis.getInstance().getIFrames();
+        if (iFrames!=null) {
+            for (ImageFrame iFrame : iFrames) {
+                OrbitTiledImage2 img = iFrame.recognitionFrame.bimg.getImage();
+                if (img instanceof OrbitTiledImageIOrbitImage) {
+                    IOrbitImage oi = ((OrbitTiledImageIOrbitImage) img).getOrbitImage();
+                    if (oi instanceof IOrbitImageMultiChannel) {
+                        final IOrbitImageMultiChannel oim = (IOrbitImageMultiChannel) oi;
+                        images.add(oim);
+                    }
+                }
+            }
+        }
+        return images;
+    }
+
     public boolean loadAdjustments(final ImageFrame iFrame) {
         boolean adjustmentsSet = false;
         // other adjustments
@@ -560,34 +579,34 @@ public class AdjustPanel extends JPanel {
                                         }
                                     });
 
-                                    JComponent colorPicker = new JComponent() {
-                                        {
-                                            int w = 12;
-                                            int h = 12;
-                                            setSize(w,h);
-                                            setPreferredSize(new Dimension(w,h));
-                                            setMinimumSize(new Dimension(w,h));
-                                            setMaximumSize(new Dimension(w,h));
-                                        }
-                                        @Override
-                                        protected void paintComponent(Graphics g) {
-                                            g.setColor(channelColor);
-                                            g.fillRect(0,0,getWidth(),getHeight());
-                                        }
-                                    };
+                                    final Color color = channelColor;
+                                    final ChannelColorPicker colorPicker = new ChannelColorPicker(color);
 
                                     colorPicker.addMouseListener(new MouseAdapter() {
                                         @Override
                                         public void mouseClicked(MouseEvent e) {
                                             OrbitImageAnalysis.getInstance().forceLogin();
                                             if (OrbitImageAnalysis.loginOk) {
+                                                final float hue = ChannelToHue.getHue(channelName);
                                                 HueColorChooser hcc = new HueColorChooser(hue);
                                                 hcc.setVisible(true);
                                                 if (hcc.getReturnValue() == JOptionPane.OK_OPTION) {
+                                                    colorPicker.setColor(Color.getHSBColor(hcc.getSelectedHue(),1f,1f));
+                                                    colorPicker.repaint();
                                                     ChannelToHue.userHueMap.put(channelName.toLowerCase(), hcc.getSelectedHue());
                                                     ChannelToHue.hueMap.put(channelName.toLowerCase(), hcc.getSelectedHue());
-                                                    //OrbitTiledImage2.tileCache.invalidateAll();    // does not work... ?
+                                                    ChannelToHue.lastUpdate.set(System.currentTimeMillis());
                                                     OrbitTiledImage2.tileCache = null;
+                                                    final ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+                                                    if (iFrame!=null) {
+                                                        SwingUtilities.invokeLater(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                iFrame.repaint();
+                                                                OrbitImageAnalysis.getInstance().getRenderGrid().componentResized(null);
+                                                            }
+                                                        });
+                                                    }
                                                     logger.info("selected hue for channel " + channelName + ": " + hcc.getSelectedHue());
                                                     channelPrefs.putFloat(OrbitUtils.CHANNEL_NAME2HUE + channelName.toLowerCase(), hcc.getSelectedHue());
                                                 }
