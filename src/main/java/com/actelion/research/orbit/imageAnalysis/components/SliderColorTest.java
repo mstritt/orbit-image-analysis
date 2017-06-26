@@ -26,7 +26,9 @@ import java.awt.*;
 
 public class SliderColorTest extends JFrame {
 
+
     public SliderColorTest()  {
+
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -37,7 +39,8 @@ public class SliderColorTest extends JFrame {
                     e.printStackTrace();
                 }
                 setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-                JSlider slider = new JSlider(0,100,30);
+                JSlider slider = new JSliderOrbit(0,100,30);
+               // slider.setUI(new JSliderOrbit.MySubstanceSliderUI(slider));
 
                 add(slider);
                 pack();

@@ -30,7 +30,7 @@ import java.beans.PropertyChangeListener;
  * The range is from 1 to 800. But for the output 1-400 is mapped to 1-100 and 401-800 is mapped to 101-500.
  * The "read-back" is done in the propertyChangeListener. The Set-mapping is done in OrbitImageAnalysis.getScaleActionListener().
  */
-public class SliderWithListener extends JSlider implements PropertyChangeListener {
+public class SliderWithListener extends JSliderOrbit implements PropertyChangeListener {
 
     private static final long serialVersionUID = 1L;
 

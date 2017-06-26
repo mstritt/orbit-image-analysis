@@ -101,7 +101,7 @@ public class ImageFrame extends JInternalFrame implements ComponentListener, Pro
         this.recognitionFrame = recognitionFrame;
         addPropertyChangeListener(this);
 
-        opacitySlider = new JSlider(0, 100);
+        opacitySlider = new JSliderOrbit(0, 100);
         opacitySlider.setToolTipText("adjust classification opacity");
         opacitySlider.setEnabled(false);
         opacitySlider.setValue(0);

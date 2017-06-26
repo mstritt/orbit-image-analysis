@@ -28,7 +28,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class DoubleClickSlider extends JSlider {
+public class DoubleClickSlider extends JSliderOrbit {
 
     private static final long serialVersionUID = 1L;
     private int defValue = 0;
