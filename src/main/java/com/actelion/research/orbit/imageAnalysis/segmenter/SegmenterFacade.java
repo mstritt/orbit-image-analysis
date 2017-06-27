@@ -41,7 +41,7 @@ public class SegmenterFacade {
    *          Binary mask (WHITE = foreground, BLACK = background)
    * @param alpha
    *          Value needed by
-   *          {@link com.actelion.research.orbit.segmenter.finitedifference.FiniteDifferenceSolver}
+   *          {@link com.actelion.research.orbit.imageAnalysis.segmenter.finitedifference.FiniteDifferenceSolver}
    * @param cellRadius
    *          Approximate cell radius in pixel
    * @return Object containing the polygons, a seedpoint per cell and the original image with

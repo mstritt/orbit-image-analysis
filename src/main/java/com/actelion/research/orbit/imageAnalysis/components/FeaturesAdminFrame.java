@@ -74,6 +74,10 @@ public class FeaturesAdminFrame extends JDialog {
     private final JRadioButton deconvChannel3 = new JRadioButton("Comp", false);
     private JComboBox cbDeconvName = null;
 
+    private JCheckBox cbMFS = null;
+    private IntegerTextField tfMFSAlpha = null;
+    private IntegerTextField tfMFSCellSize = null;
+
     private JCheckBox cbDisableWatershed = null;
     private JCheckBox cbDoCombineCrossTiles = null;
     private JCheckBox cbDilateBeforeErode = null;
@@ -85,7 +89,7 @@ public class FeaturesAdminFrame extends JDialog {
 
 
     private int frameWidth = 600;
-    private int frameHeight = 700;
+    private int frameHeight = 750;
     private int btnHeight = 25;
     private int selectedTab = 0;
     private FeatureDescription featureDescription = null;
@@ -337,6 +341,26 @@ public class FeaturesAdminFrame extends JDialog {
         setCompBounds(cbFilterTileEdgeShapes, frameWidth, 0);
         panelSegmentation.add(cbFilterTileEdgeShapes);
 
+
+
+        panel = new JPanel(new GridLayout(1, 3));
+        cbMFS = new JCheckBox("Mumford-Shah Segmentation:",featureDescription.isMumfordShahSegmentation());
+        cbMFS.setToolTipText("enable mumford-shah segmentation (good for cell clubs)");
+        panel.add(cbMFS);
+        tfMFSCellSize = new IntegerTextField(18, 18, 1, 1000);
+        tfMFSCellSize.setHorizontalAlignment(JTextField.LEFT);
+        tfMFSCellSize.setInt(featureDescription.getMumfordShahCellSize());
+        panel.add(tfMFSCellSize);
+        tfMFSAlpha = new IntegerTextField(18, 18, 1, 1000);
+        tfMFSAlpha.setHorizontalAlignment(JTextField.LEFT);
+        tfMFSAlpha.setInt(featureDescription.getMumfordShahAlpha());
+        panel.add(tfMFSAlpha);
+
+        setCompBounds(panel, frameWidth - 50, 0);
+        panelSegmentation.add(panel);
+
+
+
         panel = new JPanel(new GridLayout(1, 2));
         lab = new JLabel("Dilate:");
         panel.add(lab);
@@ -572,6 +596,9 @@ public class FeaturesAdminFrame extends JDialog {
         tfRemoveOutliers.setText(Integer.toString(featureDescription.getRemoveOutliers()));
         tfGraphCut.setText(Double.toString(featureDescription.getGraphCut()));
         cbDeactivateWatershed.setSelected(featureDescription.isDeactivateWatershed());  // large object detection
+        cbMFS.setSelected(featureDescription.isMumfordShahSegmentation());
+        tfMFSAlpha.setInt(featureDescription.getMumfordShahAlpha());
+        tfMFSCellSize.setInt(featureDescription.getMumfordShahCellSize());
 
 
         // roi
@@ -768,6 +795,10 @@ public class FeaturesAdminFrame extends JDialog {
         featureDescription.setUseImageAdjustments(cbUseImageAdjustments.isSelected());
         featureDescription.setForSecondarySegmentationModel(cbForSecondarySegmentationModel.isSelected());
         featureDescription.setCytoplasmaSegmentation(cbCytoplasmaSegmentation.isSelected());
+
+        featureDescription.setMumfordShahSegmentation(cbMFS.isSelected());
+        featureDescription.setMumfordShahAlpha(tfMFSAlpha.getInt());
+        featureDescription.setMumfordShahCellSize(tfMFSCellSize.getInt());
 
         // fluo channels
         String[] activeFluoChannels = cbFluoChannels.getCheckedItems();

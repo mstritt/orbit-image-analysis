@@ -61,10 +61,12 @@ public class FeatureDescription implements Serializable, Cloneable {
     private int removeOutliers = 0;
     private double graphCut = 0d;
     private boolean useImageAdjustments = false; // imageAdjustments like gamma, contrast, brightness loaded from DB (meta data)
-
     private boolean forSecondarySegmentationModel = false;
     private boolean cytoplasmaSegmentation = false;
     private String[] activeFluoChannels;
+    private boolean mumfordShahSegmentation = false;
+    private int mumfordShahAlpha = 5;
+    private int mumfordShahCellSize = 18;
 
 
     public FeatureDescription() {
@@ -76,7 +78,7 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.windowSize = windowSize;
     }
 
-    public FeatureDescription(int windowSize, int sampleSize, int featureSet, int minSegmentationSize, boolean minAreaClassification, int numBlur, boolean skipRed, boolean skipGreen, boolean skipBlue, double segmentationScale, int[] featureClasses, boolean deactivateWatershed, boolean filterTileEdgeShapes, int deconvChannel, String deconvName, boolean useImageAdjustments, String[] activeFluoChannels) {
+    public FeatureDescription(int windowSize, int sampleSize, int featureSet, int minSegmentationSize, boolean minAreaClassification, int numBlur, boolean skipRed, boolean skipGreen, boolean skipBlue, double segmentationScale, int[] featureClasses, boolean deactivateWatershed, boolean filterTileEdgeShapes, int deconvChannel, String deconvName, boolean useImageAdjustments, String[] activeFluoChannels, boolean mumfordShahSegmentation, int mumfordShahAlpha, int mumfordShahCellSize) {
         this.windowSize = windowSize;
         this.sampleSize = sampleSize;
         this.featureSet = featureSet;
@@ -94,6 +96,9 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.deconvName = deconvName;
         this.useImageAdjustments = useImageAdjustments;
         this.activeFluoChannels = activeFluoChannels;
+        this.mumfordShahSegmentation = mumfordShahSegmentation;
+        this.mumfordShahAlpha = mumfordShahAlpha;
+        this.mumfordShahCellSize = mumfordShahCellSize;
     }
 
 
@@ -350,6 +355,30 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.filterTileEdgeShapes = filterTileEdgeShapes;
     }
 
+    public boolean isMumfordShahSegmentation() {
+        return mumfordShahSegmentation;
+    }
+
+    public void setMumfordShahSegmentation(boolean mumfordShahSegmentation) {
+        this.mumfordShahSegmentation = mumfordShahSegmentation;
+    }
+
+    public int getMumfordShahAlpha() {
+        return mumfordShahAlpha;
+    }
+
+    public void setMumfordShahAlpha(int mumfordShahAlpha) {
+        this.mumfordShahAlpha = mumfordShahAlpha;
+    }
+
+    public int getMumfordShahCellSize() {
+        return mumfordShahCellSize;
+    }
+
+    public void setMumfordShahCellSize(int mumfordShahCellSize) {
+        this.mumfordShahCellSize = mumfordShahCellSize;
+    }
+
     public FeatureDescription clone() {
         try {
             return ((FeatureDescription) super.clone());
@@ -391,6 +420,9 @@ public class FeatureDescription implements Serializable, Cloneable {
                 ", useImageAdjustments=" + useImageAdjustments +
                 ", cytoplasmaSegmentation=" + cytoplasmaSegmentation +
                 ", activeFluoChannels=" +Arrays.toString(activeFluoChannels) +
+                ", mumfordShahSegmentation="+mumfordShahSegmentation +
+                ", mumfordShahAlpha="+mumfordShahAlpha +
+                ", mumfordShahCellSize="+mumfordShahCellSize +
                 '}';
     }
 }
