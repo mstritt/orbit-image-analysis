@@ -148,9 +148,9 @@ dependencies {
 //    compile 'com.actelion.research:map-reduce-exec-spark:1.0.2'
 //    compile 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
 
-//    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.1.8') {
-//        exclude(module: 'orbit-image-analysis')
-//    }
+    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.1.8') {
+        exclude(module: 'orbit-image-analysis')
+    }
 
 // only used for image-provider-omero development
 //    compile(group: 'omero', name: 'blitz', version: '5.2.7-ice36-b40') {   // 5.2.7-ice36-b40   5.3.0-ice36-b59
