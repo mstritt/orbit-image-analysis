@@ -235,10 +235,18 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.featureVersion = featureVersion;
     }
 
+    /**
+     * returns true if nerve-detection mode is enabled
+     * @return
+     */
     public boolean isDeactivateWatershed() {
         return deactivateWatershed;
     }
 
+    /**
+     * set to true for nerve detection mode
+     * @param deactivateWatershed
+     */
     public void setDeactivateWatershed(boolean deactivateWatershed) {
         this.deactivateWatershed = deactivateWatershed;
     }

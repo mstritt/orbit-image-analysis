@@ -34,7 +34,7 @@ public class GeometricFunctions {
    * Calculates the Approximate Area of a given Area Object. The Approximation is done, using a
    * smoothed polygon calculation.
    * 
-   * @param area
+   * @param poly
    *          Area Object
    * @return approximate area size
    */

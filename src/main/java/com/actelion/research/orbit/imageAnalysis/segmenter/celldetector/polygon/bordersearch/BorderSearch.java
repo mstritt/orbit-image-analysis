@@ -269,15 +269,14 @@ public class BorderSearch {
   private List<Point> sort(Set<Point> points) {
     List<Point> res = new ArrayList<Point>(points);
     final int reverse = inverseCenterLogic ? -1 : 1;
-    res.sort(new Comparator<Point>() {
-
+    Collections.sort(res, new Comparator<Point>() {
       @Override
       public int compare(Point p1, Point p2) {
         return reverse
-            * Integer.compare((int) (10 * center.distance(p1)), (int) (10 * center.distance(p2)));
+                * Integer.compare((int) (10 * center.distance(p1)), (int) (10 * center.distance(p2)));
       };
-
     });
+
     return res;
   }
 

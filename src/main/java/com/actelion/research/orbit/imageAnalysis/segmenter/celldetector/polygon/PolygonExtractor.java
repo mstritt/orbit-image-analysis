@@ -424,7 +424,7 @@ public class PolygonExtractor {
    * a path to the oter
    *
    * @param edges
-   * @param edge
+   * @param edges
    * @return
    */
   private boolean isNewEdgeValid(List<GraphEdge> edges, GraphEdge oldEdge, GraphEdge newEdge) {
@@ -883,8 +883,6 @@ public class PolygonExtractor {
    * Bresenham's line algorithm See:
    * http://rosettacode.org/wiki/Bitmap/Bresenham%27s_line_algorithm#Java
    *
-   * @param edge
-   *          a single GraphEdge
    * @return List of GraphEdge objects
    */
   private List<Point> getPixelsLinear(Point p1, Point p2) {

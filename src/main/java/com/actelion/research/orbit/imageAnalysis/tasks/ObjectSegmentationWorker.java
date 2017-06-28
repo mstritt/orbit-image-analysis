@@ -313,9 +313,11 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                             // should we return null or new SegmentationResult here??? (so far not, because it should never happen...)
                         }
 
+                        BufferedImage sourceImage = null;
                         TiledImageWriter classImage = null;
                         if (!dontClassify && segmentationModel != null) {
                             RecognitionFrame rf2 = makeROIImage(rf, roi);
+                            sourceImage = rf2.bimg.getImage().getAsBufferedImage();
                             ClassificationWorker rw = new ClassificationWorker(rf2, segmentationModel, true, null, null);
                             rw.setNumClassificationThreads(1); // runs already in a multithreaded container
                             rw.doWork();
@@ -326,6 +328,10 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                             classImage = makeClassImage(rf, roi);
                             if (logger.isTraceEnabled())
                                 logger.trace("reusing classImage for current tile; classImage=" + classImage.getImage());
+                        }
+                        if (sourceImage==null && segmentationModel!=null && segmentationModel.getFeatureDescription().isMumfordShahSegmentation()) {
+                            RecognitionFrame rf2 = makeROIImage(rf, roi);
+                            sourceImage = rf2.bimg.getImage().getAsBufferedImage();
                         }
 
                         logger.trace("start object segmentation");
@@ -353,7 +359,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
                         // here the actual segmentation per tile happens
                         List<Shape> tileSegmentations;
-                        if (mumfordShahSegmentation) tileSegmentations = getObjectSegmentationsTileMumfordShah(classImage, originalClassImage, fullROI, roffsX, roffsY);
+                        if (mumfordShahSegmentation) tileSegmentations = getObjectSegmentationsTileMumfordShah(classImage, originalClassImage, sourceImage, fullROI, roffsX, roffsY);
                         else tileSegmentations = getObjectSegmentationsTile(classImage, originalClassImage, fullROI, roffsX, roffsY);
                         
                         segments.addAll(tileSegmentations);
@@ -781,7 +787,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
      * To be called for each tile. ClassImage is the classImage of one classified tile.
      * OffsX and offsY is the offset of the current tile.
      */
-    public List<Shape> getObjectSegmentationsTileMumfordShah(final TiledImageWriter classImage, final TiledImageWriter originalClassImage, Shape fullROI, int offsX, int offsY) {
+    public List<Shape> getObjectSegmentationsTileMumfordShah(final TiledImageWriter classImage, final TiledImageWriter originalClassImage, final BufferedImage sourceImage,  Shape fullROI, int offsX, int offsY) {
         logger.trace("mumford-shah segmentation");
         if (classImage == null) return new ArrayList<Shape>(0);
         BufferedImage mask = new BufferedImage(classImage.getImage().getWidth(), classImage.getImage().getHeight(), BufferedImage.TYPE_BYTE_BINARY);
@@ -800,10 +806,10 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         } // x
 
 
-        BufferedImage sourceOri = originalClassImage.getImage().getAsBufferedImage();
-        BufferedImage source = new BufferedImage(sourceOri.getWidth(),sourceOri.getHeight(),BufferedImage.TYPE_INT_RGB);
-        source.getGraphics().drawImage(sourceOri,0,0,null);
-        source.getGraphics().dispose();
+//        BufferedImage sourceOri = originalClassImage.getImage().getAsBufferedImage();
+//        BufferedImage source = new BufferedImage(sourceOri.getWidth(),sourceOri.getHeight(),BufferedImage.TYPE_INT_RGB);
+//        source.getGraphics().drawImage(sourceOri,0,0,null);
+//        source.getGraphics().dispose();
         logger.trace("mumford-shah pre-processing finished");
 
         int alpha = 5;
@@ -813,7 +819,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             cellSize = segmentationModel.getFeatureDescription().getMumfordShahCellSize();
         }
         logger.trace("mumford-shah alpha: "+alpha+" cellSize: "+cellSize);
-        SegmentedImage segmentedImage = SegmenterFacade.detectCells(source, mask, alpha, cellSize);
+        SegmentedImage segmentedImage = SegmenterFacade.detectCells(sourceImage, mask, alpha, cellSize);
         if (segmentedImage==null||segmentedImage.getPolygons()==null||segmentedImage.getPolygons().size()==0) {
             logger.debug("no segmentations");
             return new ArrayList<>(0);
