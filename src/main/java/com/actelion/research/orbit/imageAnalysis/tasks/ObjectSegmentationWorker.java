@@ -25,6 +25,8 @@ import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTiled;
 import com.actelion.research.orbit.imageAnalysis.imaging.IJUtils;
 import com.actelion.research.orbit.imageAnalysis.models.*;
+import com.actelion.research.orbit.imageAnalysis.segmenter.SegmentedImage;
+import com.actelion.research.orbit.imageAnalysis.segmenter.SegmenterFacade;
 import com.actelion.research.orbit.imageAnalysis.utils.*;
 import com.actelion.research.orbit.utils.StdStats;
 import com.freedomotic.util.SerialClone.SerialClone;
@@ -42,8 +44,7 @@ import javax.media.jai.PlanarImage;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
+import java.awt.image.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -86,6 +87,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
     private int numThreads = Runtime.getRuntime().availableProcessors();
     private RecognitionFrame originalFrame = null;
     private boolean cytoplasmaSegmentation = false;
+    //private boolean mumfordShahSegmentation = true;
 
 
     /**
@@ -310,9 +312,11 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                             // should we return null or new SegmentationResult here??? (so far not, because it should never happen...)
                         }
 
+                        BufferedImage sourceImage = null;
                         TiledImageWriter classImage = null;
                         if (!dontClassify && segmentationModel != null) {
                             RecognitionFrame rf2 = makeROIImage(rf, roi);
+                            sourceImage = rf2.bimg.getImage().getAsBufferedImage();
                             ClassificationWorker rw = new ClassificationWorker(rf2, segmentationModel, true, null, null);
                             rw.setNumClassificationThreads(1); // runs already in a multithreaded container
                             rw.doWork();
@@ -323,6 +327,10 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                             classImage = makeClassImage(rf, roi);
                             if (logger.isTraceEnabled())
                                 logger.trace("reusing classImage for current tile; classImage=" + classImage.getImage());
+                        }
+                        if (sourceImage==null && segmentationModel!=null && segmentationModel.getFeatureDescription().isMumfordShahSegmentation()) {
+                            RecognitionFrame rf2 = makeROIImage(rf, roi);
+                            sourceImage = rf2.bimg.getImage().getAsBufferedImage();
                         }
 
                         logger.trace("start object segmentation");
@@ -345,7 +353,14 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                             if (roffsX < 0) roffsX = 0;    // handle out-of-image ROIs
                             if (roffsY < 0) roffsY = 0;    // handle out-of-image ROIs
                         }
-                        List<Shape> tileSegmentations = getObjectSegmentationsTile(classImage, originalClassImage, fullROI, roffsX, roffsY);
+
+                        boolean mumfordShahSegmentation = segmentationModel!=null && segmentationModel.getFeatureDescription().isMumfordShahSegmentation();
+
+                        // here the actual segmentation per tile happens
+                        List<Shape> tileSegmentations;
+                        if (mumfordShahSegmentation) tileSegmentations = getObjectSegmentationsTileMumfordShah(classImage, originalClassImage, sourceImage, fullROI, roffsX, roffsY);
+                        else tileSegmentations = getObjectSegmentationsTile(classImage, originalClassImage, fullROI, roffsX, roffsY);
+                        
                         segments.addAll(tileSegmentations);
                         logger.trace("end segmentation: #objects: " + segments.size());
                         objectCount = segments.size() - oldObjectCount; // minus the old
@@ -764,6 +779,124 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
         return shapeList;
     }
+
+
+    /**
+     * Mumford-Shah segmentation.
+     * To be called for each tile. ClassImage is the classImage of one classified tile.
+     * OffsX and offsY is the offset of the current tile.
+     */
+    public List<Shape> getObjectSegmentationsTileMumfordShah(final TiledImageWriter classImage, final TiledImageWriter originalClassImage, final BufferedImage sourceImage,  Shape fullROI, int offsX, int offsY) {
+        logger.trace("mumford-shah segmentation");
+        if (classImage == null) return new ArrayList<Shape>(0);
+        BufferedImage mask = new BufferedImage(classImage.getImage().getWidth(), classImage.getImage().getHeight(), BufferedImage.TYPE_BYTE_BINARY);
+
+        // init
+        final int b = 1; // border cutoff -otherwise "border-objects" will be detected
+        for (int x = b; x < classImage.getImage().getWidth() - b; x++) {
+            for (int y = b; y < classImage.getImage().getHeight() - b; y++) {
+                byte c = rf.getClass(x, y, classImage);
+                if (c > 0 && (exclusionMap == null || !exclusionMap.isExcluded(x + offsX, y + offsY))) {  // not background, not assigned
+                    mask.setRGB(x, y, Color.WHITE.getRGB());
+                } else {
+                    mask.setRGB(x, y, Color.BLACK.getRGB());
+                }
+            } //y
+        } // x
+
+
+//        BufferedImage sourceOri = originalClassImage.getImage().getAsBufferedImage();
+//        BufferedImage source = new BufferedImage(sourceOri.getWidth(),sourceOri.getHeight(),BufferedImage.TYPE_INT_RGB);
+//        source.getGraphics().drawImage(sourceOri,0,0,null);
+//        source.getGraphics().dispose();
+        logger.trace("mumford-shah pre-processing finished");
+
+        int alpha = 5;
+        int cellSize = 18;
+        if (segmentationModel!=null) {
+            alpha = segmentationModel.getFeatureDescription().getMumfordShahAlpha();
+            cellSize = segmentationModel.getFeatureDescription().getMumfordShahCellSize();
+        }
+
+        logger.trace("mumford-shah alpha: "+alpha+" cellSize: "+cellSize);
+        SegmentedImage segmentedImage = SegmenterFacade.detectCells(sourceImage, mask, alpha, cellSize);
+        if (segmentedImage==null||segmentedImage.getPolygons()==null||segmentedImage.getPolygons().size()==0) {
+            logger.debug("no segmentations");
+            return new ArrayList<>(0);
+        } else {
+            logger.debug("# segmented objects (mumford-shah): "+segmentedImage.getPolygons().size());
+        }
+        List<List<Point>> pListList = new ArrayList<>(segmentedImage.getPolygons().size());
+        for (int i=0; i<segmentedImage.getPolygons().size(); i++) {
+            Polygon poly = segmentedImage.getPolygons().get(i);
+            List<Point> pList = new ArrayList<>(poly.npoints);
+            for (int p=0; p<poly.npoints; p++) {
+                pList.add(new Point(poly.xpoints[p],poly.ypoints[p]));
+            }
+            pListList.add(pList);
+        }
+        logger.trace("points conversion end");
+
+
+        // transform to polygons; discards polygons with length>maxSegmentationLength or openDistance > maxOpenDistance (FeatureDescription)
+        boolean skipPoly = false;
+        List<Shape> shapeList = new ArrayList<Shape>(pListList.size());
+        for (List<Point> pList : pListList) {
+            if (pList == null || pList.size() == 0) continue;
+            Shape s = new PolygonExt();
+            int roiOffsX = offsX;
+            int roiOffsY = offsY;
+            skipPoly = false;
+            if (segmentationModel != null && pList.size() > segmentationModel.getFeatureDescription().getMaxSegmentationLength())
+                continue;
+            if (segmentationModel != null && pList.get(0).distance(pList.get(pList.size() - 1)) > segmentationModel.getFeatureDescription().getMaxOpenDistance())
+                continue;
+            for (Point p : pList) {
+                if ((exclusionMap == null || !exclusionMap.isExcluded(p.x + roiOffsX, p.y + roiOffsY))) {
+                    ((Polygon) s).addPoint(p.x + roiOffsX, p.y + roiOffsY); // add points and adjust roi offset
+                } else {
+                    skipPoly = true;
+                    break;
+                }
+            }
+
+            if (skipPoly) continue;
+
+            // here polygons might be filtered
+
+            int dilateNum = 0;
+            int erodeNum = 0;
+            int adjust = Math.min(0, dilateNum - erodeNum);
+            if ((s.getBounds().width - (adjust * 2) >= minSegmentationSize) && (s.getBounds().height - (adjust * 2) >= minSegmentationSize)) // at least one site > MIN_SEGMENT_SIZE
+            {
+                if ((fullROI == null) || fullROI.contains(s.getBounds().getCenterX(), s.getBounds().getCenterY())) {
+                    if (!shapeInNegativeChannel(s) && !inverseShape(s, offsX, offsY, originalClassImage)) {
+                        shapeList.add(s);
+                    }
+                }
+            }
+        }
+
+
+        // scale
+        if (plasmaScale != 1) {
+            logger.trace("scaling object shape by factor " + plasmaScale);
+            List<Shape> scaledShapes = new ArrayList<Shape>(shapeList.size());
+            PolygonMetrics pm = new PolygonMetrics(null);
+            for (Shape shape : shapeList) {
+                PolygonExt pe = (PolygonExt) shape;
+                pm.setPolygon(pe);
+                pe = pe.scale(100d * plasmaScale, pm.getCenter());
+                scaledShapes.add(pe);
+            }
+            shapeList = scaledShapes;
+        }
+
+        return shapeList;
+    }
+
+
+
 
 
     /**

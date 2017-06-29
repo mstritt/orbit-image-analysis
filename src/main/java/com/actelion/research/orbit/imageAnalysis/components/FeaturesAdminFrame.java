@@ -32,8 +32,12 @@ import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import imageJ.Colour_Deconvolution;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,6 +49,7 @@ import java.util.List;
 
 public class FeaturesAdminFrame extends JDialog {
 
+    private static final Logger logger = LoggerFactory.getLogger(FeaturesAdminFrame.class);
     public static String FEATURES_DONE = "featuresAdminFrame.features_done";
     private static final long serialVersionUID = 1L;
     private JButton btnOK = null;
@@ -61,7 +66,7 @@ public class FeaturesAdminFrame extends JDialog {
     private JCheckBox cbRed = null;
     private JCheckBox cbGreen = null;
     private JCheckBox cbBlue = null;
-    private JCheckBox cbDeactivateWatershed = null;
+    private JCheckBox cbNerveDetectionMode = null;
     private JCheckBox cbFilterTileEdgeShapes = null;
     private JCheckBox cbForSecondarySegmentationModel = null;
     private JCheckBox cbCytoplasmaSegmentation = null;
@@ -74,6 +79,10 @@ public class FeaturesAdminFrame extends JDialog {
     private final JRadioButton deconvChannel3 = new JRadioButton("Comp", false);
     private JComboBox cbDeconvName = null;
 
+    private JCheckBox cbMFS = null;
+    private IntegerTextField tfMFSAlpha = null;
+    private IntegerTextField tfMFSCellSize = null;
+
     private JCheckBox cbDisableWatershed = null;
     private JCheckBox cbDoCombineCrossTiles = null;
     private JCheckBox cbDilateBeforeErode = null;
@@ -84,19 +93,21 @@ public class FeaturesAdminFrame extends JDialog {
     private JCheckBox cbUseImageAdjustments = null;
 
 
-    private int frameWidth = 600;
-    private int frameHeight = 700;
+    private int frameWidth = 630;
+    private int frameHeight = 750;
     private int btnHeight = 25;
-    private int selectedTab = 0;
+    public static int selectedTab = 0;
     private FeatureDescription featureDescription = null;
 
     public FeaturesAdminFrame(FeatureDescription featureDescription) {
-        this(featureDescription, 0);
+        this(featureDescription, -1);
     }
 
     public FeaturesAdminFrame(FeatureDescription featureDescription, int selectedTab) {
         this.featureDescription = featureDescription;
-        this.selectedTab = selectedTab;
+        if (selectedTab>=0) {
+            FeaturesAdminFrame.selectedTab = selectedTab;
+        }
         initialize();
     }
 
@@ -111,7 +122,7 @@ public class FeaturesAdminFrame extends JDialog {
         setSize(new Dimension(frameWidth, frameHeight));
 
 
-        JTabbedPane tabs = new JTabbedPane();
+        final JTabbedPane tabs = new JTabbedPane();
 
         // classification
 
@@ -284,6 +295,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfMinSegmentationSize.setText(Integer.toString(featureDescription.getMinSegmentationSize()));
         tfMinSegmentationSize.setInputVerifier(new IntInputVerifier(3, 1, 2000));
         tfMinSegmentationSize.setToolTipText("the minimum area (in pixel) a segmented object must have");
+        tfMinSegmentationSize.setColumns(4);
         panel.add(tfMinSegmentationSize);
         setCompBounds(panel, frameWidth - 50, 0);
         panelSegmentation.add(panel);
@@ -295,6 +307,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfMaxSegmentationLength.setText(Integer.toString(featureDescription.getMaxSegmentationLength()));
         tfMaxSegmentationLength.setToolTipText("the maximum border path-length (in pixel) a segmented cell can have");
         tfMaxSegmentationLength.setHorizontalAlignment(JTextField.LEFT);
+        tfMaxSegmentationLength.setColumns(4);
         panel.add(tfMaxSegmentationLength);
         setCompBounds(panel, frameWidth - 50, 0);
         panelSegmentation.add(panel);
@@ -306,6 +319,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfMaxOpenDistance.setText(Integer.toString(featureDescription.getMaxOpenDistance()));
         tfMaxOpenDistance.setToolTipText("maximum distance (in pixel) between start and end of the path of an object");
         tfMaxOpenDistance.setHorizontalAlignment(JTextField.LEFT);
+        tfMaxOpenDistance.setColumns(4);
         panel.add(tfMaxOpenDistance);
         setCompBounds(panel, frameWidth - 50, 0);
         panelSegmentation.add(panel);
@@ -317,17 +331,18 @@ public class FeaturesAdminFrame extends JDialog {
         tfSegmentationScale = new DoubleTextField(1, 1, 0.1, 10);
         tfSegmentationScale.setHorizontalAlignment(JTextField.LEFT);
         tfSegmentationScale.setText(featureDescription.getSegmentationScale() + "");
+        tfSegmentationScale.setColumns(4);
         panel.add(tfSegmentationScale);
         setCompBounds(panel, frameWidth - 50, 0);
         panelSegmentation.add(panel);
 
 
         cbDisableWatershed = new JCheckBox("Disable object splitting", featureDescription.isDisableWatershed());
-        cbDisableWatershed.setToolTipText("disable splitting of overlapping objects");
+        cbDisableWatershed.setToolTipText("disable splitting of overlapping objects (do not apply watershed algorithm)");
         setCompBounds(cbDisableWatershed, frameWidth, 0);
         panelSegmentation.add(cbDisableWatershed);
 
-        cbDoCombineCrossTiles = new JCheckBox("Combine large connecting objects", featureDescription.isCombineObjectsCrossTiles());
+        cbDoCombineCrossTiles = new JCheckBox("Combine cross tile objects (slow)", featureDescription.isCombineObjectsCrossTiles());
         cbDoCombineCrossTiles.setToolTipText("combine objects across tiles");
         setCompBounds(cbDoCombineCrossTiles, frameWidth, 0);
         panelSegmentation.add(cbDoCombineCrossTiles);
@@ -337,6 +352,52 @@ public class FeaturesAdminFrame extends JDialog {
         setCompBounds(cbFilterTileEdgeShapes, frameWidth, 0);
         panelSegmentation.add(cbFilterTileEdgeShapes);
 
+
+        panel = new JPanel(new GridLayout(1, 2));
+        cbMFS = new JCheckBox("Mumford-Shah segmentation (cell clusters):",featureDescription.isMumfordShahSegmentation());
+        cbMFS.setToolTipText("enable mumford-shah segmentation (good for cell clusters)");
+        cbMFS.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (cbMFS.isSelected() && !cbDisableWatershed.isSelected()) {
+                    cbDisableWatershed.setSelected(true);
+                    JOptionPane.showMessageDialog(FeaturesAdminFrame.this,"Mumford-Shah segmentation has its own object splitting algorithm, thus the additional object splitting has been disabled.\nHowever, you can enable it again in addition and try if the additional splitting (watershed algorithm) gives better results.","Additional object splitting has been disabled",JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        });
+        panel.add(cbMFS);
+        JPanel mfsParamPanel = new JPanel();
+        mfsParamPanel.setBorder(BorderFactory.createEmptyBorder());
+        JPanel mfsSizePanel = new JPanel();
+        mfsSizePanel.setBorder(BorderFactory.createEmptyBorder());
+        JLabel mfsSizeLabel = new JLabel("Obj size [px]");
+        mfsSizeLabel.setToolTipText("Expected size of objects in pixels. Smaller values will split objects more frequently.");
+        tfMFSCellSize = new IntegerTextField(18, 18, 1, 1000);
+        tfMFSCellSize.setHorizontalAlignment(JTextField.LEFT);
+        tfMFSCellSize.setInt(featureDescription.getMumfordShahCellSize());
+        tfMFSCellSize.setColumns(3);
+        mfsSizePanel.add(mfsSizeLabel);
+        mfsSizePanel.add(tfMFSCellSize);
+        mfsParamPanel.add(mfsSizePanel);
+        JPanel mfsAlphaPanel = new JPanel();
+        mfsAlphaPanel.setBorder(BorderFactory.createEmptyBorder());
+        JLabel mfsAlphaLabel = new JLabel("Intens split [1-50]");
+        mfsAlphaLabel.setToolTipText("Object splitting based on intensity. Smaller values will split objects more frequently.\nRecommended range: [1,50], allowed range: [1,255].\n"+
+                "This value corresponds to the alpha value of the mumford-shah functional which is responsible for the smoothing of the image.\nHigher values will smooth the image more and thus split objects less.");
+        tfMFSAlpha = new IntegerTextField(5, 5, 1, 255);
+        tfMFSAlpha.setHorizontalAlignment(JTextField.LEFT);
+        tfMFSAlpha.setInt(featureDescription.getMumfordShahAlpha());
+        tfMFSAlpha.setColumns(3);
+        mfsAlphaPanel.add(mfsAlphaLabel);
+        mfsAlphaPanel.add(tfMFSAlpha);
+        mfsParamPanel.add(mfsAlphaPanel);
+        panel.add(mfsParamPanel);
+        setCompBounds(panel, frameWidth - 50, 0);
+        panel.setPreferredSize(new Dimension((int)panel.getPreferredSize().getWidth(),(int)mfsAlphaPanel.getPreferredSize().getHeight()));
+        panelSegmentation.add(panel);
+
+
+
         panel = new JPanel(new GridLayout(1, 2));
         lab = new JLabel("Dilate:");
         panel.add(lab);
@@ -344,6 +405,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfNumDilate.setText(Integer.toString(featureDescription.getNumDilate()));
         tfNumDilate.setToolTipText("dilate foreground before object segmentation");
         tfNumDilate.setHorizontalAlignment(JTextField.LEFT);
+        tfNumDilate.setColumns(4);
         panel.add(tfNumDilate);
         setCompBounds(panel, frameWidth - 50, 0);
         panelSegmentation.add(panel);
@@ -355,6 +417,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfNumErode.setText(Integer.toString(featureDescription.getNumErode()));
         tfNumErode.setToolTipText("erode foreground before object segmentation");
         tfNumErode.setHorizontalAlignment(JTextField.LEFT);
+        tfNumErode.setColumns(4);
         panel.add(tfNumErode);
         setCompBounds(panel, frameWidth - 50, 0);
         panelSegmentation.add(panel);
@@ -371,6 +434,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfRemoveOutliers.setText(Integer.toString(featureDescription.getRemoveOutliers()));
         tfRemoveOutliers.setToolTipText("despeckle foerground before object segmentation (remove outliers)");
         tfRemoveOutliers.setHorizontalAlignment(JTextField.LEFT);
+        tfRemoveOutliers.setColumns(4);
         panel.add(tfRemoveOutliers);
         setCompBounds(panel, frameWidth - 50, 0);
         panelSegmentation.add(panel);
@@ -383,15 +447,16 @@ public class FeaturesAdminFrame extends JDialog {
         tfGraphCut.setText(Double.toString(featureDescription.getGraphCut()));
         tfGraphCut.setToolTipText("smooth objects and fill holes");
         tfGraphCut.setHorizontalAlignment(JTextField.LEFT);
+        tfGraphCut.setColumns(4);
         panel.add(tfGraphCut);
         setCompBounds(panel, frameWidth - 50, 0);
         panelSegmentation.add(panel);
 
 
-        cbDeactivateWatershed = new JCheckBox("Nerve Detection Mode", featureDescription.isDeactivateWatershed());  // large object detection
-        cbDeactivateWatershed.setToolTipText("activate for nerve detection (large object detection)");
-        setCompBounds(cbDeactivateWatershed, frameWidth, 0);
-        panelSegmentation.add(cbDeactivateWatershed);
+        cbNerveDetectionMode = new JCheckBox("Nerve Detection Mode", featureDescription.isDeactivateWatershed());  // large object detection
+        cbNerveDetectionMode.setToolTipText("activate for nerve detection (large object detection)");
+        setCompBounds(cbNerveDetectionMode, frameWidth, 0);
+        panelSegmentation.add(cbNerveDetectionMode);
 
 
         tabs.add("Segmentation", panelSegmentation);
@@ -482,7 +547,15 @@ public class FeaturesAdminFrame extends JDialog {
         btnOK = new JButton("OK");
         add(btnOK, BorderLayout.SOUTH);
 
-        tabs.setSelectedIndex(selectedTab);
+        tabs.setSelectedIndex(FeaturesAdminFrame.selectedTab);
+
+        tabs.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                logger.trace("selected tab: "+ tabs.getSelectedIndex());
+                FeaturesAdminFrame.selectedTab = tabs.getSelectedIndex();
+            }
+        });
 
         addActionListeners();
 
@@ -571,7 +644,10 @@ public class FeaturesAdminFrame extends JDialog {
         cbDilateBeforeErode.setSelected(featureDescription.isDilateBeforeErode());
         tfRemoveOutliers.setText(Integer.toString(featureDescription.getRemoveOutliers()));
         tfGraphCut.setText(Double.toString(featureDescription.getGraphCut()));
-        cbDeactivateWatershed.setSelected(featureDescription.isDeactivateWatershed());  // large object detection
+        cbNerveDetectionMode.setSelected(featureDescription.isDeactivateWatershed());  // large object detection
+        cbMFS.setSelected(featureDescription.isMumfordShahSegmentation());
+        tfMFSAlpha.setInt(featureDescription.getMumfordShahAlpha());
+        tfMFSCellSize.setInt(featureDescription.getMumfordShahCellSize());
 
 
         // roi
@@ -717,7 +793,7 @@ public class FeaturesAdminFrame extends JDialog {
         featureDescription.setMinSegmentationSize(minSegSize);
         featureDescription.setMaxSegmentationLength(tfMaxSegmentationLength.getInt());
         featureDescription.setMaxOpenDistance(tfMaxOpenDistance.getInt());
-        featureDescription.setDeactivateWatershed(cbDeactivateWatershed.isSelected());
+        featureDescription.setDeactivateWatershed(cbNerveDetectionMode.isSelected());
         featureDescription.setNumBlur(numBlur);
         featureDescription.setSkipRed(!cbRed.isSelected());
         featureDescription.setSkipGreen(!cbGreen.isSelected());
@@ -768,6 +844,10 @@ public class FeaturesAdminFrame extends JDialog {
         featureDescription.setUseImageAdjustments(cbUseImageAdjustments.isSelected());
         featureDescription.setForSecondarySegmentationModel(cbForSecondarySegmentationModel.isSelected());
         featureDescription.setCytoplasmaSegmentation(cbCytoplasmaSegmentation.isSelected());
+
+        featureDescription.setMumfordShahSegmentation(cbMFS.isSelected());
+        featureDescription.setMumfordShahAlpha(tfMFSAlpha.getInt());
+        featureDescription.setMumfordShahCellSize(tfMFSCellSize.getInt());
 
         // fluo channels
         String[] activeFluoChannels = cbFluoChannels.getCheckedItems();

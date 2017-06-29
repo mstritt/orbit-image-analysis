@@ -2450,6 +2450,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             segModel.getFeatureDescription().setGraphCut(featureDescription.getGraphCut());
             segModel.getFeatureDescription().setCytoplasmaSegmentation(featureDescription.isCytoplasmaSegmentation());
             segModel.getFeatureDescription().setActiveFluoChannels(featureDescription.getActiveFluoChannels());
+
+            segModel.getFeatureDescription().setMumfordShahSegmentation(featureDescription.isMumfordShahSegmentation());
+            segModel.getFeatureDescription().setMumfordShahAlpha(featureDescription.getMumfordShahAlpha());
+            segModel.getFeatureDescription().setMumfordShahCellSize(featureDescription.getMumfordShahCellSize());
         }
     }
 
