@@ -88,7 +88,7 @@ public class FeaturesAdminFrame extends JDialog {
     private JCheckBox cbUseImageAdjustments = null;
 
 
-    private int frameWidth = 600;
+    private int frameWidth = 630;
     private int frameHeight = 750;
     private int btnHeight = 25;
     private int selectedTab = 0;
@@ -363,23 +363,23 @@ public class FeaturesAdminFrame extends JDialog {
         mfsParamPanel.setBorder(BorderFactory.createEmptyBorder());
         JPanel mfsSizePanel = new JPanel();
         mfsSizePanel.setBorder(BorderFactory.createEmptyBorder());
-        JLabel mfsSizeLabel = new JLabel("Object size");
-        mfsSizeLabel.setToolTipText("Mean size of objects in pixels. Smaller values will lead to more object splitting.");
+        JLabel mfsSizeLabel = new JLabel("Obj size [px]");
+        mfsSizeLabel.setToolTipText("Expected size of objects in pixels. Smaller values will split objects more frequently.");
         tfMFSCellSize = new IntegerTextField(18, 18, 1, 1000);
         tfMFSCellSize.setHorizontalAlignment(JTextField.LEFT);
         tfMFSCellSize.setInt(featureDescription.getMumfordShahCellSize());
-        tfMFSCellSize.setColumns(4);
+        tfMFSCellSize.setColumns(3);
         mfsSizePanel.add(mfsSizeLabel);
         mfsSizePanel.add(tfMFSCellSize);
         mfsParamPanel.add(mfsSizePanel);
         JPanel mfsAlphaPanel = new JPanel();
         mfsAlphaPanel.setBorder(BorderFactory.createEmptyBorder());
-        JLabel mfsAlphaLabel = new JLabel("Intensity split");
-        mfsAlphaLabel.setToolTipText("Object splitting based on intensity. Smaller values will split objects more frequently.");
-        tfMFSAlpha = new IntegerTextField(15, 15, 1, 255);
+        JLabel mfsAlphaLabel = new JLabel("Intens split [1-255]");
+        mfsAlphaLabel.setToolTipText("Object splitting based on intensity. Smaller values will split objects more frequently. Range: [1,255]");
+        tfMFSAlpha = new IntegerTextField(5, 5, 1, 255);
         tfMFSAlpha.setHorizontalAlignment(JTextField.LEFT);
         tfMFSAlpha.setInt(featureDescription.getMumfordShahAlpha());
-        tfMFSAlpha.setColumns(4);
+        tfMFSAlpha.setColumns(3);
         mfsAlphaPanel.add(mfsAlphaLabel);
         mfsAlphaPanel.add(tfMFSAlpha);
         mfsParamPanel.add(mfsAlphaPanel);
