@@ -44,8 +44,7 @@ import javax.media.jai.PlanarImage;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
+import java.awt.image.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -818,6 +817,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             alpha = segmentationModel.getFeatureDescription().getMumfordShahAlpha();
             cellSize = segmentationModel.getFeatureDescription().getMumfordShahCellSize();
         }
+
         logger.trace("mumford-shah alpha: "+alpha+" cellSize: "+cellSize);
         SegmentedImage segmentedImage = SegmenterFacade.detectCells(sourceImage, mask, alpha, cellSize);
         if (segmentedImage==null||segmentedImage.getPolygons()==null||segmentedImage.getPolygons().size()==0) {
@@ -894,6 +894,8 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
         return shapeList;
     }
+
+
 
 
 

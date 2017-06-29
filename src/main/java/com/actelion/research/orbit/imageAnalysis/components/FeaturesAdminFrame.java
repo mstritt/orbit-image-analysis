@@ -32,8 +32,12 @@ import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import imageJ.Colour_Deconvolution;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,6 +49,7 @@ import java.util.List;
 
 public class FeaturesAdminFrame extends JDialog {
 
+    private static final Logger logger = LoggerFactory.getLogger(FeaturesAdminFrame.class);
     public static String FEATURES_DONE = "featuresAdminFrame.features_done";
     private static final long serialVersionUID = 1L;
     private JButton btnOK = null;
@@ -91,16 +96,18 @@ public class FeaturesAdminFrame extends JDialog {
     private int frameWidth = 630;
     private int frameHeight = 750;
     private int btnHeight = 25;
-    private int selectedTab = 0;
+    public static int selectedTab = 0;
     private FeatureDescription featureDescription = null;
 
     public FeaturesAdminFrame(FeatureDescription featureDescription) {
-        this(featureDescription, 0);
+        this(featureDescription, -1);
     }
 
     public FeaturesAdminFrame(FeatureDescription featureDescription, int selectedTab) {
         this.featureDescription = featureDescription;
-        this.selectedTab = selectedTab;
+        if (selectedTab>=0) {
+            FeaturesAdminFrame.selectedTab = selectedTab;
+        }
         initialize();
     }
 
@@ -115,7 +122,7 @@ public class FeaturesAdminFrame extends JDialog {
         setSize(new Dimension(frameWidth, frameHeight));
 
 
-        JTabbedPane tabs = new JTabbedPane();
+        final JTabbedPane tabs = new JTabbedPane();
 
         // classification
 
@@ -374,8 +381,9 @@ public class FeaturesAdminFrame extends JDialog {
         mfsParamPanel.add(mfsSizePanel);
         JPanel mfsAlphaPanel = new JPanel();
         mfsAlphaPanel.setBorder(BorderFactory.createEmptyBorder());
-        JLabel mfsAlphaLabel = new JLabel("Intens split [1-255]");
-        mfsAlphaLabel.setToolTipText("Object splitting based on intensity. Smaller values will split objects more frequently. Range: [1,255]");
+        JLabel mfsAlphaLabel = new JLabel("Intens split [1-50]");
+        mfsAlphaLabel.setToolTipText("Object splitting based on intensity. Smaller values will split objects more frequently.\nRecommended range: [1,50], allowed range: [1,255].\n"+
+                "This value corresponds to the alpha value of the mumford-shah functional which is responsible for the smoothing of the image.\nHigher values will smooth the image more and thus split objects less.");
         tfMFSAlpha = new IntegerTextField(5, 5, 1, 255);
         tfMFSAlpha.setHorizontalAlignment(JTextField.LEFT);
         tfMFSAlpha.setInt(featureDescription.getMumfordShahAlpha());
@@ -539,7 +547,15 @@ public class FeaturesAdminFrame extends JDialog {
         btnOK = new JButton("OK");
         add(btnOK, BorderLayout.SOUTH);
 
-        tabs.setSelectedIndex(selectedTab);
+        tabs.setSelectedIndex(FeaturesAdminFrame.selectedTab);
+
+        tabs.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                logger.trace("selected tab: "+ tabs.getSelectedIndex());
+                FeaturesAdminFrame.selectedTab = tabs.getSelectedIndex();
+            }
+        });
 
         addActionListeners();
 

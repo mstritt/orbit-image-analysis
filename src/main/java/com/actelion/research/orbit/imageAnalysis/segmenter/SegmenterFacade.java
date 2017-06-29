@@ -19,15 +19,30 @@
 
 package com.actelion.research.orbit.imageAnalysis.segmenter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.LookupOp;
+import java.awt.image.ShortLookupTable;
 
 /**
  * The facade provides an interface for detecting cells given an image.
  */
 public class SegmenterFacade {
 
+  private static final Logger logger = LoggerFactory.getLogger(SegmenterFacade.class);
   private static final Color BACKGROUND_COLOR = Color.WHITE;
+
+  private static final short[] invertTable;
+  static {
+    invertTable = new short[256];
+    for (int i = 0; i < 256; i++) {
+      invertTable[i] = (short) (255 - i);
+    }
+  }
 
   /**
    * Detects the cells on an image. A binary mask indicating fore- and background pixels (WHITE =
@@ -49,12 +64,60 @@ public class SegmenterFacade {
    */
   public static SegmentedImage detectCells(BufferedImage image, BufferedImage mask, double alpha,
       float cellRadius) {
-    BufferedImage bgSegmentedImage = filterBackground(image, mask);
+    BufferedImage invImage = invertIfNeeded(image,mask);
+    BufferedImage bgSegmentedImage = filterBackground(invImage, mask);
     FiniteDifferenceSegmenter segmenter = new FiniteDifferenceSegmenter(bgSegmentedImage, alpha,
         cellRadius);
     segmenter.segment();
     return new SegmentedImage(segmenter.getPolygons(), segmenter.getSeedPoints(),
         segmenter.getPolygonPaintedImage());
+  }
+
+
+  /**
+   * Inverts the image if foreround intensity is higher than background intensity defined by mask.
+   *
+   * @param source
+   *          input image
+   * @param mask
+   *          binary mask (WHITE = foreground, BLACK = background)
+   * @return source with every background pixel (following the binary mask) color changed to given
+   *         constant <i>BACKGROUND_COLOR</i>
+   */
+  public static BufferedImage invertIfNeeded(BufferedImage source, BufferedImage mask) {
+    long cntFG = 0;
+    long cntBG = 0;
+    long intensFG = 0;
+    long intensBG = 0;
+
+    for (int y = 0; y < source.getHeight(); y+=2) {
+      for (int x = 0; x < source.getWidth(); x+=2) {
+        Color c = new Color(source.getRGB(x, y));
+
+        if (mask.getRGB(x, y) == Color.WHITE.getRGB()) {
+          intensFG += c.getRed()+c.getGreen()+c.getBlue();
+          cntFG++;
+        } else {
+          intensBG += c.getRed()+c.getGreen()+c.getBlue();
+          cntBG++;
+        }
+      }
+    }
+
+    if (cntFG>0 && cntBG>0) {
+      intensFG /= cntFG;
+      intensBG /= cntBG;
+    }
+    logger.trace("intensFG: "+intensFG+", intensBG: "+intensBG);
+    BufferedImage target;
+    if (cntFG>0 && cntBG>0 && intensFG>intensBG) {
+       target = invertImage(source);
+       logger.trace("source image has been inverted");
+    } else {
+       target = source;
+    }
+
+    return target;
   }
 
   /**
@@ -77,7 +140,6 @@ public class SegmenterFacade {
     for (int y = 0; y < source.getHeight(); ++y) {
       for (int x = 0; x < source.getWidth(); ++x) {
         Color c = new Color(source.getRGB(x, y));
-
         if (mask.getRGB(x, y) == Color.WHITE.getRGB()) {
           target.setRGB(x, y, c.getRGB());
         } else {
@@ -87,6 +149,18 @@ public class SegmenterFacade {
     }
 
     return target;
+  }
+
+
+ 
+
+  private static BufferedImage invertImage(final BufferedImage src) {
+    final int w = src.getWidth();
+    final int h = src.getHeight();
+    final BufferedImage dst = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+
+    final BufferedImageOp invertOp = new LookupOp(new ShortLookupTable(0, invertTable), null);
+    return invertOp.filter(src, dst);
   }
 
 }
