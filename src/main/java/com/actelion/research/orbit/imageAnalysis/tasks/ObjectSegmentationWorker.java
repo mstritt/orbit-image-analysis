@@ -819,16 +819,48 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         }
 
         logger.trace("mumford-shah alpha: "+alpha+" cellSize: "+cellSize);
-        SegmentedImage segmentedImage = SegmenterFacade.detectCells(sourceImage, mask, alpha, cellSize);
-        if (segmentedImage==null||segmentedImage.getPolygons()==null||segmentedImage.getPolygons().size()==0) {
+
+        List<Polygon> polyList = new ArrayList<>();
+        int maxMFSTileSize = 512;
+        if (sourceImage.getWidth()<maxMFSTileSize && sourceImage.getHeight()<maxMFSTileSize) {
+            // small tile - segment on full tile
+            SegmentedImage segmentedImage = SegmenterFacade.detectCells(sourceImage, mask, alpha, cellSize);
+            if (segmentedImage!=null && segmentedImage.getPolygons()!=null && segmentedImage.getPolygons().size()>0) {
+                polyList.addAll(segmentedImage.getPolygons());
+            }
+        } else {
+            // big tile - segment on tileparts
+            PlanarImage piSource = PlanarImage.wrapRenderedImage(sourceImage);
+            PlanarImage piMask = PlanarImage.wrapRenderedImage(mask);
+            ImageTiler sourceTiler = new ImageTiler(piSource,maxMFSTileSize,maxMFSTileSize);
+            Iterator<BufferedImage> imageTiles = sourceTiler.iterator();
+            Iterator<BufferedImage> maskTiles = new ImageTiler(piMask,maxMFSTileSize,maxMFSTileSize).iterator();
+            Point[] tileIdx = sourceTiler.getTileIndices();
+            int idx=0;
+            while (imageTiles.hasNext()) {
+                SegmentedImage segmentedImage = SegmenterFacade.detectCells(imageTiles.next(), maskTiles.next(), alpha, cellSize);
+                if (segmentedImage!=null && segmentedImage.getPolygons()!=null && segmentedImage.getPolygons().size()>0) {
+                    List<Polygon> segmentedList = segmentedImage.getPolygons();
+                    // remove tile border objects
+                    segmentedList = filterEdgePolygons(segmentedList,maxMFSTileSize,maxMFSTileSize);
+                    translatePolygons(segmentedList, sourceTiler.getTiledImage().tileXToX(tileIdx[idx].x), sourceTiler.getTiledImage().tileYToY(tileIdx[idx].y));
+                    polyList.addAll(segmentedList);
+                }
+                idx++;
+            }
+           
+        }
+
+        if (polyList.size()==0) {
             logger.debug("no segmentations");
             return new ArrayList<>(0);
         } else {
-            logger.debug("# segmented objects (mumford-shah): "+segmentedImage.getPolygons().size());
+            logger.debug("# segmented objects (mumford-shah): " + polyList.size());
         }
-        List<List<Point>> pListList = new ArrayList<>(segmentedImage.getPolygons().size());
-        for (int i=0; i<segmentedImage.getPolygons().size(); i++) {
-            Polygon poly = segmentedImage.getPolygons().get(i);
+
+        List<List<Point>> pListList = new ArrayList<>(polyList.size());
+        for (int i=0; i<polyList.size(); i++) {
+            Polygon poly = polyList.get(i);
             List<Point> pList = new ArrayList<>(poly.npoints);
             for (int p=0; p<poly.npoints; p++) {
                 pList.add(new Point(poly.xpoints[p],poly.ypoints[p]));
@@ -895,8 +927,14 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         return shapeList;
     }
 
-
-
+    private void translatePolygons(List<Polygon> polyList, int tx, int ty) {
+         for  (Polygon p: polyList) {
+             for (int i=0; i<p.npoints; i++) {
+                 p.xpoints[i] += tx;
+                 p.ypoints[i] += ty;
+             }
+         }
+    }
 
 
     /**
@@ -967,8 +1005,8 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                 for (int p=0; p<poly.npoints; p++) {
                    if ((poly.xpoints[p] % tileWidth <= dist) || (poly.ypoints[p] % tileHeight <= dist)) cntBorder++;
                    if ((poly.xpoints[p] % tileWidth >= tileWidth-dist) || (poly.ypoints[p] % tileHeight >= tileHeight - dist)) cntBorder++;
+                  
                 }
-                System.out.println("cntBorder: "+cntBorder);
                 if (cntBorder<maxEdgeCnt) {
                     filteredSegments.add(shape);
                     if (segResult.getFeatureList().size()>i)
@@ -985,6 +1023,32 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         segResult.setFeatureList(featureList);
         segResult.setObjectCount(filteredSegments.size());
         return segResult;
+    }
+
+
+    /**
+     * Removes tile-border polygons
+     */
+    public List<Polygon> filterEdgePolygons(List<Polygon> polygonList, int tileWidth, int tileHeight) {
+        if (polygonList == null || polygonList.size() == 0)
+            return polygonList;
+
+        List<Polygon> filteredPologons = new ArrayList<>(polygonList.size());
+        int dist = 2;
+        int maxEdgeCnt = 2;
+
+        for (int i=0; i<polygonList.size(); i++) {
+            Polygon poly = polygonList.get(i);
+            int cntBorder = 0;
+            for (int p=0; p<poly.npoints; p++) {
+                if ((poly.xpoints[p] % tileWidth <= dist) || (poly.ypoints[p] % tileHeight <= dist)) cntBorder++;
+                if ((poly.xpoints[p] % tileWidth >= tileWidth-dist) || (poly.ypoints[p] % tileHeight >= tileHeight - dist)) cntBorder++;
+            }
+            if (cntBorder<maxEdgeCnt) {
+                filteredPologons.add(poly);
+            }
+        }
+        return filteredPologons;
     }
 
     /**

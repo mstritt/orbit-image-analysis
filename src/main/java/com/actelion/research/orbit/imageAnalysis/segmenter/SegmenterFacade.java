@@ -134,8 +134,9 @@ public class SegmenterFacade {
    *         constant <i>BACKGROUND_COLOR</i>
    */
   public static BufferedImage filterBackground(BufferedImage source, BufferedImage mask) {
-    BufferedImage target = new BufferedImage(source.getWidth(), source.getHeight(),
-        source.getType());
+    int imgType = source.getType();
+    if (imgType==0) imgType = BufferedImage.TYPE_INT_RGB;
+    BufferedImage target = new BufferedImage(source.getWidth(), source.getHeight(), imgType);
 
     for (int y = 0; y < source.getHeight(); ++y) {
       for (int x = 0; x < source.getWidth(); ++x) {

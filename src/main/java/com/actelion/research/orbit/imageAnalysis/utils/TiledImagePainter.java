@@ -846,7 +846,7 @@ public class TiledImagePainter implements Closeable {
                 logger.error("Error mipmap width=0");
                 return null;
             }
-            logger.trace("requesting layer "+(mipMaps.length - 1)+" / "+mipMaps.length+" layerwidth: "+mipMaps[mipMaps.length-1].getImage().getWidth());
+            logger.trace("requesting layer "+(mipMaps.length - 1)+" ; "+mipMaps.length+" layerwidth: "+mipMaps[mipMaps.length-1].getImage().getWidth());
             image.getGraphics().drawImage(mipMaps[mipMaps.length - 1].getImage().getAsBufferedImage(), 0, 0, sizeX, sizeY, null);
             logger.trace("retrieved");
             return image;
