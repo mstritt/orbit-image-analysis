@@ -20,11 +20,11 @@
 package com.actelion.research.orbit.imageAnalysis.utils;
 
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
-import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.imaging.GBlur;
 import com.actelion.research.orbit.imageAnalysis.imaging.ManipulationUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.Weigher;
 import imageJ.Colour_Deconvolution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
@@ -50,8 +49,6 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
     protected int numBands = 0;
     protected String filename = "";
     public static Cache<PointAndName, Raster> tileCache = null;
-    public static AtomicInteger cacheTileWidth = new AtomicInteger(OrbitUtils.TILE_SIZE);
-    public static AtomicInteger cacheTileHeight = new AtomicInteger(OrbitUtils.TILE_SIZE);
     private static final ReentrantReadWriteLock cacheLock = new ReentrantReadWriteLock();
     private static final boolean doCacheLock = false;
     private boolean useCache =  !ScaleoutMode.SCALEOUTMODE.get();
@@ -75,23 +72,22 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
     protected abstract Raster getTileData(int tileX, int tileY, float[] channelContributions, boolean analysis);
 
 
-    private static void initCache(int tileWidth, int tileHeight) {
-        logger.info("(re-)creating tile cache ["+tileWidth+"x"+tileHeight+"]");
+    private static void initCache() {
+        logger.info("(re-)creating tile cache");
         if (doCacheLock) OrbitTiledImage2.cacheLock.writeLock().lock();
         try {
-            cacheTileWidth.set(tileWidth);
-            cacheTileHeight.set(tileHeight);
-
             long mem = Runtime.getRuntime().maxMemory();
-            int tileX = cacheTileWidth.get();
-            int tileY = cacheTileHeight.get();
-            int maxSize = (int) ((mem * 0.5d) / (tileX * tileY * 3L * 4L)); // 3 bands, each a 32bit int
-
-            //System.out.println("OrbitTiledImage2.tileCache: maxObjects="+maxSize+"  freeMem: "+RawUtils.formatFileSize(memFree));
             tileCache = CacheBuilder.
                     newBuilder().
-                    maximumSize(maxSize).
-                    expireAfterWrite(15, TimeUnit.MINUTES).
+                    //recordStats().
+                    expireAfterWrite(7, TimeUnit.MINUTES).
+                    maximumWeight(mem/2).
+                    weigher(new Weigher<PointAndName, Raster>() {
+                        @Override
+                        public int weigh(PointAndName key, Raster raster) {
+                            return raster.getWidth()*raster.getHeight() * 3 * 4;
+                        }
+                    }).
                     build();
 
         } finally {
@@ -100,14 +96,11 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
     }
 
     public OrbitTiledImage2() {
-
+        logCacheStats();
     }
 
     public OrbitTiledImage2(String filename) throws Exception {
-        if (logger.isDebugEnabled()) {
-            if (OrbitTiledImage2.tileCache != null)
-                logger.trace("cachesize: " + OrbitTiledImage2.tileCache.size());
-        }
+        logCacheStats();
 
         this.filename = filename.replaceAll("/data/orbit", "");
 
@@ -128,6 +121,15 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         } catch (Exception ex) {
             if (!(this instanceof OrbitTiledImagePlanarImage))
                 throw new OrbitImageServletException("Error reading image tile data");
+        }
+    }
+
+    private static void logCacheStats() {
+        if (logger.isTraceEnabled()) {
+            if (OrbitTiledImage2.tileCache != null) {
+                //logger.trace("cachesize: " + OrbitTiledImage2.tileCache.size() + " stats: " + OrbitTiledImage2.tileCache.stats().toString());
+                logger.trace("cachesize: " + OrbitTiledImage2.tileCache.size());
+            }
         }
     }
 
@@ -231,14 +233,8 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
         // re-init cache disabled. Too many problems due to different tile sizes (e.g. overview vs normal)
         //  -> only init once...
-        if (useCache && (OrbitTiledImage2.tileCache == null /*|| tileSizeChanged(tile.getWidth(),tile.getHeight())*/)) {
-//            System.out.println("reason for init: useCache="+useCache+"; cache="+OrbitTiledImage2.tileCache);
-//            if (OrbitTiledImage2.tileCache!=null) {
-//                System.out.println("width="+OrbitTiledImage2.cacheTileWidth.get()+":"+tile.getWidth());
-//                System.out.println("height="+OrbitTiledImage2.cacheTileHeight.get()+":"+tile.getHeight());
-//            }
-
-               initCache(tile.getWidth(), tile.getHeight());
+        if (useCache && (OrbitTiledImage2.tileCache == null)) {
+               initCache();
         }
 
         // the put is a "read" method because the cache is not rebuild (and put/get is threadsafe)
@@ -254,24 +250,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         return tile;
     }
 
-    /**
-     * Checks if the tilesize is different than the cache assumes (for max cache size computation).
-     * Workaround for LocalImageProvider: here TILE_SIZE_DEFAULT is assumed for tileSize, even if certain levels (e.g. overview plane) will have a different size.
-     * This is to avoid unnecessary cache-recreations.
-     * @param tileWidth
-     * @param tileHeight
-     * @return
-     */
-    private boolean tileSizeChanged(int tileWidth, int tileHeight) {
-        if (DALConfig.isLocalImageProvider()) {
-            tileWidth = OrbitUtils.TILE_SIZE_DEFAULT;
-            tileHeight = OrbitUtils.TILE_SIZE_DEFAULT;
-        }
-        boolean sizeChanged =  OrbitTiledImage2.cacheTileWidth.get() != tileWidth || OrbitTiledImage2.cacheTileHeight.get() != tileHeight;
-        return sizeChanged;
-    }
-
-
+  
     public static BufferedImage createImage(Raster r, BufferedImage bi, SampleModel sampleModel, ColorModel colorModel) {
         if (bi != null) return bi;
         try {

@@ -38,6 +38,7 @@ public class HueColorChooser extends JDialog implements ChangeListener {
         colorCanvas = new JPanel();
         colorCanvas.setBackground(Color.getHSBColor(hsb[0],hsb[1],hsb[2]));
         colorCanvas.setPreferredSize(new Dimension(200,200));
+        colorCanvas.setOpaque(true);
 
         btnCancel.addActionListener(new ActionListener() {
             @Override
