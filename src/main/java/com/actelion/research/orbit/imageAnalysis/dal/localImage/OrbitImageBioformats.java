@@ -28,6 +28,7 @@ import com.actelion.research.orbit.utils.ChannelToHue;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.Weigher;
 import loci.common.services.ServiceFactory;
 import loci.formats.FormatException;
 import loci.formats.IFormatReader;
@@ -57,10 +58,17 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
 
     public static int EXPLICIT_SERIES = 0;
     private static final Logger logger = LoggerFactory.getLogger(OrbitImageBioformats.class);
+    private static final int cacheMemsize = 1024*1024*64; // 128MB
     public static final Cache<ROIDef, BufferedImage> tileCache = CacheBuilder.
             newBuilder().
-                    maximumSize(40). // 40 tiles  - should be enough to fill a screen
-                    expireAfterWrite(5, TimeUnit.MINUTES).
+                    expireAfterWrite(7, TimeUnit.MINUTES).
+                    maximumWeight(cacheMemsize).
+                    weigher(new Weigher<ROIDef, BufferedImage>() {
+                        @Override
+                        public int weigh(ROIDef key, BufferedImage img) {
+                            return img.getWidth()*img.getHeight() * 3 * 4;
+                        }
+                    }).
                     build();
     final int maxThumbWidth = 300;
     final protected ThreadLocal<BufferedImageReader> reader;
@@ -339,7 +347,8 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
     @Override
     public Raster getTileData(int tileX, int tileY, float[] channelContributions, boolean analysis) {
         try {
-           BufferedImage img = getPlane(tileX, tileY, channelContributions!=null?channelContributions:this.channelContributions, analysis);
+            
+           BufferedImage img = getPlane(tileX, tileY,(analysis||channelContributions!=null)?channelContributions:this.channelContributions, analysis);
            // ensure tiles have always full tileWidth and tileHeight (even at borders)
            if (img.getWidth()!=getTileWidth() || img.getHeight()!=getTileHeight())
            {
@@ -404,7 +413,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
             int col;
             int[] pix = new int[3];
             for (int c = 0; c < sizeC; c++) {
-                if (isChannelActive(c)) {
+                if (isChannelActive(c,channelContributions,analysis)) {
                     int index = reader.get().getIndex(z, c, t);
                     ROIDef roiDef = new ROIDef(filename,level, index,x,y,w,h);
                     BufferedImage bit = useCache? OrbitImageBioformats.tileCache.getIfPresent(roiDef): null;
@@ -676,6 +685,10 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         return channelContributions;
     }
 
+    /**
+     * Sets channel contributions FOR RENDERING
+     * @param contributions
+     */
     @Override
     public void setChannelContributions(float[] contributions) {
         if (contributions==null) {
@@ -704,12 +717,13 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
          // not implemented
     }
 
-    public boolean isChannelActive(int c) {
-        if (channelContributions==null) return true;  // if nothing is set we assume all channels should be active
-        if (channelContributions.length <= c) {
-            throw new IllegalArgumentException("channelContributions length is "+channelContributions.length+" but requested channel is "+c);
+    protected boolean isChannelActive(final int c, final float[] channelContributions, final boolean analysis) {
+        final float[] cc = (analysis||channelContributions!=null)?channelContributions:this.channelContributions;
+        if (cc==null) return true;  // if nothing is set we assume all channels should be active
+        if (cc.length <= c) {
+            throw new IllegalArgumentException("channelContributions length is "+cc.length+" but requested channel is "+c);
         }
-        return Math.abs(channelContributions[c])>0.00001f;
+        return Math.abs(cc[c])>0.00001f;
     }
 
  

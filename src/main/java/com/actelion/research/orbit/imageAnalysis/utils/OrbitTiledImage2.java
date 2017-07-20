@@ -166,7 +166,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
         // not in cache
 
-        Raster tile = getTileData(tileX, tileY, channelContributions, analysis);
+        Raster tile = getTileData(tileX, tileY, channelContributionsCloned, analysis);
 
         if (tile.getNumBands() == 1) {
             BufferedImage bi = createImage(tile, null, grayColorModel.createCompatibleSampleModel(this.getWidth(), this.getHeight()), grayColorModel);
