@@ -58,7 +58,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
 
     public static int EXPLICIT_SERIES = 0;
     private static final Logger logger = LoggerFactory.getLogger(OrbitImageBioformats.class);
-    private static final int cacheMemsize = 1024*1024*64; // 128MB
+    private static final int cacheMemsize = 1024*1024*64; // 64MB
     public static final Cache<ROIDef, BufferedImage> tileCache = CacheBuilder.
             newBuilder().
                     expireAfterWrite(7, TimeUnit.MINUTES).

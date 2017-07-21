@@ -47,7 +47,7 @@ public class TestSegmentationMFS {
         RecognitionFrame rf = new RecognitionFrame("/resource/testimages/mfs-segmentation.jpg", true);
         SegmentationResult res = OrbitHelper.Segmentation(rf, -1, model, null, -1, false);
         assertNotNull(res);
-        assertEquals(103, res.getObjectCount()); 
+        assertEquals(94, res.getObjectCount());
     }
 
 

@@ -143,12 +143,12 @@ configurations {
 
 dependencies {
     compile 'com.actelion.research:lib-orbit-common:1.2.5'
-    compile 'com.actelion.research:image-provider-omero:1.4.13'
+    compile 'com.actelion.research:image-provider-omero:1.4.14'
     compile 'com.actelion.research:map-reduce-generic:1.0.8'
     compile 'com.actelion.research:map-reduce-exec-spark:1.0.2'
 
 //    compile 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
-//    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.1.9') {
+//    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.1.10') {
 //        exclude(module: 'orbit-image-analysis')
 //    }
 
