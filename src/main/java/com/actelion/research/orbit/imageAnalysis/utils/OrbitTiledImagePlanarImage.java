@@ -82,9 +82,9 @@ public class OrbitTiledImagePlanarImage extends OrbitTiledImage2 {
      * will ignore channelContributions
      */
     @Override
-    public Raster getTileData(int tileX, int tileY, float[] channelContributions, boolean analysis) {
+    public Raster getTileData(int tileX, int tileY, float[] channelContributions, boolean analysis, float[] analysisHues) {
         if (image instanceof IOrbitImageMultiChannel) {
-            return ((IOrbitImageMultiChannel) image).getTileData(tileX,tileY,channelContributions,analysis);
+            return ((IOrbitImageMultiChannel) image).getTileData(tileX,tileY,channelContributions,analysis, analysisHues);
         } else
         if (image instanceof IOrbitImage) {
             return ((IOrbitImage) image).getTileData(tileX,tileY,analysis);

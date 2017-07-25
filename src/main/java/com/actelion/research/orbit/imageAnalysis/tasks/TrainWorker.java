@@ -264,6 +264,7 @@ public class TrainWorker extends OrbitWorker {
             modelToBuild.setStructure(trainSet.stringFreeStructure());
             modelToBuild.setCellClassification(false);
             modelToBuild.setMipLayer(mipLayer);
+            modelToBuild.getFeatureDescription().setHueMap(OrbitUtils.getMergedHueMap());
             logger.debug("training done");
 
             // evaluation

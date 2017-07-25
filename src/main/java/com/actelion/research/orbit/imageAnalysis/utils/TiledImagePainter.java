@@ -27,6 +27,7 @@ import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.imaging.ManipulationUtils;
 import com.actelion.research.orbit.imageAnalysis.imaging.MedianFilter;
 import com.actelion.research.orbit.imageAnalysis.models.FeatureDescription;
+import com.actelion.research.orbit.utils.ChannelToHue;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 import com.sun.media.jai.codec.PNGDecodeParam;
 import imageJ.Colour_Deconvolution;
@@ -408,6 +409,18 @@ public class TiledImagePainter implements Closeable {
         if (pi instanceof OrbitTiledImage2) {
             // fluo channels for classification
             IOrbitImageMultiChannel multiChannelImage = getMultiChannelImage(); // might return null
+            if (featureDescription.getHueMap()!=null && multiChannelImage!=null && multiChannelImage.getChannelNames()!=null && multiChannelImage.getChannelNames().length>0) {
+                float[] hueMap = new float[multiChannelImage.getChannelNames().length];
+                for (int c=0; c<hueMap.length; c++) {
+                    String channelName = OrbitUtils.cleanChannelName(multiChannelImage.getChannelNames()[c]).toLowerCase();
+                    if (featureDescription.getHueMap().containsKey(channelName)) {
+                        hueMap[c] = featureDescription.getHueMap().get(channelName);
+                    } else {
+                        hueMap[c] = ChannelToHue.getHue(channelName);   // fallback for undefined channels
+                    }
+                }
+                ((OrbitTiledImage2) pi).setAnalysisHues(hueMap);
+            }
             if (multiChannelImage!=null && featureDescription.getActiveFluoChannels()!=null && featureDescription.getActiveFluoChannels().length>0 && multiChannelImage.getChannelNames()!=null && multiChannelImage.getChannelNames().length>0) {
                 HashSet<String> activeChannelLookup = new HashSet<>(Arrays.asList(featureDescription.getActiveFluoChannels()));
                 float[] channelContributions = new float[multiChannelImage.getChannelNames().length];

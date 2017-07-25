@@ -83,9 +83,9 @@ public class OrbitTiledImageIOrbitImage extends OrbitTiledImage2 {
     }
 
     @Override
-    public Raster getTileData(int arg0, int arg1, float[] channelContributions, boolean analysis) {
+    public Raster getTileData(int arg0, int arg1, float[] channelContributions, boolean analysis, float[] analysisHues) {
         if (image instanceof IOrbitImageMultiChannel) {
-            return  ((IOrbitImageMultiChannel)image).getTileData(arg0, arg1, channelContributions, analysis);
+            return  ((IOrbitImageMultiChannel)image).getTileData(arg0, arg1, channelContributions, analysis, analysisHues);
         } else {
             return image.getTileData(arg0, arg1, analysis);
         }

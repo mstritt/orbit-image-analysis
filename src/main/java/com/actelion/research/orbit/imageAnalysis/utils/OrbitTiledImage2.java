@@ -66,10 +66,11 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
     private static LookupTableJAI defaultLookuptable = null;
     private float[] channelContributionsClassification = null; // (fluo)channel contributions (currently only 1 or 0) used for classification
     protected int level = 0; // used for caching identifier
+    protected float[] analysisHues = null;
 
     protected abstract String readInfoString(String filename) throws Exception;
 
-    protected abstract Raster getTileData(int tileX, int tileY, float[] channelContributions, boolean analysis);
+    protected abstract Raster getTileData(int tileX, int tileY, float[] channelContributions, boolean analysis, float[] analysisHues);
 
 
     private static void initCache() {
@@ -138,17 +139,17 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
      */
     @Override
     public Raster getTile(int tileX, int tileY) {
-        return getTile(tileX, tileY, 100, 100, 0, 0, 0, 0, 0, null, null, null, null, true, true, true, 0, Colour_Deconvolution.DECONV_NONE,channelContributionsClassification, true);
+        return getTile(tileX, tileY, 100, 100, 0, 0, 0, 0, 0, null, null, null, null, true, true, true, 0, Colour_Deconvolution.DECONV_NONE,channelContributionsClassification, true, analysisHues);
     }
 
     /**
      * used for viewing / rendering
      */
     public Raster getTile(int tileX, int tileY, double gamma, double contrast, double brightness, int blur, double redAdjust, double greenAdjust, double blueAdjust, OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, OrbitTiledImage2 blueChannel, OrbitTiledImage2 overlayChannel, boolean redActive, boolean greenActive, boolean blueActive, int deconvChannel, String deconvName, final float[] channelContributions) {
-        return getTile(tileX, tileY, gamma, contrast, brightness, blur, redAdjust, greenAdjust, blueAdjust, redChannel, greenChannel, blueChannel, overlayChannel, redActive, greenActive, blueActive, deconvChannel, deconvName, channelContributions, false);
+        return getTile(tileX, tileY, gamma, contrast, brightness, blur, redAdjust, greenAdjust, blueAdjust, redChannel, greenChannel, blueChannel, overlayChannel, redActive, greenActive, blueActive, deconvChannel, deconvName, channelContributions, false, null);
     }
 
-     public Raster getTile(int tileX, int tileY, double gamma, double contrast, double brightness, int blur, double redAdjust, double greenAdjust, double blueAdjust, OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, OrbitTiledImage2 blueChannel, OrbitTiledImage2 overlayChannel, boolean redActive, boolean greenActive, boolean blueActive, int deconvChannel, String deconvName, final float[] channelContributions, boolean analysis) {
+     public Raster getTile(int tileX, int tileY, double gamma, double contrast, double brightness, int blur, double redAdjust, double greenAdjust, double blueAdjust, OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, OrbitTiledImage2 blueChannel, OrbitTiledImage2 overlayChannel, boolean redActive, boolean greenActive, boolean blueActive, int deconvChannel, String deconvName, final float[] channelContributions, boolean analysis, final float[] analysisHues) {
         float[] channelContributionsCloned = channelContributions==null? null: Arrays.copyOf(channelContributions, channelContributions.length);
         PointAndName tileP = new PointAndName(tileX, tileY, filename, level, gamma, contrast, brightness, blur, redAdjust, greenAdjust, blueAdjust, redChannel, greenChannel, blueChannel, overlayChannel, redActive, greenActive, blueActive, deconvChannel, deconvName, channelContributionsCloned, analysis);
         if (doCacheLock) OrbitTiledImage2.cacheLock.readLock().lock();
@@ -166,7 +167,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
         // not in cache
 
-        Raster tile = getTileData(tileX, tileY, channelContributionsCloned, analysis);
+        Raster tile = getTileData(tileX, tileY, channelContributionsCloned, analysis, analysisHues);
 
         if (tile.getNumBands() == 1) {
             BufferedImage bi = createImage(tile, null, grayColorModel.createCompatibleSampleModel(this.getWidth(), this.getHeight()), grayColorModel);
@@ -722,5 +723,13 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
     public void setTiledImagePainterStats(TiledImagePainter tiledImagePainterStats) {
         this.tiledImagePainterStats = tiledImagePainterStats;
+    }
+
+    public float[] getAnalysisHues() {
+        return analysisHues;
+    }
+
+    public void setAnalysisHues(float[] analysisHues) {
+        this.analysisHues = analysisHues;
     }
 }

@@ -170,7 +170,7 @@ public class OrbitImageTiff implements IOrbitImage {
     }
 
     /**
-     * Analysis is ignored here - works only for 8bit images
+     * Analysis and analysisHueMap is ignored here - works only for 8bit BF images
      */
     @Override
     public Raster getTileData(int tileX, int tileY, boolean analysis) {

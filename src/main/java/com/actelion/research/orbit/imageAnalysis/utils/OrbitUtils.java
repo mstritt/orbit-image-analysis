@@ -31,6 +31,7 @@ import com.actelion.research.orbit.imageAnalysis.features.TissueFeaturesCircular
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
 import com.actelion.research.orbit.imageAnalysis.tasks.OrbitWorker;
+import com.actelion.research.orbit.utils.ChannelToHue;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 import imageJ.Colour_Deconvolution;
 import org.jaitools.tilecache.DiskCachedTile;
@@ -53,7 +54,7 @@ import java.util.*;
 import java.util.List;
 
 public class OrbitUtils {
-    // label:  OrbitImageAnalysis2651
+    // label:  OrbitImageAnalysis266
     public static final String VERSION_STR = getVersion() + (ScaleoutMode.SCALEOUTMODE.get() ? "G" : "") + (OrbitUtils.DEVELOPMENTMODE ? " DEVELOPMENT" : "");
     public static final boolean DEVELOPMENTMODE = false;
     public static final boolean TILEMODE = false;
@@ -143,6 +144,15 @@ public class OrbitUtils {
         channelName = channelName.replaceAll(";","_");
         //channelName = channelName.replaceAll(" ","_");
         return channelName;
+    }
+
+    /**
+     * returns the hueMap merged with the user defined custom hue map (priority)
+     */
+    public static Map<String, Float> getMergedHueMap() {
+        Map<String, Float> hm = new HashMap<>(ChannelToHue.hueMap);
+        hm.putAll(ChannelToHue.userHueMap);
+        return hm;
     }
 
     public static TissueFeatures createTissueFeatures(final FeatureDescription featureDescription, final TiledImagePainter bimg) {

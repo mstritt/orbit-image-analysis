@@ -23,6 +23,8 @@ import imageJ.Colour_Deconvolution;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FeatureDescription implements Serializable, Cloneable {
 
@@ -67,6 +69,7 @@ public class FeatureDescription implements Serializable, Cloneable {
     private boolean mumfordShahSegmentation = false;
     private int mumfordShahAlpha = 5;
     private int mumfordShahCellSize = 18;
+    private Map<String,Float> hueMap = null;
 
 
     public FeatureDescription() {
@@ -78,7 +81,7 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.windowSize = windowSize;
     }
 
-    public FeatureDescription(int windowSize, int sampleSize, int featureSet, int minSegmentationSize, boolean minAreaClassification, int numBlur, boolean skipRed, boolean skipGreen, boolean skipBlue, double segmentationScale, int[] featureClasses, boolean deactivateWatershed, boolean filterTileEdgeShapes, int deconvChannel, String deconvName, boolean useImageAdjustments, String[] activeFluoChannels, boolean mumfordShahSegmentation, int mumfordShahAlpha, int mumfordShahCellSize) {
+    public FeatureDescription(int windowSize, int sampleSize, int featureSet, int minSegmentationSize, boolean minAreaClassification, int numBlur, boolean skipRed, boolean skipGreen, boolean skipBlue, double segmentationScale, int[] featureClasses, boolean deactivateWatershed, boolean filterTileEdgeShapes, int deconvChannel, String deconvName, boolean useImageAdjustments, String[] activeFluoChannels, boolean mumfordShahSegmentation, int mumfordShahAlpha, int mumfordShahCellSize, Map<String, Float> hueMap) {
         this.windowSize = windowSize;
         this.sampleSize = sampleSize;
         this.featureSet = featureSet;
@@ -99,6 +102,7 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.mumfordShahSegmentation = mumfordShahSegmentation;
         this.mumfordShahAlpha = mumfordShahAlpha;
         this.mumfordShahCellSize = mumfordShahCellSize;
+        this.hueMap = hueMap;
     }
 
 
@@ -387,13 +391,39 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.mumfordShahCellSize = mumfordShahCellSize;
     }
 
+    public Map<String, Float> getHueMap() {
+        return hueMap;
+    }
+
+    public void setHueMap(Map<String, Float> hueMap) {
+        this.hueMap = hueMap;
+    }
+
     public FeatureDescription clone() {
         try {
-            return ((FeatureDescription) super.clone());
+            FeatureDescription copy = ((FeatureDescription) super.clone());
+            copy.setFeatureClasses(featureClasses==null? null: Arrays.copyOf(featureClasses,featureClasses.length));
+            copy.setActiveFluoChannels(activeFluoChannels==null? null: Arrays.copyOf(activeFluoChannels,activeFluoChannels.length));
+            if (hueMap!=null) {
+                Map<String, Float> hueClone = new HashMap<>(hueMap);
+                copy.setHueMap(hueClone);
+            }
+            return copy;
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private String getHueMapString() {
+        if (hueMap==null) return "null";
+        else {
+            StringBuilder sb = new StringBuilder();
+            for (String channelName: hueMap.keySet()) {
+                sb.append(channelName+":"+hueMap.get(channelName)+"; ");
+            }
+            return sb.toString();
+        }
     }
 
     @Override
@@ -431,6 +461,7 @@ public class FeatureDescription implements Serializable, Cloneable {
                 ", mumfordShahSegmentation="+mumfordShahSegmentation +
                 ", mumfordShahAlpha="+mumfordShahAlpha +
                 ", mumfordShahCellSize="+mumfordShahCellSize +
+                ", hueMap="+getHueMapString() +
                 '}';
     }
 }
