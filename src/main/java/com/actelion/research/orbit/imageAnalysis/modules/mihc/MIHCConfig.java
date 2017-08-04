@@ -26,7 +26,11 @@ import java.io.Serializable;
  */
 public class MIHCConfig implements Serializable {
 
-    public String[] channelNames = new String[]{"DAPI","FITC","CY3","Cy3.5","Cy5","Cy5.5"};
+    public String[] channelNames6 = new String[]{"DAPI","FITC-Alexa488","CY3","Cy3.5","Cy5","Cy5.5"};
+    public String[] channelNames5 = new String[]{"FITC-Alexa488","CY3","Cy3.5","Cy5","Cy5.5"};
+    public String[] channelNames4 = new String[]{"DAPI","FITC-Alexa488","Cy3.5","Cy5.5"};
+
+    public double[] normGain6 = new double[]{10,8,1,1,1,2};
 
     public double[][] filterNewXeonPercent = new double[][]{
             {100.000,	0.000,	0.000,	0.000,	0.000,	0.000},
@@ -37,7 +41,8 @@ public class MIHCConfig implements Serializable {
             {0.000,	0.000,	0.000,	0.004,	36.232,	100.000}
     };
 
-    public double[][] filterNewXeon = new double[][] {
+
+    public double[][] filterNewXeon6 = new double[][] {
             {1.0,0.0,0.0,0.0,0.0,0.0},
             {0.0,1.0,0.00202,0.0,0.0,0.0},
             {0.0,0.01215,1.0,0.3194,0.0,0.0},
@@ -46,6 +51,15 @@ public class MIHCConfig implements Serializable {
             {0.0,0.0,0.0,0.00004,0.36232,1.0}
     };
 
+    public double[][] filterNewXeon5 = new double[][] {
+            {1.0,0.00202,0.0,0.0,0.0},
+            {0.01215,1.0,0.3194,0.0,0.0},
+            {0.0,0.69879,1.0,0.01554,0.0},
+            {0.0,0.0,0.00027,1.0,0.39109},
+            {0.0,0.0,0.00004,0.36232,1.0}
+    };
+
+
     public double[][] inverse = new double[][] {
             {1.0,-0.0,-0.0,-0.0,-0.0,-0.0},
             {-0.0,1.0000315958,-0.0026004759,0.0008305958,-0.0000150384,0.0000058814},
@@ -53,7 +67,14 @@ public class MIHCConfig implements Serializable {
             {-0.0,0.0109301575,-0.8996014388,1.2873386281,-0.0233079762,0.0091155164},
             {-0.0,-0.0000032391,0.000266596,-0.0003815015,1.1651003292,-0.4556590877},
             {-0.0,0.0000007364,-0.000060609,0.0000867321,-0.422138219,1.1650940361}
-
     };
+
+    public double[][] filterNewXeon4fake = new double[][]{
+            {1.000,	2.000,	3.000,	4.000},
+            {0.450,	1.000,	0.900,	0.100},
+            {0.670,	-2.000,	1.000,	-0.200},
+            {5.000,	0.700,	-0.354,	1.000}
+    };
+
 
 }

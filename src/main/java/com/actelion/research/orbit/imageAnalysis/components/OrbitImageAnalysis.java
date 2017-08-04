@@ -35,6 +35,7 @@ import com.actelion.research.orbit.imageAnalysis.dal.localImage.LocalFileFilter;
 import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTiled;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.modules.*;
+import com.actelion.research.orbit.imageAnalysis.modules.mihc.MihcModule;
 import com.actelion.research.orbit.imageAnalysis.tasks.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ROIArea.ROIAreaWorkerMapReduce;
 import com.actelion.research.orbit.imageAnalysis.tasks.cellClassification.CellClassificationWorkerMapReduce;
@@ -176,6 +177,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private boolean showManualBoxCount = false;
     private boolean showTMASpotModule = false;
     private boolean showThresholdClassification = false;
+    private boolean showMihcModule = false;
 
     private boolean showToolbar = true;
     private boolean showStatusbar = true;
@@ -201,6 +203,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private TMASpotModule tmaSpotModule = null;
     private ThresholdModule thresholdModule = null;
     private ExclusionModule exclusionModule = null;
+    private MihcModule mihcModule = null;
     final TransferHandler desktopTransferHandler = new DesktopTransferHandler();
 
 
@@ -3873,6 +3876,17 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     };
 
+    public final ActionListener showMihcModuleActionListener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            setShowMihcModule(!isShowMihcModule());
+            if (showMihcModule) {
+                metaBar.addOrbitModule(getMihcModule());
+            } else {
+                metaBar.removeOrbitModule(getMihcModule());
+            }
+        }
+    };
+
 
     public final ActionListener saveFullImageActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -4471,6 +4485,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
+    public MihcModule getMihcModule() {
+        if (mihcModule == null) {
+            mihcModule = new MihcModule();
+        }
+        return mihcModule;
+    }
+
     public String getLoadedModel() {
         return loadedModel;
     }
@@ -4533,6 +4554,14 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     public void setShowThresholdClassification(boolean showThresholdClassification) {
         this.showThresholdClassification = showThresholdClassification;
+    }
+
+    public boolean isShowMihcModule() {
+        return showMihcModule;
+    }
+
+    public void setShowMihcModule(boolean showMihcModule) {
+        this.showMihcModule = showMihcModule;
     }
 
     public boolean isShowTMASpotModule() {

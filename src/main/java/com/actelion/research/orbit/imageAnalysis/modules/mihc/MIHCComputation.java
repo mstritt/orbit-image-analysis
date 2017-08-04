@@ -24,34 +24,48 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 
 import java.text.DecimalFormat;
-import java.util.Arrays;
 
 public class MIHCComputation {
 
-    public static void main(String[] args) {
-        MIHCConfig conf = new MIHCConfig();
-        //RealMatrix inverse = MatrixUtils.inverse(MatrixUtils.createRealMatrix(conf.filterNewXeon));
+    private Array2DRowRealMatrix inverseMatrix;
 
+    public static void main(String[] args) {
+          MIHCConfig conf = new MIHCConfig();
+          RealMatrix inverse = MatrixUtils.inverse(MatrixUtils.createRealMatrix(conf.filterNewXeon4fake));
+          printMat(inverse);
+
+//        Array2DRowRealMatrix AsnInv = (Array2DRowRealMatrix) MatrixUtils.createRealMatrix(conf.inverse);
+//        printMat(AsnInv);
+//        double[] gain = new double[]{1,1,1,1,2,1};
+//        for (int i=0; i<gain.length; i++) gain[i] = 1d/gain[i];
+//        RealMatrix GiiInv = MatrixUtils.createRealDiagonalMatrix(gain);
+//        printMat(GiiInv);
+//        Array2DRowRealMatrix AsnInvNorm = (Array2DRowRealMatrix) AsnInv.multiply(GiiInv);
+//        printMat(AsnInvNorm);
+//        double[] out = new double[gain.length];
+//
+//        //double[] in = new double[]{0,000,0,0,100,39};
+//        double[] in = new double[]{0,0,0,1.554,100,36.232};   // -> 0,0,0,0,100,0
+//        fastMultiply(AsnInvNorm,in,out);
+//        System.out.println(Arrays.toString(out));
+    }
+
+    public MIHCComputation() {
+        MIHCConfig conf = new MIHCConfig();
         Array2DRowRealMatrix AsnInv = (Array2DRowRealMatrix) MatrixUtils.createRealMatrix(conf.inverse);
-        printMat(AsnInv);
-        double[] gain = new double[]{1,1,1,1,2,1};
+        double[] gain = new double[]{1,1,1,1,1,1};
         for (int i=0; i<gain.length; i++) gain[i] = 1d/gain[i];
         RealMatrix GiiInv = MatrixUtils.createRealDiagonalMatrix(gain);
-        printMat(GiiInv);
         Array2DRowRealMatrix AsnInvNorm = (Array2DRowRealMatrix) AsnInv.multiply(GiiInv);
-        printMat(AsnInvNorm);
-        double[] out = new double[gain.length];
+        inverseMatrix = AsnInvNorm;
+    }
 
-        //double[] in = new double[]{0,000,0,0,100,39};
-        double[] in = new double[]{0,0,0,1.554,100,36.232};   // -> 0,0,0,0,100,0
-        fastMultiply(AsnInvNorm,in,out);
-        System.out.println(Arrays.toString(out));
-
-
+    public void unmix(final Array2DRowRealMatrix inverseMatrix, final double[] measurement, final double[] out) {
+        fastMultiply(inverseMatrix,measurement,out);
     }
 
     private static void fastMultiply(final Array2DRowRealMatrix mat, final double[] v, final double[] out) {
-        int n = v.length;
+        final int n = v.length;
         for (int row = 0; row < n; row++) {
             final double[] dataRow = mat.getDataRef()[row];
             double sum = 0;

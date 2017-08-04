@@ -135,7 +135,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
     private double mipScale = 1d;
     private static final boolean ignoreRepaint = true;
     private static final boolean opaque = false;
-    private static final boolean doubleBuffered = true;
+    private static final boolean doubleBuffered = false;
     private static final AtomicInteger activeAnnotationGroup = new AtomicInteger(0); // annotation group -> see annotationPanel
 
     /**

@@ -71,6 +71,12 @@ public class FeatureDescription implements Serializable, Cloneable {
     private int mumfordShahCellSize = 18;
     private Map<String,Float> hueMap = null;
 
+    // MIHC
+    private boolean mihcActive = false;
+    private String[] mihcMatrixChannelNames = null;
+    private double[][] mihcMatrix = null;
+    private double[] mihcNormalGain = null;
+
 
     public FeatureDescription() {
         featureSet = FEATURE_SET_DEFAULT; // latest version
@@ -399,6 +405,38 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.hueMap = hueMap;
     }
 
+    public boolean isMihcActive() {
+        return mihcActive;
+    }
+
+    public void setMihcActive(boolean mihcActive) {
+        this.mihcActive = mihcActive;
+    }
+
+    public String[] getMihcMatrixChannelNames() {
+        return mihcMatrixChannelNames;
+    }
+
+    public void setMihcMatrixChannelNames(String[] mihcMatrixChannelNames) {
+        this.mihcMatrixChannelNames = mihcMatrixChannelNames;
+    }
+
+    public double[][] getMihcMatrix() {
+        return mihcMatrix;
+    }
+
+    public void setMihcMatrix(double[][] mihcMatrix) {
+        this.mihcMatrix = mihcMatrix;
+    }
+
+    public double[] getMihcNormalGain() {
+        return mihcNormalGain;
+    }
+
+    public void setMihcNormalGain(double[] mihcNormalGain) {
+        this.mihcNormalGain = mihcNormalGain;
+    }
+
     public FeatureDescription clone() {
         try {
             FeatureDescription copy = ((FeatureDescription) super.clone());
@@ -408,11 +446,26 @@ public class FeatureDescription implements Serializable, Cloneable {
                 Map<String, Float> hueClone = new HashMap<>(hueMap);
                 copy.setHueMap(hueClone);
             }
+            copy.setMihcNormalGain(mihcNormalGain==null? null : Arrays.copyOf(mihcNormalGain,mihcNormalGain.length));
+            copy.setMihcMatrixChannelNames(mihcMatrixChannelNames==null? null : Arrays.copyOf(mihcMatrixChannelNames,mihcMatrixChannelNames.length));
+            copy.setMihcMatrix(deepCopy(mihcMatrix));
             return copy;
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static double[][] deepCopy(double[][] original) {
+        if (original == null) {
+            return null;
+        }
+
+        final double[][] result = new double[original.length][];
+        for (int i = 0; i < original.length; i++) {
+            result[i] = Arrays.copyOf(original[i], original[i].length);
+        }
+        return result;
     }
 
     private String getHueMapString() {
@@ -462,6 +515,7 @@ public class FeatureDescription implements Serializable, Cloneable {
                 ", mumfordShahAlpha="+mumfordShahAlpha +
                 ", mumfordShahCellSize="+mumfordShahCellSize +
                 ", hueMap="+getHueMapString() +
+                ", mihcActive="+mihcActive+
                 '}';
     }
 }

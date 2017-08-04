@@ -235,6 +235,7 @@ public class NDPISReaderOrbit extends FormatReader {
         MetadataTools.populatePixels(store, this);
     }
 
-    
-
+    public NDPIReader[] getReaders() {
+        return readers;
+    }
 }

@@ -98,6 +98,7 @@ public class ImageFrame extends JInternalFrame implements ComponentListener, Pro
         this.setDoubleBuffered(true);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
+        recognitionFrame.setIgnoreRepaint(true);
         this.recognitionFrame = recognitionFrame;
         addPropertyChangeListener(this);
 
