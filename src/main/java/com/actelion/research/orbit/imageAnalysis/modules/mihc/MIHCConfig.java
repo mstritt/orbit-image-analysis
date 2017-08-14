@@ -29,8 +29,11 @@ public class MIHCConfig implements Serializable {
     public String[] channelNames6 = new String[]{"DAPI","FITC-Alexa488","CY3","Cy3.5","Cy5","Cy5.5"};
     public String[] channelNames5 = new String[]{"FITC-Alexa488","CY3","Cy3.5","Cy5","Cy5.5"};
     public String[] channelNames4 = new String[]{"DAPI","FITC-Alexa488","Cy3.5","Cy5.5"};
+    public String[] channelNames3 = new String[]{"DAPI","FITC","Cy3.5"};
 
     public double[] normGain6 = new double[]{10,8,1,1,1,2};
+    public double[] normGain3 = new double[]{1,1,1};
+
 
     public double[][] filterNewXeonPercent = new double[][]{
             {100.000,	0.000,	0.000,	0.000,	0.000,	0.000},
@@ -57,6 +60,12 @@ public class MIHCConfig implements Serializable {
             {0.0,0.69879,1.0,0.01554,0.0},
             {0.0,0.0,0.00027,1.0,0.39109},
             {0.0,0.0,0.00004,0.36232,1.0}
+    };
+
+    public double[][] Asn3 = new double[][] {
+            {1.0,0.25,0.1},
+            {0.05,1.0,0.3194},
+            {0.18,0.45,1.0},
     };
 
 

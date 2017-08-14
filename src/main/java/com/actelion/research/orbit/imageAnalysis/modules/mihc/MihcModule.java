@@ -21,6 +21,7 @@ package com.actelion.research.orbit.imageAnalysis.modules.mihc;
 
 import com.actelion.research.orbit.imageAnalysis.components.AbstractOrbitModule;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
+import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,7 @@ public class MihcModule extends AbstractOrbitModule {
         model.getFeatureDescription().setMihcNormalGain(conf.normGain6);
         model.getFeatureDescription().setMihcMatrixChannelNames(conf.channelNames6);
         model.getFeatureDescription().setMihcActive(true);
+        ImageProviderLocal.setOrbitModel(model);
     }
 
 

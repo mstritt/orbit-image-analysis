@@ -19,7 +19,11 @@
 
 package com.actelion.research.orbit.imageAnalysis.modules.mihc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.io.File;
@@ -30,6 +34,7 @@ import java.io.File;
  */
 public class RegistrationTrans {
 
+    private static final Logger logger = LoggerFactory.getLogger(RegistrationTrans.class);
     private static final float eps = 0.000001f;
 
     /**
@@ -73,6 +78,26 @@ public class RegistrationTrans {
             }
         }
         return f;
+    }
+
+    public Point findBestOffset(Raster r1, Raster r2, int searchX, int searchY) {
+        float[][] f = raster2float(r1);
+        float[][] g = raster2float(r2);
+        int bestU = 0;
+        int bestV = 0;
+        double bestCC = 0d;
+        for (int u=-searchX; u<searchX; u++)
+            for (int v=-searchY; v<searchY; v++) {
+                double cc = correlation(f, g, u, v);
+                if (cc>bestCC) {
+                    bestCC = cc;
+                    bestU = u;
+                    bestV = v;
+                }
+            }
+        logger.info("best cc: "+bestCC);
+        Point uv = new Point(bestU, bestV);
+        return uv;
     }
 
     /**

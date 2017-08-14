@@ -21,21 +21,22 @@ package com.actelion.research.orbit.imageAnalysis.modules.mihc;
 
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.NDPISReaderOrbit;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.NDPIUtils;
-import loci.formats.FormatException;
+import loci.common.services.ServiceFactory;
 import loci.formats.gui.BufferedImageReader;
+import loci.formats.meta.IMetadata;
+import loci.formats.services.OMEXMLService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 
 public class MIHCTest {
     private static final Logger logger = LoggerFactory.getLogger(MIHCTest.class);
 
-    public static void main(String[] args) throws IOException, FormatException {
+    public static void main(String[] args) throws Exception {
         String fn = "D:\\pic\\Hamamatsu\\fl8\\6188205.ndpis";
         int tx = 10;
         int ty = 10;
@@ -48,8 +49,15 @@ public class MIHCTest {
         logger.info("gains: "+ Arrays.toString(gains));
         reader.close();
         MultiplexImageReader mir = new MultiplexImageReader(bir,conf.channelNames6, conf.filterNewXeon6, conf.normGain6, gains);
+
+        ServiceFactory factory = new ServiceFactory();
+        OMEXMLService service = factory.getInstance(OMEXMLService.class);
+        IMetadata meta = service.createOMEXMLMetadata();
+        mir.setMetadataStore(meta);
+
         mir.setId(fn);
         System.out.println("image dimensions: "+reader.getSizeX()+","+reader.getSizeY());
+        System.out.println("channel name: "+meta.getChannelName(mir.getSeries(),0));
 
         for (int c=0; c<reader.getSizeC(); c++) {
             long startt = System.currentTimeMillis();

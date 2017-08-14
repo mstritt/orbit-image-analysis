@@ -62,17 +62,19 @@ public class MultiplexImageReader extends BufferedImageReader {
         this.matrixChannelNames = matrixChannelNames;
     }
 
+
     @Override
     public void setId(String id) throws FormatException, IOException {
         ServiceFactory factory;
         try {
             factory = new ServiceFactory();
             OMEXMLService service = factory.getInstance(OMEXMLService.class);
-            IMetadata meta = service.createOMEXMLMetadata();
-            setMetadataStore(meta);
+            if (getMetadataStore()==null) {
+                IMetadata meta = service.createOMEXMLMetadata();
+                setMetadataStore(meta);
+            }
+            IMetadata meta = service.getOMEMetadata(service.asRetrieve(getMetadataStore()));
             super.setId(id);
-
-            
 
             HashSet<String> matrixChannelNamesHash = new HashSet<>(Arrays.asList(this.matrixChannelNames));
             channelIndependent = new boolean[getSizeC()];
