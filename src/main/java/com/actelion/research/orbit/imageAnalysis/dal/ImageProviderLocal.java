@@ -28,6 +28,7 @@ import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAODataFileSQLit
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAORawAnnotationSQLite;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.OrbitImageBioformats;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.OrbitImageTiff;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitImagePlanar;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.TiffConverter;
@@ -57,6 +58,7 @@ public class ImageProviderLocal extends ImageProviderNoop implements ChangeListe
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ImageProviderLocal.class);
     private RawData rawData;
     private static int series = 0;
+    private static OrbitModel orbitModel = null;
 
     public ImageProviderLocal() {
         rawData = new RawData();
@@ -65,6 +67,10 @@ public class ImageProviderLocal extends ImageProviderNoop implements ChangeListe
         rawData.setReferenceDate(new Date());
         rawData.setRawDataId(1);
         rawData.setUserId("orbit");
+    }
+
+    public static void setOrbitModel(final OrbitModel orbitModel) {
+        ImageProviderLocal.orbitModel = new OrbitModel(orbitModel);
     }
 
     @Override
@@ -212,11 +218,11 @@ public class ImageProviderLocal extends ImageProviderNoop implements ChangeListe
             try {
                 return new OrbitImageTiff(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
             } catch (FormatException e) {  // for tiff files >=16 bits per sample
-                return new OrbitImageBioformats(rdf.getDataPath() + File.separator + rdf.getFileName(), level, rdf.getSeriesNum());
+                return new OrbitImageBioformats(rdf.getDataPath() + File.separator + rdf.getFileName(), level, rdf.getSeriesNum(), orbitModel);
             }
         }
         else {
-            return new OrbitImageBioformats(rdf.getDataPath() + File.separator + rdf.getFileName(), level, rdf.getSeriesNum());
+            return new OrbitImageBioformats(rdf.getDataPath() + File.separator + rdf.getFileName(), level, rdf.getSeriesNum(), orbitModel);
         }
     }
 
@@ -234,7 +240,7 @@ public class ImageProviderLocal extends ImageProviderNoop implements ChangeListe
                         bi = oi.getThumbnail();
                         oi.close();
                     }  catch (FormatException e) {  // for tiff files >=16 bits per sample
-                        OrbitImageBioformats oi = new OrbitImageBioformats(file.getAbsolutePath(), 0, series);
+                        OrbitImageBioformats oi = new OrbitImageBioformats(file.getAbsolutePath(), 0, series, orbitModel);
                         bi = oi.getThumbnail();
                         oi.close();
                     }
@@ -242,7 +248,7 @@ public class ImageProviderLocal extends ImageProviderNoop implements ChangeListe
                 }  else {
                   //  OrbitImageScifio oi = new OrbitImageScifio(file.getAbsolutePath(), 0);
                     logger.debug("loading thumbnail of file "+filename+", series: "+series);
-                    OrbitImageBioformats oi = new OrbitImageBioformats(file.getAbsolutePath(), 0, series);
+                    OrbitImageBioformats oi = new OrbitImageBioformats(file.getAbsolutePath(), 0, series, orbitModel);
                     bi = oi.getThumbnail();
                     oi.close();
                 }

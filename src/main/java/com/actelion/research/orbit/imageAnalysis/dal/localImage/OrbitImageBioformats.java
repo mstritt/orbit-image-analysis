@@ -22,6 +22,8 @@ package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 import com.actelion.research.orbit.beans.MinMaxPerChan;
 import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
+import com.actelion.research.orbit.imageAnalysis.modules.mihc.MultiplexImageReader;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.ScaleoutMode;
 import com.actelion.research.orbit.utils.ChannelToHue;
@@ -107,7 +109,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
     private boolean useCache = !ScaleoutMode.SCALEOUTMODE.get();
 
 
-    public OrbitImageBioformats(final String filename, final int level, final int _series) throws IOException, FormatException {
+    public OrbitImageBioformats(final String filename, final int level, final int _series, final OrbitModel orbitModel) throws IOException, FormatException {
         this.originalFilename = filename;
         this.series = _series;
         if (EXPLICIT_SERIES>0) {
@@ -126,7 +128,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
             protected BufferedImageReader initialValue() {
                 try {
                     logger.debug("init bioformats: "+filename+" ["+level+"]"+" ["+ series +"]");
-                    IFormatReader r = getIFormatReader(filename);
+                    IFormatReader r = getIFormatReader(filename, orbitModel);
                     ServiceFactory factory = new ServiceFactory();
                     OMEXMLService service = factory.getInstance(OMEXMLService.class);
                     IMetadata meta = service.createOMEXMLMetadata();
@@ -286,10 +288,25 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
     }
 
 
-    private IFormatReader getIFormatReader(String filename) {
+    private IFormatReader getIFormatReader(String filename, final OrbitModel orbitModel) {
         IFormatReader r;
         if (filename.toLowerCase().endsWith("ndpis")) {
             r = new NDPISReaderOrbit();
+            if (orbitModel!=null) {
+                // mIHC demuxing active?
+                if (orbitModel.getFeatureDescription().isMihcActive()) {
+                    try {
+                        BufferedImageReader bir = new BufferedImageReader(r);
+                        bir.setId(filename);
+                        double[] gains = NDPIUtils.getExposureTimesGain((NDPISReaderOrbit) r);
+                        r.close();
+                        r = new MultiplexImageReader(bir,orbitModel.getFeatureDescription().getMihcMatrixChannelNames(),orbitModel.getFeatureDescription().getMihcMatrix(),orbitModel.getFeatureDescription().getMihcNormalGain(), gains);
+                        logger.info("multiplex reader used");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } 
+                }
+            }
         } else {
             r = new ImageReader();
         }
@@ -638,7 +655,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
          long thumbH=1;
 
         try {
-            IFormatReader ir = getIFormatReader(reader.get().getCurrentFile());
+            IFormatReader ir = getIFormatReader(reader.get().getCurrentFile(),null);
             ir.setId(reader.get().getCurrentFile());
             ir.setSeries(reader.get().getSeries());
 
@@ -846,7 +863,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
     public static void main(String[] args) throws Exception {
         final String testImage = "C:\\images\\test14bit.czi";
         ChannelToHue.userHueMap.put("af488", 120f/360f);
-        OrbitImageBioformats oi = new OrbitImageBioformats(testImage,0, 0);
+        OrbitImageBioformats oi = new OrbitImageBioformats(testImage,0, 0, null);
 
         System.out.println("wxh: "+oi.getWidth()+"x"+oi.getHeight()+" cm: "+oi.getColorModel());
         BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(10,10, false).createTranslatedChild(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);
