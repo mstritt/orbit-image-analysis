@@ -22,6 +22,7 @@ package com.actelion.research.orbit.imageAnalysis.tasks.cellFeatures;
 import com.actelion.research.mapReduceGeneric.IMapReduce;
 import com.actelion.research.mapReduceGeneric.utils.Helpers;
 import com.actelion.research.mapReduceGeneric.utils.KeyValue;
+import com.actelion.research.orbit.dal.IModelAwareImageProvider;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.ImageTile;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
@@ -49,6 +50,9 @@ public class CellFeaturesMapReduce implements IMapReduce<String, Integer, KeyVal
             OrbitModel localModel = model;
             if (localModel == null) {
                 localModel = imageTiles.loadModel();
+            }
+            if (DALConfig.getImageProvider() instanceof IModelAwareImageProvider) {
+                ((IModelAwareImageProvider) DALConfig.getImageProvider()).setOrbitModel(localModel);
             }
             SegmentationResult res = OrbitHelper.Segmentation(imageTiles.getRawDataFileId(), localModel, imageTiles.getTileList(), 1);
             results.add(new KeyValue<Integer, KeyValue<OrbitModel, SegmentationResult>>(imageTiles.getRawDataFileId(), new KeyValue<OrbitModel, SegmentationResult>(localModel, res)));

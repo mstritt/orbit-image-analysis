@@ -23,6 +23,7 @@ import com.actelion.research.orbit.beans.RawAnnotation;
 import com.actelion.research.orbit.beans.RawData;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.beans.RawMeta;
+import com.actelion.research.orbit.dal.IModelAwareImageProvider;
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAODataFileSQLite;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAORawAnnotationSQLite;
@@ -53,12 +54,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.prefs.Preferences;
 
-public class ImageProviderLocal extends ImageProviderNoop implements ChangeListener {
+public class ImageProviderLocal extends ImageProviderNoop implements IModelAwareImageProvider, ChangeListener {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ImageProviderLocal.class);
     private RawData rawData;
     private static int series = 0;
-    private static OrbitModel orbitModel = null;
+    private OrbitModel orbitModel = null;
 
     public ImageProviderLocal() {
         rawData = new RawData();
@@ -69,8 +70,18 @@ public class ImageProviderLocal extends ImageProviderNoop implements ChangeListe
         rawData.setUserId("orbit");
     }
 
-    public static void setOrbitModel(final OrbitModel orbitModel) {
-        ImageProviderLocal.orbitModel = new OrbitModel(orbitModel);
+    @Override
+    public void setOrbitModel(Object orbitModel) {
+        if (orbitModel instanceof  OrbitModel) {
+            this.orbitModel = new OrbitModel((OrbitModel) orbitModel);
+        } else {
+            logger.warn("this image provider only supports models of type OrbitModel");
+        }
+    }
+
+    @Override
+    public OrbitModel getOrbitModel() {
+        return orbitModel;
     }
 
     @Override

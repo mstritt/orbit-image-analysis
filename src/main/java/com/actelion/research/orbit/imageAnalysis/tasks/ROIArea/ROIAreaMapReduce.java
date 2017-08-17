@@ -23,6 +23,7 @@ import com.actelion.research.mapReduceGeneric.IMapReduce;
 import com.actelion.research.mapReduceGeneric.utils.Helpers;
 import com.actelion.research.mapReduceGeneric.utils.KeyValue;
 import com.actelion.research.orbit.beans.RawDataFile;
+import com.actelion.research.orbit.dal.IModelAwareImageProvider;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.ImageTile;
@@ -48,6 +49,9 @@ public class ROIAreaMapReduce implements IMapReduce<String, Integer, Double> {
             ImageTile imageTile = new ImageTile(element);
             OrbitModel localModel = model;
             if (localModel == null) localModel = imageTile.loadModel();
+            if (DALConfig.getImageProvider() instanceof IModelAwareImageProvider) {
+                ((IModelAwareImageProvider) DALConfig.getImageProvider()).setOrbitModel(localModel);
+            }
             RawDataFile rdf = DALConfig.getImageProvider().LoadRawDataFile(imageTile.getRawDataFileId());
             RecognitionFrame rf = new RecognitionFrame(rdf, false);
             rf.loadImageScale(rdf.getRawDataFileId());

@@ -19,10 +19,12 @@
 
 package com.actelion.research.orbit.imageAnalysis.modules.mihc;
 
+import com.actelion.research.orbit.dal.IModelAwareImageProvider;
 import com.actelion.research.orbit.imageAnalysis.components.AbstractOrbitModule;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
-import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
+import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,37 +32,105 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MihcModule extends AbstractOrbitModule {
 
     private static final long serialVersionUID = 1L;
     private final static Logger logger = LoggerFactory.getLogger(MihcModule.class);
-    private JButton btnActivate = new JButton("Activate mIHC");
+    private final AtomicBoolean updatingMihc = new AtomicBoolean(false);
 
     public MihcModule() {
-        btnActivate.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                activatemIHC();
-            }
-        });
+        final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
+        final OrbitModel model = oia.getModel();
+        boolean initialMIHC = model.getFeatureDescription().isMihcActive();
 
         setLayout(new BorderLayout());
 
-        JLabel label = new JLabel("mIHC");
-        add(label, BorderLayout.NORTH);
-        add(btnActivate, BorderLayout.CENTER);
+        JTabbedPane tabbedPane = new JTabbedPane();
+
+        JPanel unmixPane = new JPanel();
+        BoxLayout boxLayout = new BoxLayout(unmixPane,BoxLayout.Y_AXIS);
+        unmixPane.setLayout(boxLayout);
+        final JCheckBox unmixingCB = new JCheckBox("Channel Unmixing",initialMIHC);
+        unmixPane.add(unmixingCB);
+
+        final JButton btnLoadFromModel = new JButton("Load from Model");
+        btnLoadFromModel.setToolTipText("load and set the mIHC settings from current model");
+        unmixPane.add(btnLoadFromModel);
+
+        JPanel calibratePane = new JPanel();
+        JButton btnCalibrate = new JButton("Calibrate");
+        calibratePane.add(btnCalibrate);
+
+        tabbedPane.addTab("Unmix",unmixPane);
+        tabbedPane.addTab("Calibration",calibratePane);
+        add(tabbedPane,BorderLayout.CENTER);
+
+        unmixingCB.addActionListener(new ActionListener() {
+         @Override
+         public void actionPerformed(ActionEvent e) {
+             if (!updatingMihc.get()) {
+                 if (unmixingCB.isSelected()) {
+                     activate_mIHC();
+                 } else {
+                     deactivate_mIHC();
+                 }
+             }
+         }
+         });
+
+
+        btnLoadFromModel.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updatingMihc.set(true);
+                try {
+                    final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
+                    final OrbitModel model = oia.getModel();
+                    if (model.getFeatureDescription().isMihcActive()) {
+                        unmixingCB.setSelected(true);
+                        activate_mIHC();
+                    } else {
+                        unmixingCB.setSelected(false);
+                        deactivate_mIHC();
+                    }
+                } finally {
+                    updatingMihc.set(false);
+                }
+            }
+        });
+
     }
 
-    private void activatemIHC() {
-        final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
-        final OrbitModel model = oia.getModel();
-        MIHCConfig conf = new MIHCConfig();
-        model.getFeatureDescription().setMihcMatrix(conf.filterNewXeon6);
-        model.getFeatureDescription().setMihcNormalGain(conf.normGain6);
-        model.getFeatureDescription().setMihcMatrixChannelNames(conf.channelNames6);
-        model.getFeatureDescription().setMihcActive(true);
-        ImageProviderLocal.setOrbitModel(model);
+    private void activate_mIHC() {
+        if (DALConfig.getImageProvider() instanceof IModelAwareImageProvider) {
+            final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
+            final OrbitModel model = oia.getModel();
+            MIHCConfig conf = new MIHCConfig();
+            model.getFeatureDescription().setMihcMatrix(conf.Asn3);
+            model.getFeatureDescription().setMihcNormalGain(conf.normGain3);
+            model.getFeatureDescription().setMihcMatrixChannelNames(conf.channelNames3HT);
+            model.getFeatureDescription().setMihcActive(true);
+            ((IModelAwareImageProvider) DALConfig.getImageProvider()).setOrbitModel(model);
+            OrbitTiledImage2.resetTileCache();
+        } else {
+            logger.error("The current image provider does not support mIHC.");
+        }
     }
+
+    private void deactivate_mIHC() {
+        if (DALConfig.getImageProvider() instanceof IModelAwareImageProvider) {
+            final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
+            final OrbitModel model = oia.getModel();
+            model.getFeatureDescription().setMihcActive(false);
+            ((IModelAwareImageProvider) DALConfig.getImageProvider()).setOrbitModel(model);
+            OrbitTiledImage2.resetTileCache();
+        } else {
+            // for deactivating no message needed
+        }
+    }
+
 
 
     @Override
@@ -70,6 +140,7 @@ public class MihcModule extends AbstractOrbitModule {
 
     @Override
     public void init() {
+
     }
 
     @Override

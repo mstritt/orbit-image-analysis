@@ -22,6 +22,7 @@ package com.actelion.research.orbit.imageAnalysis.tasks.cellClassification;
 import com.actelion.research.mapReduceGeneric.IMapReduce;
 import com.actelion.research.mapReduceGeneric.utils.Helpers;
 import com.actelion.research.mapReduceGeneric.utils.KeyValue;
+import com.actelion.research.orbit.dal.IModelAwareImageProvider;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.ImageTile;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
@@ -49,6 +50,9 @@ public class CellClassificationMapReduce implements IMapReduce<String, Integer, 
             OrbitModel localModel = model;
             if (localModel == null) {
                 localModel = imageTiles.loadModel();
+            }
+            if (DALConfig.getImageProvider() instanceof IModelAwareImageProvider) {
+                ((IModelAwareImageProvider) DALConfig.getImageProvider()).setOrbitModel(localModel);
             }
             ClassificationResult results = OrbitHelper.CellClassification(imageTiles.getRawDataFileId(), localModel, imageTiles.getTileList(), 1);
             ratio.add(new KeyValue<Integer, ClassificationResult>(imageTiles.getRawDataFileId(), results));

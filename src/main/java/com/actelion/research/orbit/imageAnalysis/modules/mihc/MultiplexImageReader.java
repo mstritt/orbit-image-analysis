@@ -76,7 +76,10 @@ public class MultiplexImageReader extends BufferedImageReader {
             IMetadata meta = service.getOMEMetadata(service.asRetrieve(getMetadataStore()));
             super.setId(id);
 
-            HashSet<String> matrixChannelNamesHash = new HashSet<>(Arrays.asList(this.matrixChannelNames));
+            HashSet<String> matrixChannelNamesHash = new HashSet<>();
+            for (String channelName: matrixChannelNames) {
+                matrixChannelNamesHash.add(channelName.toLowerCase().trim());
+            }
             channelIndependent = new boolean[getSizeC()];
             channelNames = new String[getSizeC()];
             channelMap = new int[getSizeC()];
@@ -87,7 +90,7 @@ public class MultiplexImageReader extends BufferedImageReader {
                     channelName = "Channel" + c;
                 }
                 channelNames[c] = channelName;
-                if (matrixChannelNamesHash.contains(channelName)) {
+                if (matrixChannelNamesHash.contains(channelName.toLowerCase().trim())) {
                     channelIndependent[c] = false;
                     channelMap[c] = mapId++;
                 }
@@ -98,7 +101,8 @@ public class MultiplexImageReader extends BufferedImageReader {
             }
             RealMatrix rm = MatrixUtils.createRealMatrix(matrix);
             int[] selectedEntries = new int[mapId]; // number of dependent channels
-            double[] gainNormSelected = new double[gains.length];
+            double[] gainNormSelected = new double[matrix.length];
+            double[] gainsSelected = new double[matrix.length];
             int n=0;
             for (int c=0; c<channelNames.length; c++) {
                 if (!channelIndependent[c]) {
@@ -106,6 +110,7 @@ public class MultiplexImageReader extends BufferedImageReader {
                         if (matrixChannelNames[i].equals(channelNames[c])) {
                             selectedEntries[n] = i;
                             gainNormSelected[n] = gainNorm[i];
+                            gainsSelected[n] = gains[i];
                             n++;
                         }
                     }
@@ -115,9 +120,9 @@ public class MultiplexImageReader extends BufferedImageReader {
             RealMatrix rmInv = MatrixUtils.inverse(rmSub);
 
             // find lowest gain and calculate others relative to that
-            logger.info("gain gamma: "+Arrays.toString(gainNormSelected));
-            double[] gainsInv = new double[gains.length];
-            for (int i=0; i<gainsInv.length; i++) gainsInv[i] = 1d/(gains[i]/gainNormSelected[i]);
+            logger.info("gain gamma: "+Arrays.toString(gainNormSelected)+"  image gains: "+Arrays.toString(gains));
+            double[] gainsInv = new double[gainsSelected.length];
+            for (int i=0; i<gainsInv.length; i++) gainsInv[i] = 1d/(gainsSelected[i]/gainNormSelected[i]);
             RealMatrix GiiInv = MatrixUtils.createRealDiagonalMatrix(gainsInv);
             Array2DRowRealMatrix rmInvNorm = new Array2DRowRealMatrix(rmInv.multiply(GiiInv).getData());
             this.invMatrix = rmInvNorm;
@@ -148,7 +153,7 @@ public class MultiplexImageReader extends BufferedImageReader {
 
     public BufferedImage[] openUnmixedImages(int no, int x, int y, int w, int h) throws FormatException, IOException {
         int sizeC = getSizeC();
-        int sizeCMultiplex = sizeC;
+        int sizeCMultiplex = sizeC;     // for now, sizeC=sizeCMultiplex
         int[] zct = getZCTCoords(no);
         int z = zct[0];
         int chan = zct[1];
@@ -167,7 +172,7 @@ public class MultiplexImageReader extends BufferedImageReader {
             bi[c] = new BufferedImage(ori.getColorModel(), ori.getRaster().createCompatibleWritableRaster(0, 0, w, h), ori.isAlphaPremultiplied(), null);
             raster[c] = bi[c].getRaster();
         }
-        double[] measurements = new double[sizeCMultiplex];
+        double[] measurements = new double[sizeC];
         double[] out = new double[sizeCMultiplex];
         for (int ix=ori.getMinX(); ix<ori.getMinX()+ori.getWidth(); ix++)
             for (int iy=ori.getMinY(); iy<ori.getMinY()+ori.getHeight(); iy++) {
@@ -177,7 +182,9 @@ public class MultiplexImageReader extends BufferedImageReader {
                 }
                 mihc.unmix(invMatrix,measurements,out);
                 for (int c=0; c<sizeCMultiplex; c++) {
-                    raster[c].setSample(ix, iy, 0, Math.min(255,out[c]));
+                    if (out[c]>255) out[c] = 255d;        // TODO: adjust for 16bit!!!
+                    if (out[c]<0) out[c] = 0d;
+                    raster[c].setSample(ix, iy, 0, out[c]);
                 }
             }
 

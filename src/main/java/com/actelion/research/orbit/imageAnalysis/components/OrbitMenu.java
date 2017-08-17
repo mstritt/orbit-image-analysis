@@ -1108,7 +1108,7 @@ public class OrbitMenu extends JRibbonFrame {
         JCommandToggleButton buttonMihcModule = new JCommandToggleButton("mIHC Unmixing", new TabNew6());
         buttonMihcModule.setBackground(Color.white);
         RichTooltip richTooltipMihcModule = new RichTooltip("mIHC Unmixing", "Show the mIHC module.");
-        richTooltipMihcModule.addDescriptionSection("Unmix mIHC channels and compute a calibration matrix.");
+        richTooltipMihcModule.addDescriptionSection("Unmix multiplexed immunohistochemistry (mIHC) fluorescence channels and compute a calibration matrix.");
         buttonMihcModule.setActionRichTooltip(richTooltipMihcModule);
         buttonMihcModule.addActionListener(oia == null ? null : oia.showMihcModuleActionListener);
         extensionsBand.addCommandButton(buttonMihcModule, RibbonElementPriority.MEDIUM);

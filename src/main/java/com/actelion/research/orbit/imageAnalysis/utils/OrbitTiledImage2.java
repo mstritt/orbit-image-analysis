@@ -125,6 +125,14 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         }
     }
 
+    public synchronized static void resetTileCache() {
+        if (OrbitTiledImage2.tileCache!=null) {
+            OrbitTiledImage2.tileCache.invalidateAll();
+        }
+        OrbitTiledImage2.tileCache = null;
+        System.gc();
+    }
+
     private static void logCacheStats() {
         if (logger.isTraceEnabled()) {
             if (OrbitTiledImage2.tileCache != null) {

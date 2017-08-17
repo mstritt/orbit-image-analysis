@@ -23,6 +23,7 @@ import com.actelion.research.orbit.beans.RawAnnotation;
 import com.actelion.research.orbit.beans.RawData;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.beans.RawMeta;
+import com.actelion.research.orbit.dal.IModelAwareImageProvider;
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
@@ -2152,6 +2153,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         }
         loadedModel = name;
+        if (DALConfig.getImageProvider() instanceof IModelAwareImageProvider) {
+            ((IModelAwareImageProvider) DALConfig.getImageProvider()).setOrbitModel(model);
+        }
         updateStatusBar();
     }
 

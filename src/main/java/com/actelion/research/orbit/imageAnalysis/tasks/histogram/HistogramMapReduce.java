@@ -22,6 +22,7 @@ package com.actelion.research.orbit.imageAnalysis.tasks.histogram;
 import com.actelion.research.mapReduceGeneric.IMapReduce;
 import com.actelion.research.mapReduceGeneric.utils.Helpers;
 import com.actelion.research.mapReduceGeneric.utils.KeyValue;
+import com.actelion.research.orbit.dal.IModelAwareImageProvider;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.ImageTile;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
@@ -51,6 +52,9 @@ public class HistogramMapReduce implements IMapReduce<String, Integer, Histogram
             OrbitModel localModel = model;
             if (localModel == null) {
                 localModel = imageTiles.loadModel();
+            }
+            if (DALConfig.getImageProvider() instanceof IModelAwareImageProvider) {
+                ((IModelAwareImageProvider) DALConfig.getImageProvider()).setOrbitModel(localModel);
             }
             Histogram[] results = OrbitHelper.Histogram(imageTiles.getRawDataFileId(), localModel, imageTiles.getTileList(), 1);
             histoList.add(new KeyValue<Integer, Histogram[]>(imageTiles.getRawDataFileId(), results));
