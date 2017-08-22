@@ -107,7 +107,7 @@ public class MihcModule extends AbstractOrbitModule {
         if (DALConfig.getImageProvider() instanceof IModelAwareImageProvider) {
             final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
             final OrbitModel model = oia.getModel();
-            MIHCConfig conf = new MIHCConfig();
+            MihcConfigData conf = new MihcConfigData();
             model.getFeatureDescription().setMihcMatrix(conf.Asn3);
             model.getFeatureDescription().setMihcNormalGain(conf.normGain3);
             model.getFeatureDescription().setMihcMatrixChannelNames(conf.channelNames3HT);

@@ -41,25 +41,26 @@ import java.util.HashSet;
 public class MultiplexImageReader extends BufferedImageReader {
 
     private static final Logger logger = LoggerFactory.getLogger(MultiplexImageReader.class);
-    MIHCComputation mihc = new MIHCComputation();
     private Array2DRowRealMatrix invMatrix;
     private double[][] matrix;
     private double[] gains;
-    private double[] gainNorm;
+    private double[] gainsNorm;
     private RectZT currentRect;
     private BufferedImage[] unmixedChannels;
     private String[] channelNames = null;
     private String[] matrixChannelNames;
     private boolean[] channelIndependent;
     private int[] channelMap;
+    private int sizeC;
+    private int sizeDependend;
 
-    public MultiplexImageReader(final BufferedImageReader r, final String[] matrixChannelNames, final double[][] matrix, final double[] gainNorm, double[] gains) {
+    public MultiplexImageReader(final BufferedImageReader r, final MihcConfig mihcConfig, double[] gains) {
         super(r);
         if (r.getCurrentFile()!=null) throw new IllegalStateException("reader r must be closed, call setId after wrapping");
-        this.matrix = matrix;
+        this.matrix = mihcConfig.getMatrix();
+        this.gainsNorm = mihcConfig.getNormalGains();
+        this.matrixChannelNames = mihcConfig.getMatrixChannelNames();
         this.gains = gains;
-        this.gainNorm = gainNorm;
-        this.matrixChannelNames = matrixChannelNames;
     }
 
 
@@ -82,7 +83,6 @@ public class MultiplexImageReader extends BufferedImageReader {
             }
             channelIndependent = new boolean[getSizeC()];
             channelNames = new String[getSizeC()];
-            channelMap = new int[getSizeC()];
             int mapId=0;
             for (int c = 0; c < getSizeC(); c++) {
                 String channelName = meta.getChannelName(getSeries(), c);
@@ -92,40 +92,56 @@ public class MultiplexImageReader extends BufferedImageReader {
                 channelNames[c] = channelName;
                 if (matrixChannelNamesHash.contains(channelName.toLowerCase().trim())) {
                     channelIndependent[c] = false;
-                    channelMap[c] = mapId++;
+                    mapId++;
                 }
                 else {
                     channelIndependent[c] = true;
                 }
                 logger.info("channel name " + c + ": " + channelName);
             }
+            this.sizeC = getSizeC();
+            this.sizeDependend = mapId;
+
+            channelMap = new int[sizeDependend];
+            int dep = 0;
+            for (int c=0; c<sizeC; c++) {
+                if (!channelIndependent[c]) {
+                    channelMap[dep++] = c;
+                }
+            }
+            
+            System.out.println("sizeDependend: "+sizeDependend);
             RealMatrix rm = MatrixUtils.createRealMatrix(matrix);
             int[] selectedEntries = new int[mapId]; // number of dependent channels
-            double[] gainNormSelected = new double[matrix.length];
-            double[] gainsSelected = new double[matrix.length];
+            double[] gainsNormSelected = new double[Math.min(matrix.length,sizeC)];
+            double[] gainsSelected = new double[Math.min(matrix.length,sizeC)];
             int n=0;
             for (int c=0; c<channelNames.length; c++) {
                 if (!channelIndependent[c]) {
                     for (int i=0; i<matrixChannelNames.length; i++) {
                         if (matrixChannelNames[i].equals(channelNames[c])) {
                             selectedEntries[n] = i;
-                            gainNormSelected[n] = gainNorm[i];
-                            gainsSelected[n] = gains[i];
+                            gainsNormSelected[n] = gainsNorm[i];
+                            gainsSelected[n] = gains[c];
                             n++;
                         }
                     }
                 }
             }
-            RealMatrix rmSub = rm.getSubMatrix(selectedEntries,selectedEntries);  //TODO: check with different channel order
-            RealMatrix rmInv = MatrixUtils.inverse(rmSub);
+            if (selectedEntries.length>0) {
+                RealMatrix rmSub = rm.getSubMatrix(selectedEntries, selectedEntries);  //TODO: check with different channel order
+                RealMatrix rmInv = MatrixUtils.inverse(rmSub);
+                // find lowest gain and calculate others relative to that
+                logger.info("gain gamma: "+Arrays.toString(gainsNormSelected)+"  image gains: "+Arrays.toString(gains)+" gains selected: "+Arrays.toString(gainsSelected));
+                double[] gainsInv = new double[gainsSelected.length];
+                for (int i=0; i<gainsInv.length; i++) gainsInv[i] = 1d/(gainsSelected[i]/gainsNormSelected[i]);
+                RealMatrix GiiInv = MatrixUtils.createRealDiagonalMatrix(gainsInv);
+                Array2DRowRealMatrix rmInvNorm = new Array2DRowRealMatrix(rmInv.multiply(GiiInv).getData());
+                this.invMatrix = rmInvNorm;
+            } else {
+                logger.warn("no channelnames / calibration matrix overlap -> no demuxing");
+            }
 
-            // find lowest gain and calculate others relative to that
-            logger.info("gain gamma: "+Arrays.toString(gainNormSelected)+"  image gains: "+Arrays.toString(gains));
-            double[] gainsInv = new double[gainsSelected.length];
-            for (int i=0; i<gainsInv.length; i++) gainsInv[i] = 1d/(gainsSelected[i]/gainNormSelected[i]);
-            RealMatrix GiiInv = MatrixUtils.createRealDiagonalMatrix(gainsInv);
-            Array2DRowRealMatrix rmInvNorm = new Array2DRowRealMatrix(rmInv.multiply(GiiInv).getData());
-            this.invMatrix = rmInvNorm;
 
         } catch (DependencyException e) {
             throw new FormatException(e);
@@ -137,23 +153,19 @@ public class MultiplexImageReader extends BufferedImageReader {
 
     @Override
     public BufferedImage openImage(int no, int x, int y, int w, int h) throws FormatException, IOException {
-        int sizeC = getSizeC();
-        int sizeCMultiplex = sizeC;
         int[] zct = getZCTCoords(no);
         int z = zct[0];
         int chan = zct[1];
         int t = zct[2];
         RectZT rect = new RectZT(x,y,w,h,z,t);
         if (currentRect==null || !currentRect.equals(rect)) {
-            System.out.println("cache failed - loading");
+            logger.trace("cache failed - loading");
             openUnmixedImages(no,x,y,w,h); // unmix all channels at once
         }
         return unmixedChannels[chan];
     }
 
     public BufferedImage[] openUnmixedImages(int no, int x, int y, int w, int h) throws FormatException, IOException {
-        int sizeC = getSizeC();
-        int sizeCMultiplex = sizeC;     // for now, sizeC=sizeCMultiplex
         int[] zct = getZCTCoords(no);
         int z = zct[0];
         int chan = zct[1];
@@ -169,29 +181,45 @@ public class MultiplexImageReader extends BufferedImageReader {
         BufferedImage[] bi = new BufferedImage[sizeC];
         WritableRaster[] raster = new WritableRaster[sizeC];
         for (int c=0; c<sizeC; c++) {
-            bi[c] = new BufferedImage(ori.getColorModel(), ori.getRaster().createCompatibleWritableRaster(0, 0, w, h), ori.isAlphaPremultiplied(), null);
-            raster[c] = bi[c].getRaster();
+            if (!channelIndependent[c]) {
+                bi[c] = new BufferedImage(ori.getColorModel(), ori.getRaster().createCompatibleWritableRaster(0, 0, w, h), ori.isAlphaPremultiplied(), null);
+                raster[c] = bi[c].getRaster();
+            } else {
+                bi[c] = channels[c];   // original image, independent channel
+                raster[c] = bi[c].getRaster();
+            }
         }
-        double[] measurements = new double[sizeC];
-        double[] out = new double[sizeCMultiplex];
+        double[] measurements = new double[sizeDependend];
+        double[] out = new double[sizeDependend];
         for (int ix=ori.getMinX(); ix<ori.getMinX()+ori.getWidth(); ix++)
             for (int iy=ori.getMinY(); iy<ori.getMinY()+ori.getHeight(); iy++) {
-                for (int c=0; c<sizeCMultiplex; c++) {
-                    // todo: map c to multiplex nr
-                    measurements[c] = channels[c].getRaster().getSampleDouble(ix,iy,0); //getSampleDouble?   only 1 banded rasters allowed here
+                for (int c=0; c<sizeDependend; c++) {
+                    measurements[c] = channels[channelMap[c]].getRaster().getSampleDouble(ix,iy,0); // only 1 banded rasters allowed here
                 }
-                mihc.unmix(invMatrix,measurements,out);
-                for (int c=0; c<sizeCMultiplex; c++) {
+                fastMultiply(invMatrix,measurements,out);   // here the real unmixing takes place
+                for (int c=0; c<sizeDependend; c++) {
                     if (out[c]>255) out[c] = 255d;        // TODO: adjust for 16bit!!!
                     if (out[c]<0) out[c] = 0d;
-                    raster[c].setSample(ix, iy, 0, out[c]);
+                    raster[channelMap[c]].setSample(ix, iy, 0, out[c]);
                 }
             }
-
         unmixedChannels = bi;
         currentRect = new RectZT(x,y,w,h,z,t);
 
         return bi;
+    }
+
+
+    private void fastMultiply(final Array2DRowRealMatrix mat, final double[] v, final double[] out) {
+        final int n = v.length;
+        for (int row = 0; row < n; row++) {
+            final double[] dataRow = mat.getDataRef()[row];
+            double sum = 0;
+            for (int i = 0; i < n; i++) {
+                sum += dataRow[i] * v[i];
+            }
+            out[row] = sum;
+        }
     }
 
 

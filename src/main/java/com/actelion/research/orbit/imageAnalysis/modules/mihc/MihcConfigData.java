@@ -24,16 +24,18 @@ import java.io.Serializable;
 /**
  * Nanozoomer S60 Matrices for Fluorescent Multiplex Immunohistochemistry (mIHC) with Tyramide Signal Amplification Protocol
  */
-public class MIHCConfig implements Serializable {
+public class MihcConfigData implements Serializable {
 
     public String[] channelNames6 = new String[]{"DAPI","FITC-Alexa488","CY3","Cy3.5","Cy5","Cy5.5"};
     public String[] channelNames5 = new String[]{"FITC-Alexa488","CY3","Cy3.5","Cy5","Cy5.5"};
     public String[] channelNames4 = new String[]{"DAPI","FITC-Alexa488","Cy3.5","Cy5.5"};
     public String[] channelNames3 = new String[]{"DAPI","FITC","Cy3.5"};
+    public String[] channelNames4HT = new String[]{"DAPI 2 (387) ","FITC 2 (485)","AAA", "TRITC 2 (560)"};
     public String[] channelNames3HT = new String[]{"DAPI 2 (387) ","FITC 2 (485)","TRITC 2 (560)"};
     public String[] channelNames2HT = new String[]{"FITC 2 (485)","TRITC 2 (560)"};
 
     public double[] normGain6 = new double[]{10,8,1,1,1,2};
+    public double[] normGain4 = new double[]{16,32,5,1};
     public double[] normGain3 = new double[]{16,32,1};
     public double[] normGain2 = new double[]{32,1};
 
@@ -64,6 +66,12 @@ public class MIHCConfig implements Serializable {
             {0.0,0.0,0.00027,1.0,0.39109},
             {0.0,0.0,0.00004,0.36232,1.0}
     };
+    public double[][] Asn4 = new double[][] {
+            {1,0,0,0.0},
+            {0,1,0.4,0.1},
+            {0,0.3,1,0},
+            {0,0.1,0.3,1}
+    };
 
     public double[][] Asn3 = new double[][] {
             {1,0,0},
@@ -72,8 +80,8 @@ public class MIHCConfig implements Serializable {
     };
 
     public double[][] Asn2 = new double[][] {
-            {1,0.3},
-            {0.4,1}
+            {1,0.4},
+            {0.3,1}
     };
 
 

@@ -23,6 +23,7 @@ import com.actelion.research.orbit.beans.MinMaxPerChan;
 import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
+import com.actelion.research.orbit.imageAnalysis.modules.mihc.MihcConfig;
 import com.actelion.research.orbit.imageAnalysis.modules.mihc.MultiplexImageReader;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.ScaleoutMode;
@@ -300,7 +301,8 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
                         bir.setId(filename);
                         double[] gains = NDPIUtils.getExposureTimesGain((NDPISReaderOrbit) r);
                         r.close();
-                        r = new MultiplexImageReader(bir,orbitModel.getFeatureDescription().getMihcMatrixChannelNames(),orbitModel.getFeatureDescription().getMihcMatrix(),orbitModel.getFeatureDescription().getMihcNormalGain(), gains);
+                        MihcConfig mihcConfig = new MihcConfig(orbitModel.getFeatureDescription().getMihcMatrixChannelNames(),orbitModel.getFeatureDescription().getMihcMatrix(),orbitModel.getFeatureDescription().getMihcNormalGain());
+                        r = new MultiplexImageReader(bir,mihcConfig,gains);
                         logger.info("multiplex reader used");
                     } catch (Exception e) {
                         e.printStackTrace();

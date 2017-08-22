@@ -17,20 +17,21 @@
  *
  */
 
-package com.actelion.research.orbit.imageAnalysis.modules.mihc;
+package com.actelion.research.orbit.imageAnalysis.modules.mihc.playground;
 
+import com.actelion.research.orbit.imageAnalysis.modules.mihc.MihcConfigData;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 
 import java.text.DecimalFormat;
 
-public class MIHCComputation {
+public class DemoMihcComputation {
 
     private Array2DRowRealMatrix inverseMatrix;
 
     public static void main(String[] args) {
-          MIHCConfig conf = new MIHCConfig();
+          MihcConfigData conf = new MihcConfigData();
           RealMatrix inverse = MatrixUtils.inverse(MatrixUtils.createRealMatrix(conf.filterNewXeon4fake));
           printMat(inverse);
 
@@ -50,8 +51,8 @@ public class MIHCComputation {
 //        System.out.println(Arrays.toString(out));
     }
 
-    public MIHCComputation() {
-        MIHCConfig conf = new MIHCConfig();
+    public DemoMihcComputation() {
+        MihcConfigData conf = new MihcConfigData();
         Array2DRowRealMatrix AsnInv = (Array2DRowRealMatrix) MatrixUtils.createRealMatrix(conf.inverse);
         double[] gain = new double[]{1,1,1,1,1,1};
         for (int i=0; i<gain.length; i++) gain[i] = 1d/gain[i];

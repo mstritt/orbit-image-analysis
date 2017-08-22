@@ -74,6 +74,7 @@ public class Calibration {
                     normalGain[c] /= sizeC;
                 }
 
+
                 // channel names
                 for (int c = 0; c < sizeC; c++) {
                     String channelName = meta.getChannelName(0, c);

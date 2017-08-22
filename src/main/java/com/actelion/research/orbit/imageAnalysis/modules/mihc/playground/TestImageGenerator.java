@@ -17,7 +17,9 @@
  *
  */
 
-package com.actelion.research.orbit.imageAnalysis.modules.mihc;
+package com.actelion.research.orbit.imageAnalysis.modules.mihc.playground;
+
+import com.actelion.research.orbit.imageAnalysis.modules.mihc.MihcConfigData;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -106,7 +108,7 @@ public class TestImageGenerator {
     }
 
     public static void main(String[] args) throws IOException {
-        MIHCConfig conf = new MIHCConfig();
+        MihcConfigData conf = new MihcConfigData();
         TestImageGenerator gen = new TestImageGenerator(conf.Asn3,conf.normGain3,conf.channelNames3,512,512);
         gen.generateAllImages("D:\\pic\\Hamamatsu\\mihc\\gen");
 //        BufferedImage img = gen.generateImage(0,1);

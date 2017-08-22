@@ -33,22 +33,26 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Arrays;
 
-public class MIHCTest {
-    private static final Logger logger = LoggerFactory.getLogger(MIHCTest.class);
+public class MihcTest {
+    private static final Logger logger = LoggerFactory.getLogger(MihcTest.class);
 
     public static void main(String[] args) throws Exception {
         String fn = "D:\\pic\\Hamamatsu\\fl8\\6188205.ndpis";
-        int tx = 10;
-        int ty = 10;
+        fn = "D:\\pic\\Hamamatsu\\fl5ome\\test3.ndpis";
+        int tx = 0;
+        int ty = 0;
         NDPISReaderOrbit reader = new NDPISReaderOrbit();
         reader.setFlattenedResolutions(false);
         BufferedImageReader bir = new BufferedImageReader(reader);
-        MIHCConfig conf = new MIHCConfig();
+        MihcConfigData confData = new MihcConfigData();
         reader.setId(fn);
         double[] gains = NDPIUtils.getExposureTimesGain(reader);
         logger.info("gains: "+ Arrays.toString(gains));
         reader.close();
-        MultiplexImageReader mir = new MultiplexImageReader(bir,conf.channelNames6, conf.filterNewXeon6, conf.normGain6, gains);
+        MihcConfig mihcConfig = new MihcConfig(confData.channelNames4HT,confData.Asn4,confData.normGain4);
+        mihcConfig.saveConfig("d:/conf.xml");
+     //   MultiplexImageReader mir = new MultiplexImageReader(bir,conf.channelNames6, conf.filterNewXeon6, conf.normGain6, gains);
+        MultiplexImageReader mir = new MultiplexImageReader(bir,mihcConfig,gains);
 
         ServiceFactory factory = new ServiceFactory();
         OMEXMLService service = factory.getInstance(OMEXMLService.class);
@@ -59,13 +63,13 @@ public class MIHCTest {
         System.out.println("image dimensions: "+reader.getSizeX()+","+reader.getSizeY());
         System.out.println("channel name: "+meta.getChannelName(mir.getSeries(),0));
 
-        for (int c=0; c<reader.getSizeC(); c++) {
-            long startt = System.currentTimeMillis();
-            BufferedImage img = mir.openImage(c, 10000, 30000, 2000, 2000);
-            long usedt = System.currentTimeMillis()-startt;
-            System.out.println("used time for channel "+c+": "+usedt);
-        }
-        BufferedImage img = mir.openImage(2, 10000, 30000, 2000, 2000);
+//        for (int c=0; c<reader.getSizeC(); c++) {
+//            long startt = System.currentTimeMillis();
+//            BufferedImage img = mir.openImage(c, 100, 300, 2000, 2000);
+//            long usedt = System.currentTimeMillis()-startt;
+//            System.out.println("used time for channel "+c+": "+usedt);
+//        }
+        BufferedImage img = mir.openImage(2, 1000, 1000, 1000, 1000);
         ImageIO.write(img,"png",new File("d:/test.png"));
         reader.close();
     }
