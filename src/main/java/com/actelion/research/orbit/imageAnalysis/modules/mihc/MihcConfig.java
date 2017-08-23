@@ -20,11 +20,9 @@
 package com.actelion.research.orbit.imageAnalysis.modules.mihc;
 
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
-import com.thoughtworks.xstream.io.json.JsonHierarchicalStreamDriver;
-import com.thoughtworks.xstream.io.xml.XomDriver;
 
 import java.io.*;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 
 public class MihcConfig implements Serializable, Cloneable {
@@ -67,11 +65,28 @@ public class MihcConfig implements Serializable, Cloneable {
 
     @Override
     public String toString() {
-        return "MihcConfig{" +
+        return "MihcConfig{\n" +
                 "matrixChannelNames=" + Arrays.toString(matrixChannelNames) +
-                ", normalGains=" + Arrays.toString(normalGains) +
-                ", matrix=" + Arrays.toString(matrix) +
+                ", \nnormalGains=" + Arrays.toString(normalGains) +
+                ", \nmatrix=\n" + formatMatrix(matrix) +
                 '}';
+    }
+
+    public static String formatMatrix(final double[][] m) {
+        StringBuilder out = new StringBuilder();
+        DecimalFormat df = new DecimalFormat("####0.00");
+
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m[i].length; j++) {
+                double value = m[i][j];
+                if (value >= 0)
+                    out.append(" ");
+                out.append(" " + df.format(value));
+            }
+            out.append("\n");
+        }
+
+        return out.toString();
     }
 
     @Override
@@ -79,23 +94,45 @@ public class MihcConfig implements Serializable, Cloneable {
         return (MihcConfig) super.clone();
     }
 
-    public void saveConfig(String filename) {
-        File file = new File(filename);
-        FileOutputStream fos = null;
-        XStream stream = new XStream(new JsonHierarchicalStreamDriver());
-        try {
-            fos = new FileOutputStream(file);
-            ObjectOutputStream oos = stream.createObjectOutputStream(fos);
-            oos.writeObject(this);
-            oos.flush();
-        } catch (Exception e) {
+    public void saveConfig(String fileName) {
+        try (OutputStream outStream = new BufferedOutputStream(new FileOutputStream(fileName))) {
+           saveConfig(outStream);
+        } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (fos != null) try {
-                fos.close();
-            } catch (IOException e) {
-            }
         }
+    }
+
+
+    public void saveConfig(OutputStream outStream) {
+        XStream stream = new XStream();
+        stream.toXML(this,outStream);
+    }
+
+    public void loadConfig(String fileName) {
+        try (InputStream inStream = new BufferedInputStream(new FileInputStream(fileName))) {
+            loadConfig(inStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void loadConfig(InputStream inStream) {
+        XStream stream = new XStream();
+        Object object = stream.fromXML(inStream);
+        MihcConfig conf = (MihcConfig) object;
+        this.matrix = conf.getMatrix();
+        this.normalGains = conf.getNormalGains();
+        this.matrixChannelNames = conf.getMatrixChannelNames();
+    }
+
+    public static void main(String[] args) {
+        MihcConfig conf = new MihcConfig();
+        conf.loadConfig("d:/conf.xml");
+
+        System.out.println(conf);
     }
 
 }

@@ -48,7 +48,7 @@ public class Calibration {
     private int translationSearch = 15;
     private static final Logger logger = LoggerFactory.getLogger(Calibration.class);
 
-    public CalibrationResult computeCalibrationMatrix(String[] ndpisFiles) throws Exception {
+    public MihcConfig computeCalibrationMatrix(String[] ndpisFiles) throws Exception {
         int sizeC = ndpisFiles.length;
         IFormatReader[] readers = new IFormatReader[sizeC];
         double[] normalGain = new double[sizeC];
@@ -167,7 +167,7 @@ public class Calibration {
         // we do not normalize the gain here, because the normalGain is defined as the averaged gain per calibration channel
         // normalizeGain(matrix,normalGain);
 
-        return new CalibrationResult(matrix,channelNames,normalGain);
+        return new MihcConfig(channelNames,matrix,normalGain);
     }
 
 
@@ -305,7 +305,7 @@ public class Calibration {
                 "D:\\pic\\Hamamatsu\\Scan_Manuel\\Staining-DAPI-Cy5.5-FITC-scan all channels fix.ndpis"};
 
         Calibration calibration = new Calibration();
-        CalibrationResult res = calibration.computeCalibrationMatrix(testFiles);
+        MihcConfig res = calibration.computeCalibrationMatrix(testFiles);
 
 //        BufferedImage bi1 = ImageIO.read(new java.io.File("D:\\pic\\Hamamatsu\\mihc\\gen\\img0x0.png"));
 //        BufferedImage bi2 = ImageIO.read(new java.io.File("D:\\pic\\Hamamatsu\\mihc\\gen\\img0x1.png"));
