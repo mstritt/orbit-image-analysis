@@ -27,6 +27,7 @@ import loci.formats.*;
 import loci.formats.in.NDPIReader;
 import loci.formats.meta.MetadataStore;
 import loci.formats.tiff.IFD;
+import loci.formats.tiff.TiffParser;
 import ome.units.UNITS;
 import ome.units.quantity.Length;
 
@@ -209,10 +210,14 @@ public class NDPISReaderOrbit extends FormatReader {
         samplesPerPixel = new int[ndpiFiles.length];
         bandUsed = new int[ndpiFiles.length];
         MetadataStore store = makeFilterMetadata();
+        IFD ifd;
         for (int c=0; c<readers.length; c++) {     // populate channel names based on IFD entry
             if (c>0) // 0 is already open
                 readers[c].setId(ndpiFiles[c]);
-            IFD ifd = readers[c].getIFDs().get(0);
+            try (RandomAccessInputStream in = new RandomAccessInputStream(ndpiFiles[c])) {
+                TiffParser tp = new TiffParser(in);
+                ifd = tp.getIFDs().get(0);
+            }
             samplesPerPixel[c] = ifd.getSamplesPerPixel();
             String channelName = ifd.getIFDStringValue(TAG_CHANNEL);
             Float wavelength = (Float) ifd.getIFDValue(TAG_EMISSION_WAVELENGTH);
