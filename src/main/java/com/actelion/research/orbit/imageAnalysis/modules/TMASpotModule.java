@@ -145,13 +145,21 @@ public class TMASpotModule extends AbstractSpotModule {
         btnConvert.setToolTipText("Convert selected spot annotations to image annotations.");
         btnConvert.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                AnnotationPanel aP = OrbitImageAnalysis.getInstance().getMetaBar().getAnnotationPanel();
-                for (int i = 0; i < list.getModel().getSize(); i++) {
-                    if (list.isSelectedIndex(i)) {
-                        SpotAnnotation anno = (SpotAnnotation) list.getModel().getElementAt(i);
-                        ImageAnnotation ia = anno.toImageAnnotation();
-                        aP.getModel().addElement(ia);
+                ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+                if (iFrame!=null) {
+                    AnnotationPanel aP = OrbitImageAnalysis.getInstance().getMetaBar().getAnnotationPanel();
+                    for (int i = 0; i < list.getModel().getSize(); i++) {
+                        if (list.isSelectedIndex(i)) {
+                            SpotAnnotation anno = (SpotAnnotation) list.getModel().getElementAt(i);
+                            ImageAnnotation ia = anno.toImageAnnotation();
+                            iFrame.recognitionFrame.getAnnotations().add(ia);
+                            iFrame.recognitionFrame.getAnnotations().remove(anno);
+                            ((FilteredListModel) aP.getList().getModel()).addElement(ia);
+                        }
                     }
+                    ((FilteredListModel) aP.getList().getModel()).filter();
+                } else {
+                    logger.warn("no image open");
                 }
             }
         });
