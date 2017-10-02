@@ -38,7 +38,7 @@ import java.util.List;
  * Attention: getScaledInstance will always return the 100% instance!
  * Logic:
  * - Inclusion Annotations are completely covered.
- * - If one or more ROI annotations exist everything ROI annotations will be excluded (exception: inclusion annotations)
+ * - If one or more ROI annotations exist everything than ROI annotations will be excluded (exception: inclusion annotations)
  * - If no ROI annotations exist, the whole image is used as ROI
  * - Exclusion annotations are excluded (exception: inclusion annotations)
  */

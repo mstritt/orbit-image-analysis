@@ -69,6 +69,7 @@ public class OrbitTiledImageIOrbitImage extends OrbitTiledImage2 {
 
         this.originalWasGrayScale = image.getOriginalWasGrayScale();
         this.originalBitsPerSample = image.getOriginalBitsPerSample();
+
     }
 
 

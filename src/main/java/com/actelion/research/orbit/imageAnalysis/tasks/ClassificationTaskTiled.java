@@ -176,15 +176,19 @@ public class ClassificationTaskTiled extends PropertyChangeEmitter implements Ca
             int maxX = image.tileXToX(tileNum.x) + image.getTileWidth();
             int minY = image.tileYToY(tileNum.y);
             int maxY = image.tileYToY(tileNum.y) + image.getTileHeight();
-            if (ROI != null) {
-                Rectangle bb = ROI.getBounds();
-                if (bb != null) {
-                    if (bb.getMinX() > minX) minX = (int) bb.getMinX();
-                    if (bb.getMinY() > minY) minY = (int) bb.getMinY();
-                    if (bb.getMaxX() < maxX) maxX = (int) bb.getMaxX();
-                    if (bb.getMaxY() < maxY) maxY = (int) bb.getMaxY();
-                }
-            }
+
+// disable the ROI bound check because out of bounds of a roi does not imply an exclusion from calculation. E.g. the bounds of a ShapeAnnotationList ROI with only inclusion annotations is the union of the inclusion annotations,
+// but pixels outside this ROI should be included as well unless they are not excluded e.g. by an exclusion annotation
+
+//            if (ROI != null) {
+//                Rectangle bb = ROI.getBounds();
+//                if (bb != null) {    
+//                    if (bb.getMinX() > minX) minX = (int) bb.getMinX();
+//                    if (bb.getMinY() > minY) minY = (int) bb.getMinY();
+//                    if (bb.getMaxX() < maxX) maxX = (int) bb.getMaxX();
+//                    if (bb.getMaxY() < maxY) maxY = (int) bb.getMaxY();
+//                }
+//            }
 
             for (int x = minX; x < maxX; x++)
                 for (int y = minY; y < maxY; y++) {

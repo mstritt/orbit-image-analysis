@@ -138,6 +138,15 @@ public class TiledImagePainter implements Closeable {
     }
 
 
+    private IOrbitImage wrapImage(IOrbitImage image) {
+//        if (image instanceof IOrbitImageMultiChannel) {
+//            return new TileSizeWrapperMultiChannel((IOrbitImageMultiChannel) image,512,512);
+//        } else {
+//            return new TileSizeWrapper(image,512,512);
+//        }
+        return image;
+    }
+
     public void loadImage(Object inputStrOrURL) throws Exception {
         loadImage(inputStrOrURL, 0);
     }
@@ -150,7 +159,7 @@ public class TiledImagePainter implements Closeable {
     public synchronized void loadImage(Object inputStrOrURL, int imagePyramidNum, boolean loadRemote) throws Exception {
 
         if (inputStrOrURL instanceof RawDataFile) {
-            origImage = new OrbitTiledImageIOrbitImage(DALConfig.getImageProvider().createOrbitImage(((RawDataFile) inputStrOrURL), imagePyramidNum),imagePyramidNum);
+            origImage = new OrbitTiledImageIOrbitImage(wrapImage(DALConfig.getImageProvider().createOrbitImage(((RawDataFile) inputStrOrURL), imagePyramidNum)),imagePyramidNum);
             imageName = ((RawDataFile) inputStrOrURL).getFileName();
             imageAdjustments = OrbitUtils.getAndParseImageAdjustments(((RawDataFile) inputStrOrURL).getRawDataFileId());
         } else if (inputStrOrURL instanceof URL) {
@@ -213,7 +222,7 @@ public class TiledImagePainter implements Closeable {
                     break;
                 }
                 default: {
-                    origImage = new OrbitTiledImageIOrbitImage(DALConfig.getImageProvider().createOrbitImage(rdf, level));
+                    origImage = new OrbitTiledImageIOrbitImage(wrapImage(DALConfig.getImageProvider().createOrbitImage(rdf, level)));
                     break;
                 }
             }
@@ -265,7 +274,7 @@ public class TiledImagePainter implements Closeable {
                 //mipFileName = PathResolver.getFilenameOnServerFullMipMap((((RawDataFile)inputStrOrURL)),mipNum);
                 PlanarImage pi;
                 try {
-                    pi = new OrbitTiledImageIOrbitImage(DALConfig.getImageProvider().createOrbitImage((RawDataFile) inputStrOrURL, mipNum));
+                    pi = new OrbitTiledImageIOrbitImage(wrapImage(DALConfig.getImageProvider().createOrbitImage((RawDataFile) inputStrOrURL, mipNum)));
                 } catch (Throwable ex1) {
                     if (logger.isTraceEnabled())
                         logger.trace("layer "+mipNum+"  does not exist (or cannot be read)");

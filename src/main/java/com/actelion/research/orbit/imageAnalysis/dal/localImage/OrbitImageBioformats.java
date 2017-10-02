@@ -122,8 +122,6 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
 
         logger.info("bioformats image: "+this.filename);
 
-
-
         reader = new ThreadLocal<BufferedImageReader>() {
             @Override
             protected BufferedImageReader initialValue() {

@@ -436,7 +436,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
             if (picNameOrUrl == null) picNameOrUrl = picName; // first load might be also a string
             bimg.loadImage(picNameOrUrl);
             //System.out.println("image: "+bimg.image);
-            System.gc();
+            //System.gc();
         } catch (Exception e) {
             logger.error("Error loading image. Probably the Orbit image server down or not accessible.\nError Details: ", e);
             if (e instanceof OrbitImageServletException) {
