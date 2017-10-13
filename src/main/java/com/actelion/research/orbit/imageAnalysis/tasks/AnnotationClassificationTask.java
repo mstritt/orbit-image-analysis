@@ -60,9 +60,17 @@ public class AnnotationClassificationTask extends OrbitWorker implements Propert
             return;
         }
 
-        StringBuilder sb = new StringBuilder();
+        String sep = "\t";
+        StringBuilder sb = new StringBuilder("Spotname"+sep);
         numWorker = annotations.size();
         iWorker.set(0);
+        // header
+        for (int i = 0; i < rf.getRatio().length; i++) {
+            sb.append(model.getClassShapes().get(i).getName());
+            if (i < rf.getRatio().length - 1) sb.append(sep);
+        }
+        sb.append("\n");
+        // data
         for (ImageAnnotation anno : annotations) {
             iWorker.addAndGet(1);
             if (anno.getShape().getShapeList().size() > 0) {
@@ -78,8 +86,7 @@ public class AnnotationClassificationTask extends OrbitWorker implements Propert
                     worker.addPropertyChangeListener(this);
                     worker.run();
                     OrbitUtils.waitForWorker(worker); // TODO: use execution scheduler
-                    sb.append(anno.getDescription() + "\n");
-                    sb.append(createResultStr(rf, model) + "\n\n");
+                    sb.append(createResultStr(anno, rf, sep) + "\n");
                 }
             }
             int prog = (int) (((double) iWorker.get() / annotations.size()) * 100d);
@@ -104,13 +111,12 @@ public class AnnotationClassificationTask extends OrbitWorker implements Propert
     }
 
 
-    private String createResultStr(RecognitionFrame rf, OrbitModel model) {
-        StringBuilder sb = new StringBuilder();
+    private String createResultStr(ImageAnnotation anno, RecognitionFrame rf, String separator) {
+        StringBuilder sb = new StringBuilder(anno.getDescription()+separator);
         for (int i = 0; i < rf.getRatio().length; i++) {
             double r = rf.getRatio()[i];
-            sb.append(model.getClassShapes().get(i).getName() + ": ");
-            sb.append(String.format("%1$.4f", r));
-            if (i < rf.getRatio().length - 1) sb.append("\n");
+            sb.append(String.format("%1$.6f", r));
+            if (i < rf.getRatio().length - 1) sb.append(separator);
         }
         return sb.toString();
     }

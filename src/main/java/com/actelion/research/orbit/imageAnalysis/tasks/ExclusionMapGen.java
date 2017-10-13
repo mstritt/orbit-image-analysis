@@ -75,7 +75,6 @@ public class ExclusionMapGen {
             try {
                 logger.debug("Exclusion Model perform erode and dilate: " + model.getExclusionModel().isPerformErodeDiliate());
                 RecognitionFrame rFrame = getExclusionMapFrame(rdf, originalFrame, model);
-
                 List<ClassShape> classShapes = model.getExclusionModel().getClassShapes();
                 double scaleFactor = rFrame.bimg.getWidth() / (double) originalFrame.bimg.getWidth();
                 rFrame.setClassShapes(classShapes);
@@ -162,9 +161,9 @@ public class ExclusionMapGen {
 			}
 		}    */
 
-        // a classification image is only needed if computed on different (mip-)level then original image
+        // a classification image is only needed if computed on different (mip-)level than original image
         if (keepVisualClassificationImage) {
-            if (recognitionFrame.getClassImage().getImage().getWidth() * (long) recognitionFrame.getClassImage().getImage().getHeight() < 8000L * 8000L) {
+            if (recognitionFrame.getClassImage().getImage().getWidth() * (long) recognitionFrame.getClassImage().getImage().getHeight() < 12000L * 12000L) {
                 classificationImage = new TiledImageWriter(PlanarImage.wrapRenderedImage(recognitionFrame.getClassImage().getImage().getAsBufferedImage()));
             } else {
                 // bad luck...
@@ -225,9 +224,6 @@ public class ExclusionMapGen {
                 } //y
             } // x
         } // tileNum
-
-        // deactivated 17.10.2010 (activate it for lung fibrosis quantification (not mast cell count))
-
 
         // TODO!!!
             /*
@@ -303,6 +299,7 @@ public class ExclusionMapGen {
     }
 
 
+    @Deprecated
     private short[][] erode(final short[][] buf) {
         short cb = 0;
         short cf = 1;
@@ -318,6 +315,7 @@ public class ExclusionMapGen {
         return res;
     }
 
+    @Deprecated
     private short[][] diliate(final short[][] buf) {
         short cb = 1;
         short cf = 0;
@@ -366,10 +364,16 @@ public class ExclusionMapGen {
         this.classificationImage = classificationImage;
     }
 
+    /**
+     * are classification results normalized? (sets normalize in classificationWorker)
+     */
     public boolean isDoNormalize() {
         return doNormalize;
     }
 
+    /**
+     * classification results will be normalized (sets normalize in classificationWorker)
+     */
     public void setDoNormalize(boolean doNormalize) {
         this.doNormalize = doNormalize;
     }

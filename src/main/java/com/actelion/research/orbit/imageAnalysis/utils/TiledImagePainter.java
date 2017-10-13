@@ -99,16 +99,25 @@ public class TiledImagePainter implements Closeable {
     final private OrbitUtils.ImageAdjustCachedParams cachedParams = new OrbitUtils.ImageAdjustCachedParams();
 
 
-//    public final static ExecutorService executorService = Executors.newCachedThreadPool();
+    public final static ExecutorService executorService = Executors.newWorkStealingPool();
+    
+//    public final static ExecutorService executorService = Executors.newCachedThreadPool(new ThreadFactory() {
+//        @Override
+//        public Thread newThread(Runnable r) {
+//            Thread thread = new Thread(r);
+//            thread.setDaemon(true);
+//            return thread;
+//        }
+//    });
 //    public final static ExecutorService executorService = Executors.newFixedThreadPool(1);
-    public final static ExecutorService executorService = Executors.newFixedThreadPool(Math.min(4,Runtime.getRuntime().availableProcessors()), new ThreadFactory() {
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread thread = new Thread(r);
-            thread.setDaemon(true);
-            return thread;
-        }
-    });
+//    public final static ExecutorService executorService = Executors.newFixedThreadPool(Math.min(4,Runtime.getRuntime().availableProcessors()), new ThreadFactory() {
+//        @Override
+//        public Thread newThread(Runnable r) {
+//            Thread thread = new Thread(r);
+//            thread.setDaemon(true);
+//            return thread;
+//        }
+//    });
 
     // private ContrastColor contrastColor = new ContrastColor();
     //private GaussianBlur gaussianBlur = new GaussianBlur();
@@ -122,7 +131,7 @@ public class TiledImagePainter implements Closeable {
 
     public TiledImagePainter() {
     }
-
+               
     public TiledImagePainter(boolean generateMipMaps) {
         this.generateMipMaps = generateMipMaps;
     }
