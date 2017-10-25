@@ -1,6 +1,6 @@
 /*
  *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2017 Actelion Pharmaceuticals Ltd., Gewerbestrasse 16, CH-4123 Allschwil, Switzerland.
+ *     Copyright (C) 2009 - 2017 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -28,12 +28,12 @@ import com.actelion.research.orbit.imageAnalysis.models.ImageTile;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.ClassificationResult;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitHelper;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.ScaleoutMode;
 import org.jaitools.tiledimage.DiskMemImageOrbit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.*;
 
 public class ClassificationMapReduce implements IMapReduce<String, Integer, ClassificationResult> {
@@ -44,6 +44,7 @@ public class ClassificationMapReduce implements IMapReduce<String, Integer, Clas
 
     @Override
     public List<KeyValue<Integer, ClassificationResult>> map(String element) {
+        long startTime = System.currentTimeMillis();
         if (ScaleoutMode.SCALEOUTMODE.get()) DALConfig.getImageProvider().authenticateUserScaleout();
         List<KeyValue<Integer, ClassificationResult>> ratio = new ArrayList<KeyValue<Integer, ClassificationResult>>();
         ImageTile imageTiles = new ImageTile(element);
@@ -63,7 +64,15 @@ public class ClassificationMapReduce implements IMapReduce<String, Integer, Clas
         } finally {
             try {
                 if (ScaleoutMode.SCALEOUTMODE.get()) DALConfig.getImageProvider().close();
-            } catch (IOException e) {
+                if (ScaleoutMode.SCALEOUTMODE.get()) {
+                    long minTime = OrbitUtils.SLEEP_TASK;
+                    long usedTime = System.currentTimeMillis() - startTime;
+                    if (usedTime<minTime) {
+                        logger.debug("sleeping "+(minTime-usedTime)+" ms");
+                        Thread.sleep(minTime-usedTime);
+                    }
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

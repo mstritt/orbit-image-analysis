@@ -1,6 +1,6 @@
 /*
  *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2017 Actelion Pharmaceuticals Ltd., Gewerbestrasse 16, CH-4123 Allschwil, Switzerland.
+ *     Copyright (C) 2009 - 2017 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 package com.actelion.research.orbit.imageAnalysis.utils;
 
 import com.actelion.research.orbit.beans.RawDataFile;
+import com.actelion.research.orbit.beans.RawMeta;
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
@@ -99,7 +100,15 @@ public class TiledImagePainter implements Closeable {
     final private OrbitUtils.ImageAdjustCachedParams cachedParams = new OrbitUtils.ImageAdjustCachedParams();
 
 
-    public final static ExecutorService executorService = Executors.newWorkStealingPool();
+    public final static ExecutorService executorService = Integer.parseInt(System.getProperty("java.version").split("\\.")[1]) >=8 ? Executors.newWorkStealingPool():
+            Executors.newFixedThreadPool(Math.min(4,Runtime.getRuntime().availableProcessors()), new ThreadFactory() {
+               @Override
+               public Thread newThread(Runnable r) {
+                   Thread thread = new Thread(r);
+                   thread.setDaemon(true);
+                   return thread;
+               }
+           });
     
 //    public final static ExecutorService executorService = Executors.newCachedThreadPool(new ThreadFactory() {
 //        @Override
@@ -274,10 +283,23 @@ public class TiledImagePainter implements Closeable {
         }
         logger.trace("old pyramid limit: " + oldMipPyramid);
 
+        // try to query the resolution count (if known)
+        int numResolutionCount = -1;
+        if (inputStrOrURL instanceof RawDataFile) {
+            List<RawMeta> rmList = DALConfig.getImageProvider().LoadRawMetasByRawDataFileAndName(((RawDataFile) inputStrOrURL).getRawDataFileId(),RawUtilsCommon.STR_META_IMAGE_RESOLUTIONCOUNT);
+            if (rmList!=null && rmList.size()>0) {
+                try {
+                    numResolutionCount = Integer.parseInt(rmList.get(0).getValue());
+                } catch (Exception e) {
+                    logger.warn("cannot parse resolution count: "+rmList.get(0));
+                }
+            }
+        }
 
         List<TiledImagePainter> mipList = new ArrayList<TiledImagePainter>();
         int mipNum = 1;
-        while (mipNum > 0) {
+        // while there was no error reading resolution mipNum, numResolution is unknown or  mipNum <numResolution
+        while (mipNum > 0 && (numResolutionCount<0||mipNum<numResolutionCount)) {  // or numResolutionCount-1 due to overview image?
             String mipFileName = null;
             if (inputStrOrURL instanceof RawDataFile) {
                 //mipFileName = PathResolver.getFilenameOnServerFullMipMap((((RawDataFile)inputStrOrURL)),mipNum);
@@ -286,7 +308,7 @@ public class TiledImagePainter implements Closeable {
                     pi = new OrbitTiledImageIOrbitImage(wrapImage(DALConfig.getImageProvider().createOrbitImage((RawDataFile) inputStrOrURL, mipNum)));
                 } catch (Throwable ex1) {
                     if (logger.isTraceEnabled())
-                        logger.trace("layer "+mipNum+"  does not exist (or cannot be read)");
+                        logger.trace("layer "+mipNum+"  does not exist (or cannot be read) for image \""+((RawDataFile) inputStrOrURL).getFileName()+ "\" [ID: "+((RawDataFile) inputStrOrURL).getRawDataFileId()+"] numResolutions: "+numResolutionCount);
                     mipNum = -1;
                     break;
                 }

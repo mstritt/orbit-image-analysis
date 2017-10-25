@@ -1,6 +1,6 @@
 /*
  *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2017 Actelion Pharmaceuticals Ltd., Gewerbestrasse 16, CH-4123 Allschwil, Switzerland.
+ *     Copyright (C) 2009 - 2017 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -29,6 +29,8 @@ import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAODataFileSQLit
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAORawAnnotationSQLite;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.OrbitImageBioformats;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.OrbitImageTiff;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.ndpi.NDPIImageNative;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.ndpi.NDPISImageNative;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitImagePlanar;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
@@ -60,6 +62,7 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
     private RawData rawData;
     private static int series = 0;
     private OrbitModel orbitModel = null;
+    public static boolean NDPI_JAVA_FALLBACK = false;
 
     public ImageProviderLocal() {
         rawData = new RawData();
@@ -229,6 +232,25 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
             try {
                 return new OrbitImageTiff(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
             } catch (FormatException e) {  // for tiff files >=16 bits per sample
+                return new OrbitImageBioformats(rdf.getDataPath() + File.separator + rdf.getFileName(), level, rdf.getSeriesNum(), orbitModel);
+            }
+        }
+        if (ending.equals("ndpi") && !NDPI_JAVA_FALLBACK) {
+            try {
+                return new NDPIImageNative(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
+            } catch (UnsatisfiedLinkError err) {
+                NDPI_JAVA_FALLBACK = true;
+                logger.debug("using java NDPI fallback");
+                return new OrbitImageBioformats(rdf.getDataPath() + File.separator + rdf.getFileName(), level, rdf.getSeriesNum(), orbitModel);
+            }
+        }
+        if (ending.equals("ndpis") && !NDPI_JAVA_FALLBACK) {
+            try {
+                //return null;
+                return new NDPISImageNative(rdf.getDataPath() + File.separator + rdf.getFileName(), level);
+            } catch (UnsatisfiedLinkError err) {
+                NDPI_JAVA_FALLBACK = true;
+                logger.debug("using java NDPIS fallback");
                 return new OrbitImageBioformats(rdf.getDataPath() + File.separator + rdf.getFileName(), level, rdf.getSeriesNum(), orbitModel);
             }
         }

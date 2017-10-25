@@ -1,6 +1,6 @@
 /*
  *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2017 Actelion Pharmaceuticals Ltd., Gewerbestrasse 16, CH-4123 Allschwil, Switzerland.
+ *     Copyright (C) 2009 - 2017 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -26,10 +26,7 @@ import com.actelion.research.orbit.imageAnalysis.models.ClassifierWrapper;
 import com.actelion.research.orbit.imageAnalysis.models.FeatureDescription;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.tasks.histogram.Histogram;
-import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
-import com.actelion.research.orbit.imageAnalysis.utils.PropertyChangeEmitter;
-import com.actelion.research.orbit.imageAnalysis.utils.TiledImagePainter;
-import com.actelion.research.orbit.imageAnalysis.utils.TiledImageWriter;
+import com.actelion.research.orbit.imageAnalysis.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import weka.core.DenseInstance;
@@ -141,6 +138,16 @@ public class ClassificationTaskTiled extends PropertyChangeEmitter implements Ca
         //System.out.println("tileList: "+tileList);
         for (Point tileNum : tileList) {
             //logger.trace("before getting raster "+tileNum.x+"/"+tileNum.y);
+
+            if (ScaleoutMode.SCALEOUTMODE.get()) {
+                Thread.sleep(OrbitUtils.SLEEP_TILE);
+            }
+
+            // check if tile is in ROI (if not, don't load image data) -> too fuzzy
+//            if (!OrbitUtils.isTileInROI(tileNum.x,tileNum.y,bimg.getImage(),ROI,exclusionMapGen)) {
+//                continue;
+//            }
+
             Raster readRaster;
             if (OrbitUtils.TILEMODE) {
                 readRaster = bimg.getModifiedImage(featureDescription).getTile(tileNum.x, tileNum.y);
