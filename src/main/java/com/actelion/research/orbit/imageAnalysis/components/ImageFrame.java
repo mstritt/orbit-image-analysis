@@ -72,6 +72,7 @@ public class ImageFrame extends JInternalFrame implements ComponentListener, Pro
     private boolean exclusive = false;
     private int mipLayer = 0;
     private ImageIcon icon = null;
+    private boolean channelContributionsLoaded = false;
 
 
     public ImageFrame(Object imageStrOrUrl) throws OrbitImageServletException {
@@ -663,5 +664,13 @@ public class ImageFrame extends JInternalFrame implements ComponentListener, Pro
 
     public void setMipLayer(int mipLayer) {
         this.mipLayer = mipLayer;
+    }
+
+    public boolean isChannelContributionsLoaded() {
+        return channelContributionsLoaded;
+    }
+
+    public void setChannelContributionsLoaded(boolean channelContributionsLoaded) {
+        this.channelContributionsLoaded = channelContributionsLoaded;
     }
 }

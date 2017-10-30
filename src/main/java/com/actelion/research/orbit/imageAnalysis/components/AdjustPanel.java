@@ -519,8 +519,9 @@ public class AdjustPanel extends JPanel {
                     OrbitUtils.ImageAdjustments ia = OrbitUtils.parseImageAdjustments(rm.getValue());
                     if (ia!=null) {
                         IOrbitImageMultiChannel oim = getMultiChannelImage();
-                        if (oim!=null) {
-                            oim.setChannelContributions(ia.getChannelContributions());
+                        if (!iFrame.isChannelContributionsLoaded() && oim!=null) {
+                            iFrame.setChannelContributionsLoaded(true);
+                            oim.setChannelContributions(ia.getChannelContributions());           
                         }
                     }
 

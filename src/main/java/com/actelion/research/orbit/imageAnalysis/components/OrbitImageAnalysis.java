@@ -842,7 +842,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     protected String getInfoString() {
         String infoStr = "Orbit Image Analysis Version " + OrbitUtils.VERSION_STR + "\n" +
-                "Copyright (c) 2009-2017, Actelion Pharmaceuticals Ltd. under GPLv3 license.\n" +
+                "Copyright (c) 2009-2017, Idorsia Pharmaceuticals Ltd. under GPLv3 license.\n" +
                 "Developed by Manuel Stritt.";
 
         infoStr += "\n\nLogin User: " + loginUser;
@@ -2403,7 +2403,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 }
 
                 oldFrame = null;
-                System.gc();
             }
 
             // iframe closing, so reset loupe, rendergrid and metaBar

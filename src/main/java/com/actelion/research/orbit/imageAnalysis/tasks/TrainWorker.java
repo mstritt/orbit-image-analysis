@@ -309,14 +309,15 @@ public class TrainWorker extends OrbitWorker {
      * @return
      * @throws OrbitImageServletException
      */
-    private List<double[]> getFeatures(List<Shape> shapeList, double classValue, TiledImagePainter bimg) throws OrbitImageServletException {
+    private List<double[]> getFeatures(final List<Shape> shapeList, final double classValue, final TiledImagePainter bimg) throws OrbitImageServletException {
         TissueFeatures tissueFeatures = OrbitUtils.createTissueFeatures(OrbitImageAnalysis.getInstance().getModel().getFeatureDescription(), bimg);
         int windowSize = OrbitImageAnalysis.getInstance().getModel().getFeatureDescription().getWindowSize();
         FeatureDescription featureDescription = OrbitImageAnalysis.getInstance().getModel().getFeatureDescription();
         List<double[]> featList = new ArrayList<double[]>();
         if (shapeList == null || shapeList.size() == 0) return featList;
+        final List<Shape> shapeListCloned = new ArrayList<>(shapeList);
 
-        for (Shape p : shapeList) {
+        for (Shape p : shapeListCloned) {
             Raster readRaster = null;
             Shape sp = ((IScaleableShape) p).getScaledInstance(100d, new Point(0, 0));
             Rectangle bb = sp.getBounds();

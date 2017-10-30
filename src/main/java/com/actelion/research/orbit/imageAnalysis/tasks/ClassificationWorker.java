@@ -287,7 +287,7 @@ public class ClassificationWorker extends OrbitWorker implements PropertyChangeL
 
             if (withGUI) {
                 taskResult = new TaskResult("Classification Result", createResultStr());
-                rf.repaint();
+               // rf.repaint();
             }
 
             executor.shutdownNow();
