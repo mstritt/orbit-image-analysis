@@ -4,6 +4,7 @@
 ### A versatile image analysis software for biological image-based quantification.
 
 #####News:
+* 2.70: release
 * 2.694: Omero 5.4.x, rendering performance, TMA (tissue micro array) spots as annotations, NDPI native lib 
 * 2.65: mumford-shah based segmentation algorithm included, 16bit downscaling bugfix, bioformats 5.5.3
 * 2.54: >8bit,<16bit bugfix (fluo rendering), only for Omero 5.3.x!
