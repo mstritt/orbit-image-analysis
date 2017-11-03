@@ -68,7 +68,7 @@ public class NDPIImageNative extends AbstractOrbitImage {
     @Override
     public String readInfoString(String filename) throws OrbitImageServletException {
         try {
-            System.out.println("file: "+this.filename);
+            logger.debug("file: "+this.filename);
             String info = getServer().getInfo(this.filename, level);
             return info;
         } catch (RemoteException e) {
@@ -155,8 +155,8 @@ public class NDPIImageNative extends AbstractOrbitImage {
 
     // set path to ndp.read lib via e.g. -Djna.library.path=/u00/.../OrbitNDPI/libNDPread2.so
     public static void main(String[] args) throws Exception {
-        NDPIImageNative img = new NDPIImageNative("D:\\pic\\Hamamatsu\\test\\test1.ndpi",5);
-        System.out.println(img.readInfoString("D:\\pic\\Hamamatsu\\test\\test.ndpi"));
+        NDPIImageNative img = new NDPIImageNative("test1.ndpi",5);
+        System.out.println(img.readInfoString("test.ndpi"));
         WritableRaster raster = (WritableRaster) img.getTileData(1,0,true).createTranslatedChild(0,0);
         BufferedImage bi = new BufferedImage(img.getColorModel(),raster,false,null);
         ImageIO.write(bi,"png",new File("d:/test.png"));

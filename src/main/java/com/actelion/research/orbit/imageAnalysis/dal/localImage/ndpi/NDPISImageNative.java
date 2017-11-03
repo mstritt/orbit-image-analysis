@@ -86,8 +86,8 @@ public class NDPISImageNative extends AbstractChannelRendererOrbitImage {
     }
 
     public static void main(String[] args) throws Exception {
-        NDPISImageNative img = new NDPISImageNative("D:\\pic\\Hamamatsu\\fl5ome\\test3.ndpis",0);
-        System.out.println("info: "+img.readInfoString("D:\\pic\\Hamamatsu\\fl5ome\\test3.ndpis")+" width x height: "+img.getWidth()+" x "+img.getHeight());
+        NDPISImageNative img = new NDPISImageNative("test3.ndpis",0);
+        System.out.println("info: "+img.readInfoString("test3.ndpis")+" width x height: "+img.getWidth()+" x "+img.getHeight());
         WritableRaster raster = (WritableRaster) img.getTileData(0,0,true).createTranslatedChild(0,0);
         BufferedImage bi = new BufferedImage(img.getColorModel(),raster,false,null);
         ImageIO.write(bi,"png",new File("d:/test.png"));

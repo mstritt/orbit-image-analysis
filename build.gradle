@@ -109,7 +109,7 @@ jar {
         attributes 'Implementation-Title': 'Orbit Image Analysis',
                 'Implementation-Version': orbitVersion,
                 'Main-Class': 'com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis',
-                'Vendor': 'Actelion',
+                'Vendor': 'Idorsia',
                 'Class-Path': 'lib/*'
     }
 }
@@ -148,7 +148,7 @@ dependencies {
     compile 'com.actelion.research:map-reduce-exec-spark:1.0.2'
 
 //    compile 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
-//    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.1.15') {
+//    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.1.19') {
 //        exclude(module: 'orbit-image-analysis')
 //    }
 //    compile 'com.actelion.research:imageproviderorbit:1.1.13'

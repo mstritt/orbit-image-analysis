@@ -138,10 +138,8 @@ public class ClassificationTaskTiled extends PropertyChangeEmitter implements Ca
         //System.out.println("tileList: "+tileList);
         for (Point tileNum : tileList) {
             //logger.trace("before getting raster "+tileNum.x+"/"+tileNum.y);
-
-            if (ScaleoutMode.SCALEOUTMODE.get()) {
-                Thread.sleep(OrbitUtils.SLEEP_TILE);
-            }
+            long startTime = System.currentTimeMillis();
+          
 
             // check if tile is in ROI (if not, don't load image data) -> too fuzzy
 //            if (!OrbitUtils.isTileInROI(tileNum.x,tileNum.y,bimg.getImage(),ROI,exclusionMapGen)) {
@@ -260,6 +258,14 @@ public class ClassificationTaskTiled extends PropertyChangeEmitter implements Ca
                 }
             }
 
+            if (ScaleoutMode.SCALEOUTMODE.get()) {
+                long minTime = OrbitUtils.SLEEP_TILE;
+                long usedTime = System.currentTimeMillis() - startTime;
+                if (usedTime<minTime) {
+                    logger.debug("sleeping "+(minTime-usedTime)+" ms");
+                    Thread.sleep(minTime-usedTime);
+                }
+            }
 
         } // tileNum
 

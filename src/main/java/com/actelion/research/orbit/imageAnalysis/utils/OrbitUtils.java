@@ -54,10 +54,10 @@ import java.util.*;
 import java.util.List;
 
 public class OrbitUtils {
-    // label:  OrbitImageAnalysis2695
+    // label:  OrbitImageAnalysis270
     public static final String VERSION_STR = getVersion() + (ScaleoutMode.SCALEOUTMODE.get() ? "G" : "") + (OrbitUtils.DEVELOPMENTMODE ? " DEVELOPMENT" : "");
     public static final boolean DEVELOPMENTMODE = false;
-    public static long SLEEP_TILE = 30000;
+    public static long SLEEP_TILE = 13*1000L;
     public static long SLEEP_TASK = 2*60*1000L;
 
     public static final boolean TILEMODE = false;

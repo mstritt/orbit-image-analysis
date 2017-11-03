@@ -100,7 +100,9 @@ public class TiledImagePainter implements Closeable {
     final private OrbitUtils.ImageAdjustCachedParams cachedParams = new OrbitUtils.ImageAdjustCachedParams();
 
 
-    public final static ExecutorService executorService = Integer.parseInt(System.getProperty("java.version").split("\\.")[1]) >=8 ? Executors.newWorkStealingPool():
+    public final static ExecutorService executorService = Integer.parseInt(System.getProperty("java.version").split("\\.")[1]) >=8 ?
+            Executors.newWorkStealingPool()
+            :
             Executors.newFixedThreadPool(Math.min(4,Runtime.getRuntime().availableProcessors()), new ThreadFactory() {
                @Override
                public Thread newThread(Runnable r) {
