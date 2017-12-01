@@ -24,11 +24,11 @@ import com.actelion.research.orbit.beans.RawMeta;
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
+import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.imaging.ManipulationUtils;
 import com.actelion.research.orbit.imageAnalysis.imaging.MedianFilter;
 import com.actelion.research.orbit.imageAnalysis.models.FeatureDescription;
-import com.actelion.research.orbit.utils.ChannelToHue;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 import com.sun.media.jai.codec.PNGDecodeParam;
 import imageJ.Colour_Deconvolution;
@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.media.jai.*;
+import javax.media.jai.registry.RenderedRegistryMode;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.*;
@@ -46,8 +47,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -268,6 +267,68 @@ public class TiledImagePainter implements Closeable {
     }
 
     /**
+     * Loads an appropriate image layer acording to the scale factor. (No accurate scaling done here.)
+     * @param rdf
+     * @param scaleFactor
+     * @param parentWidth
+     * @throws OrbitImageServletException
+     * @throws SQLException
+     */
+    public void loadImageScaleFactor(RawDataFile rdf, double scaleFactor, int parentWidth) throws OrbitImageServletException, SQLException {
+        origImage = null;
+        try {
+            RecognitionFrame rfFull = new RecognitionFrame(rdf);
+            TiledImagePainter[] mipFull = rfFull.bimg.mipMaps;
+            int level = 0;
+            if (mipFull != null && scaleFactor < 0.9f) {
+                for (int i = mipFull.length - 1; i >= 0; i--) {
+                    if (mipFull[i] != null) {
+                        if ((scaleFactor <= (double) mipFull[i].getWidth() / rfFull.bimg.image.getWidth())) {
+                            level = i;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            logger.debug("used level: "+level);
+
+            generateMipMaps = false; // TODO
+            IOrbitImage orbitImage = DALConfig.getImageProvider().createOrbitImage(rdf, level+1); // why +1 ?
+            origImage = new OrbitTiledImageIOrbitImage(wrapImage(orbitImage));
+// we don't scale here, just select an appropriate level. Scaling should be done afterwards.
+// scaling here would convert a OrbitTiledImageIOrbitImage into a OrbitTiledImagePlanarImage (no multichannel anymore)
+//            double levelScale = (double)origImage.getWidth() / (double)parentWidth;
+//            double addScale = scaleFactor / levelScale;
+//            int oldWidth = origImage.getWidth();
+//            origImage = scalePlanarImage(origImage,addScale);     // here it's only a PlanarImage
+            if (origImage == null) return; // not available
+            setImage(origImage);
+            imageName = rdf.toString();
+            imageAdjustments = OrbitUtils.getAndParseImageAdjustments(rdf.getRawDataFileId());
+        } catch (Exception e) {
+            logger.error("Special layer not available for this image.");
+        }
+    }
+
+    /**
+     * Will return a PlanarImage (even if it was a multichannel image before!)
+     * Do not use for multi channel images.
+     * @param sourceImage
+     * @param factor
+     * @return
+     */
+    @Deprecated
+    private PlanarImage scalePlanarImage(PlanarImage sourceImage, double factor) {
+        ParameterBlockJAI pb = new ParameterBlockJAI("scale", RenderedRegistryMode.MODE_NAME);
+        pb.setSource("source0", sourceImage);
+        pb.setParameter("xScale", new Float(factor));
+        pb.setParameter("yScale", new Float(factor));
+        PlanarImage pi = JAI.create("scale", pb);
+        return pi;
+    }
+
+    /**
      * @param inputStrOrURL can be RawDataFile or String (url is not allowed here)
      * @throws OrbitImageServletException
      */
@@ -420,17 +481,6 @@ public class TiledImagePainter implements Closeable {
         return r;
     }
 
-    private IOrbitImageMultiChannel getMultiChannelImage() {
-            OrbitTiledImage2 img = this.image;
-            if (img instanceof OrbitTiledImageIOrbitImage) {
-                IOrbitImage oi = ((OrbitTiledImageIOrbitImage) img).getOrbitImage();
-                if (oi instanceof IOrbitImageMultiChannel) {
-                    final IOrbitImageMultiChannel oim = (IOrbitImageMultiChannel) oi;
-                    return oim;
-                }
-            }
-        return null;
-    }
 
 
 
@@ -448,31 +498,10 @@ public class TiledImagePainter implements Closeable {
     public PlanarImage getModifiedImage(FeatureDescription featureDescription) {
         PlanarImage pi = image;
 
-        if (pi instanceof OrbitTiledImage2) {
-            // fluo channels for classification
-            IOrbitImageMultiChannel multiChannelImage = getMultiChannelImage(); // might return null
-            if (featureDescription.getHueMap()!=null && multiChannelImage!=null && multiChannelImage.getChannelNames()!=null && multiChannelImage.getChannelNames().length>0) {
-                float[] hueMap = new float[multiChannelImage.getChannelNames().length];
-                for (int c=0; c<hueMap.length; c++) {
-                    String channelName = OrbitUtils.cleanChannelName(multiChannelImage.getChannelNames()[c]).toLowerCase();
-                    if (featureDescription.getHueMap().containsKey(channelName)) {
-                        hueMap[c] = featureDescription.getHueMap().get(channelName);
-                    } else {
-                        hueMap[c] = ChannelToHue.getHue(channelName);   // fallback for undefined channels
-                    }
-                }
-                ((OrbitTiledImage2) pi).setAnalysisHues(hueMap);
-            }
-            if (multiChannelImage!=null && featureDescription.getActiveFluoChannels()!=null && featureDescription.getActiveFluoChannels().length>0 && multiChannelImage.getChannelNames()!=null && multiChannelImage.getChannelNames().length>0) {
-                HashSet<String> activeChannelLookup = new HashSet<>(Arrays.asList(featureDescription.getActiveFluoChannels()));
-                float[] channelContributions = new float[multiChannelImage.getChannelNames().length];
-                for (int c=0; c<channelContributions.length; c++) {
-                    String channelName = OrbitUtils.cleanChannelName(multiChannelImage.getChannelNames()[c]);
-                    channelContributions[c] = activeChannelLookup.contains(channelName)? 1f : 0f;
-                }
-                ((OrbitTiledImage2) pi).setChannelContributionsClassification(channelContributions);
-            }
-        }
+// multichannel features should not be set here (too slow), but instead before a certain task starts (e.g. in OrbitHelper.Segmentation)
+//        if (pi instanceof OrbitTiledImage2) {
+//            OrbitUtils.setMultiChannelFeatures((OrbitTiledImage2) pi, featureDescription);
+//        }
 
         if (featureDescription.getNumBlur() > 0) {
             MedianFilter medianFilter = new MedianFilter();
@@ -497,6 +526,8 @@ public class TiledImagePainter implements Closeable {
 
         return pi;
     }
+
+
 
 
     private OrbitTiledImage2 setOrWrapImage(PlanarImage img) {

@@ -1252,7 +1252,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             RawDataFile rdf = iFrame.getRdf();
             if (rdf == null) throw new IllegalArgumentException("level set but rdf is null");
             oriRf = rf;
-            rf = new RecognitionFrame(iFrame.recognitionFrame, rdf, level - 1);  // level is num mip, not index
+            rf = OrbitUtils.getMipRecognitionFrame(rf,rdf,level);
         }
         // level set end
 

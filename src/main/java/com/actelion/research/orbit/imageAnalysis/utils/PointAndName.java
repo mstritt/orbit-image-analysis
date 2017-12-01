@@ -46,8 +46,9 @@ public class PointAndName extends Point {
     private String deconvName;
     private float[] channelContributions;
     private boolean analysis;
+    private float[] analysisHues;
 
-    public PointAndName(int x, int y, String name, int level, double gamma, double contrast, double brightness, int blur, double redAdjust, double greenAdjust, double blueAdjust, OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, OrbitTiledImage2 blueChannel, OrbitTiledImage2 overlayChannel, boolean redActive, boolean greenActive, boolean blueActive, int deconvChannel, String deconvName, float[] channelContributions, boolean analysis) {
+    public PointAndName(int x, int y, String name, int level, double gamma, double contrast, double brightness, int blur, double redAdjust, double greenAdjust, double blueAdjust, OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, OrbitTiledImage2 blueChannel, OrbitTiledImage2 overlayChannel, boolean redActive, boolean greenActive, boolean blueActive, int deconvChannel, String deconvName, float[] channelContributions, boolean analysis, float[] analysisHues) {
         this.x = x;
         this.y = y;
         super.x = x;
@@ -72,6 +73,7 @@ public class PointAndName extends Point {
         this.deconvName = deconvName;
         this.channelContributions = channelContributions;
         this.analysis = analysis;
+        this.analysisHues = analysisHues;
     }
 
     @Override
@@ -104,7 +106,8 @@ public class PointAndName extends Point {
         if (overlayChannel != null ? !overlayChannel.equals(that.overlayChannel) : that.overlayChannel != null)
             return false;
         if (deconvName != null ? !deconvName.equals(that.deconvName) : that.deconvName != null) return false;
-        return Arrays.equals(channelContributions, that.channelContributions);
+        if (!Arrays.equals(channelContributions, that.channelContributions)) return false;
+        return Arrays.equals(analysisHues, that.analysisHues);
     }
 
     @Override
@@ -139,6 +142,7 @@ public class PointAndName extends Point {
         result = 31 * result + (deconvName != null ? deconvName.hashCode() : 0);
         result = 31 * result + Arrays.hashCode(channelContributions);
         result = 31 * result + (analysis ? 1 : 0);
+        result = 31 * result + Arrays.hashCode(analysisHues);
         return result;
     }
 }

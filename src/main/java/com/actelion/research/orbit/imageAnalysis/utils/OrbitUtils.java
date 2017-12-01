@@ -23,6 +23,9 @@ import ch.qos.logback.classic.Level;
 import com.actelion.research.orbit.beans.RawAnnotation;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.beans.RawMeta;
+import com.actelion.research.orbit.dal.IOrbitImage;
+import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
+import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.LocalFileFilter;
@@ -39,6 +42,7 @@ import org.jaitools.tiledimage.DiskMemImageOrbit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.media.jai.PlanarImage;
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
@@ -54,7 +58,7 @@ import java.util.*;
 import java.util.List;
 
 public class OrbitUtils {
-    // label:  OrbitImageAnalysis270
+    // label:  OrbitImageAnalysis273
     public static final String VERSION_STR = getVersion() + (ScaleoutMode.SCALEOUTMODE.get() ? "G" : "") + (OrbitUtils.DEVELOPMENTMODE ? " DEVELOPMENT" : "");
     public static final boolean DEVELOPMENTMODE = false;
     public static long SLEEP_TILE = 13*1000L;
@@ -105,7 +109,7 @@ public class OrbitUtils {
     static {
         Logger root = LoggerFactory.getLogger("com.actelion.research");
         if (root instanceof ch.qos.logback.classic.Logger)   // can only set if logback implementation
-            ((ch.qos.logback.classic.Logger) root).setLevel(DEVELOPMENTMODE ? Level.TRACE : Level.INFO);
+            ((ch.qos.logback.classic.Logger) root).setLevel(DEVELOPMENTMODE ? Level.DEBUG : Level.INFO);
 
         if (ScaleoutMode.SCALEOUTMODE.get()) {
             DALConfig.getImageProvider().setPooledConnectionEnabled(false);
@@ -158,10 +162,87 @@ public class OrbitUtils {
         return hm;
     }
 
+    public static float[] getHues(final String[] channelNames, final Map<String, Float> hueMap) {
+        if (channelNames==null) return null;
+        if (hueMap==null) return null;
+        float[] hues = new float[channelNames.length];
+        for (int c=0; c<channelNames.length; c++) {
+            String hueName = channelNames[c].toLowerCase();
+            if (hueMap.containsKey(hueName)) {
+                hues[c] = hueMap.get(hueName);
+            }
+        }
+        return hues;
+    }
+
     public static TissueFeatures createTissueFeatures(final FeatureDescription featureDescription, final TiledImagePainter bimg) {
         if (DEEPORBIT) return new TissueFeaturesCircular(featureDescription, bimg);
         else return new TissueFeatures(featureDescription, bimg);
     }
+
+
+    public static Raster getRasterForClassification(final TiledImagePainter bimg, final FeatureDescription featureDescription, final int windowSize, final int tileX, final int tileY) throws OrbitImageServletException {
+        PlanarImage image = bimg.getImage();
+        Raster readRaster;
+        if (OrbitUtils.TILEMODE) {
+            readRaster = bimg.getModifiedImage(featureDescription).getTile(tileX, tileY);
+        } else
+            readRaster = bimg.getData(new Rectangle(image.tileXToX(tileX) - windowSize, image.tileYToY(tileY) - windowSize, image.getTileWidth() + (windowSize * 2 + 1), image.getTileHeight() + (windowSize * 2 + 1)), featureDescription);
+
+        if (readRaster == null) {
+            throw new OrbitImageServletException("error getting image raster");
+        }
+
+        // apply raster modifications like color deconvolution
+        readRaster = OrbitUtils.getModifiedRaster(readRaster, featureDescription, bimg.getImage().getColorModel(), true, tileX, tileY, "modifiedRaster", bimg.getImage().getLevel());
+        return readRaster;
+    }
+
+    public static RecognitionFrame getMipRecognitionFrame(RecognitionFrame rf, RawDataFile rdf, int level) {
+        return new RecognitionFrame(rf, rdf, level - 0);
+    }
+
+    public static RecognitionFrame getMipRecognitionFrameScaleFactor(RecognitionFrame rf, RawDataFile rdf, double scaleFactor) {
+        return new RecognitionFrame(rf, rdf, scaleFactor);
+    }
+
+    public static void setMultiChannelFeatures(final OrbitTiledImage2 orbitTiledImage2, final FeatureDescription featureDescription) {
+        // fluo channels for classification
+        IOrbitImageMultiChannel multiChannelImage = getMultiChannelImage(orbitTiledImage2); // might return null
+        if (featureDescription.getHueMap()!=null && multiChannelImage!=null && multiChannelImage.getChannelNames()!=null && multiChannelImage.getChannelNames().length>0) {
+            float[] hueMap = new float[multiChannelImage.getChannelNames().length];
+            for (int c=0; c<hueMap.length; c++) {
+                String channelName = OrbitUtils.cleanChannelName(multiChannelImage.getChannelNames()[c]).toLowerCase();
+                if (featureDescription.getHueMap().containsKey(channelName)) {
+                    hueMap[c] = featureDescription.getHueMap().get(channelName);
+                } else {
+                    hueMap[c] = ChannelToHue.getHue(channelName);   // fallback for undefined channels
+                }
+            }
+            orbitTiledImage2.setAnalysisHues(hueMap);
+        }
+        if (multiChannelImage!=null && featureDescription.getActiveFluoChannels()!=null && featureDescription.getActiveFluoChannels().length>0 && multiChannelImage.getChannelNames()!=null && multiChannelImage.getChannelNames().length>0) {
+            HashSet<String> activeChannelLookup = new HashSet<>(Arrays.asList(featureDescription.getActiveFluoChannels()));
+            float[] channelContributions = new float[multiChannelImage.getChannelNames().length];
+            for (int c=0; c<channelContributions.length; c++) {
+                String channelName = OrbitUtils.cleanChannelName(multiChannelImage.getChannelNames()[c]);
+                channelContributions[c] = activeChannelLookup.contains(channelName)? 1f : 0f;
+            }
+           orbitTiledImage2.setChannelContributionsClassification(channelContributions);
+        }
+    }
+
+    public static IOrbitImageMultiChannel getMultiChannelImage(final OrbitTiledImage2 img) {
+        if (img instanceof OrbitTiledImageIOrbitImage) {
+            IOrbitImage oi = ((OrbitTiledImageIOrbitImage) img).getOrbitImage();
+            if (oi instanceof IOrbitImageMultiChannel) {
+                final IOrbitImageMultiChannel oim = (IOrbitImageMultiChannel) oi;
+                return oim;
+            }
+        }
+        return null;
+    }
+
 
 
     /**
@@ -208,7 +289,7 @@ public class OrbitUtils {
     }
 
 
-    public static boolean isTileInROI(int tileX, int tileY, final OrbitTiledImage2 image, Shape ROI, ExclusionMapGen exclusionMapGen) {
+    public static boolean isTileInROI(int tileX, int tileY, final PlanarImage image, Shape ROI, ExclusionMapGen exclusionMapGen) {
         Rectangle rect = image.getTileRect(tileX,tileY);
         if (isInROI((int)rect.getMinX(),(int)rect.getMinY(),ROI,exclusionMapGen)) return true;   // top-left
         if (isInROI((int)rect.getMaxX(),(int)rect.getMinY(),ROI,exclusionMapGen)) return true;   // top-right
@@ -780,7 +861,7 @@ public class OrbitUtils {
      */
     public static Raster getModifiedRaster(final Raster readRaster, final FeatureDescription featureDescription, final ColorModel colorModel, boolean useCache, int tileX, int tileY, String name, int level) {
         if ((!(readRaster instanceof ModifiedRaster)) && (featureDescription.getDeconvChannel() > 0)) {
-            PointAndName key = new PointAndName(tileX, tileY, name + readRaster.hashCode(),level, 100, 100, 100, 0, 0, 0, 0, null, null, null, null, true, true, true, featureDescription.getDeconvChannel(), featureDescription.getDeconvName(),null, true);
+            PointAndName key = new PointAndName(tileX, tileY, name + readRaster.hashCode(),level, 100, 100, 100, 0, 0, 0, 0, null, null, null, null, true, true, true, featureDescription.getDeconvChannel(), featureDescription.getDeconvName(),null, true, null);
             Raster cachedRaster = null;
             if (useCache) OrbitTiledImage2.tileCache.getIfPresent(key);
             if (cachedRaster != null) {

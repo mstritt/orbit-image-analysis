@@ -72,7 +72,7 @@ public class GroovyExecutor {
         if (args == null || args.length < 1)
             throw new IllegalArgumentException("No URL argument found. Call: GroovyExecutor <URL>");
         doTrustToCertificates();
-        //URL url = new URL("https://chiron.europe.actelion.com/stash/projects/ORBIT/repos/public-scripts/browse/QuantPerGroupLocalTest.groovy?at=5ff41667c494870aaacbe37fa43fd46fd4c9659c&raw");
+        //URL url = new URL("https://chiron.idorsia.com/stash/projects/ORBIT/repos/public-scripts/browse/QuantPerGroupLocalTest.groovy?at=5ff41667c494870aaacbe37fa43fd46fd4c9659c&raw");
         URL url = new URL(args[0]);
         String content = RawUtilsCommon.getContentStr(url);
         logger.debug("executing code:\n" + content);

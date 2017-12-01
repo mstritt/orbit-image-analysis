@@ -297,6 +297,8 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
                     this.setROI(roiScaled);
                 }
 
+                this.bimg.getImage().setAnalysisHues(parent.bimg.getImage().getAnalysisHues());
+                this.bimg.getImage().setChannelContributionsClassification(parent.bimg.getImage().getChannelContributionsClassification());
 
                 if (parent.getObjectSegmentationList() != null) {
                     // copy parent segmentations (important for object classification)
@@ -310,6 +312,75 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
                 }
             }
 
+        } catch (Exception e) {
+            logger.error("error loading special image", e);
+        }
+    }
+
+    public RecognitionFrame(RecognitionFrame parent, RawDataFile rdf, double scaleFactor) {
+        this.setOpaque(opaque);
+        this.setIgnoreRepaint(ignoreRepaint);
+        this.setDoubleBuffered(doubleBuffered);
+        this.classShapes.clear();
+        if (parent != null) {
+            this.classShapes.addAll(OrbitUtils.cloneClassShapes(parent.getClassShapes()));
+            this.featureDescription = parent.getFeatureDescription();
+            this.windowSize = parent.getWindowSize();
+            this.ratio = parent.getRatio();
+        } else {
+            classShapes.clear();
+            classShapes.addAll(OrbitUtils.buildDefaultClassShapes());
+            ratio = new double[classShapes.size()];
+        }
+        this.picName = rdf.getFileName() + " [" + scaleFactor + "]";
+
+        try {
+            TiledImagePainter tip = new TiledImagePainter();
+            tip.loadImageScaleFactor(rdf, scaleFactor, parent.bimg.getImage().getWidth());
+            if (tip == null) {
+                logger.error("Special image not available");
+            }
+
+            if (true) {
+                myListener = new ShapePainterListener(this.getClassShapes().get(0).getShapeList(), this.getClassShapes().get(0).getName(), this); // at least one class has to exist!
+                this.addMouseListener(myListener);
+                this.addMouseMotionListener(myListener);
+                try {
+                    this.addMouseWheelListener(myListener);
+                } catch (Exception e) {
+                }
+            }
+            this.bimg = tip;
+            if (parent != null)
+                this.mipScale = (double) this.bimg.getWidth() / (double) parent.bimg.getWidth();
+            logger.trace("loading targetWidth {} image by scaleFactor {}", scaleFactor, this.bimg.getWidth());
+            if (parent != null) {
+                this.muMeterPerPixel = parent.getMuMeterPerPixel() * (parent.bimg.getWidth() / (double) this.bimg.getWidth());
+                this.setGaugeColor(parent.getGaugeColor());
+                // copy scaled roi
+                if (parent.getROI() != null) {
+                    IScaleableShape roiScaled = (IScaleableShape) parent.getROI().getScaledInstance(((mipScale) * 100d), new Point(0, 0));
+                    roiScaled = roiScaled.clone();
+                    roiScaled.setScale(100d);
+                    this.setROI(roiScaled);
+                }
+
+                this.bimg.getImage().setAnalysisHues(parent.bimg.getImage().getAnalysisHues());
+                this.bimg.getImage().setChannelContributionsClassification(parent.bimg.getImage().getChannelContributionsClassification());
+
+              //  System.out.println("channelContribs: "+Arrays.toString(this.bimg.getImage().getChannelContributionsClassification()));
+
+                if (parent.getObjectSegmentationList() != null) {
+                    // copy parent segmentations (important for object classification)
+                    double originalCurrentFrameRatioInverse = parent.bimg.getImage().getWidth() / (double) this.bimg.getImage().getWidth();
+                    if (this.getObjectSegmentationList() == null)
+                        this.setObjectSegmentationList(new ArrayList<Shape>(parent.getObjectSegmentationList().size()));
+                    this.getObjectSegmentationList().clear();
+                    for (Shape shape : parent.getObjectSegmentationList()) {
+                        this.getObjectSegmentationList().add(((IScaleableShape) shape).getScaledInstance(originalCurrentFrameRatioInverse * 100d, new Point(0, 0)));
+                    }
+                }
+            }
         } catch (Exception e) {
             logger.error("error loading special image", e);
         }
@@ -1701,6 +1772,9 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
         return mipScale;
     }
 
+    public void setMipScale(double mipScale) {
+        this.mipScale = mipScale;
+    }
 
     public List<Shape> getSecondaryObjectSegmentationList() {
         return secondaryObjectSegmentationList;

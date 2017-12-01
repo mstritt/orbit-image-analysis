@@ -35,8 +35,16 @@ import com.actelion.research.orbit.utils.RawUtilsCommon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import javax.media.jai.JAI;
+import javax.media.jai.ParameterBlockJAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.registry.RenderedRegistryMode;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.List;
@@ -215,6 +223,7 @@ public class OrbitHelper {
         rf.setWindowSize(model.getFeatureDescription().getWindowSize());
         rf.setBoundaryClass(model.getBoundaryClass());
         rf.setFeatureDescription(model.getFeatureDescription()); // Manuel 27.06.2012
+        OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(),model.getSegmentationModel().getFeatureDescription());
         int annoGroup = model.getAnnotationGroup();
         if (annoGroup < 0 && model.isLoadAnnotationsAsInversROI()) {
             annoGroup = 0;// 0 means all
@@ -236,9 +245,11 @@ public class OrbitHelper {
         RecognitionFrame oriRf = null;
         if (newMipRf) {
             oriRf = rf;
-            if (model.getSegmentationModel().getMipLayer() > 0) {      // upd 22.09.2015 (.getSegModel)
+            int level = model.getSegmentationModel().getMipLayer();
+            if (level > 0) {      // upd 22.09.2015 (.getSegModel)
                 // attention: currently miplayers only work in combination with an image server (not local files)!
-                rf = new RecognitionFrame(rf, rdf, model.getSegmentationModel().getMipLayer() - 1);    // mip number, not index
+                rf = OrbitUtils.getMipRecognitionFrame(rf,rdf,level);
+                //System.out.println("mipimage: "+rf.bimg.image);
             }
         }
 
@@ -250,7 +261,7 @@ public class OrbitHelper {
             exMap.generateMap();
         }
 
-
+      
         // cellSegmentation
         ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(rf, null, model.getSegmentationModel().getClassShapes(), tiles);
         segWorker.setModel(model);
@@ -264,8 +275,8 @@ public class OrbitHelper {
         }
         segWorker.run();
 
+
         // TODO: cell features???
-        //System.out.println(segWorker.getSegmentationResult().get);
         String taskRes = segWorker.getTaskResult() != null ? segWorker.getTaskResult().getResultStr() : "No segmentation result";
         System.out.println("TaskResult:\n" + taskRes);
 
@@ -277,6 +288,149 @@ public class OrbitHelper {
         }
 
         return sr;
+    }
+
+
+    public static SegmentationResult Segmentation(RecognitionFrame rf, int rdfId, final OrbitModel model, List<Point> tiles, int numThreads, boolean newMipRf, IScaleableShape roi, double scaleFactor) throws OrbitImageServletException {
+        rf.setClassShapes(model.getSegmentationModel().getClassShapes());     //  22.09.2015
+        rf.setWindowSize(model.getFeatureDescription().getWindowSize());
+        rf.setBoundaryClass(model.getBoundaryClass());
+        rf.setFeatureDescription(model.getFeatureDescription()); // Manuel 27.06.2012
+        OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(),model.getSegmentationModel().getFeatureDescription());
+        int annoGroup = model.getAnnotationGroup();
+        if (annoGroup < 0 && model.isLoadAnnotationsAsInversROI()) {
+            annoGroup = 0;// 0 means all
+        }
+        if (roi == null) {
+            if (rdfId >= 0)
+                rf.loadAnnotationROI(rdfId, annoGroup);
+        } else rf.setROI(roi);
+
+        RawDataFile rdf = null;
+        if (rdfId > 0) {
+            try {
+                rdf = DALConfig.getImageProvider().LoadRawDataFile(rdfId);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        RecognitionFrame oriRf = null;
+        if (newMipRf) {
+            oriRf = rf;
+            if (/*level > 0*/ true) {      // upd 22.09.2015 (.getSegModel)
+                // attention: currently miplayers only work in combination with an image server (not local files)!
+                rf = OrbitUtils.getMipRecognitionFrameScaleFactor(rf,rdf,scaleFactor);
+                //System.out.println("mipimage: "+rf.bimg.image);
+            }
+        }
+
+        ExclusionMapGen exMap = ExclusionMapGen.constructExclusionMap(rdf, rf, model, rf.getROI());
+        if (exMap != null) {
+            exMap.setNumThreads(1);
+            exMap.setKeepVisualClassificationImage(false);
+            exMap.setDoNormalize(false);
+            exMap.generateMap();
+        }
+
+
+        BufferedImage bi = new BufferedImage(rf.bimg.getImage().getWidth(),rf.bimg.getImage().getHeight(),BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = (Graphics2D) bi.getGraphics();
+        g.drawImage(rf.bimg.getModifiedImage(model.getSegmentationModel().getFeatureDescription()).getAsBufferedImage(),0,0,null);
+        g.dispose();
+
+        // apply image modifications, here: intensity normalization
+        //bi = ImageNormalizer.normalize(bi,0.98d,0.99d, Band.BAND_1);
+
+        // TODO: do the scaling here (scaleFactor),  getMipRecognitionFrameScaleFactor only selects the right level
+
+        RecognitionFrame rf2 = new RecognitionFrame(new TiledImagePainter(PlanarImage.wrapRenderedImage(bi),""));
+        rf2.setROI(rf.getROI());
+
+//        RecognitionFrame rf3 = new RecognitionFrame(new TiledImagePainter(scalePlanarImage(rf.bimg.getImage(),1d),""));
+//        rf3.setROI(rf.getROI());
+//        rf3.setMipScale(rf.getMipScale());
+
+
+        // works with rf2, not with rf or rf3
+        // difference: shapes in segmentationResult have scale 1600 instead of 100. Why?
+
+        // cellSegmentation
+        ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(rf2, null, model.getSegmentationModel().getClassShapes(), tiles);
+        segWorker.setModel(model);
+        segWorker.setExclusionMap(exMap);
+        if (numThreads > 0) {
+            segWorker.setNumThreads(numThreads);
+        }
+        if (oriRf != null) {
+            segWorker.setDontClassify(false);
+            segWorker.setOriginalFrame(oriRf);
+        }
+
+        //if (!(rf.bimg.getImage() instanceof OrbitTiledImageIOrbitImage)) System.out.println("not an OrbitTiledImageIOrbitImage image!");
+
+        segWorker.run();
+
+       // debugSegmentation(rf2,segWorker.getSegmentationResult().getShapeList());
+        
+
+        // TODO: cell features???
+        String taskRes = segWorker.getTaskResult() != null ? segWorker.getTaskResult().getResultStr() : "No segmentation result";
+        System.out.println("TaskResult:\n" + taskRes);
+
+        SegmentationResult sr = segWorker.getSegmentationResult();
+        if (oriRf != null) {
+            sr.setShapeList(oriRf.getObjectSegmentationList());
+            sr.setSecondaryShapeList(oriRf.getSecondaryObjectSegmentationList());
+            // sr.setFeatureList(...);    not possible right now, features are computed on lower scale, maybe recompute them on full res ???
+        }
+
+        return sr;
+    }
+
+    @Deprecated
+    private static PlanarImage scalePlanarImage(PlanarImage sourceImage, double factor) {
+        ParameterBlockJAI pb = new ParameterBlockJAI("scale", RenderedRegistryMode.MODE_NAME);
+        pb.setSource("source0", sourceImage);
+        pb.setParameter("xScale", new Float(factor));
+        pb.setParameter("yScale", new Float(factor));
+        PlanarImage pi = JAI.create("scale", pb);
+        return pi;
+    }
+
+    private static void debugSegmentation(RecognitionFrame rf, List<Shape> segments) {
+        BufferedImage bi = new BufferedImage(rf.bimg.getImage().getWidth(),rf.bimg.getImage().getHeight(),BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = (Graphics2D) bi.getGraphics();
+        g.drawImage(rf.bimg.getImage().getAsBufferedImage(),0,0,null);
+        g.setColor(Color.yellow);
+        for (Shape shape: segments) {
+            if (shape instanceof PolygonExt)
+            g.drawPolygon((Polygon) shape);
+        }
+        g.dispose();
+        try {
+            ImageIO.write(bi,"jpeg",new File("d:/test.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void debugSegmentation(BufferedImage biOri, List<Shape> segments, int minX, int minY) {
+        BufferedImage bi = new BufferedImage(biOri.getWidth(),biOri.getHeight(),BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = (Graphics2D) bi.getGraphics();
+        g.drawImage(biOri,0,0,null);
+        g.setColor(Color.yellow);
+        for (Shape shape: segments) {
+            if (shape instanceof PolygonExt)
+                //((PolygonExt) shape).translate(-minX,-minY);
+                g.drawPolygon((Polygon) shape);
+        }
+        g.dispose();
+        try {
+            ImageIO.write(bi,"jpeg",new File("d:/test.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -400,6 +554,7 @@ public class OrbitHelper {
         rf.setWindowSize(model.getFeatureDescription().getWindowSize());
         rf.setBoundaryClass(model.getBoundaryClass());
         rf.setFeatureDescription(model.getFeatureDescription()); // Manuel 27.06.2012
+        OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(),model.getFeatureDescription());
         int annoGroup = model.getAnnotationGroup();
         if (annoGroup < 0 && model.isLoadAnnotationsAsInversROI()) {
             annoGroup = 0;// 0 means all
@@ -482,6 +637,7 @@ public class OrbitHelper {
         rf.setWindowSize(model.getFeatureDescription().getWindowSize());
         rf.setBoundaryClass(model.getBoundaryClass());
         rf.setFeatureDescription(model.getFeatureDescription()); // Manuel 27.06.2012
+        OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(),model.getFeatureDescription());
         int annoGroup = model.getAnnotationGroup();
         if (annoGroup < 0 && model.isLoadAnnotationsAsInversROI()) {
             annoGroup = 0;// 0 means all
@@ -513,6 +669,7 @@ public class OrbitHelper {
         }
         if (model.getClassifier() != null && model.getClassifier().isBuild()) {    // otherwise e.g. only exclusion model
             double[] ratio = new double[model.getClassShapes().size()];
+            OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(),model.getFeatureDescription());
             rf.setRatio(ratio);
             rf.setClassImage(new TiledImageWriter(rf.bimg.getWidth(), rf.bimg.getHeight(), rf.bimg.getTileWidth(), rf.bimg.getTileHeight()));
             ClassificationTaskTiled classificationTask = new ClassificationTaskTiled(ClassifierWrapper.makeCopy(model.getClassifier()), model.getStructure(), model.getFeatureDescription(), model.getClassShapes(), rf.getROI(), rf.bimg, rf.getClassImage(), tiles, false);

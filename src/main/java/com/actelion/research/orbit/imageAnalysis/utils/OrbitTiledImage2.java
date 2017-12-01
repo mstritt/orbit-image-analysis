@@ -157,9 +157,9 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         return getTile(tileX, tileY, gamma, contrast, brightness, blur, redAdjust, greenAdjust, blueAdjust, redChannel, greenChannel, blueChannel, overlayChannel, redActive, greenActive, blueActive, deconvChannel, deconvName, channelContributions, false, null);
     }
 
-     public Raster getTile(int tileX, int tileY, double gamma, double contrast, double brightness, int blur, double redAdjust, double greenAdjust, double blueAdjust, OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, OrbitTiledImage2 blueChannel, OrbitTiledImage2 overlayChannel, boolean redActive, boolean greenActive, boolean blueActive, int deconvChannel, String deconvName, final float[] channelContributions, boolean analysis, final float[] analysisHues) {
+     public Raster getTile(int tileX, int tileY, double gamma, double contrast, double brightness, int blur, double redAdjust, double greenAdjust, double blueAdjust, OrbitTiledImage2 redChannel, OrbitTiledImage2 greenChannel, OrbitTiledImage2 blueChannel, OrbitTiledImage2 overlayChannel, boolean redActive, boolean greenActive, boolean blueActive, int deconvChannel, String deconvName, final float[] channelContributions, boolean analysis,  final float[] analysisHues) {
         float[] channelContributionsCloned = channelContributions==null? null: Arrays.copyOf(channelContributions, channelContributions.length);
-        PointAndName tileP = new PointAndName(tileX, tileY, filename, level, gamma, contrast, brightness, blur, redAdjust, greenAdjust, blueAdjust, redChannel, greenChannel, blueChannel, overlayChannel, redActive, greenActive, blueActive, deconvChannel, deconvName, channelContributionsCloned, analysis);
+        PointAndName tileP = new PointAndName(tileX, tileY, filename, level, gamma, contrast, brightness, blur, redAdjust, greenAdjust, blueAdjust, redChannel, greenChannel, blueChannel, overlayChannel, redActive, greenActive, blueActive, deconvChannel, deconvName, channelContributionsCloned, analysis, analysisHues);
         if (doCacheLock) OrbitTiledImage2.cacheLock.readLock().lock();
         try {
             if (useCache && OrbitTiledImage2.tileCache != null) {
@@ -176,6 +176,10 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         // not in cache
 
         Raster tile = getTileData(tileX, tileY, channelContributionsCloned, analysis, analysisHues);
+
+        if (tile==null) {
+            logger.warn("error reading tile "+tileX+" x "+tileY+" channelContributions: "+Arrays.toString(channelContributions));
+        }
 
         if (tile.getNumBands() == 1) {
             BufferedImage bi = createImage(tile, null, grayColorModel.createCompatibleSampleModel(this.getWidth(), this.getHeight()), grayColorModel);

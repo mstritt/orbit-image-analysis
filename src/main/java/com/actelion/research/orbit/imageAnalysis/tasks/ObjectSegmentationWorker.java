@@ -44,7 +44,8 @@ import javax.media.jai.PlanarImage;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -145,7 +146,9 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                 logger.trace("Warning: ROI bounds with width=0 or height=0. Skipping tile.");
                 //return null; // instead an error message will be thrown in getAsBufferedImage
             }
-            BufferedImage bi = rf.bimg.getImage().getAsBufferedImage(roiBounds, rf.bimg.getImage().getColorModel());
+            BufferedImage bi = rf.bimg.getModifiedImage(this.segmentationModel.getFeatureDescription()).getAsBufferedImage(roiBounds, rf.bimg.getImage().getColorModel());    // here it is a 'rendered' image, e.g. only with active fluo channels
+//            BufferedImage bi = rf.bimg.getImage().getAsBufferedImage(roiBounds, rf.bimg.getImage().getColorModel());    // here it is a 'rendered' image, e.g. only with active fluo channels
+
             ci = new TiledImagePainter(PlanarImage.wrapRenderedImage(bi), "roi");
             ci.getImage().setUseCache(false);
         }
@@ -196,7 +199,10 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
             if (tiles == null && getSize(rf.getROI()) > 1500 * 1500L) {
                 // tile list
-                tiles = Arrays.asList(rf.bimg.getImage().getTileIndices(fullROI == null ? null : fullROI.getBounds()));
+                Point[] tileIndices = rf.bimg.getImage().getTileIndices(fullROI == null ? null : fullROI.getBounds());
+                if (tileIndices!=null && tileIndices.length>0) {
+                    tiles = Arrays.asList(tileIndices);
+                }
             }
 
             if (tiles == null || tiles.size() == 0) {
@@ -525,6 +531,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
         } catch (Exception e) {
             logger.error("A problem in the segmentation process occured", e);
+            e.printStackTrace();
         }
         rf.setObjectClassificationList(null);
         if (rf.isVisible()) {
@@ -1590,6 +1597,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             setPlasmaScale(model.getSegmentationModel().getFeatureDescription().getSegmentationScale());
             this.cytoplasmaSegmentation = model.getSegmentationModel().getFeatureDescription().isCytoplasmaSegmentation();
             rf.setClassShapes(model.getSegmentationModel().getClassShapes());
+            OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(),model.getSegmentationModel().getFeatureDescription());
             rf.initializeClassColors();
         } else {
             this.segmentationModel = null;

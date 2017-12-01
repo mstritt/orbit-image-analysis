@@ -25,6 +25,7 @@ import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
 import com.actelion.research.orbit.imageAnalysis.models.ClassifierWrapper;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.TaskResult;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.freedomotic.util.SerialClone.SerialClone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,7 @@ public class ObjectClassificationWorker extends OrbitWorker implements PropertyC
      */
     public ObjectClassificationWorker(final RecognitionFrame rf, final OrbitModel model, final List<ClassShape> classShapesToSet, final List<Point> tileList) {
         this.rf = rf;
+        OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(),model.getFeatureDescription());
         if (classShapesToSet != null) {
             oldClassShapes = SerialClone.clone(rf.getClassShapes()); // remember original classShales workaround (dirty fix...). Must be cloned because rf.setClassShapes will clear() and addAll() (next line).
             this.rf.setClassShapes(classShapesToSet);

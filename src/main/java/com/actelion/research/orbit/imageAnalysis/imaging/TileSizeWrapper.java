@@ -149,13 +149,14 @@ public class TileSizeWrapper implements IOrbitImage {
         Raster r = pi.getData(rect);
 
         BufferedImage bi = new BufferedImage(pi.getColorModel(),((WritableRaster) r.createTranslatedChild(0,0)),false,null);
-        BufferedImage bi2 = new BufferedImage(512,512,bi.getType());
+        BufferedImage bi2 = new BufferedImage(tileWidth,tileHeight,bi.getType());
         bi2.getGraphics().drawImage(bi,0,0,null);
         bi2.getGraphics().dispose();
         r = bi2.getRaster();
         r =  r.createTranslatedChild(PlanarImage.tileXToX(tileX, getTileGridXOffset(), getTileWidth()), PlanarImage.tileYToY(tileY, getTileGridYOffset(), getTileHeight()));
         return r;
     }
+
 
     @Override
     public String readInfoString(String filename) throws OrbitImageServletException {

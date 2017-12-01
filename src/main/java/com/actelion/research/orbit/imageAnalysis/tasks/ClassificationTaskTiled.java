@@ -19,7 +19,6 @@
 
 package com.actelion.research.orbit.imageAnalysis.tasks;
 
-import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.features.TissueFeatures;
 import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
 import com.actelion.research.orbit.imageAnalysis.models.ClassifierWrapper;
@@ -146,18 +145,7 @@ public class ClassificationTaskTiled extends PropertyChangeEmitter implements Ca
 //                continue;
 //            }
 
-            Raster readRaster;
-            if (OrbitUtils.TILEMODE) {
-                readRaster = bimg.getModifiedImage(featureDescription).getTile(tileNum.x, tileNum.y);
-            } else
-                readRaster = bimg.getData(new Rectangle(image.tileXToX(tileNum.x) - windowSize, image.tileYToY(tileNum.y) - windowSize, image.getTileWidth() + (windowSize * 2 + 1), image.getTileHeight() + (windowSize * 2 + 1)), featureDescription);
-
-            if (readRaster == null) {
-                throw new OrbitImageServletException("error getting image raster");
-            }
-
-            // apply raster modifications like color deconvolution
-            readRaster = OrbitUtils.getModifiedRaster(readRaster, featureDescription, bimg.getImage().getColorModel(), true, tileNum.x, tileNum.y, "modifiedRaster", bimg.getImage().getLevel());
+            Raster readRaster = OrbitUtils.getRasterForClassification(bimg, featureDescription, windowSize, tileNum.x, tileNum.y);
 
             WritableRaster writeRaster = null;
             if (writeClassificationImage) {
@@ -271,6 +259,7 @@ public class ClassificationTaskTiled extends PropertyChangeEmitter implements Ca
 
         return ratio;
     }
+
 
 
     public double getProgress() {
