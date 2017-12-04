@@ -291,6 +291,10 @@ public class OrbitHelper {
     }
 
 
+    /**
+     * Segmentaiton on resolution based on scale factor.
+     * Currently only works with lower resolution level images (<=10000x10000 pixel) (for WSI scale factor of around 0.02).
+     */
     public static SegmentationResult Segmentation(RecognitionFrame rf, int rdfId, final OrbitModel model, List<Point> tiles, int numThreads, boolean newMipRf, IScaleableShape roi, double scaleFactor) throws OrbitImageServletException {
         rf.setClassShapes(model.getSegmentationModel().getClassShapes());     //  22.09.2015
         rf.setWindowSize(model.getFeatureDescription().getWindowSize());
@@ -333,6 +337,9 @@ public class OrbitHelper {
             exMap.generateMap();
         }
 
+        if (rf.bimg.getWidth()*(long)rf.bimg.getHeight() > 10000L*10000L) {
+            throw new IllegalArgumentException("The scaled segmentation currently only works with lower resolution level images (<=10000x10000 pixel)");
+        }
 
         BufferedImage bi = new BufferedImage(rf.bimg.getImage().getWidth(),rf.bimg.getImage().getHeight(),BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) bi.getGraphics();
@@ -347,10 +354,11 @@ public class OrbitHelper {
         RecognitionFrame rf2 = new RecognitionFrame(new TiledImagePainter(PlanarImage.wrapRenderedImage(bi),""));
         rf2.setROI(rf.getROI());
 
-//        RecognitionFrame rf3 = new RecognitionFrame(new TiledImagePainter(scalePlanarImage(rf.bimg.getImage(),1d),""));
+//        PlanarImage pi = scalePlanarImage(rf.bimg.getImage(),0.99d);
+//        pi.getWidth();
+//        RecognitionFrame rf3 = new RecognitionFrame(new TiledImagePainter(pi,"pi"));
 //        rf3.setROI(rf.getROI());
 //        rf3.setMipScale(rf.getMipScale());
-
 
         // works with rf2, not with rf or rf3
         // difference: shapes in segmentationResult have scale 1600 instead of 100. Why?
