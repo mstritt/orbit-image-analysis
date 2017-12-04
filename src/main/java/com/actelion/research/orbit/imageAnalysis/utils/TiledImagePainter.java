@@ -524,6 +524,8 @@ public class TiledImagePainter implements Closeable {
             }
         }
 
+        pi.getWidth(); // initialize, e.g. set colorModel and sampleModel if not set already
+
         return pi;
     }
 
