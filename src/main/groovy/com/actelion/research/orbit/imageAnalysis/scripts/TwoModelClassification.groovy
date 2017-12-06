@@ -22,6 +22,7 @@ import com.actelion.research.orbit.imageAnalysis.dal.DALConfig
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel
 import com.actelion.research.orbit.imageAnalysis.tasks.ClassificationTaskTiled
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitLogAppender
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils
 import com.actelion.research.orbit.imageAnalysis.utils.TiledImageWriter
 import groovyx.gpars.GParsPool
 
@@ -47,6 +48,8 @@ def rdf = DALConfig.imageProvider.LoadRawDataFile(rdfID);
 def rf1 = new RecognitionFrame(rdf);
 def rf2 = new RecognitionFrame(rdf);
 
+OrbitUtils.setMultiChannelFeatures(rf1.bimg.image,model1.featureDescription)
+OrbitUtils.setMultiChannelFeatures(rf2.bimg.image,model2.featureDescription)
 rf1.setClassShapes(model1.getClassShapes());
 rf2.setClassShapes(model2.getClassShapes());
 rf1.initializeClassColors();
