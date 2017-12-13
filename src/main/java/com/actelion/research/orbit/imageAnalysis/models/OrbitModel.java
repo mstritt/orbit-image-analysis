@@ -24,6 +24,7 @@ import com.actelion.research.orbit.imageAnalysis.components.ImageFrame;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.features.TissueFeatures;
+import com.actelion.research.orbit.imageAnalysis.mask.IOrbitMask;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.thoughtworks.xstream.XStream;
 import org.slf4j.Logger;
@@ -49,9 +50,14 @@ import java.util.zip.GZIPOutputStream;
 
 public class OrbitModel implements Serializable, Cloneable {
 
+    public static final int TYPE_CLASSIFICATION = 0;
+    public static final int TYPE_SEGMENTATION = 1;
+    public static final int TYPE_EXCLUSION = 2;
+    public static final int TYPE_MASK = 3;
+
     private static final long serialVersionUID = 5L;
     private static transient Logger logger = LoggerFactory.getLogger(OrbitModel.class);
-    private int version = 11; // 10 without secondarySeg
+    private int version = 12; // 10 without secondarySeg, 12: mask,name,user,type
     private String orbitVersion = "";
     private ClassifierWrapper classifier = null;
     private Instances structure = null;
@@ -65,6 +71,7 @@ public class OrbitModel implements Serializable, Cloneable {
     private OrbitModel segmentationModel = null;
     private OrbitModel secondarySegmentationModel = null;
     private OrbitModel exclusionModel = null;
+    private IOrbitMask mask = null;
     private boolean applyExclusionOnNegativeChannel = false;
     private boolean performErodeDiliate = false; // only in exclusionMap implemented
     private boolean useExclusionForSegmentation = false; // otherwise for classification
@@ -73,6 +80,9 @@ public class OrbitModel implements Serializable, Cloneable {
     private int exclusionLevel = 1; // numMips-exlusionLevel
     private boolean isCellClassification = false;
     private int mipLayer = 0; // the images mipLayer used for training the model
+    private String name = ""; // meaningful name of the model
+    private String user = ""; // create user
+    private int type = 0; // model used as type
 
     /**
      * Constructs a model with default classShapes and defaultFeatureDescriptors, classifier and structure are set to null.
@@ -132,7 +142,6 @@ public class OrbitModel implements Serializable, Cloneable {
         if (oldModel.getStructure() != null) {
             this.structure = new Instances(oldModel.getStructure());
         }
-
         if (oldModel.getExclusionModel() != null)
             this.setExclusionModel(new OrbitModel(oldModel.getExclusionModel()));
         if (oldModel.getSegmentationModel() != null) {
@@ -140,6 +149,9 @@ public class OrbitModel implements Serializable, Cloneable {
         }
         if (oldModel.getSecondarySegmentationModel() != null) {
             this.setSecondarySegmentationModel(new OrbitModel(oldModel.getSecondarySegmentationModel()));
+        }
+        if (oldModel.getMask()!=null) {
+            this.setMask(oldModel.mask.clone());
         }
 
         this.setMipLayer(oldModel.getMipLayer());
@@ -767,6 +779,37 @@ public class OrbitModel implements Serializable, Cloneable {
         return classShapesToRestore;
     }
 
+    public IOrbitMask getMask() {
+        return mask;
+    }
+
+    public void setMask(IOrbitMask mask) {
+        this.mask = mask;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
 
     @Override
     public String toString() {
@@ -801,6 +844,7 @@ public class OrbitModel implements Serializable, Cloneable {
         sb.append("SegmentationModel:\n" + segmentationModel + "\n***\n");
         sb.append("SecondarySegmentationModel:\n" + secondarySegmentationModel + "\n***\n");
         sb.append("ExclusionModel:\n" + exclusionModel + "\n***\n");
+        sb.append("Mask:\n" + mask + "\n***\n");
         sb.append("------\n");
         return sb.toString();
     }

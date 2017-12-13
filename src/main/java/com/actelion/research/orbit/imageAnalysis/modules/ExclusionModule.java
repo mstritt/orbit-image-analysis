@@ -189,7 +189,7 @@ public class ExclusionModule extends AbstractOrbitModule {
                 try {
                     logger.trace("start classifying exclusion map");
                     exMapGen.generateMap();
-                    iFrame.recognitionFrame.setExMapGen(exMapGen);
+                    //iFrame.recognitionFrame.setExMapGen(exMapGen);
                     if (exMapGen.getClassificationImage() != null)
                         iFrame.recognitionFrame.setClassImage(exMapGen.getClassificationImage());
                     iFrame.recognitionFrame.setClassImageScale((float) (1d / exMapGen.getScaleFactor()));

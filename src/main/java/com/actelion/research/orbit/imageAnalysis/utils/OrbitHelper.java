@@ -25,6 +25,7 @@ import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.DefaultRDFChooser;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
+import com.actelion.research.orbit.imageAnalysis.mask.OrbitMaskClassificationModel;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ClassificationTaskTiled;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
@@ -263,7 +264,7 @@ public class OrbitHelper {
 
       
         // cellSegmentation
-        ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(rf, null, model.getSegmentationModel().getClassShapes(), tiles);
+        ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(rdf, rf, null, model.getSegmentationModel().getClassShapes(), tiles);
         segWorker.setModel(model);
         segWorker.setExclusionMap(exMap);
         if (numThreads > 0) {
@@ -364,7 +365,7 @@ public class OrbitHelper {
         // difference: shapes in segmentationResult have scale 1600 instead of 100. Why?
 
         // cellSegmentation
-        ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(rf2, null, model.getSegmentationModel().getClassShapes(), tiles);
+        ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(rdf, rf2, null, model.getSegmentationModel().getClassShapes(), tiles);
         segWorker.setModel(model);
         segWorker.setExclusionMap(exMap);
         if (numThreads > 0) {
@@ -562,7 +563,14 @@ public class OrbitHelper {
         rf.setWindowSize(model.getFeatureDescription().getWindowSize());
         rf.setBoundaryClass(model.getBoundaryClass());
         rf.setFeatureDescription(model.getFeatureDescription()); // Manuel 27.06.2012
-        OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(),model.getFeatureDescription());
+        OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(),model.getFeatureDescription());           // TODO: create rf for mask and set fluo features
+
+        // mask image
+        RecognitionFrame maskFrame = OrbitUtils.createMaskRecognitionFrame(rdf, model);
+        if (maskFrame==null) {
+            maskFrame = rf;
+        }
+
         int annoGroup = model.getAnnotationGroup();
         if (annoGroup < 0 && model.isLoadAnnotationsAsInversROI()) {
             annoGroup = 0;// 0 means all
@@ -601,7 +609,7 @@ public class OrbitHelper {
             rf.setRatio(ratio);
             rf.setClassImage(new TiledImageWriter(rf.bimg.getWidth(), rf.bimg.getHeight(), rf.bimg.getTileWidth(), rf.bimg.getTileHeight()));
             // TODO multithread version
-            ClassificationTaskTiled classificationTask = new ClassificationTaskTiled(ClassifierWrapper.makeCopy(model.getClassifier()), model.getStructure(), model.getFeatureDescription(),/*rf.getClassShapes()*/model.getClassShapes(), rf.getROI(), rf.bimg, rf.getClassImage(), tiles, false);
+            ClassificationTaskTiled classificationTask = new ClassificationTaskTiled(ClassifierWrapper.makeCopy(model.getClassifier()), model.getStructure(), model.getFeatureDescription(),/*rf.getClassShapes()*/model.getClassShapes(), rf.getROI(), model.getMask()!=null?model.getMask().clone():null, maskFrame.bimg,  rf.bimg, rf.getClassImage(), tiles, false);
             classificationTask.setPixelFuzzyness(pixelFuzzyness);
             if (exMap != null) classificationTask.setExclusionMapGen(exMap);
             Long[] vals = classificationTask.call();
@@ -622,6 +630,7 @@ public class OrbitHelper {
         ClassificationResult result = new ClassificationResult(ratioMain, ratioExcl, model);
         return result;
     }
+
 
     /***
      * Histogram
@@ -652,6 +661,13 @@ public class OrbitHelper {
         }
         rf.loadAnnotationROI(rdf.getRawDataFileId(), annoGroup);
 
+        // mask image
+        RecognitionFrame maskFrame = null;
+        if (model.getMask()!=null && model.getMask() instanceof OrbitMaskClassificationModel) {
+            maskFrame = new RecognitionFrame(rdf); // or from parent rf?
+            OrbitUtils.setMultiChannelFeatures(maskFrame.bimg.getImage(),((OrbitMaskClassificationModel) model.getMask()).getModel().getFeatureDescription());
+        }
+
         if (model.getMipLayer() > 0) {
             rf = new RecognitionFrame(rf, rdf, model.getMipLayer() - 1);  // mip number, not index
         }
@@ -666,12 +682,17 @@ public class OrbitHelper {
             exclusionFrame = exMap.getRecognitionFrame();
         }
 
-        Histogram[] histograms = Histogram(rf, model, exMap, tiles, pixelFuzzyness);
+        Histogram[] histograms = Histogram(rdf, rf, model, exMap, tiles, pixelFuzzyness);
         return histograms;
     }
 
-    public static Histogram[] Histogram(RecognitionFrame rf, OrbitModel model, ExclusionMapGen exMap, List<Point> tiles, double pixelFuzzyness) throws Exception {
+    public static Histogram[] Histogram(RawDataFile rdf, RecognitionFrame rf, OrbitModel model, ExclusionMapGen exMap, List<Point> tiles, double pixelFuzzyness) throws Exception {
         Histogram[] histograms = new Histogram[model.getFeatureDescription().getSampleSize()];
+        // mask image
+        RecognitionFrame maskFrame = OrbitUtils.createMaskRecognitionFrame(rdf, model);
+        if (maskFrame==null) {
+            maskFrame = rf;
+        }
         for (int i = 0; i < histograms.length; i++) {
             histograms[i] = new Histogram(model);
         }
@@ -680,7 +701,7 @@ public class OrbitHelper {
             OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(),model.getFeatureDescription());
             rf.setRatio(ratio);
             rf.setClassImage(new TiledImageWriter(rf.bimg.getWidth(), rf.bimg.getHeight(), rf.bimg.getTileWidth(), rf.bimg.getTileHeight()));
-            ClassificationTaskTiled classificationTask = new ClassificationTaskTiled(ClassifierWrapper.makeCopy(model.getClassifier()), model.getStructure(), model.getFeatureDescription(), model.getClassShapes(), rf.getROI(), rf.bimg, rf.getClassImage(), tiles, false);
+            ClassificationTaskTiled classificationTask = new ClassificationTaskTiled(ClassifierWrapper.makeCopy(model.getClassifier()), model.getStructure(), model.getFeatureDescription(), model.getClassShapes(), rf.getROI(), model.getMask()!=null?model.getMask().clone():null, maskFrame.bimg, rf.bimg, rf.getClassImage(), tiles, false);
             classificationTask.setPixelFuzzyness(pixelFuzzyness);
             classificationTask.setHistograms(histograms);
             if (exMap != null) classificationTask.setExclusionMapGen(exMap);

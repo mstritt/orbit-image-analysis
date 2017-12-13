@@ -19,9 +19,11 @@
 
 package com.actelion.research.orbit.imageAnalysis.tasks;
 
+import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.models.*;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.ScaleoutMode;
 import com.actelion.research.orbit.imageAnalysis.utils.TiledImageWriter;
 import org.slf4j.Logger;
@@ -63,18 +65,20 @@ public class ClassificationWorker extends OrbitWorker implements PropertyChangeL
     //private boolean minAreaRemoval = false;
     private boolean doNormalize = true;
     private RecognitionFrame originalFrame = null;
+    private RawDataFile rdf;
 
 
     /**
      * Special constructor with a trainWorker that may not be finished. The constructor will wait until the
      * training is done and then take the (trained) classifier and the datastructure.
      *
-     * @param rf
+     * @param rdf
      * @param dependencyList
      */
-    public ClassificationWorker(RecognitionFrame rf, OrbitModel model, boolean writeClassificationImage, ExclusionMapGen exclusionMapGen, List<SwingWorker<Void, Void>> dependencyList) {
+    public ClassificationWorker(RawDataFile rdf, RecognitionFrame rf, OrbitModel model, boolean writeClassificationImage, ExclusionMapGen exclusionMapGen, List<SwingWorker<Void, Void>> dependencyList) {
         this.model = model;
         this.rf = rf;
+        this.rdf = rdf;
         if (model.getFixedCircularROI() > 0) {
             roi = new Arc2DExt();
             ((Arc2DExt) roi).setArcByCenter((rf.bimg.getWidth() / 2d) + model.getFixedROIOffsetX(), (rf.bimg.getHeight() / 2d) + model.getFixedROIOffsetY(), model.getFixedCircularROI(), 0, 360, Arc2DExt.CHORD);
@@ -183,12 +187,14 @@ public class ClassificationWorker extends OrbitWorker implements PropertyChangeL
 //		}
 //	}
 
+            RecognitionFrame maskFrame = OrbitUtils.createMaskRecognitionFrame(rdf, model);
+
             boolean taskFound = false;
             for (int i = 0; i < numClassificationThreads; i++) {
                 try {
                     if (tileList.get(i).size() > 0) {
                         taskFound = true;
-                        ClassificationTaskTiled classificationTask = new ClassificationTaskTiled(ClassifierWrapper.makeCopy(classifier), dataset, model.getFeatureDescription(),/*rf.getClassShapes()*/model.getClassShapes(), roi, rf.bimg, rf.getClassImage(), tileList.get(i), writeClassificationImage);
+                        ClassificationTaskTiled classificationTask = new ClassificationTaskTiled(ClassifierWrapper.makeCopy(classifier), dataset, model.getFeatureDescription(),/*rf.getClassShapes()*/model.getClassShapes(), roi, model.getMask()!=null?model.getMask().clone():null, maskFrame!=null?maskFrame.bimg:null, rf.bimg, rf.getClassImage(), tileList.get(i), writeClassificationImage);
                         classificationTask.setPixelFuzzyness(pixelFuzzyness);
                         if (exclusionMapGen != null) classificationTask.setExclusionMapGen(exclusionMapGen);
                         classificationTask.addPropertyChangeListener(this);

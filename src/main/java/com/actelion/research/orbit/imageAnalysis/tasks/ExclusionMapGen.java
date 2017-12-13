@@ -46,11 +46,12 @@ public class ExclusionMapGen {
     private boolean doNormalize = true;
     private int numThreads = Runtime.getRuntime().availableProcessors();
     private boolean keepVisualClassificationImage = true;
+    private RawDataFile rdf;
 
-
-    public ExclusionMapGen(RecognitionFrame recognitionFrame, OrbitModel model) {
+    private ExclusionMapGen(RawDataFile rdf, RecognitionFrame recognitionFrame, OrbitModel model) {
         this.recognitionFrame = recognitionFrame;
         this.model = model;
+        this.rdf = rdf;
     }
 
 
@@ -80,7 +81,7 @@ public class ExclusionMapGen {
                 rFrame.setClassShapes(classShapes);
                 rFrame.setFeatureDescription(model.getExclusionModel().getFeatureDescription());
                 rFrame.setWindowSize(model.getExclusionModel().getFeatureDescription().getWindowSize());
-                exMap = new ExclusionMapGen(rFrame, model.getExclusionModel());
+                exMap = new ExclusionMapGen(rdf, rFrame, model.getExclusionModel());
                 exMap.setScaleFactor(scaleFactor);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -138,7 +139,7 @@ public class ExclusionMapGen {
         // in future for numThreads==1 the direct method with ClassificationTaskTiled should be used (but does not work yet, ratios are always 0...
         //if (numThreads>1)
         {
-            ClassificationWorker classificationWorker = new ClassificationWorker(recognitionFrame, model, true, null, null);
+            ClassificationWorker classificationWorker = new ClassificationWorker(rdf, recognitionFrame, model, true, null, null);
             classificationWorker.setNumClassificationThreads(numThreads);
             classificationWorker.setDoNormalize(doNormalize);
             logger.trace("executing recognitionWorker");

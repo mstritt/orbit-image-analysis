@@ -19,6 +19,7 @@
 
 package com.actelion.research.orbit.imageAnalysis.tasks;
 
+import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
@@ -88,7 +89,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
     private int numThreads = Runtime.getRuntime().availableProcessors();
     private RecognitionFrame originalFrame = null;
     private boolean cytoplasmaSegmentation = false;
-    //private boolean mumfordShahSegmentation = true;
+    private RawDataFile rdf;
 
 
     /**
@@ -100,9 +101,9 @@ public class ObjectSegmentationWorker extends OrbitWorker {
      * @param classShapeToSet
      * @param tiles:          a list of tiles on which the segmentation should be performed. If it is null, all tiles will be used.
      */
-    public ObjectSegmentationWorker(RecognitionFrame rf, List<SwingWorker<Void, Void>> dependencyList, List<ClassShape> classShapeToSet, List<Point> tiles) {
+    public ObjectSegmentationWorker(RawDataFile rdf, RecognitionFrame rf, List<SwingWorker<Void, Void>> dependencyList, List<ClassShape> classShapeToSet, List<Point> tiles) {
         this.rf = rf;
-
+        this.rdf = rdf;
         if (classShapeToSet != null) {
             if (rf.getClassShapes() != null)
                 oldClassShapes = SerialClone.clone(rf.getClassShapes()); // remember original classShales workaround (dirty fix...). Must be cloned because rf.setClassShapes will clear() and addAll() (next line).
@@ -323,7 +324,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                         if (!dontClassify && segmentationModel != null) {
                             RecognitionFrame rf2 = makeROIImage(rf, roi);
                             sourceImage = rf2.bimg.getImage().getAsBufferedImage();
-                            ClassificationWorker rw = new ClassificationWorker(rf2, segmentationModel, true, null, null);
+                            ClassificationWorker rw = new ClassificationWorker(rdf, rf2, segmentationModel, true, null, null);
                             rw.setNumClassificationThreads(1); // runs already in a multithreaded container
                             rw.doWork();
                             classImage = rf2.getClassImage();
@@ -1817,7 +1818,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                         Rectangle primaryBounds = primaryShape.getBounds();
                         if (primaryBounds.getWidth() >= minSegmentationSize && primaryBounds.getHeight() >= minSegmentationSize) {  // size filter to avoid ROIs with size 0
                             rf.setROI((IScaleableShape) primaryShape);
-                            ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(rf, null, secModel.getClassShapes(), tiles);
+                            ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(rdf, rf, null, secModel.getClassShapes(), tiles);
                             segWorker.setModel(secModel);
                             segWorker.setExclusionMap(null);
                             segWorker.setNumThreads(1);  // nested segmentation

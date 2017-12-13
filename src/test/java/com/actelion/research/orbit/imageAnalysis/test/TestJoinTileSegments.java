@@ -67,7 +67,7 @@ public class TestJoinTileSegments {
         shapeList.add(p1);
         shapeList.add(p2);
         SegmentationResult segRes = new SegmentationResult(shapeList.size(), 0, shapeList, null);
-        ObjectSegmentationWorker ndw = new ObjectSegmentationWorker(null, null, null, null);
+        ObjectSegmentationWorker ndw = new ObjectSegmentationWorker(null, null, null, null, null);
         shapeList = ndw.joinTileSegments(segRes,false).getShapeList();
 
         assertNotNull(shapeList);
@@ -102,7 +102,7 @@ public class TestJoinTileSegments {
         shapeList.add(p1);
         shapeList.add(p2);
         SegmentationResult segRes = new SegmentationResult(shapeList.size(), 0, shapeList, null);
-        ObjectSegmentationWorker ndw = new ObjectSegmentationWorker(null, null, null, null);
+        ObjectSegmentationWorker ndw = new ObjectSegmentationWorker(null, null, null, null, null);
         shapeList = ndw.joinTileSegments(segRes,false).getShapeList();
 
         assertNotNull(shapeList);

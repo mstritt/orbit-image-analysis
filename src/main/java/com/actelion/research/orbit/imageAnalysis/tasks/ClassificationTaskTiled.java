@@ -20,6 +20,8 @@
 package com.actelion.research.orbit.imageAnalysis.tasks;
 
 import com.actelion.research.orbit.imageAnalysis.features.TissueFeatures;
+import com.actelion.research.orbit.imageAnalysis.mask.IOrbitMask;
+import com.actelion.research.orbit.imageAnalysis.mask.OrbitMaskClassificationModel;
 import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
 import com.actelion.research.orbit.imageAnalysis.models.ClassifierWrapper;
 import com.actelion.research.orbit.imageAnalysis.models.FeatureDescription;
@@ -73,9 +75,11 @@ public class ClassificationTaskTiled extends PropertyChangeEmitter implements Ca
     private double pixelFuzzyness = 0d;
     private boolean executed = false;
     private Histogram[] histograms = null; // histograms per channel
+    private IOrbitMask mask = null;
+    private TiledImagePainter maskImage = null;
 
-    public ClassificationTaskTiled(final OrbitModel model, final Shape ROI, final TiledImagePainter bimg, final TiledImageWriter classImage, final List<Point> tileList, final boolean writeClassificationImage) {
-        this(model.getClassifier(), model.getStructure(), model.getFeatureDescription(), model.getClassShapes(), ROI, bimg, classImage, tileList, writeClassificationImage);
+    public ClassificationTaskTiled(final OrbitModel model, final Shape ROI, final TiledImagePainter bimg, final TiledImagePainter maskImage, final TiledImageWriter classImage, final List<Point> tileList, final boolean writeClassificationImage) {
+        this(model.getClassifier(), model.getStructure(), model.getFeatureDescription(), model.getClassShapes(), ROI, model.getMask(), maskImage, bimg, classImage, tileList, writeClassificationImage);
     }
 
     /**
@@ -88,7 +92,7 @@ public class ClassificationTaskTiled extends PropertyChangeEmitter implements Ca
      * @param tileList
      * @param writeClassificationImage
      */
-    public ClassificationTaskTiled(final ClassifierWrapper classifier, final Instances dataSet, final FeatureDescription featureDescription, final List<ClassShape> classShapes, final Shape ROI, final TiledImagePainter bimg, final TiledImageWriter classImage, final List<Point> tileList, final boolean writeClassificationImage) {
+    public ClassificationTaskTiled(final ClassifierWrapper classifier, final Instances dataSet, final FeatureDescription featureDescription, final List<ClassShape> classShapes, final Shape ROI, final IOrbitMask mask, final TiledImagePainter maskImage, final TiledImagePainter bimg, final TiledImageWriter classImage, final List<Point> tileList, final boolean writeClassificationImage) {
         this.classifier = classifier;
         this.dataSet = dataSet;
         this.tileList = tileList;
@@ -96,11 +100,16 @@ public class ClassificationTaskTiled extends PropertyChangeEmitter implements Ca
         this.windowSize = featureDescription.getWindowSize();
         this.classShapes = classShapes;
         this.ROI = ROI;
+        this.mask = mask;
         this.bimg = bimg;
         this.classImage = classImage;
         this.writeClassificationImage = writeClassificationImage;
         if (writeClassificationImage && (classImage == null))
             throw new IllegalArgumentException("writeClassificationImage is true but classImage is null, please either deactivate writeClassificationImage or provide a classImage (e.g. TilesImage).");
+        this.maskImage = maskImage;
+        if (this.mask!=null) {
+            this.mask.initialize(maskImage);
+        }
     }
 
     public Long[] call() throws Exception {
@@ -146,6 +155,10 @@ public class ClassificationTaskTiled extends PropertyChangeEmitter implements Ca
 //            }
 
             Raster readRaster = OrbitUtils.getRasterForClassification(bimg, featureDescription, windowSize, tileNum.x, tileNum.y);
+            Raster maskRaster = readRaster;
+            if (maskImage!=null && mask instanceof OrbitMaskClassificationModel) {
+               maskRaster = OrbitUtils.getRasterForClassification(maskImage, ((OrbitMaskClassificationModel) mask).getModel().getFeatureDescription(), ((OrbitMaskClassificationModel) mask).getModel().getFeatureDescription().getWindowSize(), tileNum.x, tileNum.y);
+            }
 
             WritableRaster writeRaster = null;
             if (writeClassificationImage) {
@@ -194,6 +207,7 @@ public class ClassificationTaskTiled extends PropertyChangeEmitter implements Ca
 
                     if (OrbitUtils.isInROI(x, y, ROI, exclusionMapGen)) {
                         if ((pixelFuzzyness > 0) && (rand.nextDouble() < pixelFuzzyness)) continue;
+                        if (mask!=null && !mask.isIncluded(x,y,maskRaster)) continue;
 
                         feats = tissueFeatures.buildFeatures(readRaster, x, y, Double.NaN);
 

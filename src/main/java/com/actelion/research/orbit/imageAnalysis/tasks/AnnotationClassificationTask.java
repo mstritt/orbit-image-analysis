@@ -50,6 +50,7 @@ public class AnnotationClassificationTask extends OrbitWorker implements Propert
         this.rf = rf;
         this.model = model;
         this.annotations = annotations;
+        this.rdf = rdf;
     }
 
     @Override
@@ -78,7 +79,7 @@ public class AnnotationClassificationTask extends OrbitWorker implements Propert
                 if ((!(poly instanceof PolygonExt)) || (((PolygonExt) poly).npoints > 1)) {
 
                     ExclusionMapGen exMap = ExclusionMapGen.constructExclusionMap(rdf, rf, model);
-                    ClassificationWorker worker = new ClassificationWorker(rf, model, true, exMap, null);
+                    ClassificationWorker worker = new ClassificationWorker(rdf, rf, model, true, exMap, null);
                     worker.setRoi(poly.getScaledInstance(100d, new Point(0, 0)));
                     worker.setPixelFuzzyness(pixelFuzzyness);
                     worker.setTileFuzzyness(tileFuzzyness);

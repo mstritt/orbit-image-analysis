@@ -23,38 +23,46 @@ import com.actelion.research.orbit.imageAnalysis.features.TissueFeatures;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.TiledImagePainter;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 
 import java.awt.image.Raster;
-import java.util.concurrent.Callable;
+import java.util.HashSet;
 
-public class OrbitMaskClassificationModel implements IOrbitMask {
+/**
+ * Not thread-safe.
+ */
+public class OrbitMaskClassificationModel implements IOrbitMaskModelBased {
 
     private OrbitModel model;
-    private TiledImagePainter bimg;
-    private Cache<RasterKey,Raster> rasterCache = CacheBuilder.newBuilder().maximumSize(10).build();
+    private HashSet<Integer> activeClasses;
+    private transient TissueFeatures tissueFeatures;
 
-    public OrbitMaskClassificationModel(OrbitModel model, TiledImagePainter bimg) {
+    public OrbitMaskClassificationModel(OrbitModel model, int ... activeClasses) {
         this.model = model;
-        this.bimg = bimg;
+        this.activeClasses = new HashSet<>(activeClasses.length);
+        for (int c: activeClasses) {
+            this.activeClasses.add(c);
+        }
     }
 
     @Override
-    public int classNum(int x, int y) throws Exception {
-       final int tileX = bimg.getImage().tileXToX(x);
-       final int tileY = bimg.getImage().tileYToY(y);
-       RasterKey rasterKey = new RasterKey(tileX,tileY);
-       Raster raster = rasterCache.get(rasterKey, new Callable<Raster>() {
-           @Override
-           public Raster call() throws Exception {
-               return OrbitUtils.getRasterForClassification(bimg,model.getFeatureDescription(),model.getFeatureDescription().getWindowSize(),tileX,tileY);
-           }
-       });
-       TissueFeatures tissueFeatures = OrbitUtils.createTissueFeatures(model.getFeatureDescription(), bimg);
-       double[] features = tissueFeatures.buildFeatures(raster, x, y, Double.NaN);
+    public void initialize(final TiledImagePainter tip) {
+        this.tissueFeatures = OrbitUtils.createTissueFeatures(model.getFeatureDescription(), tip);
+    }
+
+    @Override
+    public int classNum(int x, int y, final Raster raster) throws Exception {
+       if (model==null) throw new IllegalStateException("Model is null. Please call initialize() before to set a mask model.");
+       if (tissueFeatures==null) throw new IllegalStateException("tissueFeatures is null. Please call initialize() before to set a mask model.");
+       int w = model.getFeatureDescription().getWindowSize();
+       int xr = x;
+       int yr = y;
+       if (xr<raster.getMinX()+w) xr = raster.getMinX()+w;
+       if (yr<raster.getMinY()+w) yr = raster.getMinY()+w;
+       if (xr>raster.getMinX()+raster.getWidth()-1-w) xr = raster.getMinX()+raster.getWidth()-1-w;
+       if (yr>raster.getMinY()+raster.getHeight()-1-w) yr = raster.getMinY()+raster.getHeight()-1-w;
+       double[] features = tissueFeatures.buildFeatures(raster, xr, yr, Double.NaN);
        Instance instance = new DenseInstance(1d,features);
        instance.setDataset(model.getStructure());
        int clazz = (int) model.getClassifier().classifyInstance(instance);
@@ -62,8 +70,9 @@ public class OrbitMaskClassificationModel implements IOrbitMask {
     }
 
     @Override
-    public boolean isIncluded(int x, int y) {
-        return true;
+    public boolean isIncluded(int x, int y, final Raster raster) throws Exception {
+        int clazz = classNum(x,y,raster);
+        return activeClasses.contains(clazz);
     }
 
     @Override
@@ -82,31 +91,29 @@ public class OrbitMaskClassificationModel implements IOrbitMask {
         return model.getClassShapes().get(classNum).getColor().getRGB();
     }
 
-    class RasterKey {
-        private int tileX;
-        private int tileY;
-
-        public RasterKey(int tileX, int tileY) {
-            this.tileX = tileX;
-            this.tileY = tileY;
+    @Override
+    public IOrbitMask clone() {
+        OrbitMaskClassificationModel cloned = null;
+        try {
+            cloned = (OrbitMaskClassificationModel) super.clone();
+            cloned.model = new OrbitModel(this.model);
+            cloned.activeClasses = new HashSet<>(activeClasses);
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            return null;
         }
+    }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+    public OrbitModel getModel() {
+        return model;
+    }
 
-            RasterKey rasterKey = (RasterKey) o;
+    public HashSet<Integer> getActiveClasses() {
+        return activeClasses;
+    }
 
-            if (tileX != rasterKey.tileX) return false;
-            return tileY == rasterKey.tileY;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = tileX;
-            result = 31 * result + tileY;
-            return result;
-        }
+    public TissueFeatures getTissueFeatures() {
+        return tissueFeatures;
     }
 }

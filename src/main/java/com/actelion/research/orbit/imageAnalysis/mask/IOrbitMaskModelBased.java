@@ -19,17 +19,8 @@
 
 package com.actelion.research.orbit.imageAnalysis.mask;
 
-import com.actelion.research.orbit.imageAnalysis.utils.TiledImagePainter;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 
-import java.awt.image.Raster;
-import java.io.Serializable;
-
-public interface IOrbitMask extends Serializable, Cloneable {
-    void initialize(final TiledImagePainter tip);
-    int numClasses();
-    int classNum (int x, int y, final Raster raster) throws Exception;
-    boolean isIncluded(int x, int y, final Raster raster) throws Exception;
-    String className(int classNum);
-    int classColor(int classNum);
-    IOrbitMask clone();
+public interface IOrbitMaskModelBased extends IOrbitMask {
+    OrbitModel getModel();
 }

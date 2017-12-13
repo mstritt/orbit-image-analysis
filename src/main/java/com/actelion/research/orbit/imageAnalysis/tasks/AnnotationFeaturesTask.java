@@ -86,7 +86,7 @@ public class AnnotationFeaturesTask extends OrbitWorker implements PropertyChang
                 // classification
                 if (model != null && model.getClassifier() != null && model.getClassifier().isBuild()) {
                     ExclusionMapGen exMap = ExclusionMapGen.constructExclusionMap(rdf, rf, model);
-                    ClassificationWorker worker = new ClassificationWorker(rf, model, true, exMap, null);
+                    ClassificationWorker worker = new ClassificationWorker(rdf,rf, model, true, exMap, null);
                     worker.setRoi(shape);
                     worker.setPixelFuzzyness(pixelFuzzyness);
                     worker.setTileFuzzyness(tileFuzzyness);

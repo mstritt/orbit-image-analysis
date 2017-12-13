@@ -31,6 +31,7 @@ import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.LocalFileFilter;
 import com.actelion.research.orbit.imageAnalysis.features.TissueFeatures;
 import com.actelion.research.orbit.imageAnalysis.features.TissueFeaturesCircular;
+import com.actelion.research.orbit.imageAnalysis.mask.IOrbitMaskModelBased;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
 import com.actelion.research.orbit.imageAnalysis.tasks.OrbitWorker;
@@ -58,7 +59,7 @@ import java.util.*;
 import java.util.List;
 
 public class OrbitUtils {
-    // label:  OrbitImageAnalysis273
+    // label:  OrbitImageAnalysis2731
     public static final String VERSION_STR = getVersion() + (ScaleoutMode.SCALEOUTMODE.get() ? "G" : "") + (OrbitUtils.DEVELOPMENTMODE ? " DEVELOPMENT" : "");
     public static final boolean DEVELOPMENTMODE = false;
     public static long SLEEP_TILE = 13*1000L;
@@ -232,6 +233,15 @@ public class OrbitUtils {
         }
     }
 
+    public static RecognitionFrame createMaskRecognitionFrame(RawDataFile rdf, OrbitModel model) throws OrbitImageServletException {
+        RecognitionFrame maskFrame = null;
+        if (rdf!=null && model!=null && model.getMask()!=null && model.getMask() instanceof IOrbitMaskModelBased) {
+            maskFrame = new RecognitionFrame(rdf); 
+            OrbitUtils.setMultiChannelFeatures(maskFrame.bimg.getImage(),((IOrbitMaskModelBased) model.getMask()).getModel().getFeatureDescription());
+        }
+        return maskFrame;
+    }
+
     public static IOrbitImageMultiChannel getMultiChannelImage(final OrbitTiledImage2 img) {
         if (img instanceof OrbitTiledImageIOrbitImage) {
             IOrbitImage oi = ((OrbitTiledImageIOrbitImage) img).getOrbitImage();
@@ -289,6 +299,10 @@ public class OrbitUtils {
     }
 
 
+    /**
+     * Fuzzy check if a tile is inside the ROI. It only checks if one corner or the center of the tile is inside the ROI.
+     * Might return false if a few pixels of the tile are inside the ROI!
+     */
     public static boolean isTileInROI(int tileX, int tileY, final PlanarImage image, Shape ROI, ExclusionMapGen exclusionMapGen) {
         Rectangle rect = image.getTileRect(tileX,tileY);
         if (isInROI((int)rect.getMinX(),(int)rect.getMinY(),ROI,exclusionMapGen)) return true;   // top-left
@@ -320,9 +334,22 @@ public class OrbitUtils {
      * @throws SQLException
      */
     public static IScaleableShape loadAnnotationROI(int rdfId, int annotationGroup, boolean otherGroupROIAsExclusion) throws Exception {
+        return loadAnnotationROI(rdfId, annotationGroup, otherGroupROIAsExclusion, false);
+    }
+
+
+    /**
+     * Loads the combined annotation ROI. Set annotationGroup to 0 to load the annotations of all annotation groups.
+     *
+     * @param rdfId
+     * @param annotationGroup
+     * @return
+     * @throws SQLException
+     */
+    public static IScaleableShape loadAnnotationROI(int rdfId, int annotationGroup, boolean otherGroupROIAsExclusion, boolean exclusionsForAllGroups) throws Exception {
         List<RawAnnotation> annotations = DALConfig.getImageProvider().LoadRawAnnotationsByRawDataFile(rdfId, RawAnnotation.ANNOTATION_TYPE_IMAGE);
         if (annotations != null && annotations.size() > 0) {
-            IScaleableShape roi = new ShapeAnnotationList(annotations, annotationGroup, null, otherGroupROIAsExclusion);
+            IScaleableShape roi = new ShapeAnnotationList(annotations, annotationGroup, null, otherGroupROIAsExclusion, exclusionsForAllGroups);
             return roi;      // bounds can be null - this is explicitely allowed!
         } else return null;
     }

@@ -80,7 +80,7 @@ public class SegmentationTestPattern {
         for (int i = 0; i < 5; i++)
             smap[20][70 + i] = 1;
 
-        ObjectSegmentationWorker ndw = new ObjectSegmentationWorker(null, null, null, null);
+        ObjectSegmentationWorker ndw = new ObjectSegmentationWorker(null, null, null, null, null);
         List<Point> pList = new ArrayList<Point>();
         ndw.addRightHandPoints(22, 59, smap, pList, 0, 0);
         double distBefore = dist(pList);
@@ -132,7 +132,7 @@ public class SegmentationTestPattern {
         shapeList.add(p1);
         shapeList.add(p2);
         shapeList.add(p3);
-        ObjectSegmentationWorker ndw = new ObjectSegmentationWorker(null, null, null, null);
+        ObjectSegmentationWorker ndw = new ObjectSegmentationWorker(null, null, null, null, null);
         shapeList = ndw.joinTileSegments(segRes,false).getShapeList();
 
         assertNotNull(shapeList);

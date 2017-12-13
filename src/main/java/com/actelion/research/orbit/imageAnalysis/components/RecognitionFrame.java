@@ -25,7 +25,6 @@ import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ClassificationTaskTiled;
-import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.ShapePainterListener;
 import com.actelion.research.orbit.imageAnalysis.utils.TiledImagePainter;
@@ -56,6 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
+ * Represents an image plus results (e.g. classification map, segmented shapes).
  * Component which holds a planarImage (bimg), a classification image (classImage) and additional shapes (e.g. segmentation objects).
  * The paint() method renders the image with all markup.
  * <p>
@@ -131,7 +131,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
     private transient RenderThread _renderThread = null;
     private static final Color annotationBackgroundColor = new Color(1f, 1f, 1f, 0.6f);
     private boolean displayAnnotationLabels = true;
-    private ExclusionMapGen exMapGen = null;
+   // private ExclusionMapGen exMapGen = null;
     private double mipScale = 1d;
     private static final boolean ignoreRepaint = true;
     private static final boolean opaque = false;
@@ -426,6 +426,32 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
         }
     }
 
+    /**
+     * Constructs and sets a TiledImageWriter-based new classification image.
+     */
+    public void constructClassificationImage() {
+        setClassImage(new TiledImageWriter(bimg.getWidth(), bimg.getHeight(), bimg.getTileWidth(), bimg.getTileHeight()));
+    }
+
+    public Point[] getTiles() {
+        return bimg.getImage().getTileIndices(null);
+    }
+
+    public Point[] getTiles(Rectangle rectangle) {
+        return bimg.getImage().getTileIndices(rectangle);
+    }
+
+    public WritableRaster getWritableClassificationTile(int tileX, int tileY) {
+        return classImage.getImage().getWritableTile(tileX, tileY);
+    }
+
+    public void releaseWritableClassificationTile(int tileX, int tileY) {
+        classImage.getImage().releaseWritableTile(tileX, tileY);
+    }
+
+    public Raster getTile(int tileX, int tileY) {
+         return bimg.getImage().getTile(tileX, tileY);
+    }
 
     /**
      * singleton factory for renderThread
@@ -1325,12 +1351,22 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
      * @param annotationGroup
      */
     public void loadAnnotationROI(int rdfID, int annotationGroup, boolean otherGroupROIAsExclusion) {
+        loadAnnotationROI(rdfID, annotationGroup, otherGroupROIAsExclusion, false);
+    }
+
+    /**
+     * annotationGroup -1 means ignore, 0 means use all, otherwise the specific group
+     *
+     * @param rdfID
+     * @param annotationGroup
+     */
+    public void loadAnnotationROI(int rdfID, int annotationGroup, boolean otherGroupROIAsExclusion, boolean exclusionsForAllGroups) {
         if (annotationGroup < 0) {
             setROI(null);
             return; // ignore
         }
         try {
-            IScaleableShape roi = OrbitUtils.loadAnnotationROI(rdfID, annotationGroup, otherGroupROIAsExclusion);
+            IScaleableShape roi = OrbitUtils.loadAnnotationROI(rdfID, annotationGroup, otherGroupROIAsExclusion, exclusionsForAllGroups);
             if ((roi != null) && Math.abs(mipScale - 1d) > OrbitUtils.EPSILON) {
                 roi = (IScaleableShape) roi.getScaledInstance(((mipScale) * 100d), new Point(0, 0));
                 roi.setScale(100d);
@@ -1732,13 +1768,13 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
     }
 
 
-    public ExclusionMapGen getExMapGen() {
-        return exMapGen;
-    }
-
-    public void setExMapGen(ExclusionMapGen exMapGen) {
-        this.exMapGen = exMapGen;
-    }
+//    public ExclusionMapGen getExMapGen() {
+//        return exMapGen;
+//    }
+//
+//    public void setExMapGen(ExclusionMapGen exMapGen) {
+//        this.exMapGen = exMapGen;
+//    }
 
     /**
      * sets windowSize and contextClassification based on the featureDescription

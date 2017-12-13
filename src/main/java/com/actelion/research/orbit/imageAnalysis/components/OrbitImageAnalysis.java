@@ -1122,7 +1122,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         logger.trace("classify recognitionFrame with width: {} and ROI: {}", rf.bimg.getWidth(), rf.getROI());
         // ExclusionMapGen exMap =  ExclusionMapGen.constructExclusionMap(rf,model);
         ExclusionMapGen exMap = ExclusionMapGen.constructExclusionMap(iFrame.getRdf(), rf, localModel, null);
-        ClassificationWorker worker = new ClassificationWorker(rf, localModel, true, exMap, null);
+        ClassificationWorker worker = new ClassificationWorker(iFrame.getRdf(), rf, localModel, true, exMap, null);
         worker.setPixelFuzzyness(pixelFuzzyness);
         worker.setTileFuzzyness(tileFuzzyness);
         worker.setOriginalFrame(oriRf);
@@ -1176,7 +1176,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             logger.debug("object classification level loaded: " + level);
 
             List<ClassShape> classShapesToSet = model.getSegmentationModel().getClassShapes();
-            ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(rf, null, classShapesToSet, null);
+            ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(iFrame.getRdf(), rf, null, classShapesToSet, null);
             segWorker.setModel(model);
             segWorker.setExclusionMap(ExclusionMapGen.constructExclusionMap(iFrame.getRdf(), rf, model, rf.getROI()));
             segWorker.setHeatmapFeature(isShowObjectHeatmap() ? ObjectFeatureBuilderTiled.FeatureAreaNumReverse : -1); // 4 means numFeatures-4=area, otherwise -1 means deactivate heatmap
@@ -1260,7 +1260,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         if (segROI == null) segROI = rf.getROI();
         rf.setROI(segROI);
         List<ClassShape> classShapesToSet = localModel.getSegmentationModel().getClassShapes();
-        ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(rf, null, classShapesToSet, tiles);
+        ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(iFrame.getRdf(), rf, null, classShapesToSet, tiles);
 
 
         if (oriRf != null) {

@@ -66,7 +66,6 @@ public class ShapeAnnotationList implements IScaleableShape {
         this(annotations, annotationGroup, outerBounds, false);
     }
 
-
     /**
      * Builds ROI using ROI,exclusion and inclusion annotations. ImageAnnotations are filtered, IScaleableShapes are scaled to 100%.
      * Outerbound is the union of ROI and all inclusion shapes.
@@ -75,6 +74,17 @@ public class ShapeAnnotationList implements IScaleableShape {
      * @param outerBounds
      */
     public ShapeAnnotationList(List<RawAnnotation> annotations, int annotationGroup, Rectangle outerBounds, boolean otherGroupROIAsExclusion) {
+        this(annotations, annotationGroup, outerBounds, otherGroupROIAsExclusion, false);
+    }
+
+        /**
+         * Builds ROI using ROI,exclusion and inclusion annotations. ImageAnnotations are filtered, IScaleableShapes are scaled to 100%.
+         * Outerbound is the union of ROI and all inclusion shapes.
+         *
+         * @param annotations
+         * @param outerBounds
+         */
+    public ShapeAnnotationList(List<RawAnnotation> annotations, int annotationGroup, Rectangle outerBounds, boolean otherGroupROIAsExclusion, boolean exclusionsForAllGroups) {
         this.outerBounds = outerBounds;
         if (outerBounds != null) {
             roi = outerBounds;
@@ -107,7 +117,7 @@ public class ShapeAnnotationList implements IScaleableShape {
                                     }
                                 }
                             }
-                        } else
+                        } else {
                             // this allows to treat nested roi groups as exclusios of an outer roi group
                             if (otherGroupROIAsExclusion && annotationGroup != 0 && annotationGroup != ia.getGroup() && ia.getSubType() == ImageAnnotation.SUBTYPE_ROI) {
                                 Shape shape = ia.getShape().getShapeList().get(0);
@@ -117,6 +127,17 @@ public class ShapeAnnotationList implements IScaleableShape {
 
                                 }
                             }
+
+                            // this allows to treat exclusions from other groups as exclusions for all groups
+                            if (exclusionsForAllGroups && annotationGroup != 0 && annotationGroup != ia.getGroup() && ia.getSubType() == ImageAnnotation.SUBTYPE_EXCLUSION) {
+                                Shape shape = ia.getShape().getShapeList().get(0);
+                                if (shape instanceof IScaleableShape) {
+                                    shape = ((IScaleableShape) shape).getScaledInstance(100d, new Point(0, 0));
+                                    exclList.add(shape);
+
+                                }
+                            }
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                         //logger.logStackTrace(e.getStackTrace());

@@ -275,7 +275,7 @@ public class RareObjectDetectionModule extends AbstractSpotModule {
         final boolean addOldFin = addOld;
         // ok, we have at least one open image and a model that contains a segmentation model
         iFrame.getOpacitySlider().setEnabled(true);
-        final ObjectSegmentationWorker segWorker = createSpotDetectionWorker(iFrame.recognitionFrame, model, null); // tiles=null (last parameter)
+        final ObjectSegmentationWorker segWorker = createSpotDetectionWorker(rdf, iFrame.recognitionFrame, model, null); // tiles=null (last parameter)
 
         // no exclusion map so far
         final ProgressPanel progressPanel = new ProgressPanel(oia.getTitle(), "Nuclei Detection", segWorker);
@@ -340,7 +340,7 @@ public class RareObjectDetectionModule extends AbstractSpotModule {
      * @param model
      * @return
      */
-    public ObjectSegmentationWorker createSpotDetectionWorker(final RecognitionFrame recognitionFrame, final OrbitModel model, List<Point> tiles) {
+    public ObjectSegmentationWorker createSpotDetectionWorker(final RawDataFile rdf, final RecognitionFrame recognitionFrame, final OrbitModel model, List<Point> tiles) {
         IScaleableShape fixedROI = null;
         if (model.getFixedCircularROI() > 0) {
             fixedROI = new Arc2DExt();
@@ -349,7 +349,7 @@ public class RareObjectDetectionModule extends AbstractSpotModule {
         //recognitionFrame.setClassShapes(model.getSegmentationModel().getClassShapes());
         if (recognitionFrame.getROI() == null)
             recognitionFrame.setROI(fixedROI);
-        final ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(recognitionFrame, null, model.getSegmentationModel().getClassShapes(), tiles);
+        final ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(rdf, recognitionFrame, null, model.getSegmentationModel().getClassShapes(), tiles);
         segWorker.setModel(model); // segWorker fetches the segmentation model out of the model
         segWorker.setDoWatershed(false);
         segWorker.setDoErode(false);

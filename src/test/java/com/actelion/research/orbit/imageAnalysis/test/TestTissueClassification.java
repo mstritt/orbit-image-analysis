@@ -42,7 +42,7 @@ public class TestTissueClassification {
     }
 
     @Test
-    public void testObjectSegmentation() throws Exception {
+    public void testTissueClassification() throws Exception {
         OrbitModel model = OrbitModel.LoadFromInputStream(this.getClass().getResourceAsStream("/resource/testmodels/tissueClassification.omo"));
         RecognitionFrame rf = new RecognitionFrame("/resource/testimages/tissueClassification.jpg", true);
 
