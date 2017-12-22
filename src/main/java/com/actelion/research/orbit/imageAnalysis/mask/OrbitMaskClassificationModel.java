@@ -20,6 +20,7 @@
 package com.actelion.research.orbit.imageAnalysis.mask;
 
 import com.actelion.research.orbit.imageAnalysis.features.TissueFeatures;
+import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.TiledImagePainter;
@@ -28,6 +29,7 @@ import weka.core.Instance;
 
 import java.awt.image.Raster;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Not thread-safe.
@@ -40,9 +42,20 @@ public class OrbitMaskClassificationModel implements IOrbitMaskModelBased {
 
     public OrbitMaskClassificationModel(OrbitModel model, int ... activeClasses) {
         this.model = model;
-        this.activeClasses = new HashSet<>(activeClasses.length);
-        for (int c: activeClasses) {
-            this.activeClasses.add(c);
+        this.activeClasses = new HashSet<>(activeClasses.length>0?activeClasses.length:1);
+        if (activeClasses.length>0) {
+            for (int c : activeClasses) {
+                this.activeClasses.add(c);
+            }
+        } else {
+            // build active classes form model definition
+            List<ClassShape> classShapes = model.getClassShapes();
+            for (int i = 0; i < classShapes.size(); i++) {
+                ClassShape cs = classShapes.get(i);
+                if (cs.getIncExcMode()==ClassShape.INCLUSION) {
+                    this.activeClasses.add(i);
+                }
+            }
         }
     }
 

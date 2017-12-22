@@ -34,6 +34,8 @@ import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.LocalFileFilter;
 import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTiled;
+import com.actelion.research.orbit.imageAnalysis.mask.IOrbitMask;
+import com.actelion.research.orbit.imageAnalysis.mask.OrbitMaskClassificationModel;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.modules.*;
 import com.actelion.research.orbit.imageAnalysis.modules.mihc.MihcModule;
@@ -205,6 +207,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private ThresholdModule thresholdModule = null;
     private ExclusionModule exclusionModule = null;
     private MihcModule mihcModule = null;
+    private ModelExplorer modelExplorer = null;
     final TransferHandler desktopTransferHandler = new DesktopTransferHandler();
 
 
@@ -607,6 +610,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 //getTipOfTheDay().showDialog(false);
                 //metaBar.addOrbitModule(getCellProfilerModule());
                 if (showExclusionModule) metaBar.addOrbitModule(getExclusionModule());
+                metaBar.addOrbitModule(getModelExplorer());
                 if (Runtime.getRuntime().availableProcessors() < 2) {
                     JOptionPane.showConfirmDialog(null, "Orbit Image Analysis is optimized for a multi-core CPU.\nYour PC has only " + Runtime.getRuntime().availableProcessors() + " cores.\nYou can still run Orbit on this PC, but it is strongly recommended to use a better PC.", "Please use a better computer for Orbit.", JOptionPane.WARNING_MESSAGE);
                 }
@@ -1073,6 +1077,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     private synchronized void train(boolean firstRun) {
         logger.info("train called [method call]");
+        model.setUser(loginUser);
         TrainWorker trainWorker = new TrainWorker(getIFrames(), true, performClustering, model); // second last parameter: classification(true) or clustering(false)
         ProgressPanel progressPanel = new ProgressPanel(getCurrentPicName(), "Training", trainWorker);
         addAndExecuteTask(progressPanel);
@@ -1944,6 +1949,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         segModel.setSegmentationModel(null); // only one segModel, not recursive
         segModel.setSecondarySegmentationModel(null);
         this.model.setSegmentationModel(segModel);
+        this.model.setType(OrbitModel.TYPE_SEGMENTATION);
         if (withGUI) {
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Primary Segmentation model successfully set.", "Segmentation model set", JOptionPane.INFORMATION_MESSAGE);
         }
@@ -1963,12 +1969,12 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         segModel.setSecondarySegmentationModel(null); // only one segModel, not recursive
         segModel.setSegmentationModel(null);
         this.model.setSecondarySegmentationModel(segModel);
+        this.model.setType(OrbitModel.TYPE_SEGMENTATION);
         if (withGUI) {
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Secondary Segmentation model successfully set.", "Segmentation model set", JOptionPane.INFORMATION_MESSAGE);
         }
         updateStatusBar();
     }
-
 
     public void setModelAsExclusionModel(OrbitModel model, boolean withGUI) {
         if (model == null || model.getClassifier() == null || model.getStructure() == null) {
@@ -1977,6 +1983,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
         model.setExclusionModel(null);
         this.model.setExclusionModel(new OrbitModel(model));
+        this.model.setType(OrbitModel.TYPE_EXCLUSION);
         if (withGUI) {
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Exclusion model successfully set.", "Exclusion model set", JOptionPane.INFORMATION_MESSAGE);
         }
@@ -2028,6 +2035,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             if (file.isDirectory()) return;
             model.cleanModel();
             model.prepareModelforSaving(getIFrames());
+            model.setName(new File(name).getName());
             if (getIFrame() != null)
                 model.setBoundaryClass(getIFrame().recognitionFrame.getBoundaryClass());
             try {
@@ -2587,6 +2595,17 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             iFrame.getOpacitySlider().setValue(0);
         }
         return true;
+    }
+
+    private boolean maskSet() {
+        OrbitModel maskModel = getModelExplorer().getSelectedModel();
+       if (maskModel!=null) {
+           IOrbitMask mask = new OrbitMaskClassificationModel(maskModel);
+           model.setMask(mask);
+           return true;
+       } else {
+           return false;
+       }
     }
 
     private boolean invertROI() {
@@ -3463,6 +3482,16 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "ROI reset failed.", "ROI reset", JOptionPane.ERROR_MESSAGE);
         }
     };
+
+    public final ActionListener maskSetActionListener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            if (maskSet()) {
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Mask successfully set.", "Mask set", JOptionPane.INFORMATION_MESSAGE);
+            } else
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Mask set failed.", "Mask set failed", JOptionPane.ERROR_MESSAGE);
+        }
+    };
+
     public final ActionListener resetEntireModelActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
@@ -4496,6 +4525,14 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
         return mihcModule;
     }
+
+    public ModelExplorer getModelExplorer() {
+        if (modelExplorer == null) {
+            modelExplorer = new ModelExplorer();
+        }
+        return modelExplorer;
+    }
+
 
     public String getLoadedModel() {
         return loadedModel;

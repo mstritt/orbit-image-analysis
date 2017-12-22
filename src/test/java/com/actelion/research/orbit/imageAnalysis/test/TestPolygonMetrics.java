@@ -20,6 +20,7 @@
 package com.actelion.research.orbit.imageAnalysis.test;
 
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitLogAppender;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.PolygonMetrics;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,6 +37,8 @@ public class TestPolygonMetrics {
     @BeforeClass
     public static void setUp() {
         OrbitLogAppender.GUI_APPENDER = false;
+        OrbitUtils.SLEEP_TASK=0;
+        OrbitUtils.SLEEP_TILE=0;
     }
 
     @Test

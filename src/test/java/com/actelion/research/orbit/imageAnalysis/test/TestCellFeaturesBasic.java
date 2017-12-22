@@ -23,6 +23,7 @@ import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTiled;
 import com.actelion.research.orbit.imageAnalysis.models.RectangleExt;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitLogAppender;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.TiledImagePainter;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -48,6 +49,8 @@ public class TestCellFeaturesBasic {
     @BeforeClass
     public static void setUp() {
         OrbitLogAppender.GUI_APPENDER = false;
+        OrbitUtils.SLEEP_TASK=0;
+        OrbitUtils.SLEEP_TILE=0;
     }
 
     @AfterClass

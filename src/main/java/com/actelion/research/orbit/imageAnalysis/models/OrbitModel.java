@@ -41,9 +41,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -57,7 +55,7 @@ public class OrbitModel implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 5L;
     private static transient Logger logger = LoggerFactory.getLogger(OrbitModel.class);
-    private int version = 12; // 10 without secondarySeg, 12: mask,name,user,type
+    private int version = 12; // 10 without secondarySeg, 12: mask,name,user,type, revision,lastUpdate
     private String orbitVersion = "";
     private ClassifierWrapper classifier = null;
     private Instances structure = null;
@@ -83,6 +81,8 @@ public class OrbitModel implements Serializable, Cloneable {
     private String name = ""; // meaningful name of the model
     private String user = ""; // create user
     private int type = 0; // model used as type
+    private int revision = 0;
+    private long lastUpdate = 0;
 
     /**
      * Constructs a model with default classShapes and defaultFeatureDescriptors, classifier and structure are set to null.
@@ -96,6 +96,7 @@ public class OrbitModel implements Serializable, Cloneable {
 
         featureDescription = new FeatureDescription();
         orbitVersion = OrbitUtils.VERSION_STR;
+        this.setLastUpdate(System.currentTimeMillis());
     }
 
     /**
@@ -118,6 +119,7 @@ public class OrbitModel implements Serializable, Cloneable {
         this.classifier = classifier;
         this.structure = structure;
         this.featureDescription = featureDescription;
+        this.setLastUpdate(System.currentTimeMillis());
         orbitVersion = OrbitUtils.VERSION_STR;
     }
 
@@ -128,6 +130,16 @@ public class OrbitModel implements Serializable, Cloneable {
      * @param oldModel
      */
     public OrbitModel(OrbitModel oldModel) {
+        this(oldModel,false);
+    }
+
+    /**
+     * Constructs a cloned model based on an old model.
+     * ClassShapesForReconstruction will be discarded!
+     *
+     * @param oldModel
+     */
+    public OrbitModel(OrbitModel oldModel, boolean inclTrainingShapes) {
         if (oldModel.getClassShapes() != null)
             this.classShapes = OrbitUtils.cloneClassShapes(oldModel.getClassShapes());
         if (oldModel.getFeatureDescription() != null)
@@ -169,6 +181,16 @@ public class OrbitModel implements Serializable, Cloneable {
         this.setExclusionLevel(oldModel.getExclusionLevel());
         if (oldModel.getVersion() < 6 && oldModel.getExclusionLevel() == 0)
             this.setExclusionLevel(1);
+
+        this.setLastUpdate(oldModel.getLastUpdate());
+        this.setUser(oldModel.getUser());
+        this.setName(oldModel.getName());
+        this.setType(oldModel.getType());
+        this.setRevision(oldModel.getRevision());
+
+        if (inclTrainingShapes && oldModel.getClassShapesToRestore()!=null) {
+            this.classShapesToRestore.addAll(OrbitUtils.cloneClassShapes(oldModel.getClassShapesToRestore(),true));
+        }
     }
 
 
@@ -451,7 +473,7 @@ public class OrbitModel implements Serializable, Cloneable {
                     if (iFrame.getRecognitionFrame().getClassShapes() != null) {
                         if (classShapes.size() == iFrame.getRecognitionFrame().getClassShapes().size()) {  // check
                             for (int i = 0; i < classShapes.size(); i++) {
-                                ClassShape cs = iFrame.getRecognitionFrame().getClassShapes().get(i);
+                                ClassShape cs = iFrame.getRecognitionFrame().getClassShapes().get(i).clone();
                                 for (Shape shape : cs.getShapeList()) {
                                     if (shape instanceof IScaleableShape) {
                                         ((IScaleableShape) shape).setRdfId(iFrame.getRdf().getRawDataFileId());
@@ -612,6 +634,8 @@ public class OrbitModel implements Serializable, Cloneable {
 
     public void setClassifier(ClassifierWrapper classifier) {
         this.classifier = classifier;
+        this.setLastUpdate(System.currentTimeMillis());
+        this.revision++;
     }
 
     public Instances getStructure() {
@@ -811,6 +835,22 @@ public class OrbitModel implements Serializable, Cloneable {
         this.type = type;
     }
 
+    public int getRevision() {
+        return revision;
+    }
+
+    public void setRevision(int revision) {
+        this.revision = revision;
+    }
+
+    public long getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(long lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -849,4 +889,12 @@ public class OrbitModel implements Serializable, Cloneable {
         return sb.toString();
     }
 
+    @Override
+    public OrbitModel clone() {
+        return new OrbitModel(this);
+    }
+
+    public OrbitModel clone(boolean inclTrainingShapes ) {
+        return new OrbitModel(this, inclTrainingShapes);
+    }
 }

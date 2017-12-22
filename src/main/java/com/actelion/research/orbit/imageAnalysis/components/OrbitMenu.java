@@ -61,6 +61,7 @@ public class OrbitMenu extends JRibbonFrame {
     private RibbonApplicationMenuEntrySecondary amEntryOpenModelOrbit;
     private RibbonApplicationMenuEntrySecondary amSaveModelOrbit;
     private final JCommandButton buttonLoadAndSetServer = new JCommandButton(ExclusionModule.btnLoadTextServer, new DocumentOpen5());
+    private final JCommandButton buttonLoadAndSetExplorer = new JCommandButton(ExclusionModule.btnLoadTextExplorer, new DocumentOpen5());
     private final JCommandButton buttonSaveModelOrbit = new JCommandButton("Save Model on Server", new DocumentSave3());
     private final JCommandButton buttonOrbitBrowser = new JCommandButton("Orbit Browser", new BrowserWippAddressBook());
     private final JCommandButton buttonModelOpenOrbit = new JCommandButton("Open Model from Server", new DocumentOpen5());
@@ -122,6 +123,7 @@ public class OrbitMenu extends JRibbonFrame {
         ribbon.addTask(classificationTask);
         ribbon.addTask(objectTask);
         addROITask(ribbon);
+        addMaskTask(ribbon);
         addBatchTask(ribbon);
         addToolsTask(ribbon);
         addCustomTask(ribbon);
@@ -586,6 +588,23 @@ public class OrbitMenu extends JRibbonFrame {
         ribbon.addTask(roiTask);
     }
 
+    private void addMaskTask(final JRibbon ribbon) {
+
+        JRibbonBand maskBand = new JRibbonBand("Mask", null);
+        maskBand.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(maskBand.getControlPanel()),
+                new CoreRibbonResizePolicies.Mid2Low(maskBand.getControlPanel()),
+                new IconRibbonBandResizePolicy(maskBand.getControlPanel())));
+
+        JCommandButton buttonSetMask = new JCommandButton("Set Mask", new SetMaski());
+        RichTooltip richTooltipSetMask = new RichTooltip("Set Mask", "Set selected model from Model Explorer as active mask to the current model.");
+        buttonSetMask.setActionRichTooltip(richTooltipSetMask);
+        buttonSetMask.addActionListener(oia == null ? null : oia.maskSetActionListener);
+        maskBand.addCommandButton(buttonSetMask, RibbonElementPriority.TOP);
+
+        RibbonTask maskTask = new RibbonTask("Mask", maskBand);
+        ribbon.addTask(maskTask);
+    }
+
 
     private void addDrawButtons(final JRibbonBand band, boolean ownBand) {
         JCommandButton buttonEraser = new JCommandButton("Eraser", new LmproulxEraser());
@@ -881,6 +900,12 @@ public class OrbitMenu extends JRibbonFrame {
         buttonLoadAndSetServer.addActionListener(oia == null ? null : em.getBtnLoadServer().getActionListeners()[0]);
         buttonLoadAndSetServer.setActionRichTooltip(richTooltipLoadAndSetServer);
         exclusionBand.addCommandButton(buttonLoadAndSetServer, RibbonElementPriority.MEDIUM);
+
+        RichTooltip richTooltipSetExplorer = new RichTooltip(ExclusionModule.btnLoadTextExplorer, "Load and set model from Model Explorer.");
+        richTooltipLoadAndSetServer.addDescriptionSection("This function can be used to combine a currently active main model (e.g. detail classification) with an existing exclusion model.");
+        buttonLoadAndSetExplorer.addActionListener(oia == null ? null : em.getBtnLoadExplorer().getActionListeners()[0]);
+        buttonLoadAndSetExplorer.setActionRichTooltip(richTooltipSetExplorer);
+        exclusionBand.addCommandButton(buttonLoadAndSetExplorer, RibbonElementPriority.MEDIUM);
 
 
         JCommandButton buttonClassify = new JCommandButton(em.getBtnClassify().getText(), new ApplicationsGraphics2());

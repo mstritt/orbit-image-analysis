@@ -26,6 +26,7 @@ import com.actelion.research.orbit.imageAnalysis.models.SegmentationResult;
 import com.actelion.research.orbit.imageAnalysis.utils.ClassificationResult;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitHelper;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitLogAppender;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -40,6 +41,8 @@ public class TestObjectClassification {
     @BeforeClass
     public static void setUp() {
         OrbitLogAppender.GUI_APPENDER = false;
+        OrbitUtils.SLEEP_TASK=0;
+        OrbitUtils.SLEEP_TILE=0;
     }
 
     @Test

@@ -51,6 +51,7 @@ public class ExclusionModule extends AbstractOrbitModule {
     private final JButton btnTrain = new JButton("Train, Set and Classify");
     private final JButton btnLoad = new JButton(btnLoadTextLocal);
     private final JButton btnLoadServer = new JButton(btnLoadTextServer);
+    private final JButton btnLoadExplorer = new JButton(btnLoadTextServer);
     private final JButton btnClassify = new JButton("Classify Trained Exclusion Model");
     private final JButton btnReset = new JButton("Reset Exclusion Model");
     private final JButton btnHelp = new JButton("Help");
@@ -58,6 +59,7 @@ public class ExclusionModule extends AbstractOrbitModule {
 
     public static final String btnLoadTextLocal = "Load and Set (local)";
     public static final String btnLoadTextServer = "Load and Set (server)";
+    public static final String btnLoadTextExplorer = "Set from Model Explorer";
 
 
     public ExclusionModule() {
@@ -101,6 +103,12 @@ public class ExclusionModule extends AbstractOrbitModule {
         btnLoadServer.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadModelServer();
+            }
+        });
+
+        btnLoadExplorer.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadModelExplorer();
             }
         });
 
@@ -262,6 +270,19 @@ public class ExclusionModule extends AbstractOrbitModule {
         }
     }
 
+    private void loadModelExplorer() {
+        final OrbitImageAnalysis OIA = OrbitImageAnalysis.getInstance();
+        OrbitModel exclModel = OIA.getModelExplorer().getSelectedModel();
+        if (exclModel!=null) {
+            OIA.getModel().setExclusionModel(exclModel);
+            logger.info("exclusion model loaded and set");
+            OIA.updateStatusBar();
+            JOptionPane.showMessageDialog(null, "Exclusion set.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            logger.trace("set model canceled.");
+        }
+    }
+
 
     @Override
     public String getName() {
@@ -321,6 +342,10 @@ public class ExclusionModule extends AbstractOrbitModule {
 
     public JButton getBtnLoadServer() {
         return btnLoadServer;
+    }
+
+    public JButton getBtnLoadExplorer() {
+        return btnLoadExplorer;
     }
 
     public JButton getBtnReset() {

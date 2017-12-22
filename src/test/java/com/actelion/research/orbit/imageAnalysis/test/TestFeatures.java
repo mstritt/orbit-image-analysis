@@ -23,6 +23,7 @@ import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.features.TissueFeatures;
 import com.actelion.research.orbit.imageAnalysis.models.FeatureDescription;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitLogAppender;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.TiledImagePainter;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,6 +43,8 @@ public class TestFeatures {
     @BeforeClass
     public static void setUp() {
         OrbitLogAppender.GUI_APPENDER = false;
+        OrbitUtils.SLEEP_TASK=0;
+        OrbitUtils.SLEEP_TILE=0;
     }
 
     @Test
