@@ -1,17 +1,16 @@
 package com.actelion.research.orbit.imageAnalysis.components.icons;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.GeneralPath;
-
-import static java.awt.Color.GREEN;
-import static java.awt.Color.WHITE;
+import java.awt.geom.*;
+import static java.awt.Color.*;
+import static java.awt.MultipleGradientPaint.CycleMethod.*;
+import static java.awt.MultipleGradientPaint.ColorSpaceType.*;
 
 /**
  * This class has been automatically generated using
  * <a href="http://ebourg.github.io/flamingo-svg-transcoder/">Flamingo SVG transcoder</a>.
  */
-public class SetMaski implements org.pushingpixels.flamingo.api.common.icon.ResizableIcon {
+public class UnsetMask implements org.pushingpixels.flamingo.api.common.icon.ResizableIcon {
 
     /**
      * Paints the transcoded SVG image on the specified graphics context. You
@@ -98,6 +97,24 @@ public class SetMaski implements org.pushingpixels.flamingo.api.common.icon.Resi
         g.setPaint(new Color(0x141414));
         g.draw(shape);
 
+        // _0_0_3
+        shape = new GeneralPath();
+        ((GeneralPath) shape).moveTo(677.6786, 364.63898);
+        ((GeneralPath) shape).lineTo(35.49107, 1028.2551);
+
+        g.setPaint(new Color(0xFF000E));
+        g.fill(shape);
+        g.setStroke(new BasicStroke(18.655512f, 0, 0, 4));
+        g.draw(shape);
+
+        // _0_0_4
+        shape = new GeneralPath();
+        ((GeneralPath) shape).moveTo(684.8438, 1010.2417);
+        ((GeneralPath) shape).lineTo(21.227648, 368.0542);
+
+        g.fill(shape);
+        g.draw(shape);
+
         g.setTransform(transformations.poll()); // _0_0
 
         g.setTransform(transformations.poll()); // _0
@@ -110,7 +127,7 @@ public class SetMaski implements org.pushingpixels.flamingo.api.common.icon.Resi
      * @return The X of the bounding box of the original SVG image.
      */
     public static int getOrigX() {
-        return 69;
+        return 16;
     }
 
     /**
@@ -119,7 +136,7 @@ public class SetMaski implements org.pushingpixels.flamingo.api.common.icon.Resi
      * @return The Y of the bounding box of the original SVG image.
      */
     public static int getOrigY() {
-        return 36;
+        return 16;
     }
 
     /**
@@ -128,7 +145,7 @@ public class SetMaski implements org.pushingpixels.flamingo.api.common.icon.Resi
      * @return The width of the bounding box of the original SVG image.
      */
     public static int getOrigWidth() {
-        return 623;
+        return 722;
     }
 
     /**
@@ -137,7 +154,7 @@ public class SetMaski implements org.pushingpixels.flamingo.api.common.icon.Resi
      * @return The height of the bounding box of the original SVG image.
      */
     public static int getOrigHeight() {
-        return 708;
+        return 727;
     }
 
     /**
@@ -153,7 +170,7 @@ public class SetMaski implements org.pushingpixels.flamingo.api.common.icon.Resi
     /**
      * Creates a new transcoded SVG image.
      */
-    public SetMaski() {
+    public UnsetMask() {
         this.width = getOrigWidth();
         this.height = getOrigHeight();
     }

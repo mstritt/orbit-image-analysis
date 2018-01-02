@@ -1,6 +1,6 @@
 /*
  *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2017 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
+ *     Copyright (C) 2009 - 2018 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.LocalFileFilter;
 import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTiled;
 import com.actelion.research.orbit.imageAnalysis.mask.IOrbitMask;
+import com.actelion.research.orbit.imageAnalysis.mask.IOrbitMaskModelBased;
 import com.actelion.research.orbit.imageAnalysis.mask.OrbitMaskClassificationModel;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.modules.*;
@@ -846,7 +847,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     protected String getInfoString() {
         String infoStr = "Orbit Image Analysis Version " + OrbitUtils.VERSION_STR + "\n" +
-                "Copyright (c) 2009-2017, Idorsia Pharmaceuticals Ltd. under GPLv3 license.\n" +
+                "Copyright (c) 2009-2018, Idorsia Pharmaceuticals Ltd. under GPLv3 license.\n" +
                 "Developed by Manuel Stritt.";
 
         infoStr += "\n\nLogin User: " + loginUser;
@@ -3491,6 +3492,29 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Mask set failed.", "Mask set failed", JOptionPane.ERROR_MESSAGE);
         }
     };
+
+    public final ActionListener maskUnSetActionListener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            if (model.getMask()!=null) {
+                model.setMask(null);
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Mask successfully unset.", "Mask unset", JOptionPane.INFORMATION_MESSAGE);
+            } else
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The model does not contain a mask.", "No mask to unset", JOptionPane.WARNING_MESSAGE);
+        }
+    };
+
+    public final ActionListener mask2browserActionListener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            if (model.getMask()!=null && model.getMask() instanceof IOrbitMaskModelBased) {
+                getModelExplorer().addModel(((IOrbitMaskModelBased) model.getMask()).getModel(),null,false);
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Mask successfully unset.", "Mask unset", JOptionPane.INFORMATION_MESSAGE);
+            } else
+                if (model.getMask()==null) 
+                    JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The model does not contain a mask.", "No mask to extract", JOptionPane.WARNING_MESSAGE);
+                else  JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The mask is not model based, thus no model can be extracted.", "Mask not model based", JOptionPane.WARNING_MESSAGE);
+        }
+    };
+
 
     public final ActionListener resetEntireModelActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {

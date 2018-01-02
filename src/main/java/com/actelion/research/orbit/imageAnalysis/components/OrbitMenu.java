@@ -601,6 +601,18 @@ public class OrbitMenu extends JRibbonFrame {
         buttonSetMask.addActionListener(oia == null ? null : oia.maskSetActionListener);
         maskBand.addCommandButton(buttonSetMask, RibbonElementPriority.TOP);
 
+        JCommandButton buttonUnSetMask = new JCommandButton("Unset Mask", new UnsetMask());
+        RichTooltip richTooltipUnSetMask = new RichTooltip("Unset Mask", "Unset mask from current model.");
+        buttonUnSetMask.setActionRichTooltip(richTooltipUnSetMask);
+        buttonUnSetMask.addActionListener(oia == null ? null : oia.maskUnSetActionListener);
+        maskBand.addCommandButton(buttonUnSetMask, RibbonElementPriority.TOP);
+
+        JCommandButton buttonMask2Browser = new JCommandButton("Mask to Explorer", new Mask2browser());
+        RichTooltip richTooltipMask2Browser = new RichTooltip("Mask to Explorer", "Extract the current mask model to the model explorer.");
+        buttonMask2Browser.setActionRichTooltip(richTooltipMask2Browser);
+        buttonMask2Browser.addActionListener(oia == null ? null : oia.maskUnSetActionListener);
+        maskBand.addCommandButton(buttonMask2Browser, RibbonElementPriority.TOP);
+
         RibbonTask maskTask = new RibbonTask("Mask", maskBand);
         ribbon.addTask(maskTask);
     }

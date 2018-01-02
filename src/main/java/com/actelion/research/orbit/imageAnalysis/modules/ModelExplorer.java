@@ -21,6 +21,7 @@ package com.actelion.research.orbit.imageAnalysis.modules;
 
 import com.actelion.research.orbit.imageAnalysis.components.AbstractOrbitModule;
 import com.actelion.research.orbit.imageAnalysis.components.ClassAdminFrame;
+import com.actelion.research.orbit.imageAnalysis.components.ImageFrame;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.mask.IOrbitMask;
 import com.actelion.research.orbit.imageAnalysis.mask.OrbitMaskClassificationModel;
@@ -64,8 +65,7 @@ public class ModelExplorer extends AbstractOrbitModule {
                     return;
                 }
                 final OrbitModel model = new OrbitModel(oia.getModel(),true);
-                model.prepareModelforSaving(oia.getIFrames());
-                listModel.add(0,model);
+                addModel(model,oia.getIFrames(),true);
             }
         });
 
@@ -137,6 +137,18 @@ public class ModelExplorer extends AbstractOrbitModule {
         add(topPanel,BorderLayout.NORTH);
         add(bottomPanel,BorderLayout.SOUTH);
         add(scrollPane,BorderLayout.CENTER);
+    }
+
+    /**
+     * Add the model to the explorer.
+     * If prepareForSaving, the model will be prepared for saving and thus modified!
+     * iFrames can be null.
+     */
+    public void addModel(OrbitModel model, List<ImageFrame> iFrames, boolean prepareForSaving) {
+        if (prepareForSaving) {
+            model.prepareModelforSaving(iFrames);
+        }
+        listModel.add(0,model);
     }
 
     @Override
