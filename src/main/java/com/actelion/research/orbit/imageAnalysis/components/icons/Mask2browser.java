@@ -5,7 +5,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.RoundRectangle2D;
 
-import static java.awt.Color.*;
+import static java.awt.Color.GREEN;
+import static java.awt.Color.WHITE;
 
 /**
  * This class has been automatically generated using
@@ -101,7 +102,7 @@ public class Mask2browser implements org.pushingpixels.flamingo.api.common.icon.
         ((GeneralPath) shape).moveTo(489.50894, 554.81757);
         ((GeneralPath) shape).lineTo(665.625, 554.81757);
 
-        g.setPaint(BLACK);
+        g.setPaint(new Color(0xE6E6E6));
         g.setStroke(new BasicStroke(8.4375f, 0, 0, 4));
         g.draw(shape);
 

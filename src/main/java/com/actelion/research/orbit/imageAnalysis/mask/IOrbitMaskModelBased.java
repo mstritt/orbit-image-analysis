@@ -23,4 +23,5 @@ import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 
 public interface IOrbitMaskModelBased extends IOrbitMask {
     OrbitModel getModel();
+    void reconfigure(); // e.g. if model class configuration (inclusion classes) has changed
 }

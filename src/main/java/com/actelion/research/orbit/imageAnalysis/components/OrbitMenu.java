@@ -590,16 +590,23 @@ public class OrbitMenu extends JRibbonFrame {
 
     private void addMaskTask(final JRibbon ribbon) {
 
-        JRibbonBand maskBand = new JRibbonBand("Mask", null);
+        JRibbonBand maskBand = new JRibbonBand("Model-based masks", null);
         maskBand.setResizePolicies(Arrays.<RibbonBandResizePolicy>asList(new CoreRibbonResizePolicies.None(maskBand.getControlPanel()),
                 new CoreRibbonResizePolicies.Mid2Low(maskBand.getControlPanel()),
                 new IconRibbonBandResizePolicy(maskBand.getControlPanel())));
 
-        JCommandButton buttonSetMask = new JCommandButton("Set Mask", new SetMaski());
-        RichTooltip richTooltipSetMask = new RichTooltip("Set Mask", "Set selected model from Model Explorer as active mask to the current model.");
-        buttonSetMask.setActionRichTooltip(richTooltipSetMask);
-        buttonSetMask.addActionListener(oia == null ? null : oia.maskSetActionListener);
-        maskBand.addCommandButton(buttonSetMask, RibbonElementPriority.TOP);
+        JCommandButton buttonClassificationSetMask = new JCommandButton("Set Classification Mask", new SetMaski());
+        RichTooltip richTooltipSetClassificationMask = new RichTooltip("Set Classification Mask", "Set selected model from Model Explorer as active classification mask to the current model.");
+        buttonClassificationSetMask.setActionRichTooltip(richTooltipSetClassificationMask);
+        buttonClassificationSetMask.addActionListener(oia == null ? null : oia.maskSetActionListener);
+        maskBand.addCommandButton(buttonClassificationSetMask, RibbonElementPriority.TOP);
+
+        JCommandButton buttonSetSegmentationMask = new JCommandButton("Set Segmentation Mask", new SetSegmask());
+        RichTooltip richTooltipSetSegmentationMask = new RichTooltip("Set Segmentation Mask", "Set selected model from Model Explorer as active segmentation mask to the current model.");
+        buttonSetSegmentationMask.setActionRichTooltip(richTooltipSetSegmentationMask);
+        buttonSetSegmentationMask.addActionListener(oia == null ? null : oia.maskSegmentationSetActionListener);
+        maskBand.addCommandButton(buttonSetSegmentationMask, RibbonElementPriority.TOP);
+
 
         JCommandButton buttonUnSetMask = new JCommandButton("Unset Mask", new UnsetMask());
         RichTooltip richTooltipUnSetMask = new RichTooltip("Unset Mask", "Unset mask from current model.");
@@ -607,10 +614,17 @@ public class OrbitMenu extends JRibbonFrame {
         buttonUnSetMask.addActionListener(oia == null ? null : oia.maskUnSetActionListener);
         maskBand.addCommandButton(buttonUnSetMask, RibbonElementPriority.TOP);
 
+        JCommandButton buttonMaskConfigure = new JCommandButton("Configure Mask", new SystemRun5());
+        RichTooltip richTooltipMaskConfigure = new RichTooltip("Configure Mask", "Configure classes, e.g. define inclusion classes.");
+        buttonMaskConfigure.setActionRichTooltip(richTooltipMaskConfigure);
+        buttonMaskConfigure.addActionListener(oia == null ? null : oia.maskConfigureActionListener);
+        maskBand.addCommandButton(buttonMaskConfigure, RibbonElementPriority.TOP);
+
+
         JCommandButton buttonMask2Browser = new JCommandButton("Mask to Explorer", new Mask2browser());
         RichTooltip richTooltipMask2Browser = new RichTooltip("Mask to Explorer", "Extract the current mask model to the model explorer.");
         buttonMask2Browser.setActionRichTooltip(richTooltipMask2Browser);
-        buttonMask2Browser.addActionListener(oia == null ? null : oia.maskUnSetActionListener);
+        buttonMask2Browser.addActionListener(oia == null ? null : oia.mask2browserActionListener);
         maskBand.addCommandButton(buttonMask2Browser, RibbonElementPriority.TOP);
 
         RibbonTask maskTask = new RibbonTask("Mask", maskBand);

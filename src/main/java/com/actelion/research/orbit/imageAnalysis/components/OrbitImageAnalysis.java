@@ -37,6 +37,7 @@ import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTi
 import com.actelion.research.orbit.imageAnalysis.mask.IOrbitMask;
 import com.actelion.research.orbit.imageAnalysis.mask.IOrbitMaskModelBased;
 import com.actelion.research.orbit.imageAnalysis.mask.OrbitMaskClassificationModel;
+import com.actelion.research.orbit.imageAnalysis.mask.OrbitMaskSegmentationModel;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.modules.*;
 import com.actelion.research.orbit.imageAnalysis.modules.mihc.MihcModule;
@@ -688,12 +689,14 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         String trained = "no";
         String segModel = "no";
         String exclModel = "no";
+        String mask = "no";
         if (model != null) {
             trained = (model.getClassifier() != null && model.getClassifier().isBuild()) ? "yes" : "no";
             segModel = model.getSegmentationModel() != null ? "yes" : "no";
             exclModel = model.getExclusionModel() != null ? "yes" : "no";
+            mask = model.getMask()!=null ? "yes" : "no";
         }
-        statusBar.setLoadedModel("Model: " + loadedModel + " / Trained:" + trained + " / Segmentation:" + segModel + " / Exclusion:" + exclModel);
+        statusBar.setLoadedModel("Model: " + loadedModel + " / Trained:" + trained + " / Segmentation:" + segModel + " / Exclusion:" + exclModel+" Mask:" + mask);
         statusBar.setLoginUser("Login User: " + loginUser);
         statusBar.setMemory(Runtime.getRuntime().totalMemory() / (1024L * 1024L), Runtime.getRuntime().maxMemory() / (1024L * 1024L));
     }
@@ -2601,13 +2604,27 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private boolean maskSet() {
         OrbitModel maskModel = getModelExplorer().getSelectedModel();
        if (maskModel!=null) {
-           IOrbitMask mask = new OrbitMaskClassificationModel(maskModel);
+           IOrbitMask mask = new OrbitMaskClassificationModel(maskModel.clone());
            model.setMask(mask);
+           updateStatusBar();
            return true;
        } else {
            return false;
        }
     }
+
+    private boolean maskSegmentationSet() {
+        OrbitModel maskModel = getModelExplorer().getSelectedModel();
+        if (maskModel!=null && maskModel.getSegmentationModel()!=null) {
+            IOrbitMask mask = new OrbitMaskSegmentationModel(maskModel.clone());
+            model.setMask(mask);
+            updateStatusBar();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     private boolean invertROI() {
         for (ImageFrame iFrame : getIFrames()) {
@@ -3487,16 +3504,27 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     public final ActionListener maskSetActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             if (maskSet()) {
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Mask successfully set.", "Mask set", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Classification mask successfully set.", "Mask set", JOptionPane.INFORMATION_MESSAGE);
             } else
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Mask set failed.", "Mask set failed", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Please select a model in the model explorer which you want to use as mask.", "Mask set failed", JOptionPane.ERROR_MESSAGE);
         }
     };
+
+    public final ActionListener maskSegmentationSetActionListener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            if (maskSegmentationSet()) {
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Segmentation mask successfully set.", "Mask set", JOptionPane.INFORMATION_MESSAGE);
+            } else
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Please select a model in the model explorer which you want to use as mask.", "Mask set failed", JOptionPane.ERROR_MESSAGE);
+        }
+    };
+
 
     public final ActionListener maskUnSetActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             if (model.getMask()!=null) {
                 model.setMask(null);
+                updateStatusBar();
                 JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Mask successfully unset.", "Mask unset", JOptionPane.INFORMATION_MESSAGE);
             } else
                 JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The model does not contain a mask.", "No mask to unset", JOptionPane.WARNING_MESSAGE);
@@ -3506,7 +3534,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     public final ActionListener mask2browserActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             if (model.getMask()!=null && model.getMask() instanceof IOrbitMaskModelBased) {
-                getModelExplorer().addModel(((IOrbitMaskModelBased) model.getMask()).getModel(),null,false);
+                getModelExplorer().addModel(((IOrbitMaskModelBased) model.getMask()).getModel().clone(),null,false);
                 JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Mask successfully unset.", "Mask unset", JOptionPane.INFORMATION_MESSAGE);
             } else
                 if (model.getMask()==null) 
@@ -3515,6 +3543,21 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     };
 
+    public final ActionListener maskConfigureActionListener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            if (model.getMask()!=null && model.getMask() instanceof IOrbitMaskModelBased) {
+                OrbitModel maskModel = ((IOrbitMaskModelBased) model.getMask()).getModel();
+                ClassAdminFrame configFrame = new ClassAdminFrame(maskModel.getClassShapes(), new ClassListCellRenderer(), -1, false);
+                configFrame.setAlwaysOnTop(true);
+                configFrame.setModal(true);
+                configFrame.setVisible(true);
+                ((IOrbitMaskModelBased) model.getMask()).reconfigure();
+            } else
+            if (model.getMask()==null)
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The model does not contain a mask.", "No mask to configure", JOptionPane.WARNING_MESSAGE);
+            else  JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The mask is not model based, thus no model can be configured.", "Mask not model based", JOptionPane.WARNING_MESSAGE);
+        }
+    };
 
     public final ActionListener resetEntireModelActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {

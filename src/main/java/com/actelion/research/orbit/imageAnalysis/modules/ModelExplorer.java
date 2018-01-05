@@ -23,8 +23,6 @@ import com.actelion.research.orbit.imageAnalysis.components.AbstractOrbitModule;
 import com.actelion.research.orbit.imageAnalysis.components.ClassAdminFrame;
 import com.actelion.research.orbit.imageAnalysis.components.ImageFrame;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
-import com.actelion.research.orbit.imageAnalysis.mask.IOrbitMask;
-import com.actelion.research.orbit.imageAnalysis.mask.OrbitMaskClassificationModel;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.ClassListCellRenderer;
 import org.slf4j.Logger;
@@ -49,8 +47,7 @@ public class ModelExplorer extends AbstractOrbitModule {
     final private JList<OrbitModel> list = new JList<>(listModel);
     final private JButton btnAddModel = new JButton("add");
     final private JButton btnRemoveModel = new JButton("remove");
-    final private JButton btnSetAsClassificationModel = new JButton("set as classification");
-    final private JButton btnSetAsMask = new JButton("set as mask");
+    final private JButton btnSetAsClassificationModel = new JButton("set as main model");
     final private JButton btnConfigureModel = new JButton("configure");
     private final static DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
@@ -103,20 +100,6 @@ public class ModelExplorer extends AbstractOrbitModule {
             }
         });
 
-        btnSetAsMask.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
-                OrbitModel model = list.getSelectedValue();
-                if (model!=null) {
-                    IOrbitMask mask = new OrbitMaskClassificationModel(model.clone());
-                    oia.getModel().setMask(mask);
-                    oia.updateStatusBar();
-                }
-            }
-        });
-
-
 
         // UI
 
@@ -129,7 +112,6 @@ public class ModelExplorer extends AbstractOrbitModule {
 
         JPanel bottomPanel = new JPanel();
         bottomPanel.add(btnSetAsClassificationModel);
-        bottomPanel.add(btnSetAsMask);
 
         JScrollPane scrollPane = new JScrollPane(list, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 

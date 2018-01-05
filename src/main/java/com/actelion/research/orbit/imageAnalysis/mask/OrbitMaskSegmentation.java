@@ -81,4 +81,12 @@ public class OrbitMaskSegmentation implements IOrbitMask {
             return null;
         }
     }
+
+    public List<Shape> getShapeList() {
+        return shapeList;
+    }
+
+    public void setShapeList(List<Shape> shapeList) {
+        this.shapeList = shapeList;
+    }
 }

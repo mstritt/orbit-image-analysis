@@ -48,16 +48,23 @@ public class OrbitMaskClassificationModel implements IOrbitMaskModelBased {
                 this.activeClasses.add(c);
             }
         } else {
-            // build active classes form model definition
-            List<ClassShape> classShapes = model.getClassShapes();
-            for (int i = 0; i < classShapes.size(); i++) {
-                ClassShape cs = classShapes.get(i);
-                if (cs.getIncExcMode()==ClassShape.INCLUSION) {
-                    this.activeClasses.add(i);
-                }
+            reconfigure();
+        }
+    }
+
+    @Override
+    public void reconfigure() {
+        // build active classes form model definition
+        this.activeClasses = new HashSet<>(1);
+        List<ClassShape> classShapes = model.getClassShapes();
+        for (int i = 0; i < classShapes.size(); i++) {
+            ClassShape cs = classShapes.get(i);
+            if (cs.getIncExcMode()==ClassShape.INCLUSION) {
+                this.activeClasses.add(i);
             }
         }
     }
+
 
     @Override
     public void initialize(final TiledImagePainter tip) {
@@ -121,6 +128,7 @@ public class OrbitMaskClassificationModel implements IOrbitMaskModelBased {
     public OrbitModel getModel() {
         return model;
     }
+
 
     public HashSet<Integer> getActiveClasses() {
         return activeClasses;
