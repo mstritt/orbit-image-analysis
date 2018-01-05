@@ -75,7 +75,7 @@ public class OrbitMaskSegmentationModel implements IOrbitMaskModelBased {
                                 Shape outer = pe.scale(100d * scaleOuter, pm.getCenter());
                                 pm.setPolygon(pe.clone());
                                 Shape inner = pe.scale(100d * scaleInner, pm.getCenter());
-                                ShapeAnnotationList combined = new ShapeAnnotationList(new ArrayList<>(), Collections.singletonList(inner), outer, outer.getBounds());
+                                ShapeAnnotationList combined = new ShapeAnnotationList(new ArrayList<Shape>(), Collections.singletonList(inner), outer, outer.getBounds());
                                 binnedShapes.add(combined);
                             }
                         }
