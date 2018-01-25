@@ -2604,6 +2604,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private boolean maskSet() {
         OrbitModel maskModel = getModelExplorer().getSelectedModel();
        if (maskModel!=null) {
+           if (maskModel.getMipLayer()!=model.getMipLayer()) {
+               JOptionPane.showMessageDialog(this,"In the current version the mask model and the main model must be trained on the same image resolution","Mask cannot be applied",JOptionPane.ERROR_MESSAGE);
+               return false;
+           }
            IOrbitMask mask = new OrbitMaskClassificationModel(maskModel.clone());
            model.setMask(mask);
            updateStatusBar();
@@ -2616,6 +2620,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private boolean maskSegmentationSet() {
         OrbitModel maskModel = getModelExplorer().getSelectedModel();
         if (maskModel!=null && maskModel.getSegmentationModel()!=null) {
+            if (maskModel.getSegmentationModel().getMipLayer()!=model.getMipLayer()) {
+                JOptionPane.showMessageDialog(this,"In the current version the mask model and the main model must be trained on the same image resolution","Mask cannot be applied",JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
             IOrbitMask mask = new OrbitMaskSegmentationModel(maskModel.clone());
             model.setMask(mask);
             updateStatusBar();

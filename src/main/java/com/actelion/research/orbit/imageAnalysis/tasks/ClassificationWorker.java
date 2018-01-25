@@ -96,6 +96,7 @@ public class ClassificationWorker extends OrbitWorker implements PropertyChangeL
         this.dependencyList = dependencyList;
         this.writeClassificationImage = writeClassificationImage;
         this.exclusionMapGen = exclusionMapGen;
+        OrbitUtils.setMultiChannelFeatures(this.rf.bimg.getImage(),this.model.getFeatureDescription());
         logger.trace("ROI: " + this.roi);
     }
 

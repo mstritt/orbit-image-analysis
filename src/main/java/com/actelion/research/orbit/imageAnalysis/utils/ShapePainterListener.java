@@ -299,6 +299,7 @@ public class ShapePainterListener extends MouseInputAdapter {
                     removeFromShapeList(pos.x, pos.y, sl, cs.getName());
                 }
             }
+            recognitionFrame.getForceRepaint().set(true);
         }
         recognitionFrame.repaint();
     }
@@ -365,6 +366,7 @@ public class ShapePainterListener extends MouseInputAdapter {
                 }
                 mousePosStart.x = x;
                 mousePosStart.y = y;
+                recognitionFrame.getForceRepaint().set(true);
                 recognitionFrame.repaint();
             }
         } else if (recognitionFrame.getSelectedTool().equals(Tools.rotateAnnotation)) {
@@ -400,6 +402,7 @@ public class ShapePainterListener extends MouseInputAdapter {
                             shape.rotate(dy, rotateCenter);
                         }
                     }
+                    recognitionFrame.getForceRepaint().set(true);
                     recognitionFrame.repaint();
                 }
 
@@ -410,6 +413,7 @@ public class ShapePainterListener extends MouseInputAdapter {
             int rw = (int) Math.abs(mousePosStart.getX() - x);
             int rh = (int) Math.abs(mousePosStart.getY() - y);
             curRect.setBounds(rx, ry, rw, rh);
+            recognitionFrame.getForceRepaint().set(true);
             recognitionFrame.repaint();
             return;
         } else if (recognitionFrame.getSelectedTool() == Tools.magneticLasso) { // magnetic lasso
@@ -438,6 +442,7 @@ public class ShapePainterListener extends MouseInputAdapter {
                 }
                 curPoly.setPoly(new Polygon(ax, bx, np + storeCount));
             }
+            recognitionFrame.getForceRepaint().set(true);
             recognitionFrame.repaint();
         }
         else  { // brush
@@ -491,6 +496,7 @@ public class ShapePainterListener extends MouseInputAdapter {
         if (deleteMode || !(shapeMode == ClassShape.SHAPETYPE_ARC || ((shapeMode == ClassShape.SHAPETYPE_RECTANGLE) && fixedRectangle)))
             return;
 
+        recognitionFrame.getForceRepaint().set(true);
         recognitionFrame.repaint();
     }
 
@@ -505,6 +511,7 @@ public class ShapePainterListener extends MouseInputAdapter {
             OrbitImageAnalysis.getInstance().getSizeBox().setSelectedItem(new Integer(newSize));
             //recognitionFrame.firePropertyChange("circleSizeChange", newSize);
             e.consume();
+            recognitionFrame.getForceRepaint().set(true);
             recognitionFrame.repaint();
         }
     }

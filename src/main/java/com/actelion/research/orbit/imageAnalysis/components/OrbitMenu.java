@@ -627,7 +627,7 @@ public class OrbitMenu extends JRibbonFrame {
         buttonMask2Browser.addActionListener(oia == null ? null : oia.mask2browserActionListener);
         maskBand.addCommandButton(buttonMask2Browser, RibbonElementPriority.TOP);
 
-        RibbonTask maskTask = new RibbonTask("Mask", maskBand);
+        RibbonTask maskTask = new RibbonTask("Mask (beta)", maskBand);
         ribbon.addTask(maskTask);
     }
 

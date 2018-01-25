@@ -41,16 +41,14 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.MouseListener;
 import java.awt.geom.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
+import java.awt.image.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -137,6 +135,11 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
     private static final boolean opaque = false;
     private static final boolean doubleBuffered = false;
     private static final AtomicInteger activeAnnotationGroup = new AtomicInteger(0); // annotation group -> see annotationPanel
+    private BufferedImage screenImage = null;
+    private BufferedImage lastImage = null;
+   // private Image smallImage = null;
+    private ScreenProps screenProps = null;
+    private AtomicBoolean forceRepaint = new AtomicBoolean(true);
 
     /**
      * @param picObj can ob url or orbitId
@@ -458,7 +461,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
      *
      * @return
      */
-    private RenderThread getRenderThread() {
+    private synchronized RenderThread getRenderThread() {
         if (_renderThread == null) {
             _renderThread = new RenderThread(this);
             _renderThread.setName("renderThread");
@@ -547,13 +550,27 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
 
     public void paintComponent(Graphics g) {
         if (bimg == null) return;
-        Graphics2D g2d = (Graphics2D) g;
+        ScreenProps currentScreenprops = new ScreenProps(viewPortOffset.getX(),viewPortOffset.getY(),viewPortSize.getWidth(),viewPortSize.getHeight(),scale);
+
+         if (screenImage==null || g.getClipBounds().width!=screenImage.getWidth() || g.getClipBounds().height!=screenImage.getHeight()) {
+            GraphicsConfiguration gconf = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+            screenImage = gconf.createCompatibleImage(g.getClipBounds().width, g.getClipBounds().height);
+            forceRepaint.set(true);
+         }
+        //Graphics2D g2d = (Graphics2D) g;
+        Graphics2D g2d = screenImage.createGraphics();
         try {
             // "viewPort"
             //System.out.println("vpSize: "+viewPortSize+" vpOffs: "+viewPortOffset+" image: "+bimg.image);
             //	GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration().createCompatibleImage(height, width, Transparency.OPAQUE);
 
             if (viewPortSize.getWidth() <= 0 || viewPortSize.getHeight() <= 0) return;
+
+            if (forceRepaint.get() || screenProps==null || !currentScreenprops.equals(screenProps)) {
+                g2d.setColor(this.getBackground());
+                g2d.fillRect(0, 0, screenImage.getWidth(), screenImage.getHeight());
+            }
+
             g2d.translate(-viewPortOffset.getX(), -viewPortOffset.getY());
 
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -567,28 +584,42 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
             double sc = getScale() / 100d;
             double cx = getParent().getBounds().getCenterX();
             double cy = getParent().getBounds().getCenterY();
-            double vpWidth = viewPortSize.getWidth();
+            double vpWidth = viewPortSize.getWidth();                
             double vpHeight = viewPortSize.getHeight();
 
+            if (forceRepaint.get() || screenProps==null || !currentScreenprops.equals(screenProps)) {
+                forceRepaint.set(false);
+                if (bimg.hasMipMaps()) {
+                    // for TiledImagePainter rendering scale before drawing the image, for rendering from buffer scale after drawing the image
+//                if (smallImage==null) {
+//                    smallImage = bimg.getMipMaps()[bimg.getMipMaps().length-1].getImage().getAsBufferedImage();
+//                    VolatileImage vi = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration().createCompatibleVolatileImage(smallImage.getWidth(this), smallImage.getHeight(this));
+//                    smallImage = vi;
+//                    //System.out.println("small image: "+smallImage);
+//                }
+                    if (!getRenderThread().isBufferReady()) {
+                        g2d.scale(sc, sc);
+                        if (scale >= 100)
+                            bimg.drawImage(g2d, viewPortOffset.getX(), viewPortOffset.getY(), vpWidth, vpHeight, getScale(), 0);    // bimg.getMipMaps().length - 1   was: 0
+                            //else if (scale>30) bimg.drawImage(g2d, viewPortOffset.getX(),viewPortOffset.getY(),vpWidth,vpHeight,getScale(),bimg.getMipMaps().length-2);
+                        else
+                            bimg.drawImage(g2d, viewPortOffset.getX(), viewPortOffset.getY(), vpWidth, vpHeight, getScale(), bimg.getMipMaps().length - 1);
 
-            if (bimg.hasMipMaps()) {
-                // for TiledImagePainter rendering scale before drawing the image, for rendering from buffer scale after drawing the image
-                if ((!getRenderThread().isBufferReady())) {
+                    } else {
+                        Image image = getRenderThread().getImageBuffer();
+                        int vpX = (int) viewPortOffset.getX();
+                        int vpY = (int) viewPortOffset.getY();
+                        g2d.drawImage(image, vpX, vpY, this);
+                        g2d.scale(sc, sc);
+                    }
+                } else // no mipMaps, so normal rendering
+                {
                     g2d.scale(sc, sc);
-                    if (scale >= 100)
-                        bimg.drawImage(g2d, viewPortOffset.getX(), viewPortOffset.getY(), vpWidth, vpHeight, getScale(), 0);
-                        //else if (scale>30) bimg.drawImage(g2d, viewPortOffset.getX(),viewPortOffset.getY(),vpWidth,vpHeight,getScale(),bimg.getMipMaps().length-2);
-                    else
-                        bimg.drawImage(g2d, viewPortOffset.getX(), viewPortOffset.getY(), vpWidth, vpHeight, getScale(), bimg.getMipMaps().length - 1);
-                } else {
-                    g2d.drawImage(getRenderThread().getImageBuffer(), (int) viewPortOffset.getX(), (int) viewPortOffset.getY(), this);
-                    g2d.scale(sc, sc);
+                    bimg.drawImage(g2d, viewPortOffset.getX(), viewPortOffset.getY(), vpWidth, vpHeight, getScale(), -1);
+
                 }
-            } else // no mipMaps, so normal rendering
-            {
-                g2d.scale(sc, sc);
-                bimg.drawImage(g2d, viewPortOffset.getX(), viewPortOffset.getY(), vpWidth, vpHeight, getScale(), -1);
             }
+            screenProps = currentScreenprops;
 
 
 //			g2d.scale(sc, sc);
@@ -946,6 +977,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            g.drawImage(screenImage,0,0,null);
             g2d.dispose();
         }
 
@@ -1479,6 +1511,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
     }
 
     public void setOpacity(float opacity) {
+        forceRepaint.set(true);
         this.opacity = opacity;
     }
 
@@ -1839,11 +1872,53 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
             logger.debug("Classification progress: " + String.format("%1$.2f", progress) + "%  est. time: " + OrbitUtils.formatTime(et));
         } else {
             if (evt.getPropertyName().equals(RenderThread.RENDERBUFFER_READY)) {
+                forceRepaint.set(true);
                 repaint();
             }
         }
 
     }
 
+    public AtomicBoolean getForceRepaint() {
+        return forceRepaint;
+    }
+
+    public void setForceRepaint(AtomicBoolean forceRepaint) {
+        this.forceRepaint = forceRepaint;
+    }
+
+    class ScreenProps {
+        double vpOffsX;
+        double vpOffsY;
+        double vpWidthM;
+        double vpHeight;
+        double scale;
+
+        public ScreenProps(double vpOffsX, double vpOffsY, double vpWidthM, double vpHeight, double scale) {
+            this.vpOffsX = vpOffsX;
+            this.vpOffsY = vpOffsY;
+            this.vpWidthM = vpWidthM;
+            this.vpHeight = vpHeight;
+            this.scale = scale;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ScreenProps that = (ScreenProps) o;
+            return Double.compare(that.vpOffsX, vpOffsX) == 0 &&
+                    Double.compare(that.vpOffsY, vpOffsY) == 0 &&
+                    Double.compare(that.vpWidthM, vpWidthM) == 0 &&
+                    Double.compare(that.vpHeight, vpHeight) == 0 &&
+                    Double.compare(that.scale, scale) == 0;
+        }
+
+        @Override
+        public int hashCode() {
+
+            return Objects.hash(vpOffsX, vpOffsY, vpWidthM, vpHeight, scale);
+        }
+    }
 
 }
