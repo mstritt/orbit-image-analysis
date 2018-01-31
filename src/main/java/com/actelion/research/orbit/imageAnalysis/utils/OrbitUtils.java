@@ -59,7 +59,7 @@ import java.util.*;
 import java.util.List;
 
 public class OrbitUtils {
-    // label:  OrbitImageAnalysis2752
+    // label:  OrbitImageAnalysis2753
     public static final String VERSION_STR = getVersion() + (ScaleoutMode.SCALEOUTMODE.get() ? "G" : "") + (OrbitUtils.DEVELOPMENTMODE ? " DEVELOPMENT" : "");
     public static final boolean DEVELOPMENTMODE = false;
     public static long SLEEP_TILE = 13*1000L;
@@ -241,6 +241,14 @@ public class OrbitUtils {
         }
         return maskFrame;
     }
+
+    public static RecognitionFrame createMaskRecognitionFrame(RecognitionFrame maskFrame, OrbitModel model) throws OrbitImageServletException {
+        if (model!=null && model.getMask()!=null && model.getMask() instanceof IOrbitMaskModelBased) {
+            OrbitUtils.setMultiChannelFeatures(maskFrame.bimg.getImage(),((IOrbitMaskModelBased) model.getMask()).getModel().getFeatureDescription());
+        }
+        return maskFrame;
+    }
+
 
     public static IOrbitImageMultiChannel getMultiChannelImage(final OrbitTiledImage2 img) {
         if (img instanceof OrbitTiledImageIOrbitImage) {

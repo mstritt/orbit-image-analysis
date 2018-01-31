@@ -1,0 +1,5 @@
+[NanoZoomer Digital Pathology Image Set]
+NoImages=3
+Image0=test3-DAPI 2 (387) .ndpi
+Image1=test3-FITC 2 (485).ndpi
+Image2=test3-TRITC 2 (560).ndpi

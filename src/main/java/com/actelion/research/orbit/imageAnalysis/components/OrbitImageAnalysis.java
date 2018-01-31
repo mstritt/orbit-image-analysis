@@ -2324,8 +2324,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 e.printStackTrace();
             }
 
-            logger.debug("cleaning up temp");
-            OrbitUtils.cleanUpTemp();
+            if (!OrbitUtils.DEVELOPMENTMODE) {
+                logger.debug("cleaning up temp");
+                OrbitUtils.cleanUpTemp();
+            }
             logger.debug("Orbit shutdown");
             //this.dispose();
             System.exit(0);

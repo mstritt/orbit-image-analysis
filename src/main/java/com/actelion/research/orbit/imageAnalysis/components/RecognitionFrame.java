@@ -21,14 +21,12 @@ package com.actelion.research.orbit.imageAnalysis.components;
 
 import com.actelion.research.orbit.beans.RawAnnotation;
 import com.actelion.research.orbit.beans.RawDataFile;
+import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ClassificationTaskTiled;
-import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
-import com.actelion.research.orbit.imageAnalysis.utils.ShapePainterListener;
-import com.actelion.research.orbit.imageAnalysis.utils.TiledImagePainter;
-import com.actelion.research.orbit.imageAnalysis.utils.TiledImageWriter;
+import com.actelion.research.orbit.imageAnalysis.utils.*;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 import com.sun.media.jai.codec.JPEGEncodeParam;
 import com.sun.media.jai.codec.TIFFEncodeParam;
@@ -41,7 +39,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.MouseListener;
 import java.awt.geom.*;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -246,6 +247,21 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
         this.classShapes.addAll(OrbitUtils.buildDefaultClassShapes());
         ratio = new double[classShapes.size()];
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        if (tip != null) {
+            bimg = tip;
+        }
+    }
+
+    public RecognitionFrame(IOrbitImage orbitImage, String imageName) throws Exception {
+        this.setOpaque(opaque);
+        this.setIgnoreRepaint(ignoreRepaint);
+        this.setDoubleBuffered(doubleBuffered);
+        this.classShapes.clear();
+        this.classShapes.addAll(OrbitUtils.buildDefaultClassShapes());
+        ratio = new double[classShapes.size()];
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        OrbitTiledImageIOrbitImage img = new OrbitTiledImageIOrbitImage(orbitImage);
+        TiledImagePainter tip = new TiledImagePainter(img,imageName);
         if (tip != null) {
             bimg = tip;
         }

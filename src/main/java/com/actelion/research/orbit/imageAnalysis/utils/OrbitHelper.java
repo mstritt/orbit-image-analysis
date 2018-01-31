@@ -538,7 +538,6 @@ public class OrbitHelper {
         return Classify(rdf, null, _model, tiles, numThreads, overrideROI);
     }
 
-
     /**
      * Rdf is used for mip-level and exclusion model, but can be null (if mip and exclusion model is not used).
      * _rf can be null, the rf is created based on rdf.
@@ -553,6 +552,27 @@ public class OrbitHelper {
      * @throws Exception
      */
     public static ClassificationResult Classify(final RawDataFile rdf, final RecognitionFrame _rf, final OrbitModel _model, List<Point> tiles, int numThreads, IScaleableShape overrideROI) throws Exception {
+        RecognitionFrame maskFrame = null;
+        if (rdf!=null) {
+            maskFrame = OrbitUtils.createMaskRecognitionFrame(rdf,_model);
+        }
+        return Classify(rdf,_rf,maskFrame,_model,tiles,numThreads,overrideROI);
+    }
+
+        /**
+         * Rdf is used for mip-level and exclusion model, but can be null (if mip and exclusion model is not used).
+         * _rf can be null, the rf is created based on rdf.
+         *
+         * @param rdf         can be null, then set _rf
+         * @param _rf         can be null, then set rdf
+         * @param _model
+         * @param tiles       can be null - then all tiles are used
+         * @param numThreads  currently not used (only one thread is used)
+         * @param overrideROI
+         * @return
+         * @throws Exception
+         */
+    public static ClassificationResult Classify(final RawDataFile rdf, final RecognitionFrame _rf, final RecognitionFrame _maskFrame,  final OrbitModel _model, List<Point> tiles, int numThreads, IScaleableShape overrideROI) throws Exception {
         final double pixelFuzzyness = 0d;
         final double tileFuzzyness = 0d;
 
@@ -566,7 +586,7 @@ public class OrbitHelper {
         OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(),model.getFeatureDescription());           // TODO: create rf for mask and set fluo features
 
         // mask image
-        RecognitionFrame maskFrame = OrbitUtils.createMaskRecognitionFrame(rdf, model);
+        RecognitionFrame maskFrame = _maskFrame;
         if (maskFrame==null) {
             maskFrame = rf;
         }
