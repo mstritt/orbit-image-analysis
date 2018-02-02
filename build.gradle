@@ -143,7 +143,7 @@ configurations {
 
 dependencies {
     compile 'com.actelion.research:lib-orbit-common:1.2.12'
-//    compile 'com.actelion.research:image-provider-omero:1.5.0'
+    compile 'com.actelion.research:image-provider-omero:1.5.1'
     compile 'com.actelion.research:map-reduce-generic:1.0.8'
 //    compile 'com.actelion.research:map-reduce-exec-spark:1.0.2'
 
@@ -154,7 +154,7 @@ dependencies {
 //    compile 'com.actelion.research:imageproviderorbit:1.1.13'
 
     // JNA (needed for the NDPR C++ API)
-    compile 'net.java.dev.jna:jna:4.5.0'
+    compile 'net.java.dev.jna:jna:4.5.1'
 
 // only used for image-provider-omero development
 //    compile(group: 'omero', name: 'blitz', version: '5.2.7-ice36-b40') {   // 5.2.7-ice36-b40   5.3.0-ice36-b59
@@ -218,14 +218,14 @@ dependencies {
     compile (group: 'org.codelibs', name:'jcifs', version:'1.3.18.1') {  // for SmbUtils     (exclude javax.servlet-api because Spark needs a different version)
        exclude (group:'javax.servlet', module: 'servlet-api')
     }
-    compile (group: 'ome', name:'formats-gpl', version:'5.7.2') { // 5.5.3
+    compile (group: 'ome', name:'formats-gpl', version:'5.7.3') { 
         exclude (module: 'blitz')
     }
     compile (group: 'net.imglib2', name: 'imglib2', version: '3.2.1') // to avoid jpeg2000 problem: NoSuchMethodError: jj2000.j2k.fileformat.reader.FileFormatReader.<init>
 
 //    compile 'io.scif:scifio:0.30.0'  // only java 1.8
 //    compile 'io.scif:scifio-bf-compat:2.0.0'
-    compile 'org.codehaus.groovy:groovy-all:2.4.12'
+    compile 'org.codehaus.groovy:groovy-all:2.4.13'
     compile 'org.codehaus.gpars:gpars:1.2.1'
     compile 'com.fifesoft:rsyntaxtextarea:2.6.1'
     compile 'com.fifesoft:autocomplete:2.6.1'
@@ -236,7 +236,7 @@ dependencies {
     compile (group: 'sc.fiji', name: 'legacy-imglib1', version: '2.0.0-SNAPSHOT') {     //1.1.5  2.0.0-SNAPSHOT for graph_cut
         transitive = false
     }
-    compile 'org.xerial:sqlite-jdbc:3.20.1'
+    compile 'org.xerial:sqlite-jdbc:3.21.0'
     compileOnly 'org.tensorflow:tensorflow:1.4.0'  // compileOnly
     testCompile 'junit:junit:[4.0,)'
 

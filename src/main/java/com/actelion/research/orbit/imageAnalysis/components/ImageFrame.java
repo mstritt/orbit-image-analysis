@@ -111,8 +111,10 @@ public class ImageFrame extends JInternalFrame implements ComponentListener, Pro
             public void stateChanged(ChangeEvent e) {
                 JSlider slider = (JSlider) e.getSource();
                 ImageFrame.this.recognitionFrame.setOpacity(slider.getValue() / 100f);
-                ImageFrame.this.recognitionFrame.prepareBuffer();
-                ImageFrame.this.recognitionFrame.repaint();
+                if (!opacitySlider.getValueIsAdjusting()) {
+                    ImageFrame.this.recognitionFrame.prepareBuffer();
+                    ImageFrame.this.recognitionFrame.repaint();
+                }
             }
 
             ;

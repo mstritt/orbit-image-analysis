@@ -97,7 +97,9 @@ public class AdjustPanel extends JPanel {
                 if (iFrame != null) {
                     int b = brightnessSlider.getValue();
                     iFrame.recognitionFrame.bimg.setBrightness(b);
-                    updateIFrame(iFrame);
+                    if (!brightnessSlider.getValueIsAdjusting()) {
+                        updateIFrame(iFrame);
+                    }
                 }
             }
         });
@@ -108,7 +110,9 @@ public class AdjustPanel extends JPanel {
                 if (iFrame != null) {
                     int b = contrastSlider.getValue();
                     iFrame.recognitionFrame.bimg.setContrast(b);
-                    updateIFrame(iFrame);
+                    if (!contrastSlider.getValueIsAdjusting()) {
+                        updateIFrame(iFrame);
+                    }
                 }
             }
         });
@@ -119,7 +123,9 @@ public class AdjustPanel extends JPanel {
                 if (iFrame != null) {
                     int b = gammaSlider.getValue();
                     iFrame.recognitionFrame.bimg.setGamma(b);
-                    updateIFrame(iFrame);
+                    if (!gammaSlider.getValueIsAdjusting()) {
+                        updateIFrame(iFrame);
+                    }
                 }
             }
         });
@@ -131,7 +137,9 @@ public class AdjustPanel extends JPanel {
                 if (iFrame != null) {
                     int b = blurSlider.getValue();
                     iFrame.recognitionFrame.bimg.setBlur(b);
-                    updateIFrame(iFrame);
+                    if (!blurSlider.getValueIsAdjusting()) {
+                        updateIFrame(iFrame);
+                    }
                 }
             }
         });
@@ -150,7 +158,9 @@ public class AdjustPanel extends JPanel {
                     iFrame.recognitionFrame.bimg.setRedActive(redCb.isSelected());
                     iFrame.recognitionFrame.bimg.setGreenActive(greenCb.isSelected());
                     iFrame.recognitionFrame.bimg.setBlueActive(blueCb.isSelected());
-                    updateIFrame(iFrame);
+                    if (!(redSlider.getValueIsAdjusting()||greenSlider.getValueIsAdjusting()||blueSlider.getValueIsAdjusting())) {
+                        updateIFrame(iFrame);
+                    }
                 }
             }
         };
@@ -312,6 +322,7 @@ public class AdjustPanel extends JPanel {
 
     private synchronized void updateIFrame(ImageFrame iFrame) {
         if (iFrame != null) {
+            iFrame.recognitionFrame.getForceRepaint().set(true);
             if (iFrame.recognitionFrame.getRenderThreadOriginal() != null && iFrame.recognitionFrame.getRenderThreadOriginal().isBufferReady()) {
                 iFrame.recognitionFrame.getRenderThreadOriginal().setValuesDirty(true);
                 iFrame.recognitionFrame.getRenderThreadOriginal().setScheduleUpdate(true);
