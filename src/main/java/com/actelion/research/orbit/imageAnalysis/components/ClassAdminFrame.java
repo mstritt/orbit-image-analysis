@@ -47,7 +47,7 @@ public class ClassAdminFrame extends JDialog {
     private JButton btnRemoveClass = null;
     private JButton btnRenameClass = null;
     private JButton btnChooseColor = null;
-    private final JLabel labIncExclMode = new JLabel("Only if used as Exclusion Model:");
+    private final JLabel labIncExclMode = new JLabel("For Exclusion and Mask Model:");
     private JComboBox cbIncExclMode = new JComboBox(new String[]{ClassShape.STR_UNDEFINED, ClassShape.STR_Inclusion, ClassShape.STR_Exclusion});
     private JButton btnOK = null;
 
@@ -87,7 +87,7 @@ public class ClassAdminFrame extends JDialog {
 
 
     private void initialize() {
-        this.setTitle("Class Configuration");
+        this.setTitle("Class Configuration (F4)");
         java.net.URL imgURL = this.getClass().getResource(OrbitImageAnalysis.LOGO_NAME);
         if (imgURL != null) {
             ImageIcon icon = new ImageIcon(imgURL);

@@ -348,7 +348,9 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                                     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
                                     ImageIO.write(sourceImage,"jpeg",outStream);
                                     outStream.flush();
-                                    BufferedImage mask = dlSegment.segmentInput(outStream.toByteArray(),tfSession, segmentationModel.getClassShapes().get(0).getColor(), segmentationModel.getClassShapes().get(1).getColor() );
+                                    byte[] input = outStream.toByteArray();
+                                 //   Tensor<Float> input = DLSegment.convertBufferedImageToTensor(sourceImage);
+                                    BufferedImage mask = dlSegment.segmentInput(input,tfSession, segmentationModel.getClassShapes().get(0).getColor(), segmentationModel.getClassShapes().get(1).getColor() );
                                     classImage = new TiledImageWriter(mask);
 
                                 } else {

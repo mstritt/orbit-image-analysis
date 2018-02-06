@@ -112,7 +112,7 @@ public class FeaturesAdminFrame extends JDialog {
     }
 
     private void initialize() {
-        this.setTitle("Feature Configuration");
+        this.setTitle("Feature Configuration (F3)");
         java.net.URL imgURL = this.getClass().getResource(OrbitImageAnalysis.LOGO_NAME);
         if (imgURL != null) {
             ImageIcon icon = new ImageIcon(imgURL);
