@@ -20,7 +20,6 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
 import org.tensorflow.Graph;
-import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 
@@ -32,12 +31,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
 
 public class DLSegment2 {
 
 	//private static final String MODEL_NAME = "D:\\data\\glomeruli\\frozen_model.pb";
-	private static final String MODEL_NAME = "D:\\data\\glomeruli\\20180202_glomeruli_detection.pb";
+	private static final String MODEL_NAME = "D:\\data\\glomeruli\\20180202_glomeruli_detection_noquant.pb";
 
 	//	private static final String INPUT_IMAGE = "D:\\data\\glomeruli\\4730025_tile27x18.jpg";
 //  private static final String OUTPUT_IMAGE = "D:\\data\\glomeruli\\4730025_tile27x18_seg.jpg";
@@ -83,21 +81,7 @@ public class DLSegment2 {
 		ImageIO.write(bufferedImage, "jpg", new File(OUTPUT_IMAGE));
 	}
 
-	public static void main2(String[] args) throws IOException {
 
-		byte[] graphDef = readAllBytesOrExit(Paths.get(MODEL_NAME));
-		byte[] image = readAllBytesOrExit(Paths.get(INPUT_IMAGE));
-
-		Date startDate = new Date();
-		Tensor<Float> input = constructAndExecuteGraphToNormalizeImage(image);
-
-		long[] mask = executeInceptionGraph(graphDef, input);
-		BufferedImage bufferedImage = decodeLabels(mask, Color.black, Color.white);
-		ImageIO.write(bufferedImage, "jpg", new File(OUTPUT_IMAGE));
-
-		long elapsedTimeInSec = (new Date().getTime() - startDate.getTime()) / 1000;
-		System.out.println(String.format("Ended in %ds .", elapsedTimeInSec));
-	}
 
 	private static BufferedImage decodeLabels(long[] mask, Color bg, Color fg) {
 //		int[][] label_colours = {
@@ -143,27 +127,6 @@ public class DLSegment2 {
 			}
 		}
 		return Tensor.create(rgbArray, Float.class);
-	}
-
-	private static Tensor<Float> constructAndExecuteGraphToNormalizeImage(byte[] imageBytes) {
-		try (Graph g = new Graph()) {
-			GraphBuilder b = new GraphBuilder(g);
-
-			final int H = DESIRED_SIZE;
-			final int W = DESIRED_SIZE;
-			final float[] mean = new float[]{104.00698793f,116.66876762f,122.67891434f};
-			final float scale = 1f;
-
-			final Output<String> input = b.constant("input", imageBytes);
-			final Output<Float> output = b.div(b.sub(b.resizeBilinear(
-					b.expandDims(b.cast(b.decodeJpeg(input, 3), Float.class),
-					b.constant("make_batch", 0)),
-					b.constant("size", new int[] { H, W })), b.constant("mean", mean)),
-					b.constant("scale", scale));
-			try (Session s = new Session(g)) {
-				return s.runner().fetch(output.op().name()).run().get(0).expect(Float.class);
-			}
-		}
 	}
 
 
