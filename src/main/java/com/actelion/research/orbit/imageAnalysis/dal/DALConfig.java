@@ -96,6 +96,9 @@ public class DALConfig {
                 }
                 imageProvider = localImageProvider;
             }
+
+          //  ((ImageProviderOrbit)imageProvider).setLocalImageProvider(new ImageProviderLocalCached("D:\\temp\\c"));  // TODO !!!
+
             scaleOut = (IScaleout) Class.forName(props.getProperty("ScaleOut")).newInstance();
             String sparkMaster = props.getProperty("SparkMaster", "local[*]");
 
