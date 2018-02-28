@@ -171,6 +171,7 @@ public class RareObjectDetectionModule extends AbstractSpotModule {
                                               final ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
                                               if (list.getSelectedValue() != null && iFrame != null) {
                                                   ImageAnnotation ann = (ImageAnnotation) list.getSelectedValue();
+                                                  ann.setSelected(true);
                                                   PolygonExt shape = (PolygonExt) ann.getShape().getShapeList().get(0);
                                                   Rectangle bb = shape.getScaledInstance(100, new Point(0, 0)).getBounds();
                                                   double sc = iFrame.recognitionFrame.getScale() / 100d;

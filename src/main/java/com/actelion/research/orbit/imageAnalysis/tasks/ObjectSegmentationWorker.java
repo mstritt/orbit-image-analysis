@@ -565,7 +565,9 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                 if (secondarySegmentationModel != null) {
                     secondary = "\nSecondary Object Count: " + allObjectCountSecondary + "\n";
                 }
-                taskResult = new TaskResult("Object Count", "Number of objects: " + allObjectCount + secondary + "\n\nHint: Set feature classes (F3->'classes for retrieving features') to retrieve features (e.g. intensities) per object.");
+                taskResult = new TaskResult("Object Count", "Number of objects: " + allObjectCount + secondary
+                      //  + "\n\nHint: Set feature classes (F3->'classes for retrieving features') to retrieve features (e.g. intensities) per object."
+                );
             }
 
 

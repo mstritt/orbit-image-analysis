@@ -20,10 +20,10 @@
 package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import com.actelion.research.orbit.beans.RawDataFile;
+import com.actelion.research.orbit.dal.IImageProvider;
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.dao.DAODataFile;
 import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
-import com.actelion.research.orbit.utils.PathResolver;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,18 +40,16 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
     private static final Logger logger = LoggerFactory.getLogger(ImageProviderLocalCached.class);
     private String cacheDir;
     private final List<File> cachedFiles = new ArrayList<>();
+    private IImageProvider imageProvider;
 
-    public ImageProviderLocalCached(String cacheDir) {
+    public ImageProviderLocalCached(String cacheDir, IImageProvider imageProvider) {
         this.cacheDir = cacheDir;
+        this.imageProvider = imageProvider;
     }
 
     @Override
     public IOrbitImage createOrbitImage(RawDataFile rdf, int level) throws Exception {
-        File file = new File (cacheDir + File.separator + rdf.getRawDataFileId()+"."+rdf.getEnding());
-
-        if (!file.exists()) {
-            clone(rdf,cacheDir);
-        }
+        File file = stageFile(rdf);
 
         if (file.exists()) {
             logger.info("using local file: "+file.getAbsolutePath());
@@ -65,18 +63,26 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
         }
     }
 
+    public File stageFile(RawDataFile rdf) throws IOException, SQLException {
+        File file = new File (cacheDir + File.separator + rdf.getRawDataFileId()+"."+rdf.getEnding());
+
+        if (!file.exists()) {
+            clone(rdf,cacheDir);
+        }
+        return file;
+    }
+
     @Override
     public void close() throws IOException {
         super.close();
         for (File file: cachedFiles) {
-            FileUtils.forceDelete(file);
+          //  FileUtils.forceDelete(file);
         }
     }
 
     private void clone(RawDataFile rdf, String dir) throws IOException, SQLException {
         File dest = new File(dir);
         dest.mkdirs();
-        FileUtils.cleanDirectory(dest);
         cloneGeneric(rdf,dir);
         if (rdf.getEnding().equalsIgnoreCase("ndpis")) {
             // download all channels
@@ -113,21 +119,13 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
     }
 
     private void cloneGeneric(RawDataFile rdf, String dir) throws IOException {
-        cloneHTTP2(rdf,dir);
+        cloneHTTP(rdf,dir);
+       
     }
 
     private void cloneHTTP(RawDataFile rdf, String dir) throws IOException {
         int rdfId = rdf.getRawDataFileId();
-        URL url = new URL("http://ares.idorsia.com:8080/orbit/rdf?orbitId="+rdfId+"&output=raw&download=true");
-        logger.info("downloading url: "+url);
-        File file = new File(dir+File.separator+rdfId+"."+rdf.getEnding());
-        FileUtils.copyURLToFile(url,file);
-        cachedFiles.add(file);
-    }
-
-    private void cloneHTTP2(RawDataFile rdf, String dir) throws IOException {
-        int rdfId = rdf.getRawDataFileId();
-        URL url = new URL(PathResolver.getAbsolutFilenameOnServer(rdf));
+        URL url =  imageProvider.getRawDataFileUrl(rdf);
         logger.info("downloading url: "+url);
         File file = new File(dir+File.separator+rdfId+"."+rdf.getEnding());
         FileUtils.copyURLToFile(url,file);

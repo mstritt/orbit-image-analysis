@@ -19,6 +19,7 @@
 
 package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
+import com.actelion.research.orbit.utils.RawUtils;
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
@@ -28,6 +29,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,7 +49,7 @@ public class DLSegment2 {
 
 	public static void main3(String[] args) throws IOException {
 		DLSegment2 segment = new DLSegment2();
-		Session s = segment.buildSession();
+		Session s = segment.buildSession(MODEL_NAME);
 
 		BufferedImage sourceImage = ImageIO.read(new File(INPUT_IMAGE));
 		BufferedImage bi1 = new BufferedImage(1024,1024,BufferedImage.TYPE_INT_RGB);
@@ -72,7 +74,7 @@ public class DLSegment2 {
 
 	public static void main(String[] args) throws IOException {
 		DLSegment2 segment = new DLSegment2();
-		Session s = segment.buildSession();
+		Session s = segment.buildSession(MODEL_NAME);
 		//byte[] image = readAllBytesOrExit(Paths.get(INPUT_IMAGE));
 		BufferedImage inputImage = ImageIO.read(new File(INPUT_IMAGE));
 		Tensor<Float> inputTensor = convertBufferedImageToTensor(inputImage);
@@ -144,13 +146,23 @@ public class DLSegment2 {
 		}
 	}
 
-	public Session buildSession() {
-		byte[] graphDef = readAllBytesOrExit(Paths.get(MODEL_NAME));
+	public Session buildSession(String fileName) {
+		byte[] graphDef = readAllBytesOrExit(Paths.get(fileName));
+		return buildSessionBytes(graphDef);
+	}
+
+	public Session buildSession(URL modelUrl) {
+		byte[] graphDef = RawUtils.getContentBytes(modelUrl);
+		return buildSessionBytes(graphDef);
+	}
+
+	public Session buildSessionBytes(byte[] graphDef) {
 		Graph g = new Graph();
 		g.importGraphDef(graphDef);
 		Session s = new Session(g);
 		return s;
 	}
+
 
 	public BufferedImage segmentInput(final Tensor<Float> inputTensor, Session s, Color bg, Color fg) {
 		Tensor<Long> outputTensor = s

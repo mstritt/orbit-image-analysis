@@ -59,6 +59,7 @@ public class DALConfig {
     private static boolean checkVersion = true;
     private static String explicitLibDir = null;
     private static String localDBFile;
+    private static boolean localImageCache = false;
 
     static {
         try {
@@ -97,7 +98,13 @@ public class DALConfig {
                 imageProvider = localImageProvider;
             }
 
-          //  ((ImageProviderOrbit)imageProvider).setLocalImageProvider(new ImageProviderLocalCached("D:\\temp\\c"));  // TODO !!!
+            if (localImageCache) {
+                //File tempDir = Files.createTempDir();
+                File tempDir = new File("tempimages");
+                tempDir.deleteOnExit();
+                logger.info("local file cache temp dir: "+tempDir.getAbsolutePath());
+//                ((ImageProviderOrbit) imageProvider).setLocalImageProvider(new ImageProviderLocalCached(tempDir.getAbsolutePath(), imageProvider));  // TODO !!!
+            }
 
             scaleOut = (IScaleout) Class.forName(props.getProperty("ScaleOut")).newInstance();
             String sparkMaster = props.getProperty("SparkMaster", "local[*]");
