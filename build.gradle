@@ -131,6 +131,13 @@ task icons {
             })
 }
 
+task copyTestResources(type: Copy) {
+    from "${projectDir}/src/test/resources"
+    into "${buildDir}/classes/test"
+}
+processTestResources.dependsOn copyTestResources
+
+
 configurations {
     compile.exclude module:'slf4j-log4j12'
     compile.exclude group:'com.codahale.metrics', module:'metrics-jvm'
