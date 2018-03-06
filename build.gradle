@@ -141,11 +141,6 @@ configurations {
 }
 
 
-task copyTestResources(type: Copy) {
-    from "${projectDir}/src/test/resources"
-    into "${buildDir}/classes/test"
-}
-processTestResources.dependsOn copyTestResources
 
 dependencies {
     compile 'com.actelion.research:lib-orbit-common:1.2.12'

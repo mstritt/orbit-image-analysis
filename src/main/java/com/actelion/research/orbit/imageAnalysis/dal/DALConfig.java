@@ -99,11 +99,10 @@ public class DALConfig {
             }
 
             if (localImageCache) {
-                //File tempDir = Files.createTempDir();
-                File tempDir = new File("tempimages");
+                File tempDir = new File(OrbitUtils.getCurrentDir()+File.separator+"tempimages");
                 tempDir.deleteOnExit();
                 logger.info("local file cache temp dir: "+tempDir.getAbsolutePath());
-//                ((ImageProviderOrbit) imageProvider).setLocalImageProvider(new ImageProviderLocalCached(tempDir.getAbsolutePath(), imageProvider));  // TODO !!!
+               // ((ImageProviderOrbit) imageProvider).setLocalImageProvider(new ImageProviderLocalCached(tempDir.getAbsolutePath(), imageProvider));  // TODO !!!
             }
 
             scaleOut = (IScaleout) Class.forName(props.getProperty("ScaleOut")).newInstance();
@@ -147,7 +146,7 @@ public class DALConfig {
 
             logger.info("image provider: " + imageProvider);
             logger.info("scaleOut: " + scaleOut);
-            if (scaleOut.toString().contains("ScaleoutSpark")) {
+            if (scaleOut.toString().endsWith("ScaleoutSpark")) {
                 Class[] paramString = new Class[]{String.class};
                 scaleOut.getClass().getDeclaredMethod("setMaster", paramString).invoke(scaleOut, new String(sparkMaster));
                 logger.info("SparkMaster: " + sparkMaster);
