@@ -141,9 +141,15 @@ configurations {
 }
 
 
+task copyTestResources(type: Copy) {
+    from "${projectDir}/src/test/resources"
+    into "${buildDir}/classes/test"
+}
+processTestResources.dependsOn copyTestResources
+
 dependencies {
     compile 'com.actelion.research:lib-orbit-common:1.2.12'
-    compile 'com.actelion.research:image-provider-omero:1.5.3'
+//    compile 'com.actelion.research:image-provider-omero:1.5.3'
     compile 'com.actelion.research:map-reduce-generic:1.0.8'
 //    compile 'com.actelion.research:map-reduce-exec-spark:1.0.2'
 
@@ -151,7 +157,7 @@ dependencies {
 //    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.1.30') {
 //        exclude(module: 'orbit-image-analysis')
 //    }
-//    compile 'com.actelion.research:imageproviderorbit:1.1.13'
+//    compile 'com.actelion.research:imageproviderorbit:1.1.18'
 
     // JNA (needed for the NDPR C++ API)
     compile 'net.java.dev.jna:jna:4.5.1'
@@ -237,7 +243,11 @@ dependencies {
         transitive = false
     }
     compile 'org.xerial:sqlite-jdbc:3.21.0'
-    compileOnly 'org.tensorflow:tensorflow:1.4.0'  // compileOnly
+//    compile 'org.tensorflow:tensorflow:1.4.0'  // compileOnly
+    compile 'org.tensorflow:tensorflow:1.4.0'  // 1.5.0 compileOnly
+//    compile 'org.tensorflow:libtensorflow_jni_gpu:1.6.0-rc1'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.5'
+    compile 'com.actelion.research:map-reduce-exec-spark:1.0.15'
     testCompile 'junit:junit:[4.0,)'
 
 }
