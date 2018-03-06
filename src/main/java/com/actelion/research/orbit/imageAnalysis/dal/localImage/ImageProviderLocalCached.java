@@ -22,7 +22,7 @@ package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.dal.IImageProvider;
 import com.actelion.research.orbit.dal.IOrbitImage;
-import com.actelion.research.orbit.dao.DAODataFile;
+import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +62,7 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
         }
     }
 
-    public File stageFile(RawDataFile rdf) throws IOException, SQLException {
+    public File stageFile(RawDataFile rdf) throws Exception {
         File file = new File (cacheDir + File.separator + rdf.getRawDataFileId()+"."+rdf.getEnding());
 
         if (!file.exists()) {
@@ -80,7 +79,7 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
         }
     }
 
-    private void clone(RawDataFile rdf, String dir) throws IOException, SQLException {
+    private void clone(RawDataFile rdf, String dir) throws Exception {
         File dest = new File(dir);
         dest.mkdirs();
         cloneGeneric(rdf,dir);
@@ -90,7 +89,7 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
             String text = FileUtils.readFileToString(file);
             int[] rdfIds = extractNDPIIds(text);
             for (int id: rdfIds) {
-                RawDataFile rdf2 = DAODataFile.LoadRawDataFile(id);
+                RawDataFile rdf2 = DALConfig.getImageProvider().LoadRawDataFile(id);
                 cloneGeneric(rdf2,dir);
             }
         }

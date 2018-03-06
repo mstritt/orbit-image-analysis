@@ -19,7 +19,7 @@
 
 package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
-import com.actelion.research.orbit.utils.RawUtils;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
@@ -152,7 +152,7 @@ public class DLSegment2 {
 	}
 
 	public Session buildSession(URL modelUrl) {
-		byte[] graphDef = RawUtils.getContentBytes(modelUrl);
+		byte[] graphDef = OrbitUtils.getContentBytes(modelUrl);
 		return buildSessionBytes(graphDef);
 	}
 

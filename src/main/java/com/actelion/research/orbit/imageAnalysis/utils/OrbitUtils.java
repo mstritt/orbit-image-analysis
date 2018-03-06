@@ -133,6 +133,40 @@ public class OrbitUtils {
         }
     }
 
+    public static String getCurrentDir() {
+        String path = "";
+        try {
+            path = System.getProperty("user.dir");
+            String sandbox = System.getenv("MESOS_SANDBOX");
+            if (sandbox!=null && sandbox.length()>0) {
+                path = sandbox;
+            }
+        }  catch (Exception e) {}
+        return path;
+    }
+
+    public static byte[] getContentBytes(URL url) {
+        byte[] bytes = new byte[4096];
+        BufferedInputStream is = null;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            is = new BufferedInputStream(url.openStream());
+            int bytesRead;
+            while ((bytesRead = is.read(bytes)) > 0) {
+                out.write(bytes, 0, bytesRead);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (is != null) is.close();
+            } catch (Exception e) {
+            }
+        }
+        return out.toByteArray();
+    }
+
+
     public static boolean isOME_TIFF(String filename) {
         if (filename==null) return false;
         String fn = filename.toLowerCase();
