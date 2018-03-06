@@ -25,6 +25,7 @@ import com.actelion.research.orbit.imageAnalysis.mask.IOrbitMaskModelBased;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.*;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -36,6 +37,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * TestTwoLevelSegmentation test
  */
+@Ignore
 public class TestTissueClassificationNDPIS {
 
     private double[] resAllChannelsJava = new double[]{0.558096,0.343013,0.088396,0.010495};
