@@ -52,7 +52,7 @@ def rotate(img, img_name, mask, mask_name, degree, postfix):
 def process(args):
     image_src, mask_src = args
 
-    image_name = '_'.join(image_src.split('\\')[-3:])
+    image_name = '_'.join(image_src.split('\\')[-3:])      # -1 for absolute directories!
     mask_name = '_'.join(mask_src.split('\\')[-3:])
 
     img = Image.open(image_src)
@@ -72,14 +72,15 @@ def process(args):
     Image.fromarray(mask_conved).save(os.path.join(dest_dir_masks, mask_name))
 
 
-for i in range(len(masks)):
-   print(str(i+1)+"/"+str(len(masks)) +": "+ images[i]+" / "+masks[i])
-   process((images[i], masks[i]))
+# for i in range(len(masks)):
+#    print(str(i+1)+"/"+str(len(masks)) +": "+ images[i]+" / "+masks[i])
+#    process((images[i], masks[i]))
 
-#pool = multiprocessing.Pool(8)
-#tasks = []
-#for i in range(len(masks)):
-#    tasks.append((images[i], masks[i]))#
-#
-#for _ in tqdm.tqdm(pool.imap_unordered(process, tasks), total=len(tasks)):
-#    pass
+if __name__ ==  '__main__':
+    pool = multiprocessing.Pool(10)
+    tasks = []
+    for i in range(len(masks)):
+        tasks.append((images[i], masks[i]))
+
+    for _ in tqdm.tqdm(pool.imap_unordered(process, tasks), total=len(tasks)):
+        pass

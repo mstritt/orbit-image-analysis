@@ -47,6 +47,14 @@ class Model(object):
 		# Start queue threads.
 		threads = tf.train.start_queue_runners(coord=self.coord, sess=self.sess)
 
+		# log_var for tensorboard
+		log_var = tf.Variable(0.0)
+		summary_loss = [tf.summary.scalar("loss", log_var)]
+		write_op = tf.summary.merge(summary_loss)
+		#write_op = tf.summary.merge_all()
+		#self.sess.run(tf.global_variables_initializer())
+
+
 		# Train!
 		for step in range(self.conf.num_steps+1):
 			start_time = time.time()
@@ -70,6 +78,12 @@ class Model(object):
 			duration = time.time() - start_time
 			print('step {:d} \t loss = {:.3f}, ({:.3f} sec/step)'.format(step, loss_value, duration))
 			write_log('{:d}, {:.3f}'.format(step, loss_value), self.conf.logfile)
+
+			#write logs for tensorboard
+			summary2 = self.sess.run(write_op, {log_var: loss_value})
+			self.summary_writer.add_summary(summary2, step)
+			#self.summary_writer.flush()
+
 
 		# finish
 		self.coord.request_stop()
