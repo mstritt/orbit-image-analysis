@@ -141,7 +141,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
    // private Image smallImage = null;
     private ScreenProps screenProps = null;
     private AtomicBoolean forceRepaint = new AtomicBoolean(true);
-
+    private AtomicBoolean drawing = new AtomicBoolean(false);
     /**
      * @param picObj can ob url or orbitId
      * @throws OrbitImageServletException
@@ -566,7 +566,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
 
     public void paintComponent(Graphics g) {
         if (bimg == null) return;
-        ScreenProps currentScreenprops = new ScreenProps(viewPortOffset.getX(),viewPortOffset.getY(),viewPortSize.getWidth(),viewPortSize.getHeight(),scale);
+        ScreenProps currentScreenprops = new ScreenProps(viewPortOffset.getX(),viewPortOffset.getY(),viewPortSize.getWidth(),viewPortSize.getHeight(),scale,opacity);
 
          if (screenImage==null || g.getClipBounds().width!=screenImage.getWidth() || g.getClipBounds().height!=screenImage.getHeight()) {
             GraphicsConfiguration gconf = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
@@ -603,37 +603,41 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
             double vpWidth = viewPortSize.getWidth();                
             double vpHeight = viewPortSize.getHeight();
 
-            if (forceRepaint.get() || screenProps==null || !currentScreenprops.equals(screenProps)) {
-                forceRepaint.set(false);
-                if (bimg.hasMipMaps()) {
-                    // for TiledImagePainter rendering scale before drawing the image, for rendering from buffer scale after drawing the image
+            if (!drawing.get()) {
+                drawing.set(true);
+                if (forceRepaint.get() || screenProps == null || !currentScreenprops.equals(screenProps)) {
+                   // forceRepaint.set(false);    // too many problems => disabled
+                    if (bimg.hasMipMaps()) {
+                        // for TiledImagePainter rendering scale before drawing the image, for rendering from buffer scale after drawing the image
 //                if (smallImage==null) {
 //                    smallImage = bimg.getMipMaps()[bimg.getMipMaps().length-1].getImage().getAsBufferedImage();
 //                    VolatileImage vi = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration().createCompatibleVolatileImage(smallImage.getWidth(this), smallImage.getHeight(this));
 //                    smallImage = vi;
 //                    //System.out.println("small image: "+smallImage);
 //                }
-                    if (!getRenderThread().isBufferReady()) {
-                        g2d.scale(sc, sc);
-                        if (scale >= 100)
-                            bimg.drawImage(g2d, viewPortOffset.getX(), viewPortOffset.getY(), vpWidth, vpHeight, getScale(), 0);    // bimg.getMipMaps().length - 1   was: 0
-                            //else if (scale>30) bimg.drawImage(g2d, viewPortOffset.getX(),viewPortOffset.getY(),vpWidth,vpHeight,getScale(),bimg.getMipMaps().length-2);
-                        else
-                            bimg.drawImage(g2d, viewPortOffset.getX(), viewPortOffset.getY(), vpWidth, vpHeight, getScale(), bimg.getMipMaps().length - 1);
+                        if (!getRenderThread().isBufferReady()) {
+                            g2d.scale(sc, sc);
+                            if (scale >= 100)
+                                bimg.drawImage(g2d, viewPortOffset.getX(), viewPortOffset.getY(), vpWidth, vpHeight, getScale(), 0);    // bimg.getMipMaps().length - 1   was: 0
+                                //else if (scale>30) bimg.drawImage(g2d, viewPortOffset.getX(),viewPortOffset.getY(),vpWidth,vpHeight,getScale(),bimg.getMipMaps().length-2);
+                            else
+                                bimg.drawImage(g2d, viewPortOffset.getX(), viewPortOffset.getY(), vpWidth, vpHeight, getScale(), bimg.getMipMaps().length - 1);
 
-                    } else {
-                        Image image = getRenderThread().getImageBuffer();
-                        int vpX = (int) viewPortOffset.getX();
-                        int vpY = (int) viewPortOffset.getY();
-                        g2d.drawImage(image, vpX, vpY, this);
+                        } else {
+                            Image image = getRenderThread().getImageBuffer();
+                            int vpX = (int) viewPortOffset.getX();
+                            int vpY = (int) viewPortOffset.getY();
+                            g2d.drawImage(image, vpX, vpY, this);
+                            g2d.scale(sc, sc);
+                        }
+                    } else // no mipMaps, so normal rendering
+                    {
                         g2d.scale(sc, sc);
+                        bimg.drawImage(g2d, viewPortOffset.getX(), viewPortOffset.getY(), vpWidth, vpHeight, getScale(), -1);
+
                     }
-                } else // no mipMaps, so normal rendering
-                {
-                    g2d.scale(sc, sc);
-                    bimg.drawImage(g2d, viewPortOffset.getX(), viewPortOffset.getY(), vpWidth, vpHeight, getScale(), -1);
-
                 }
+                drawing.set(false);
             }
             screenProps = currentScreenprops;
 
@@ -1909,13 +1913,15 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
         double vpWidthM;
         double vpHeight;
         double scale;
+        double opacity;
 
-        public ScreenProps(double vpOffsX, double vpOffsY, double vpWidthM, double vpHeight, double scale) {
+        public ScreenProps(double vpOffsX, double vpOffsY, double vpWidthM, double vpHeight, double scale, double opacity) {
             this.vpOffsX = vpOffsX;
             this.vpOffsY = vpOffsY;
             this.vpWidthM = vpWidthM;
             this.vpHeight = vpHeight;
             this.scale = scale;
+            this.opacity = opacity;
         }
 
         @Override
@@ -1927,13 +1933,14 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
                     Double.compare(that.vpOffsY, vpOffsY) == 0 &&
                     Double.compare(that.vpWidthM, vpWidthM) == 0 &&
                     Double.compare(that.vpHeight, vpHeight) == 0 &&
-                    Double.compare(that.scale, scale) == 0;
+                    Double.compare(that.scale, scale) == 0 &&
+                    Double.compare(that.opacity, opacity) == 0;
         }
 
         @Override
         public int hashCode() {
 
-            return Objects.hash(vpOffsX, vpOffsY, vpWidthM, vpHeight, scale);
+            return Objects.hash(vpOffsX, vpOffsY, vpWidthM, vpHeight, scale, opacity);
         }
     }
 
