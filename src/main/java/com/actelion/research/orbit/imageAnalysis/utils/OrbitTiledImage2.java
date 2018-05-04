@@ -51,7 +51,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
     public static Cache<PointAndName, Raster> tileCache = null;
     private static final ReentrantReadWriteLock cacheLock = new ReentrantReadWriteLock();
     private static final boolean doCacheLock = false;
-    private boolean useCache = !ScaleoutMode.SCALEOUTMODE.get();
+    private boolean useCache = true; //!ScaleoutMode.SCALEOUTMODE.get();
     protected int photometric = PHOTOMETRIC_YCbCr;
     //protected static final ColorModel rgbColorModel = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.TYPE_YCbCr), new int[]{8,8,8}, false, false, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
     protected static final ColorModel rgbColorModel = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[]{8, 8, 8}, false, false, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);

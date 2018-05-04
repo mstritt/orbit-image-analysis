@@ -32,6 +32,7 @@ public class TaskResult implements Serializable {
 
     private String resultStr = "";
     private String title = "";
+    private transient OrbitModel model;
 
     public TaskResult() {
 
@@ -40,6 +41,12 @@ public class TaskResult implements Serializable {
     public TaskResult(String title, String resultStr) {
         this.resultStr = resultStr;
         this.title = title;
+    }
+
+    public TaskResult(String title, String resultStr, OrbitModel model) {
+        this.resultStr = resultStr;
+        this.title = title;
+        this.model = model;
     }
 
     public String getResultStr() {
@@ -56,6 +63,14 @@ public class TaskResult implements Serializable {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public OrbitModel getModel() {
+        return model;
+    }
+
+    public void setModel(OrbitModel model) {
+        this.model = model;
     }
 
     @Override

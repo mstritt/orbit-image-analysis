@@ -281,6 +281,7 @@ public class OrbitModel implements Serializable, Cloneable {
     }
 
     public void saveModel(String filename) {
+        setName(filename);
         File file = new File(filename);
         FileOutputStream fos = null;
         try {
@@ -332,8 +333,12 @@ public class OrbitModel implements Serializable, Cloneable {
 
 
     public int saveModelOrbit(String elb, String name, String userId) throws Exception {
+        if (elb!=null && elb.length()>0) setName(name+" ["+elb+"]");
+            else setName(name);
+        setUser(userId);
         ModelAnnotation modelAnnotation = new ModelAnnotation(this, elb, name, userId);
-        return DALConfig.getImageProvider().InsertRawAnnotation(modelAnnotation);
+        int modelId = DALConfig.getImageProvider().InsertRawAnnotation(modelAnnotation);
+        return modelId;
     }
 
     /**

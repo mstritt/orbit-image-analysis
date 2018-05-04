@@ -95,6 +95,14 @@ public class ImageTile implements Serializable {
             logger.debug("reusing cached model");
             return modelCache.get(getModel()); // already cached
         }
+
+        try {
+            int modelId = Integer.parseInt(getModel());
+            return OrbitModel.LoadFromOrbit(modelId);
+        } catch (Exception e) {
+           // no id -> continue with loading from remote
+        }
+
         InputStream inStream = null;
         try {
             inStream = new ByteArrayInputStream(DALConfig.getScaleOut().getRemoteContextStore().readFromRemote(OrbitUtils.remoteNameSpace + "/" + getModel()));

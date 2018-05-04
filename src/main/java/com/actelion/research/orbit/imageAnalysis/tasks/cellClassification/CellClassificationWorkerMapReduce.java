@@ -19,6 +19,7 @@
 
 package com.actelion.research.orbit.imageAnalysis.tasks.cellClassification;
 
+import com.actelion.research.mapReduceGeneric.IMapReduce;
 import com.actelion.research.mapReduceGeneric.executors.IMapReduceExecutor;
 import com.actelion.research.mapReduceGeneric.executors.MapReduceExecutorLocalMultiCore;
 import com.actelion.research.mapReduceGeneric.utils.KeyValue;
@@ -38,7 +39,9 @@ import com.actelion.research.orbit.imageAnalysis.utils.ResultEnhancer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class CellClassificationWorkerMapReduce extends OrbitWorker implements ITaskResultProducer<ClassificationResult> {
 
@@ -50,6 +53,7 @@ public class CellClassificationWorkerMapReduce extends OrbitWorker implements IT
     private boolean skipNonExplicitROIImages = false;
     private String taskDetail = "";
     private boolean useScaleout = false;
+    private Map<Integer, ClassificationResult> classificationResultMap;
 
     public CellClassificationWorkerMapReduce() {
         // for result producer
@@ -81,7 +85,6 @@ public class CellClassificationWorkerMapReduce extends OrbitWorker implements IT
 
     @Override
     protected void doWork() throws Exception {
-        //ELB0226-0143-OD130043-M2843-CD4 CD3 -.tif = 9536;
         try {
             taskDetail = " [" + new Date().toString() + "]";
             int tileChunkSize = -1;
@@ -101,12 +104,27 @@ public class CellClassificationWorkerMapReduce extends OrbitWorker implements IT
             }
             if (!onlyTilesinROI) onlyTilesinROI = !useScaleout;
             logger.debug("onlyTilesInROI: "+onlyTilesinROI+"  skipNonExplicitROIImages: "+skipNonExplicitROIImages);
-            List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, model, tileChunkSize, model.getMipLayer(), onlyTilesinROI, skipNonExplicitROIImages, rdfList.toArray(new RawDataFile[0]));
-            CellClassificationMapReduce mrCellClassification = new CellClassificationMapReduce();
-            mrCellClassification.setModel(new OrbitModel(model));
+            List<String> imageTiles;
+            IMapReduce mapReduce;
+            if (useScaleout) {
+                List<Point> tiles = new ArrayList<>();
+                tiles.add(new Point(-1,-1));
+                imageTiles = new ArrayList<>();
+                for (RawDataFile rdf: rdfList) {
+                    String experiment = new ImageTile(rdf.getRawDataFileId(), tiles, modelNew).toString();
+                    imageTiles.add(experiment);
+                }
+                mapReduce = new CellClassificationMapReduceFullImage();
+                ((CellClassificationMapReduceFullImage)mapReduce).setModel(new OrbitModel(model));
+            } else {
+                imageTiles = OrbitHelper.EncodeImageTiles(modelNew, model, tileChunkSize, model.getMipLayer(), onlyTilesinROI, skipNonExplicitROIImages, rdfList.toArray(new RawDataFile[0]));
+                mapReduce = new CellClassificationMapReduce();
+                ((CellClassificationMapReduce) mapReduce).setModel(new OrbitModel(model));
+            }
             Map<Integer, ClassificationResult> classificationResultMap = new HashMap<Integer, ClassificationResult>();
             try {
-                classificationResultMap = executor.execute(imageTiles, mrCellClassification);
+                classificationResultMap = executor.execute(imageTiles, mapReduce);
+                this.classificationResultMap = classificationResultMap;
             } catch (Exception e) {
                 logger.error("Error executing cell classification task", e);
             }
@@ -117,6 +135,9 @@ public class CellClassificationWorkerMapReduce extends OrbitWorker implements IT
     }
 
     public TaskResult produceTaskResult(Map<Integer, ClassificationResult> classificationResultMap, boolean computeROIAreas) throws Exception {
+        if (classificationResultMap==null) {  // e.g. results can only be retrieved via 'retrieve existing results' panel
+            return new TaskResult("Cell Classification" + taskDetail, "Batch submitted, results can be retrieved via Batch -> Retrieve Existing Results.");
+        }
         OrbitModel resModel = null;
         //Map<Integer,List<KeyValue<String,Object>>> map = ResultEnhancer.convertToNamedMeasurement(classificationResult, "Classification");
         Map<Integer, List<KeyValue<String, Object>>> map = new HashMap<Integer, List<KeyValue<String, Object>>>(classificationResultMap.size());
@@ -132,7 +153,7 @@ public class CellClassificationWorkerMapReduce extends OrbitWorker implements IT
             map = ResultEnhancer.enhanceROIArea(resModel, map);
         String res = ResultEnhancer.toString(map);
         logger.info("result:\n" + res);
-        return new TaskResult("Cell Classification" + taskDetail, res);
+        return new TaskResult("Cell Classification" + taskDetail, res, resModel);
     }
 
 
@@ -149,6 +170,14 @@ public class CellClassificationWorkerMapReduce extends OrbitWorker implements IT
             }
         }
         return valList;
+    }
+
+    public IMapReduceExecutor<String, Integer, ClassificationResult> getExecutor() {
+        return executor;
+    }
+
+    public Map<Integer, ClassificationResult> getClassificationResultMap() {
+        return classificationResultMap;
     }
 
     public boolean isOnlyTilesinROI() {

@@ -21,16 +21,15 @@ package com.actelion.research.orbit.imageAnalysis.utils;
 
 
 import com.actelion.research.mapReduceGeneric.IRemoteContextStore;
-import jcifs.smb.NtlmPasswordAuthentication;
-import jcifs.smb.SmbFile;
-import jcifs.smb.SmbFileInputStream;
+import com.actelion.research.mapReduceGeneric.RemoteFile;
+import jcifs.smb.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -39,10 +38,15 @@ import java.util.zip.GZIPOutputStream;
  */
 public class SmbUtils implements IRemoteContextStore {
 
+    private static final Logger logger = LoggerFactory.getLogger(SmbUtils.class);
     private final static int BUFFER_SIZE = 16384;
     private NtlmPasswordAuthentication auth;
     private String share;
 
+    static {
+        jcifs.Config.setProperty("jcifs.smb.client.responseTimeout", "120000");
+        jcifs.Config.setProperty("jcifs.smb.client.soTimeout", "130000");
+    }
 
     /**
      * Authentificates via domain/username:password if password !=null, otherwise just via username (used as userinfo).
@@ -124,6 +128,48 @@ public class SmbUtils implements IRemoteContextStore {
         return flist;
     }
 
+    @Override
+    public List<RemoteFile> listFilenames(String remoteFolder, boolean sortByDate) throws IOException {
+        List<RemoteFile> flist = new ArrayList<>();
+        SmbFile file = new SmbFile(share + "/" + remoteFolder + "/");
+        SmbFile[] files = file.listFiles();
+        if (sortByDate) {
+            Arrays.sort(files, new Comparator<SmbFile>() {
+                @Override
+                public int compare(SmbFile o1, SmbFile o2) {
+                    return (int) (o1.getDate() - o2.getDate());
+                }
+            });
+        }
+        if (files != null && files.length > 0) {
+            for (SmbFile f : files) {
+                RemoteFile rf = new RemoteFile(f.getName());
+                rf.setDate(f.getDate());
+                rf.setLength(f.length());
+                SID sid = f.getOwnerUser();
+                if (sid!=null) {
+                    rf.setUser(sid.getAccountName());
+                }
+                flist.add(rf);
+            }
+        }
+        return flist;
+    }
+
+
+    public SmbFile[] listFilenames(String remoteFolder, final String filter) throws IOException {
+        List<String> flist = new ArrayList<>();
+        SmbFile file = new SmbFile(share + "/" + remoteFolder + "/",auth);
+        SmbFile[] files = file.listFiles(new SmbFilenameFilter() {
+            @Override
+            public boolean accept(SmbFile dir, String name) throws SmbException {
+                if (filter==null||filter.length()==0) return true;
+                return name.endsWith(filter);
+            }
+        });
+        return files;
+    }
+
     private byte[] readFromRemote(String remoteFile, int buffersize) throws IOException {
         return readFromRemote(remoteFile, buffersize, false);
     }
@@ -176,11 +222,9 @@ public class SmbUtils implements IRemoteContextStore {
 
 
     private boolean writeRemote(String path, byte[] data, boolean zipped) throws IOException {
-
         String fname = share + File.separator + path;
         fname = fname.replace('\\', '/');
         jcifs.smb.SmbFile file = new jcifs.smb.SmbFile(fname, auth);
-
         jcifs.smb.SmbFile dir = new jcifs.smb.SmbFile(file.getParent(), auth);
         if (!dir.exists()) dir.mkdirs();
 
@@ -188,16 +232,32 @@ public class SmbUtils implements IRemoteContextStore {
         GZIPOutputStream zip = null;
 
         bos = new jcifs.smb.SmbFileOutputStream(file);
-        if (zipped) {
-            zip = new GZIPOutputStream(bos);
-            zip.write(data);
-            zip.flush();
-            zip.close();
-        } else
-            bos.write(data);
-
-        bos.flush();
-        bos.close();
+        boolean err = true;
+        int cnt = 0;
+        while (err && cnt<5) {
+            err = false;
+            try {
+                if (zipped) {
+                    zip = new GZIPOutputStream(bos);
+                    zip.write(data);
+                    zip.flush();
+                    zip.close();
+                } else {
+                    bos.write(data);
+                }
+                bos.flush();
+                bos.close();
+            } catch (Exception e) {
+                err = true;
+                cnt++;
+                logger.error("samba error ["+cnt+"], trying again in 2s...", e);
+                try {
+                    Thread.sleep(2000l);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
 
         return true;
     }

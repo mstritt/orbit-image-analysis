@@ -19,6 +19,7 @@
 
 package com.actelion.research.orbit.imageAnalysis.tasks.classification;
 
+import com.actelion.research.mapReduceGeneric.IMapReduce;
 import com.actelion.research.mapReduceGeneric.executors.IMapReduceExecutor;
 import com.actelion.research.mapReduceGeneric.executors.MapReduceExecutorLocalMultiCore;
 import com.actelion.research.mapReduceGeneric.utils.KeyValue;
@@ -37,7 +38,9 @@ import com.actelion.research.orbit.imageAnalysis.utils.ResultEnhancer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class ClassificationWorkerMapReduce extends OrbitWorker implements ITaskResultProducer<ClassificationResult> {
 
@@ -50,6 +53,7 @@ public class ClassificationWorkerMapReduce extends OrbitWorker implements ITaskR
     private boolean onlyTilesinROI = false;
     private boolean skipNonExplicitROIImages = false;
     private boolean useScaleout = false;
+    private Map<Integer, ClassificationResult> classificationResultMap;
 
     public ClassificationWorkerMapReduce() {
         // for result producer
@@ -63,7 +67,7 @@ public class ClassificationWorkerMapReduce extends OrbitWorker implements ITaskR
             this.model.getClassShapesToRestore().clear(); // no needed anymore
         }
         if (useScaleout) {
-            executor = DALConfig.getScaleOut().createMapReduceExecutor(new ClassificationMapReduce());
+            executor = DALConfig.getScaleOut().createMapReduceExecutor(new ClassificationMapReduceFullImage());
             ProgressUpdateThread updateThread = new ProgressUpdateThread(executor, this);
             updateThread.start();
 
@@ -100,13 +104,29 @@ public class ClassificationWorkerMapReduce extends OrbitWorker implements ITaskR
             }
             if (!onlyTilesinROI) onlyTilesinROI = !useScaleout;
             logger.debug("onlyTilesInROI: "+onlyTilesinROI+"  skipNonExplicitROIImages: "+skipNonExplicitROIImages);
-            List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, model, tileChunkSize, model.getMipLayer(), onlyTilesinROI, skipNonExplicitROIImages, rdfList.toArray(new RawDataFile[0]));
+            List<String> imageTiles;
+            IMapReduce mapReduce;
+            if (useScaleout) {
+                List<Point> tiles = new ArrayList<>();
+                tiles.add(new Point(-1,-1));
+                imageTiles = new ArrayList<>();
+                for (RawDataFile rdf: rdfList) {
+                    String experiment = new ImageTile(rdf.getRawDataFileId(), tiles, modelNew).toString();
+                    imageTiles.add(experiment);
+                }
+                mapReduce = new ClassificationMapReduceFullImage();
+                ((ClassificationMapReduceFullImage)mapReduce).setModel(new OrbitModel(model));
+            } else {
+                imageTiles = OrbitHelper.EncodeImageTiles(modelNew, model, tileChunkSize, model.getMipLayer(), onlyTilesinROI, skipNonExplicitROIImages, rdfList.toArray(new RawDataFile[0]));
+                mapReduce = new ClassificationMapReduce();
+                ((ClassificationMapReduce)mapReduce).setModel(new OrbitModel(model));
+            }
             logger.debug("#tile jobs: " + imageTiles.size());
-            ClassificationMapReduce mrClassification = new ClassificationMapReduce();
-            mrClassification.setModel(new OrbitModel(model));
+            
             Map<Integer, ClassificationResult> classificationResultMap = null;
             try {
-                classificationResultMap = executor.execute(imageTiles, mrClassification);
+                classificationResultMap = executor.execute(imageTiles, mapReduce);
+                this.classificationResultMap = classificationResultMap;
             } catch (Exception e) {
                 logger.error("Error executing classification task: ", e);
             }
@@ -118,6 +138,9 @@ public class ClassificationWorkerMapReduce extends OrbitWorker implements ITaskR
 
     @Override
     public TaskResult produceTaskResult(Map<Integer, ClassificationResult> classificationResultMap, boolean computeROIAreas) throws Exception {
+        if (classificationResultMap==null) {  // e.g. results can only be retrieved via 'retrieve existing results' panel
+            return new TaskResult("Classification" + taskDetail, "Batch submitted, results can be retrieved via Batch -> Retrieve Existing Results.");
+        }
         Map<Integer, List<KeyValue<String, Object>>> map = new HashMap<Integer, List<KeyValue<String, Object>>>(classificationResultMap.size());
         OrbitModel resModel = null;
         for (Integer rdfId : classificationResultMap.keySet()) {
@@ -133,7 +156,7 @@ public class ClassificationWorkerMapReduce extends OrbitWorker implements ITaskR
             map = ResultEnhancer.enhanceROIArea(resModel, map);
         String res = ResultEnhancer.toString(map);
         //logger.info("result:\n" + res);
-        return new TaskResult("Classification" + taskDetail, res);
+        return new TaskResult("Classification" + taskDetail, res, resModel);
     }
 
     private List<KeyValue<String, Object>> dblToObjKV(List<KeyValue<String, Double>> dblList) {
@@ -170,5 +193,9 @@ public class ClassificationWorkerMapReduce extends OrbitWorker implements ITaskR
 
     public IMapReduceExecutor<String, Integer, ClassificationResult> getExecutor() {
         return executor;
+    }
+
+    public Map<Integer, ClassificationResult> getClassificationResultMap() {
+        return classificationResultMap;
     }
 }

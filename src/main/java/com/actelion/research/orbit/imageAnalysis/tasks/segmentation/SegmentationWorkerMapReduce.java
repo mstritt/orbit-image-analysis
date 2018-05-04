@@ -19,6 +19,7 @@
 
 package com.actelion.research.orbit.imageAnalysis.tasks.segmentation;
 
+import com.actelion.research.mapReduceGeneric.IMapReduce;
 import com.actelion.research.mapReduceGeneric.executors.IMapReduceExecutor;
 import com.actelion.research.mapReduceGeneric.executors.MapReduceExecutorLocalMultiCore;
 import com.actelion.research.mapReduceGeneric.utils.KeyValue;
@@ -37,7 +38,9 @@ import com.actelion.research.orbit.imageAnalysis.utils.ResultEnhancer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class SegmentationWorkerMapReduce extends OrbitWorker implements ITaskResultProducer<SegmentationResult> {
 
@@ -51,6 +54,7 @@ public class SegmentationWorkerMapReduce extends OrbitWorker implements ITaskRes
     private boolean onlyTilesinROI = false;
     private boolean skipNonExplicitROIImages = false;
     private boolean useScaleout = false;
+    private Map<Integer, SegmentationResult> segmentationResultMap;
 
     public SegmentationWorkerMapReduce() {
         // for result producer
@@ -81,7 +85,6 @@ public class SegmentationWorkerMapReduce extends OrbitWorker implements ITaskRes
     @Override
     protected void doWork() throws Exception {
         taskDetail = " [" + new Date().toString() + "]";
-        //ELB0226-0143-OD130043-M2843-CD4 CD3 -.tif = 9536;
         String modelNew = OrbitUtils.generateUniqueFilename("orbit", OrbitUtils.MODEL_ENDING);
         if (useScaleout) {
             try {
@@ -99,12 +102,28 @@ public class SegmentationWorkerMapReduce extends OrbitWorker implements ITaskRes
             chunkSize = DALConfig.getScaleOut().getParallelism();
         if (!onlyTilesinROI) onlyTilesinROI = !useScaleout;
         logger.debug("onlyTilesInROI: "+onlyTilesinROI+"  skipNonExplicitROIImages: "+skipNonExplicitROIImages);
-        List<String> imageTiles = OrbitHelper.EncodeImageTiles(modelNew, model, chunkSize, model.getMipLayer(), onlyTilesinROI, skipNonExplicitROIImages, rdfList.toArray(new RawDataFile[0]));
-        SegmentationMapReduce mrCellCount = new SegmentationMapReduce();
-        mrCellCount.setModel(new OrbitModel(model));
+        List<String> imageTiles;
+        IMapReduce mapReduce;
+        if (useScaleout) {
+            List<Point> tiles = new ArrayList<>();
+            tiles.add(new Point(-1,-1));
+            imageTiles = new ArrayList<>();
+            for (RawDataFile rdf: rdfList) {
+                String experiment = new ImageTile(rdf.getRawDataFileId(), tiles, modelNew).toString();
+                imageTiles.add(experiment);
+            }
+            mapReduce = new SegmentationMapReduceFullImage();
+            ((SegmentationMapReduceFullImage)mapReduce).setModel(new OrbitModel(model));
+        }  else {
+            // local execution
+            imageTiles = OrbitHelper.EncodeImageTiles(modelNew, model, chunkSize, model.getMipLayer(), onlyTilesinROI, skipNonExplicitROIImages, rdfList.toArray(new RawDataFile[0]));
+            mapReduce = new SegmentationMapReduce();
+            ((SegmentationMapReduce)mapReduce).setModel(new OrbitModel(model));
+        }
         Map<Integer, SegmentationResult> counts = null;
         try {
-            counts = executor.execute(imageTiles, mrCellCount);
+            counts = executor.execute(imageTiles, mapReduce);
+            this.segmentationResultMap = counts;
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Segmentation error", e);
@@ -113,6 +132,9 @@ public class SegmentationWorkerMapReduce extends OrbitWorker implements ITaskRes
     }
 
     public TaskResult produceTaskResult(Map<Integer, SegmentationResult> counts, boolean computeROIAreas) throws Exception {
+        if (counts==null) {  // e.g. results can only be retrieved via 'retrieve existing results' panel
+            return new TaskResult("Object Counts" + taskDetail, "Batch submitted, results can be retrieved via Batch -> Retrieve Existing Results.");
+        }
         OrbitModel localModel = null;
         if (counts != null && counts.values() != null && counts.values().size() > 0) {
             localModel = counts.values().iterator().next().getModel();
@@ -133,7 +155,7 @@ public class SegmentationWorkerMapReduce extends OrbitWorker implements ITaskRes
             map = ResultEnhancer.enhanceROIArea(localModel, map);
         String res = ResultEnhancer.toString(map);
         logger.info("result:\n" + res);
-        return new TaskResult("Cell Counts" + taskDetail, res);
+        return new TaskResult("Object Counts" + taskDetail, res, localModel);
     }
 
     public boolean isOnlyTilesinROI() {
@@ -157,6 +179,13 @@ public class SegmentationWorkerMapReduce extends OrbitWorker implements ITaskRes
         return executor.getProgress();
     }
 
+    public Map<Integer, SegmentationResult> getSegmentationResultMap() {
+        return segmentationResultMap;
+    }
+
+    public IMapReduceExecutor<String, Integer, SegmentationResult> getExecutor() {
+        return executor;
+    }
 
 //    public static void main(String[] args) throws Exception {
 //        SegmentationWorkerMapReduce worker = new SegmentationWorkerMapReduce(OrbitModel.LoadFromFile("d:/orbitModels/test.omo"),Collections.singletonList(DALConfig.getImageProvider().LoadRawDataFile(4017567)),false);

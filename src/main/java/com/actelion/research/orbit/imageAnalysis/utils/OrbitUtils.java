@@ -116,8 +116,6 @@ public class OrbitUtils {
             DALConfig.getImageProvider().setPooledConnectionEnabled(false);
             DALConfig.getImageProvider().setDBConnectionName("OrbitGridJob");
         }
-
-
     }
 
     public final static double getVersion() {

@@ -123,6 +123,9 @@ public class CellFeaturesWorkerMapReduce extends OrbitWorker implements ITaskRes
     }
 
     public TaskResult produceTaskResult(Map<Integer, KeyValue<OrbitModel, SegmentationResult>> results, boolean computeROIAreas) throws Exception {
+        if (results==null) {  // e.g. results can only be retrieved via 'retrieve existing results' panel
+            return new TaskResult("Cell Features" + taskDetail, "Batch submitted, results can be retrieved via Batch -> Retrieve Existing Results.");
+        }
         OrbitModel localModel = null;
         if (results != null && results.values() != null && results.values().size() > 0) {
             localModel = results.values().iterator().next().getKey();

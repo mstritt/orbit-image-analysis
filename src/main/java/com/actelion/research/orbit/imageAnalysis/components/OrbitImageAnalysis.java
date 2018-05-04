@@ -1891,33 +1891,33 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         return true;
     }
 
-    private OrbitWorker createBatchWorker(final OrbitModel model, final List<RawDataFile> rdfList, boolean useGrid) {
+    private OrbitWorker createBatchWorker(final OrbitModel model, final List<RawDataFile> rdfList, boolean useScaleout) {
         OrbitWorker worker = null;
-        String performedOn = useGrid ? "It will be executed on the scaleout infrastructure." : "It will be executed on the local computer.";
+        String performedOn = useScaleout ? "It will be executed on the scaleout infrastructure." : "It will be executed on the local computer.";
         if (model.getSegmentationModel() != null && (!model.isCellClassification()) && (model.getFeatureDescription().getFeatureClasses() != null) && (model.getFeatureDescription().getFeatureClasses().length > 0)) {
             if (JOptionPane.showConfirmDialog(this, "Your model is a cell segmentation model with cell features activated.\nThus a cell segmentation with cell feature calculation will be performed.\n" + performedOn + "\nIs this what you want to do?", "Starting Batch Mode", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                 logger.info("starting batch cell segmentation with feature calculation ({} images)", rdfList.size());
-                worker = new CellFeaturesWorkerMapReduce(new OrbitModel(model), rdfList, useGrid);
+                worker = new CellFeaturesWorkerMapReduce(new OrbitModel(model), rdfList, useScaleout);
             }
         } else if (model.getSegmentationModel() != null && model.getClassifier() != null && model.getClassifier().isBuild() && model.isCellClassification()) {
             if (JOptionPane.showConfirmDialog(this, "Your model is a cell classification model (which contains a segmentation model).\nThus a cell classification batch export will be performed.\n" + performedOn + "\nIs this what you want to do?", "Starting Batch Mode", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                 logger.info("starting batch cell classification ({} images)", rdfList.size());
-                worker = new CellClassificationWorkerMapReduce(new OrbitModel(model), rdfList, useGrid);
+                worker = new CellClassificationWorkerMapReduce(new OrbitModel(model), rdfList, useScaleout);
             }
         } else if (model.getSegmentationModel() != null && (!model.isCellClassification())) {
             if (JOptionPane.showConfirmDialog(this, "Your model contains a cell segmentation model.\nThus a cell segmentation batch export will be performed.\n" + performedOn + "\nIs this what you want to do?", "Starting Batch Mode", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                 logger.info("starting batch segmentation ({} images)", rdfList.size());
-                worker = new SegmentationWorkerMapReduce(new OrbitModel(model), rdfList, useGrid);
+                worker = new SegmentationWorkerMapReduce(new OrbitModel(model), rdfList, useScaleout);
             }
         } else if (model.getSegmentationModel() == null && model.getFeatureDescription().getFeatureClasses() != null && model.getFeatureDescription().getFeatureClasses().length > 0) {
             if (JOptionPane.showConfirmDialog(this, "Your model is a classification model with feature classes selected.\nThus a histogram batch export will be performed.\n" + performedOn + "\nIs this what you want to do?", "Starting Batch Mode", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                 logger.info("starting batch histogram ({} images)", rdfList.size());
-                worker = new HistogramWorkerMapReduce(new OrbitModel(model), rdfList, useGrid);
+                worker = new HistogramWorkerMapReduce(new OrbitModel(model), rdfList, useScaleout);
             }
         } else {
             if (JOptionPane.showConfirmDialog(this, "Your model is a ratio quantification model.\nThus a ratio per class quantification batch export will be performed.\n" + performedOn + "\nIs this what you want to do?", "Starting Batch Mode", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                 logger.info("starting batch classification ({} images)", rdfList.size());
-                worker = new ClassificationWorkerMapReduce(new OrbitModel(model), rdfList, useGrid);
+                worker = new ClassificationWorkerMapReduce(new OrbitModel(model), rdfList, useScaleout);
             }
         }
         return worker;
@@ -2733,6 +2733,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         if (getIFrames() != null && getIFrames().size() > 0) {
             for (ImageFrame iFrame : getIFrames()) {
                 iFrame.getRecognitionFrame().setClassShapes(OrbitUtils.cloneClassShapes(model.getClassShapes()));
+                iFrame.recognitionFrame.setObjectSegmentationList(null);
                 iFrame.repaint();
             }
         }
@@ -2770,6 +2771,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         if (getIFrames() != null && getIFrames().size() > 0) {
             for (ImageFrame iFrame : getIFrames()) {
                 iFrame.getRecognitionFrame().setClassShapes(OrbitUtils.cloneClassShapes(model.getClassShapes()));
+                iFrame.recognitionFrame.setObjectSegmentationList(null);
                 iFrame.repaint();
             }
         }
@@ -4154,6 +4156,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                     iFrame.recognitionFrame.setClassShapes(OrbitUtils.cloneClassShapes(classShapes));
                     iFrame.recognitionFrame.setWindowSize(getModel().getFeatureDescription().getWindowSize());
                     iFrame.recognitionFrame.setBoundaryClass(getModel().getBoundaryClass());
+                    iFrame.recognitionFrame.setObjectSegmentationList(null);
                 }
                 getModel().setClassShapes(classShapes);
                 makeClassCombobox();

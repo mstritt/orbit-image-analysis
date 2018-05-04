@@ -490,7 +490,7 @@ public class OrbitMenu extends JRibbonFrame {
 
         JCommandButton buttonResetMainModel = new JCommandButton("Main Model", new EditClear3());
         RichTooltip richTooltipResetMainModel = new RichTooltip("Reset Main Model", "Reset the main model. Nested models like the segmentation model or exclusion model will still be valid and available.");
-        richTooltipResetMainModel.addDescriptionSection("After a segmentation this can be used to train a cell classification model (then the nested segmentaiton model will still be active).");
+        richTooltipResetMainModel.addDescriptionSection("After a segmentation this can be used to train a cell classification model (then the nested segmentation model will still be active).");
         buttonResetMainModel.setActionRichTooltip(richTooltipResetMainModel);
         buttonResetMainModel.addActionListener(oia == null ? null : oia.resetMainModelActionListener);
         modelResetBand.addCommandButton(buttonResetMainModel, RibbonElementPriority.MEDIUM);

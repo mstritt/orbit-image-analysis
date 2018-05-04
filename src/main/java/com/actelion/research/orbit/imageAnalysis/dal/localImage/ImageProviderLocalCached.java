@@ -75,7 +75,7 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
     public void close() throws IOException {
         super.close();
         for (File file: cachedFiles) {
-          //  FileUtils.forceDelete(file);
+            FileUtils.forceDelete(file);
         }
     }
 

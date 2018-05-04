@@ -104,6 +104,9 @@ public class ROIAreaWorkerMapReduce extends OrbitWorker implements ITaskResultPr
     }
 
     public TaskResult produceTaskResult(Map<Integer, Double> areas, boolean computeROIAreas) throws Exception {
+        if (areas==null) {  // e.g. results can only be retrieved via 'retrieve existing results' panel
+            return new TaskResult("ROI Areas" , "Batch submitted, results can be retrieved via Batch -> Retrieve Existing Results.");
+        }
         Map<Integer, List<KeyValue<String, Object>>> map = new HashMap<Integer, List<KeyValue<String, Object>>>(areas.size());
         for (Integer rdfId : areas.keySet()) {
             List<KeyValue<String, Object>> valList = new ArrayList<KeyValue<String, Object>>(1);

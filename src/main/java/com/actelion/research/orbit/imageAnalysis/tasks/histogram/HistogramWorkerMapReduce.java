@@ -115,6 +115,9 @@ public class HistogramWorkerMapReduce extends OrbitWorker implements ITaskResult
 
     @Override
     public TaskResult produceTaskResult(Map<Integer, Histogram[]> histogramMap, boolean computeROIAreas) throws Exception {
+        if (histogramMap==null) {  // e.g. results can only be retrieved via 'retrieve existing results' panel
+            return new TaskResult("Histogram" + taskDetail, "Batch submitted, results can be retrieved via Batch -> Retrieve Existing Results.");
+        }
         Map<Integer, List<KeyValue<String, Object>>> map = new HashMap<Integer, List<KeyValue<String, Object>>>(histogramMap.size());
         OrbitModel resModel = null;
         final String[] chanNames = new String[]{"red", "green", "blue"};
