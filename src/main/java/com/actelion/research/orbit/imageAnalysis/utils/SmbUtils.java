@@ -118,7 +118,7 @@ public class SmbUtils implements IRemoteContextStore {
     @Override
     public List<String> listFilenames(String remoteFolder) throws IOException {
         List<String> flist = new ArrayList<>();
-        SmbFile file = new SmbFile(share + "/" + remoteFolder + "/");
+        SmbFile file = new SmbFile(share + "/" + remoteFolder + "/", auth);
         SmbFile[] files = file.listFiles();
         if (files != null && files.length > 0) {
             for (SmbFile f : files) {
@@ -131,7 +131,7 @@ public class SmbUtils implements IRemoteContextStore {
     @Override
     public List<RemoteFile> listFilenames(String remoteFolder, boolean sortByDate) throws IOException {
         List<RemoteFile> flist = new ArrayList<>();
-        SmbFile file = new SmbFile(share + "/" + remoteFolder + "/");
+        SmbFile file = new SmbFile(share + "/" + remoteFolder + "/", auth);
         SmbFile[] files = file.listFiles();
         if (sortByDate) {
             Arrays.sort(files, new Comparator<SmbFile>() {

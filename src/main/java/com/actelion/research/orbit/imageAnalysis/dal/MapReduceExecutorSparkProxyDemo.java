@@ -17,11 +17,10 @@
  *
  */
 
-package com.actelion.research.orbit.imageAnalysis.dal.MapReduceExecutor;
+package com.actelion.research.orbit.imageAnalysis.dal;
 
 import com.actelion.research.mapReduceGeneric.IMapReduce;
 import com.actelion.research.mapReduceGeneric.executors.IMapReduceExecutor;
-import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -46,9 +45,9 @@ import java.util.UUID;
  * @param <K> Output Key (measurement identifier)
  * @param <V> Output Value (e.g. Integer for a count)
  */
-public final class MapReduceExecutorSparkProxy<T, K, V> implements IMapReduceExecutor<T, K, V>, Serializable {
+public final class MapReduceExecutorSparkProxyDemo<T, K, V> implements IMapReduceExecutor<T, K, V>, Serializable {
 
-    private static final Logger logger = LoggerFactory.getLogger(MapReduceExecutorSparkProxy.class);
+    private static final Logger logger = LoggerFactory.getLogger(MapReduceExecutorSparkProxyDemo.class);
     private double progress = 0d;
     private String appName = "MapReduceExecutorSpark";
     private transient String[] jars = new String[]{};
@@ -56,13 +55,16 @@ public final class MapReduceExecutorSparkProxy<T, K, V> implements IMapReduceExe
     private double clusterUsage = 0.75;
     private int coresPerJob = 10;
     private int memPerJobGB = 62;
-    private String fatJarName = "orbit-image-analysis-all-2.81.jar";
+    private String host_port;
+    private String fatJarName;
 
 
-    public MapReduceExecutorSparkProxy() {
+    public MapReduceExecutorSparkProxyDemo() {
     }
 
-    public MapReduceExecutorSparkProxy(String appName, int coresPerJob, int memPerJobGB, double clusterUsage) {
+    public MapReduceExecutorSparkProxyDemo(String host_port, String fatJarName, String appName, int coresPerJob, int memPerJobGB, double clusterUsage) {
+        this.host_port = host_port;
+        this.fatJarName = fatJarName;
         this.appName = appName;
         //if (jars != null) this.jars = jars;
         this.coresPerJob = coresPerJob;
@@ -123,7 +125,6 @@ public final class MapReduceExecutorSparkProxy<T, K, V> implements IMapReduceExe
 
 
     private void deployTask(String serUUID, int parallelism) throws IOException {
-        String host_port = "spark-imaging.idorsia.com:80";
         int numCPUs = Math.min((int)(totalClusterCores*clusterUsage), coresPerJob*parallelism);
 
         String payload = "{" +
@@ -131,7 +132,7 @@ public final class MapReduceExecutorSparkProxy<T, K, V> implements IMapReduceExe
 
                 "  \"mainClass\": \"com.actelion.research.mapReduceExecSpark.executors.MapReduceExecutorSparkExec\"," +
                 "  \"appArgs\": [ \"spark/MR-"+serUUID+".ser\" ]," +
-                "  \"appResource\": \"/arcite/orbit/"+fatJarName+"\"," +
+                "  \"appResource\": \""+fatJarName+"\"," +
 
                 "  \"clientSparkVersion\": \"2.1.1\"," +
                 "  \"environmentVariables\" : {" +
@@ -153,7 +154,7 @@ public final class MapReduceExecutorSparkProxy<T, K, V> implements IMapReduceExe
                 "    \"spark.default.parallelism\": \""+parallelism+"\"," +        
                 "    \"spark.submit.deployMode\":\"cluster\"," +
                 "    \"spark.mesos.executor.docker.image\": \"mesosphere/spark:2.1.0-2.2.1-1-hadoop-2.6\"," +
-                "    \"spark.mesos.executor.docker.volumes\": \"/arcite/orbit/:orbit:rw\"" +
+                "    \"spark.mesos.executor.docker.volumes\": \"/mymount/:orbit:rw\"" +
                 "  }" +
                 "}";
         StringEntity entity = new StringEntity(payload,

@@ -22,17 +22,16 @@ package com.actelion.research.orbit.imageAnalysis.dal;
 import com.actelion.research.mapReduceGeneric.IMapReduce;
 import com.actelion.research.mapReduceGeneric.IRemoteContextStore;
 import com.actelion.research.mapReduceGeneric.executors.IMapReduceExecutor;
-import com.actelion.research.orbit.imageAnalysis.dal.MapReduceExecutor.MapReduceExecutorSparkProxy;
 import com.actelion.research.orbit.imageAnalysis.utils.ExistingMRResultsViewSamba;
 
 import javax.swing.*;
 
-public class ScaleoutSparkCluster implements IScaleout {
+public class ScaleoutSparkClusterDemo implements IScaleout {
     private IRemoteContextStore remoteContextStore = null;
     
     @Override
     public IMapReduceExecutor createMapReduceExecutor(IMapReduce mapReduce) {
-        return new MapReduceExecutorSparkProxy("OIASparkExec",10,62,0.75d);
+        return new MapReduceExecutorSparkProxyDemo("mySparkHost:80","OIASparkExec","orbitImageAnalysis.jar",10,62,0.75d);
     }
 
     @Override
