@@ -20,7 +20,7 @@
 /**
  * For e.g. training a deep learning model based on annotations.
  * Exports tile maps with inside annotations white, outside annotations but still in ROI blue, black our of roi color coding.
- * Virtuel 1024x1024 tiles on full res are used, then shrinked to 512x512 tiles to work better with deep learning frameworks.
+ * Virtual 1024x1024 tiles on full res are used, then scaled to 512x512 tiles to work better with deep learning frameworks.
  */
 
 import com.actelion.research.orbit.beans.RawAnnotation

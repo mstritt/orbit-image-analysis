@@ -107,6 +107,8 @@ public class OrbitUtils {
 
     public static final String CHANNEL_NAME2HUE = "channel_name2hue_";
 
+    public static List<String> fileTypeImages = Arrays.asList(RawUtilsCommon.fileTypesImage);
+
     static {
         Logger root = LoggerFactory.getLogger("com.actelion.research");
         if (root instanceof ch.qos.logback.classic.Logger)   // can only set if logback implementation

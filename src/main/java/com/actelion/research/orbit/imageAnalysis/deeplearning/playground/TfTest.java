@@ -17,7 +17,7 @@
  *
  */
 
-package com.actelion.research.orbit.imageAnalysis.deeplearning;
+package com.actelion.research.orbit.imageAnalysis.deeplearning.playground;
 
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
