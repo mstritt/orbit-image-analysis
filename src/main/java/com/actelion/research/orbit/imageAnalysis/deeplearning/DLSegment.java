@@ -62,7 +62,7 @@ public class DLSegment {
     private static final Logger logger = LoggerFactory.getLogger(DLSegment.class);
     public static int SEGMENTWIDTH = 512;
     public static int SEGMENTHEIGHT = 512;
-    public static String path = "d:/NoBackup/glomeruli/seg";
+    public static String debugImagePath = "d:/temp";
     public static boolean deconvolution = true;
     public static String deconvolution_name = "H DAB";
     public static int deconvolution_channel = 1;
@@ -119,8 +119,7 @@ public class DLSegment {
             for (Shape roiDef: roiDefList) {
                 Point[] tiles = orbitImage.getTileIndices(roiDef.getBounds());
                 for (Point tile: tiles) {
-                    if (!(tile.x==7 && tile.y==4)) continue;   // for testing: just on one tile
-                    //if (!(tile.y==4)) continue;   // for testing: just on one tile
+                    //if (!(tile.x==7 && tile.y==4)) continue;   // for testing: just on one tile
                     if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
                         // source image
                         SegmentationResult segRes = DLSegment.segmentTile(tile.x, tile.y, orbitImage, s, segModel, false);
@@ -263,7 +262,7 @@ public class DLSegment {
         int tx = orbitImage.XToTileX(inputTileRaster.getMinX());
         int ty = orbitImage.YToTileY(inputTileRaster.getMinY());
         if (writeImg) {
-            ImageIO.write(ori, "jpeg", new File(path + File.separator +"tile" + tx + "x" + ty + ".jpg"));
+            ImageIO.write(ori, "jpeg", new File(debugImagePath + File.separator +"tile" + tx + "x" + ty + ".jpg"));
         }
 
         Tensor<Float> inputTensor = DLSegment.convertBufferedImageToTensor(ori);
