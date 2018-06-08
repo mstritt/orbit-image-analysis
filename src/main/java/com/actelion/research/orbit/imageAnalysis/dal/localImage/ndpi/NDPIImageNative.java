@@ -76,6 +76,10 @@ public class NDPIImageNative extends AbstractOrbitImage {
         }
     }
 
+    public NDPITiledReader.NDPRImageInfo getImageInfo() throws RemoteException {
+        NDPIOrbitImageServerPyramid.ImageData imageData = getServer().getImageData(this.filename,true,false);
+        return imageData.info;
+    }
 
     @Override
     public MinMaxPerChan getMinMaxAnalysis() {

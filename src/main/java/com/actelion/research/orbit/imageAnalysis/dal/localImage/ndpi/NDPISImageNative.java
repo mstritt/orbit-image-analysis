@@ -28,6 +28,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.io.File;
+import java.rmi.RemoteException;
 
 public class NDPISImageNative extends AbstractChannelRendererOrbitImage {
 
@@ -83,6 +84,14 @@ public class NDPISImageNative extends AbstractChannelRendererOrbitImage {
     @Override
     protected int getBandUsed(int c) {
         return bandUsed[c];
+    }
+
+
+    /**
+     * returns ImageData of the FIRST reader
+     */
+    public NDPITiledReader.NDPRImageInfo getImageInfo() throws RemoteException {
+        return readers[0].getImageInfo();
     }
 
     public static void main(String[] args) throws Exception {

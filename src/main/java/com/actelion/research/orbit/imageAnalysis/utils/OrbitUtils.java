@@ -408,10 +408,12 @@ public class OrbitUtils {
                 roi = ((IScaleableShape) roi).getScaledInstance(100d, new Point(0, 0));
             }
             Rectangle roiBounds = roi.getBounds();
-            if (roiBounds != null && roiBounds.getMinX() > 0 && roiBounds.getMinY() > 0)
-                bounds.setLocation(roiBounds.x, roiBounds.y);
-            if (roiBounds != null && roiBounds.getMaxX() < bounds.getMaxX() && roiBounds.getMaxY() < bounds.getMaxY())
-                bounds.setSize(roiBounds.getSize());
+            if (roiBounds != null) {
+                bounds.setLocation(roiBounds.x>0?roiBounds.x:0, roiBounds.y>0?roiBounds.y:0);
+            }
+            if (roiBounds != null) {
+                bounds.setSize(new Dimension((int)(roiBounds.getMaxX()<bounds.getMaxX()?roiBounds.getMaxX():bounds.getMaxX()), (int)(roiBounds.getMaxY()<bounds.getMaxY()?roiBounds.getMaxY():bounds.getMaxY())));
+            }
         }
         return getROISize(img.getWidth(), img.getHeight(), bounds, roi, exclusionMapGen, mumPerPixel);
     }

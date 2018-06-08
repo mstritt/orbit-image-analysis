@@ -198,7 +198,14 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
                 if (oib.getPixelsPhysicalSizeX()!=null &&  oib.getPixelsPhysicalSizeX().value()!=null) {
                     rmList.add(rmff.createMetaDouble(RawUtilsCommon.STR_META_IMAGE_SCALE, oib.getPixelsPhysicalSizeX().value().doubleValue()));
                 }
-
+            } else
+            if (image instanceof NDPIImageNative) {
+                NDPIImageNative img = (NDPIImageNative) image;
+                rmList.add(rmff.createMetaDouble(RawUtilsCommon.STR_META_IMAGE_SCALE, img.getImageInfo().resolutionMuMperPixel));
+            } else
+            if (image instanceof NDPISImageNative) {
+                NDPISImageNative img = (NDPISImageNative) image;
+                rmList.add(rmff.createMetaDouble(RawUtilsCommon.STR_META_IMAGE_SCALE, img.getImageInfo().resolutionMuMperPixel));
             }
         }
 

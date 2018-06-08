@@ -38,12 +38,14 @@ import java.util.List;
  * 
  * @see NDPReadJNA
  * @see NDPReadWrapper
+ *
+ * @author patrick.rammelt@idorsia.com
  */
 public class NDPITiledReader
 {
     // INNER CLASSES / INTERFACES / ENUMS =====================================
 
-    /** @see NDPITiledReader#getImageInfo(int) */
+    /** @see  com.actelion.research.orbit.imageAnalysis.dal.localImage.ndpi.NDPITiledReader#getImageInfo(int) */
     public static final class NDPRImageInfo
     {
         public final int imageWidth;
@@ -57,6 +59,7 @@ public class NDPITiledReader
         public final int zLayers;
         public final String zLayerPositions; // comma separated
         public final float lens;
+        public final double resolutionMuMperPixel;
 
         public NDPRImageInfo (final int imageWidth,
                               final int imageHeight,
@@ -68,7 +71,8 @@ public class NDPITiledReader
                               final int bitsPerChannel,
                               final int zLayers,
                               final String zLayerPositions,
-                              final float lens)
+                              final float lens,
+                              final double resolutionMuMperPixel)
         {
             this.imageWidth = imageWidth;
             this.imageHeight = imageHeight;
@@ -81,10 +85,11 @@ public class NDPITiledReader
             this.zLayers = zLayers;
             this.zLayerPositions = zLayerPositions;
             this.lens = lens;
+            this.resolutionMuMperPixel = resolutionMuMperPixel;
         }
     }
 
-    /** @see NDPITiledReader#getImageMetadata(int) */
+    /** @see  com.actelion.research.orbit.imageAnalysis.dal.localImage.ndpi.NDPITiledReader#getImageMetadata(int) */
     public static final class NDPRImageMetadata
     {
         public final float lens;
@@ -195,7 +200,21 @@ public class NDPITiledReader
             this.pyramidRatio = pyramidRatio;
             this.fullyAutomatic = fullyAutomatic;
         }
+    }
 
+    /** @see  com.actelion.research.orbit.imageAnalysis.dal.localImage.ndpi.NDPITiledReader #getImageResolution(int) */
+    public static final class NDPRImageResolution
+    {
+        public final double x;
+        public final double y;
+        public final String unit;
+
+        public NDPRImageResolution (final double x, final double y, final String unit)
+        {
+            this.x = x;
+            this.y = y;
+            this.unit = unit;
+        }
     }
 
     // CONSTANTS ==============================================================
@@ -203,6 +222,13 @@ public class NDPITiledReader
     private static final NDPReadWrapper NDPR = NDPReadWrapper.INSTANCE;
 
     private static final List<String> EMPTY_CHANNEL_NAMES = Collections.emptyList();
+
+    /**
+     * Nanometers used to get the number of pixels (x,y) and calculate the resolution in nm/pixel
+     * 
+     * @see #getImageResolution(int)
+     */
+    private static final int NANOMETERS_FOR_RESOLUTION = 1000000000; // 1m
 
     // ATTRIBUTES =============================================================
 
@@ -218,9 +244,9 @@ public class NDPITiledReader
      * @param height Height of the image
      * @return Image ID
      */
-    public int initTestImage (final int width, final int height) throws NDPRException
+    public int initTestImage (final int width, final int height) throws NDPReadWrapper.NDPRException
     {
-        final int requestID = NDPR.createRequest(RequestType.InitTestImage);
+        final int requestID = NDPR.createRequest(NDPReadWrapper.RequestType.InitTestImage);
         try {
             NDPR.setRequestInt(requestID, "width", width);
             NDPR.setRequestInt(requestID, "height", height);
@@ -237,9 +263,9 @@ public class NDPITiledReader
      * @param imgFile Image file {@link Path}
      * @return Image ID
      */
-    public int initImage (final Path imgFile) throws NDPRException
+    public int initImage (final Path imgFile) throws NDPReadWrapper.NDPRException
     {
-        final int requestID = NDPR.createRequest(RequestType.InitFileImage);
+        final int requestID = NDPR.createRequest(NDPReadWrapper.RequestType.InitFileImage);
         try {
             NDPR.setRequestString(requestID, "filename", imgFile.toString());
             final int imageID = NDPR.executeRequest(requestID);
@@ -254,8 +280,8 @@ public class NDPITiledReader
     /**
      * Close an image
      * <p/>
-     * NOTE This method does not throw {@link Exception}s but return {@code false} in case of an
-     * error because it will often be used in a {@code finally} block.
+     * NOTE This method does not throw {@link Exception}s but return {@code false} in case of an error
+     * because it will often be used in a {@code finally} block.
      * 
      * @param imageID Image ID - see {@link #initImage(Path)} / {@link #initTestImage(int, int)}<br>
      *        NOTE Does nothing if {@code imageID} &le; 0 (returns {@code false} in this case).
@@ -275,7 +301,7 @@ public class NDPITiledReader
                     NDPR.freeRequest(requestID);
                 }
                 return true;
-            } catch (final NDPRException exception) {
+            } catch (final NDPReadWrapper.NDPRException exception) {
                 return false;
             }
         }
@@ -307,13 +333,14 @@ public class NDPITiledReader
             final int zLayers = NDPR.getRequestInt(requestID, "nozlayers");
             final String zLayerPositions = NDPR.getRequestString(requestID, "zlayers");
             final float lens = NDPR.getRequestFloat(requestID, "lens");
+            final double resolutionMuMperPixel = getImageResolution(imageID).x/1000d;
             // TODO There are some more attributes which could be read
 
             return new NDPRImageInfo(imageWidth, imageHeight, //
                                      physicalX, physicalY, physicalWidth, physicalHeight, //
                                      channels, bitsPerChannel, //
                                      zLayers, zLayerPositions, //
-                                     lens);
+                                     lens,resolutionMuMperPixel);
         } finally {
             NDPR.freeRequest(requestID);
         }
@@ -475,6 +502,36 @@ public class NDPITiledReader
         return NDPR.getRequestString(requestID, "value");
     }
 
+    // IMAGE RESOLUTION -------------------------------------------------------
+
+    /**
+     * Read the resolution of an image
+     * 
+     * @param imageID Image ID - see {@link #initImage(Path)} / {@link #initTestImage(int, int)}
+     * @return {@link NDPRImageResolution}
+     */
+    public NDPRImageResolution getImageResolution (final int imageID) throws NDPRException
+    {
+        final int requestID = NDPR.createRequest(RequestType.ConvertUnits);
+        try {
+            NDPR.setRequestInt(requestID, "imageid", imageID);
+
+            NDPR.setRequestInt(requestID, "physicalwidth", NANOMETERS_FOR_RESOLUTION); 
+            NDPR.setRequestInt(requestID, "physicalheight", NANOMETERS_FOR_RESOLUTION); 
+
+            NDPR.executeRequest(requestID);
+
+            final int xPixelsPerMeter = NDPR.getRequestInt(requestID, "pixelwidth");
+            final int yPixelsPerMeter = NDPR.getRequestInt(requestID, "pixelheight");
+
+            return new NDPRImageResolution((double) NANOMETERS_FOR_RESOLUTION / (double) xPixelsPerMeter, //
+                                           (double) NANOMETERS_FOR_RESOLUTION / (double) yPixelsPerMeter, //
+                                           "nm/pixel");
+        } finally {
+            NDPR.freeRequest(requestID);
+        }
+    }
+
     // SLIDE IMAGE ------------------------------------------------------------
 
     /**
@@ -548,13 +605,9 @@ public class NDPITiledReader
      * @return Byte array for the jpeg representation of the specified tile ({@code dstWidth} x
      *         {@code dstHeight})
      */
-    public byte[] getTileData (final int imageID,
-                               final int left,
-                               final int top,
-                               final int srcWidth,
-                               final int srcHeight,
-                               final int dstWidth,
-                               final int dstHeight) throws NDPRException, IOException
+    public byte[]
+           getTileData (final int imageID, final int left, final int top, final int srcWidth, final int srcHeight, final int dstWidth, final int dstHeight) throws NDPRException,
+                                                                                                                                                            IOException
     {
         final int requestID = NDPR.createRequest(RequestType.GetRegion);
         try {
@@ -589,13 +642,9 @@ public class NDPITiledReader
      * @param dstHeight Height of the returned tile (scaled)
      * @return {@link BufferedImage} ({@code dstWidth} x {@code dstHeight}) for the specified tile
      */
-    public BufferedImage getTileImage (final int imageID,
-                                       final int left,
-                                       final int top,
-                                       final int srcWidth,
-                                       final int srcHeight,
-                                       final int dstWidth,
-                                       final int dstHeight) throws NDPRException, IOException
+    public BufferedImage
+           getTileImage (final int imageID, final int left, final int top, final int srcWidth, final int srcHeight, final int dstWidth, final int dstHeight) throws NDPRException,
+                                                                                                                                                             IOException
     {
         return ImageIO.read(new ByteArrayInputStream(getTileData(imageID, left, top, srcWidth, srcHeight, dstWidth, dstHeight)));
     }
