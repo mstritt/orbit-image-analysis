@@ -4,6 +4,7 @@
 ### A versatile image analysis software for biological image-based quantification.
 
 #####News:
+* 3.03: bugfix release (omero annotations)
 * 3.0: release: deep learning object detection
 
 #####Available backends:
