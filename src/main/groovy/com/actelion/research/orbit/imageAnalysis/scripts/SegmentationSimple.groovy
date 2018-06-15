@@ -32,15 +32,18 @@ import java.awt.Shape
  * Simple segmentation using the OrbitHelper.Segmentation method.
  *
  */
-RawDataFile rdf = DALConfig.imageProvider.LoadRawDataFile(4509637)
-OrbitModel model = OrbitModel.LoadFromFile("d:/orbitModels/test.omo")
+DALConfig.getImageProvider().authenticateUser("root","password")
+try {
+    RawDataFile rdf = DALConfig.imageProvider.LoadRawDataFile(1)
+    OrbitModel model = OrbitModel.LoadFromFile("d:/orbitModels/test.omo")
 
 // classify the image
-SegmentationResult res = OrbitHelper.Segmentation(rdf.rawDataFileId,model, null, 1)
+    SegmentationResult res = OrbitHelper.Segmentation(rdf.rawDataFileId, model, null, 1)
 
 // and output the segmented objects (can be cast to polygons)
-for (Shape shape: res.shapeList) {
-    println(shape)
+    for (Shape shape : res.shapeList) {
+        println(shape)
+    }
+} finally {
+    DALConfig.getImageProvider().close()  // only close if not executed within Orbit
 }
-
-DALConfig.getImageProvider().close();  // only close if not executed within Orbit

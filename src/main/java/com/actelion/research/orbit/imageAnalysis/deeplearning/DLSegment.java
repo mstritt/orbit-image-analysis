@@ -68,6 +68,7 @@ public class DLSegment {
     public static int deconvolution_channel = 1;
     private static final int DESIRED_TILE_SIZE = 512;
     public static boolean SEGMENTATION_REFINEMENT = true;
+    public static int segmentNr = 0;
 
     public static Map<Integer,List<Shape>> generateSegmentationAnnotations(int[] images, Session s, OrbitModel segModel,  OrbitModel modelContainingExclusionModel, boolean storeAnnotations) throws Exception {
         List<RawDataFile> rdfList = new ArrayList<>(images.length);
@@ -119,7 +120,7 @@ public class DLSegment {
             for (Shape roiDef: roiDefList) {
                 Point[] tiles = orbitImage.getTileIndices(roiDef.getBounds());
                 for (Point tile: tiles) {
-                    //if (!(tile.x==7 && tile.y==4)) continue;   // for testing: just on one tile
+                    //if (!(tile.x==7 && tile.y==13)) continue;   // for testing: just on one tile
                     if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
                         // source image
                         SegmentationResult segRes = DLSegment.segmentTile(tile.x, tile.y, orbitImage, s, segModel, false);
@@ -136,6 +137,8 @@ public class DLSegment {
                                 scaleShape.translate((int) center.getX(), (int) center.getY());
                                 PolygonMetrics pm2 = new PolygonMetrics(scaleShape);
                                 center = pm2.getCenter();
+
+                               // segmentationShapes.add(scaleShape);     // enable?
 
                                 // re-segment
                                 int startx = (int) (center.getX() - 512);
@@ -219,8 +222,19 @@ public class DLSegment {
         Rectangle rect = tileRaster.getBounds();
         rect.translate(dx,dy);
         Raster shiftraster = orbitImage.getData(rect);
+
+        WritableRaster tileRaster2 = (WritableRaster) shiftraster.createTranslatedChild(0, 0);
+        BufferedImage ori = new BufferedImage(orbitImage.getColorModel(), tileRaster2, false, null);
+        ori = shrink(ori);
+        ImageIO.write(ori,"png",new File("d:/mask-shift-raster-"+segmentNr+".png"));
+
         BufferedImage mask2 = maskRaster(shiftraster, orbitImage, s, false);
+
+        ImageIO.write(mask2,"png",new File("d:/mask-shift-"+segmentNr+".png"));
+
         maskOriginal = combineMasks(maskOriginal,mask2,dx/factor,dy/factor);
+        
+        ImageIO.write(maskOriginal,"png",new File("d:/mask-combined-"+segmentNr+++".png"));
         return maskOriginal;
     }
 
