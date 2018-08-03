@@ -64,6 +64,7 @@ public class TiledImagePainter implements Closeable {
     public static final int CHANNEL_BLUE = 2;
     public static final int CHANNEL_OVERLAY = 3;
     private final static Logger logger = LoggerFactory.getLogger(TiledImagePainter.class);
+    public static double PYRAMID_RATIO_DIFF = 0.1d;
     transient protected OrbitTiledImage2 image;
     transient protected PlanarImage origImage;
     private String imageName = "";
@@ -393,7 +394,7 @@ public class TiledImagePainter implements Closeable {
                         TiledImagePainter mipPainter = new TiledImagePainter(false);
                         mipPainter.loadImage(inputStrOrURL, mipNum, true);
                         double mipRatio = (double)mipPainter.getWidth()/mipPainter.getHeight();
-                        if (Math.abs(level0ratio-mipRatio)<0.01d) {
+                        if (Math.abs(level0ratio-mipRatio)< PYRAMID_RATIO_DIFF) {   //  0.01d
                             if (logger.isTraceEnabled())
                                 logger.trace("mipmap loaded " + mipPainter.getWidth() + "x" + mipPainter.getHeight() + " mipNum:" + mipNum);
                             mipList.add(mipPainter);

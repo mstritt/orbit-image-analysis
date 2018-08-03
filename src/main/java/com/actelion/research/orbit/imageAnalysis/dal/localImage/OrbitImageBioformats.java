@@ -59,6 +59,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class OrbitImageBioformats implements IOrbitImageMultiChannel {
 
+    public static double THUMBNAIL_RATIO_DIFF = 0.1;
     public static int EXPLICIT_SERIES = 0;
     private static final Logger logger = LoggerFactory.getLogger(OrbitImageBioformats.class);
     private static final int cacheMemsize = 1024*1024*64; // 64MB
@@ -659,13 +660,15 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
             ir.setId(reader.get().getCurrentFile());
             ir.setSeries(reader.get().getSeries());
 
-            for (int lev=numLevels-1; lev>=0; lev--) {
+            //int lev = numLevels-1;
+            for (int lev=numLevels-1; lev>=0; lev--)
+            {
                 ir.setResolution(lev);
                 thumbW = ir.getSizeX();
                 thumbH = ir.getSizeY();
                 double diff = Math.abs((thumbW/(double)thumbH) - (width/(double)height));
                 logger.trace("thumb lev: "+lev+"  diff: "+diff+"  WxH: "+thumbW+"x"+thumbH);
-                if (diff<0.001) break;
+                if (diff< THUMBNAIL_RATIO_DIFF) break; // 0.001
             }
 
             BufferedImageReader bir = BufferedImageReader.makeBufferedImageReader(ir);

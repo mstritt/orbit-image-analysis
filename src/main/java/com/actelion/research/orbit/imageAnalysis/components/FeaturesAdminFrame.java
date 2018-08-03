@@ -94,8 +94,8 @@ public class FeaturesAdminFrame extends JDialog {
 
 
     private int frameWidth = 630;
-    private int frameHeight = 750;
-    private int btnHeight = 25;
+    private int frameHeight = 950;
+    private int btnHeight = 35;
     public static int selectedTab = 0;
     private FeatureDescription featureDescription = null;
 

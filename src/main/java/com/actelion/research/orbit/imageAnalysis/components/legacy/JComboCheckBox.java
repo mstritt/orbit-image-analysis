@@ -255,7 +255,7 @@ public class JComboCheckBox extends JCustomTextField {
             g.drawLine(getWidth()-(insets.right-3)-1, insets.top-3+1, getWidth()-(insets.right-3)-1, getHeight()-(insets.bottom-3)-1);
             g.setColor(fg);
         }
-        g.setFont(FastFont.BIGGEST);
+  //      g.setFont(FastFont.BIGGEST);
         g.drawString("*", getWidth()-9-g.getFontMetrics().stringWidth("*")/2, getHeight()/2+5);
         g.fillPolygon(new int[] {getWidth()-12, getWidth()-6, getWidth()-9}, new int[] {getHeight()/2, getHeight()/2, getHeight()/2+6}, 3 );
 

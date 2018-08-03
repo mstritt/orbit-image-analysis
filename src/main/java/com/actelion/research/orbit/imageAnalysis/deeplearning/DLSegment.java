@@ -63,7 +63,7 @@ public class DLSegment {
     public static int SEGMENTWIDTH = 512;
     public static int SEGMENTHEIGHT = 512;
     public static String debugImagePath = "d:/temp";
-    public static boolean deconvolution = true;
+    public static boolean deconvolution = false;
     public static String deconvolution_name = "H DAB";
     public static int deconvolution_channel = 1;
     private static final int DESIRED_TILE_SIZE = 512;
@@ -83,6 +83,7 @@ public class DLSegment {
         Map<Integer,List<Shape>> segmentationsPerImage = new HashMap<>();
         for (RawDataFile rdf: rdfList) {
             long startt = System.currentTimeMillis();
+            OrbitTiledImage2.resetTileCache();
             int rdfId = rdf.getRawDataFileId();
             logger.info("rdfid: " + rdfId);
             List<Shape> segmentationShapes = new ArrayList<>();
@@ -120,7 +121,7 @@ public class DLSegment {
             for (Shape roiDef: roiDefList) {
                 Point[] tiles = orbitImage.getTileIndices(roiDef.getBounds());
                 for (Point tile: tiles) {
-                    //if (!(tile.x==7 && tile.y==13)) continue;   // for testing: just on one tile
+                   // if (!(tile.x==15 && tile.y==12)) continue;   // for testing: just on one tile
                     if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
                         // source image
                         SegmentationResult segRes = DLSegment.segmentTile(tile.x, tile.y, orbitImage, s, segModel, false);
@@ -138,7 +139,7 @@ public class DLSegment {
                                 PolygonMetrics pm2 = new PolygonMetrics(scaleShape);
                                 center = pm2.getCenter();
 
-                               // segmentationShapes.add(scaleShape);     // enable?
+                                //segmentationShapes.add(scaleShape);     // enable?
 
                                 // re-segment
                                 int startx = (int) (center.getX() - 512);
@@ -208,36 +209,55 @@ public class DLSegment {
         BufferedImage maskOriginal = maskRaster(tileRaster,orbitImage, s, writeImg);
 
         int factor = 2;
-        maskOriginal = getShiftedMask(orbitImage, s, segModel, tileRaster, maskOriginal, factor, 0, 512);
-        maskOriginal = getShiftedMask(orbitImage, s, segModel, tileRaster, maskOriginal, factor, 0, -512);
-        maskOriginal = getShiftedMask(orbitImage, s, segModel, tileRaster, maskOriginal, factor, 512, 0);
-        maskOriginal = getShiftedMask(orbitImage, s, segModel, tileRaster, maskOriginal, factor, -512, 0);
+        maskOriginal = getShiftedMask(orbitImage, s, tileRaster, maskOriginal, factor, 0, 512, false);
+        maskOriginal = getShiftedMask(orbitImage, s, tileRaster, maskOriginal, factor, 0, -512, false);
+        maskOriginal = getShiftedMask(orbitImage, s, tileRaster, maskOriginal, factor, 512, 0, false);
+        maskOriginal = getShiftedMask(orbitImage, s, tileRaster, maskOriginal, factor, -512, 0, false);
+       // maskOriginal = getShiftedMask(orbitImage, s, tileRaster, maskOriginal, factor, 0, 0, true);
 
         //ImageIO.write(maskOriginal, "jpeg", new File(path + File.separator +"tile" + tileX + "x" + tileY + "_seg1.jpg"));
         SegmentationResult segmentationResult = getSegmentationResult(segModel, maskOriginal);
         return segmentationResult;
     }
 
-    public static BufferedImage getShiftedMask(OrbitTiledImageIOrbitImage orbitImage,Session s, OrbitModel segModel, Raster tileRaster, BufferedImage maskOriginal, int factor, int dx, int dy) throws Exception {
+    private static BufferedImage getShiftedMask(OrbitTiledImageIOrbitImage orbitImage,Session s, Raster tileRaster, BufferedImage maskOriginal, int factor, int dx, int dy, boolean flip) throws Exception {
         Rectangle rect = tileRaster.getBounds();
         rect.translate(dx,dy);
-        Raster shiftraster = orbitImage.getData(rect);
-
-        WritableRaster tileRaster2 = (WritableRaster) shiftraster.createTranslatedChild(0, 0);
-        BufferedImage ori = new BufferedImage(orbitImage.getColorModel(), tileRaster2, false, null);
-        ori = shrink(ori);
-        ImageIO.write(ori,"png",new File("d:/mask-shift-raster-"+segmentNr+".png"));
-
-        BufferedImage mask2 = maskRaster(shiftraster, orbitImage, s, false);
-
-        ImageIO.write(mask2,"png",new File("d:/mask-shift-"+segmentNr+".png"));
-
-        maskOriginal = combineMasks(maskOriginal,mask2,dx/factor,dy/factor);
-        
-        ImageIO.write(maskOriginal,"png",new File("d:/mask-combined-"+segmentNr+++".png"));
+        if (!orbitImage.getBounds().contains(rect)) {
+            return maskOriginal;
+        }
+        try {
+            Raster shiftraster = orbitImage.getData(rect);
+            if (flip) {
+                shiftraster = flipRaster(shiftraster);
+            }
+            BufferedImage mask2 = maskRaster(shiftraster, orbitImage, s, false);
+            if (flip) {
+                mask2 = flipImage(mask2);
+            }
+            maskOriginal = combineMasks(maskOriginal, mask2, dx / factor, dy / factor);
+        } catch (Exception e) {
+            logger.warn("Could not shift raster, returning original image (rect="+rect+" img.bounds="+orbitImage.getBounds()+")", e);
+        }
         return maskOriginal;
     }
 
+
+    private static BufferedImage flipImage(BufferedImage bi) {
+        return new BufferedImage(bi.getColorModel(),(WritableRaster) flipRaster(bi.getData()),false,null);
+    }
+
+    private static Raster flipRaster(Raster r) {
+        int w = r.getWidth();
+        int h = r.getHeight();
+        WritableRaster rf = r.createCompatibleWritableRaster(r.getMinX(),r.getMinY(), w,h);
+        int[] p = new int[w*3];
+        for (int y=r.getMinY(); y<r.getMinY()+h; y++) {
+            p = r.getPixels(r.getMinX(),y,w,1,p);
+            rf.setPixels(r.getMinX(),r.getMinY()+h-(y-r.getMinY())-1,w,1,p);
+        }
+        return rf;
+    }
 
     private static BufferedImage combineMasks(BufferedImage m1, BufferedImage m2, int dx, int dy) {
         BufferedImage combined = new BufferedImage(m1.getWidth(),m1.getHeight(),m1.getType());

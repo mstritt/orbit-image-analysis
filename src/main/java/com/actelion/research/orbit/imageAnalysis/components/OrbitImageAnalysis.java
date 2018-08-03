@@ -2944,11 +2944,14 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                                 //UIManager.setLookAndFeel( "com.birosoft.liquid.LiquidLookAndFeel");
                                 //org.pushingpixels.substance.api.skin.SubstanceOfficeBlack2007LookAndFeel
 
-
 //									UIManager.put("InternalFrame.activeTitleBackground", Color.GREEN);
 //									UIManager.put("InternalFrame.inactiveTitleBackground", Color.GREEN);
 //									UIManager.put("InternalFrame.layoutTitlePaneAtOrigin", Color.GREEN);
                                 // see http://insubstantial.github.io/insubstantial/substance/docs/skins/dark.html#GraphiteSkin
+
+//                                SubstanceLookAndFeel.setFontPolicy(SubstanceFontUtilities.getScaledFontPolicy(
+//                                        (float)(SubstanceSizeUtils.getPointsToPixelsRatio()) / 2.5F));
+
                             } else {
                                 UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
                             }

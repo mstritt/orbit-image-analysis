@@ -153,6 +153,9 @@ public class OrbitHelper {
             if (parallelism > 0) tileIndices = rf.bimg.getImage().getTileIndices(roi);
             else
                 tileIndices = new Point[]{new Point(-1, -1)};  // dummy marker for all tiles (used for exclusion model quantification)
+            if (tileIndices==null) {
+                tileIndices = new Point[]{new Point(-1, -1)};
+            }
             for (Point tile : tileIndices) {
                 tileMap.get(rdf).add(tile);
                 totalCnt++;

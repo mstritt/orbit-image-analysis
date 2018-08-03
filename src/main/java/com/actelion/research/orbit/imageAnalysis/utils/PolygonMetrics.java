@@ -46,6 +46,7 @@ public class PolygonMetrics {
      * @return
      */
     public double getArea() {
+        if (p==null) return 0;
         Rectangle bb = p.getBounds();
         if (bb.width * (long) bb.height > 1000000L) return getAreaNonIntersecting();
         double area = 0d;
@@ -72,6 +73,7 @@ public class PolygonMetrics {
      * @return
      */
     public double getAreaNonIntersecting(Polygon p) {
+        if (p==null) return 0;
         double area = 0d;
 //		for (int i=0; i<=(p.npoints-1); i++) {
 //			if(i == p.npoints-1)
@@ -102,6 +104,7 @@ public class PolygonMetrics {
      * @return
      */
     public double getPerimeter(Polygon p) {
+        if (p==null) return 0;
         double perimeter = 0d;
         int dx, dy;
         for (int i = 0; i < (p.npoints - 1); i++) {

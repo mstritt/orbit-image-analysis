@@ -4,6 +4,7 @@
 ### A versatile image analysis software for biological image-based quantification.
 
 #####News:
+* 3.05: image-provider-omero 1.5.8. with configuration dialog, HiDPI bugfix (windows), latest bioformats lib 5.9.0
 * 3.03: bugfix release (omero annotations)
 * 3.0: release: deep learning object detection
 
