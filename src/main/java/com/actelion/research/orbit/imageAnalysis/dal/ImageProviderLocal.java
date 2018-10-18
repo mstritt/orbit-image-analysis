@@ -38,6 +38,9 @@ import com.actelion.research.orbit.imageAnalysis.utils.TiffConverter;
 import com.actelion.research.orbit.utils.RawMetaFactoryData;
 import com.actelion.research.orbit.utils.RawMetaFactoryFile;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import loci.formats.FormatException;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +65,44 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
     private RawData rawData;
     private static int series = 0;
     private OrbitModel orbitModel = null;
+    private LoadingCache<Integer,List<RawMeta>> rawMetaFileCache = CacheBuilder.newBuilder().build(new CacheLoader<Integer, List<RawMeta>>() {
+        @Override
+        public List<RawMeta> load(Integer rdfId) throws Exception {
+            List<RawMeta> rmList =  new ArrayList<>();
+            RawDataFile rdf = LoadRawDataFile(rdfId);
+            IOrbitImage image = createOrbitImage(rdf,0);
+
+            RawMetaFactoryFile rmff = new RawMetaFactoryFile(rdfId,new Date(),"orbit");
+            rmList.add(rmff.createMetaStr("Filename",rdf.getFileName()));
+            rmList.add(rmff.createMetaStr("Filesize", RawUtilsCommon.formatFileSize(rdf.getFileSize())));
+            rmList.add(rmff.createMetaInt("Orbit ID", rdf.getRawDataFileId()));
+            if (rdf.getReferenceDate() != null)
+                rmList.add(rmff.createMetaDate("Create Date", rdf.getReferenceDate()));
+            if (rdf.getModifyDate() != null)
+                rmList.add(rmff.createMetaDate("Update Date", rdf.getModifyDate()));
+            if (image!=null) {
+                rmList.add(rmff.createMetaInt(RawUtilsCommon.STR_META_IMAGE_IMAGEHEIGHT, image.getHeight()));
+                rmList.add(rmff.createMetaInt(RawUtilsCommon.STR_META_IMAGE_IMAGEWIDTH, image.getWidth()));
+
+                if (image instanceof OrbitImageBioformats) {
+                    OrbitImageBioformats oib = (OrbitImageBioformats) image;
+                    if (oib.getPixelsPhysicalSizeX()!=null &&  oib.getPixelsPhysicalSizeX().value()!=null) {
+                        rmList.add(rmff.createMetaDouble(RawUtilsCommon.STR_META_IMAGE_SCALE, oib.getPixelsPhysicalSizeX().value().doubleValue()));
+                    }
+                } else
+                if (image instanceof NDPIImageNative) {
+                    NDPIImageNative img = (NDPIImageNative) image;
+                    rmList.add(rmff.createMetaDouble(RawUtilsCommon.STR_META_IMAGE_SCALE, img.getImageInfo().resolutionMuMperPixel));
+                } else
+                if (image instanceof NDPISImageNative) {
+                    NDPISImageNative img = (NDPISImageNative) image;
+                    rmList.add(rmff.createMetaDouble(RawUtilsCommon.STR_META_IMAGE_SCALE, img.getImageInfo().resolutionMuMperPixel));
+                }
+            }
+
+            return rmList;
+        }
+    });
     public static boolean NDPI_JAVA_FALLBACK = false;
 
     public ImageProviderLocal() {
@@ -177,49 +218,50 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
 
     @Override
     public List<RawMeta> LoadRawMetasByRawDataFile(int rdfId) throws Exception {
-        List<RawMeta> rmList =  new ArrayList<>();
-        RawDataFile rdf = LoadRawDataFile(rdfId);
-        IOrbitImage image = createOrbitImage(rdf,0);
-
-        RawMetaFactoryFile rmff = new RawMetaFactoryFile(rdfId,new Date(),"orbit");
-        rmList.add(rmff.createMetaStr("Filename",rdf.getFileName()));
-        rmList.add(rmff.createMetaStr("Filesize", RawUtilsCommon.formatFileSize(rdf.getFileSize())));
-        rmList.add(rmff.createMetaInt("Orbit ID", rdf.getRawDataFileId()));
-        if (rdf.getReferenceDate() != null)
-            rmList.add(rmff.createMetaDate("Create Date", rdf.getReferenceDate()));
-        if (rdf.getModifyDate() != null)
-            rmList.add(rmff.createMetaDate("Update Date", rdf.getModifyDate()));
-        if (image!=null) {
-            rmList.add(rmff.createMetaInt(RawUtilsCommon.STR_META_IMAGE_IMAGEHEIGHT, image.getHeight()));
-            rmList.add(rmff.createMetaInt(RawUtilsCommon.STR_META_IMAGE_IMAGEWIDTH, image.getWidth()));
-
-            if (image instanceof OrbitImageBioformats) {
-                OrbitImageBioformats oib = (OrbitImageBioformats) image;
-                if (oib.getPixelsPhysicalSizeX()!=null &&  oib.getPixelsPhysicalSizeX().value()!=null) {
-                    rmList.add(rmff.createMetaDouble(RawUtilsCommon.STR_META_IMAGE_SCALE, oib.getPixelsPhysicalSizeX().value().doubleValue()));
-                }
-            } else
-            if (image instanceof NDPIImageNative) {
-                NDPIImageNative img = (NDPIImageNative) image;
-                rmList.add(rmff.createMetaDouble(RawUtilsCommon.STR_META_IMAGE_SCALE, img.getImageInfo().resolutionMuMperPixel));
-            } else
-            if (image instanceof NDPISImageNative) {
-                NDPISImageNative img = (NDPISImageNative) image;
-                rmList.add(rmff.createMetaDouble(RawUtilsCommon.STR_META_IMAGE_SCALE, img.getImageInfo().resolutionMuMperPixel));
-            }
-        }
-
-        return rmList;
+        return rawMetaFileCache.get(rdfId);
     }
 
     @Override
-    public List<RawMeta> LoadRawMetasByRawData(int i) throws Exception {
+    public List<RawMeta> LoadRawMetasByRawDataFileAndName(int rdfId, String name) throws Exception {
+        List<RawMeta> allMetas =  LoadRawMetasByRawDataFile(rdfId);
+        List<RawMeta> filteredMetas = new ArrayList<>();
+        if (allMetas!=null) {
+            for (RawMeta rm: allMetas) {
+                if (rm.getName().equals(name)) {
+                    filteredMetas.add(rm);
+                }
+            }
+        }
+        return filteredMetas;
+    }
+
+    /**
+     * Ignores rdId and loads default metas. LocalFiles don't have a rawData container.
+     */
+    @Override
+    public List<RawMeta> LoadRawMetasByRawData(int rdId) throws Exception {
         List<RawMeta> rmList =  new ArrayList<>();
         RawMetaFactoryData rmfd = new RawMetaFactoryData (rawData.getRawDataId(),new Date(),"orbit");
         rmList.add(rmfd.createMetaStr("Filesystem","local"));
         return rmList;
     }
 
+    /**
+     * Ignores rdId, see LoadRawMetasByRawData(rdId)
+     */
+    @Override
+    public List<RawMeta> LoadRawMetasByRawDataAndName(int rdId, String name) throws Exception {
+        List<RawMeta> allMetas =  LoadRawMetasByRawData(rdId);
+        List<RawMeta> filteredMetas = new ArrayList<>();
+        if (allMetas!=null) {
+            for (RawMeta rm: allMetas) {
+                if (rm.getName().equals(name)) {
+                    filteredMetas.add(rm);
+                }
+            }
+        }
+        return filteredMetas;
+    }
 
     /**
      * Small images (bmp,png,dcm.lif,zif) are loaded wie TiffConverter (JAI), tiff files via OrbitImageTiff (better performance) and everything else via Scifio.

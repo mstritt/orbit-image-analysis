@@ -20,8 +20,11 @@
 package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import com.actelion.research.orbit.beans.MinMaxPerChan;
+import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
+import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
+import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.modules.mihc.MihcConfig;
 import com.actelion.research.orbit.imageAnalysis.modules.mihc.MultiplexImageReader;
@@ -45,11 +48,9 @@ import ome.units.quantity.Length;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
 import java.awt.*;
 import java.awt.image.*;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -652,6 +653,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
 
 
     public BufferedImage getThumbnail() {
+      //  if (true) return new BufferedImage(100,60,BufferedImage.TYPE_INT_RGB);
          long thumbW=1;
          long thumbH=1;
 
@@ -864,6 +866,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
 
 
     public static void main(String[] args) throws Exception {
+      /*
         final String testImage = "C:\\images\\test14bit.czi";
         ChannelToHue.userHueMap.put("af488", 120f/360f);
         OrbitImageBioformats oi = new OrbitImageBioformats(testImage,0, 0, null);
@@ -881,5 +884,20 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
 //        oti.getTile(3,0);
 
         oi.close();
+         */
+
+//        final String testImage = "D:\\pic\\vsi\\err\\GOTH-058-P1 (4) MSB_01.vsi";
+//        OrbitImageBioformats oi = new OrbitImageBioformats(testImage,4, 2, null);
+//        System.out.println("wxh: "+oi.getWidth()+"x"+oi.getHeight()+" cm: "+oi.getColorModel());
+//        BufferedImage bi = new BufferedImage(oi.getColorModel(),  (WritableRaster) oi.getTileData(0,0, false).createTranslatedChild(0,0) , oi.getColorModel().isAlphaPremultiplied(), null);
+//        //bi = oi.getThumbnail();
+//        System.out.println("img: "+bi);
+//        oi.close();
+
+        DALConfig.switchLocalRemoteImageProvider();
+        RawDataFile rdf = DALConfig.getImageProvider().LoadRawDataFile(207);
+        RecognitionFrame rf = new RecognitionFrame(rdf);
+        DALConfig.getImageProvider().close();
+
     }
 }

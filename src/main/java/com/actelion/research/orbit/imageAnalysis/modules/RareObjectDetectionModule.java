@@ -56,9 +56,9 @@ public class RareObjectDetectionModule extends AbstractSpotModule {
 
     public RareObjectDetectionModule(boolean withGui) {
         if (withGui) {
-            if (OrbitImageAnalysis.getInstance().getLoadedModelFilename().equals("none")) {
-                JOptionPane.showMessageDialog(this, "No model loaded. Please load an appropriate rare object detection model.", "Please load a model", JOptionPane.INFORMATION_MESSAGE);
-            }
+//            if (OrbitImageAnalysis.getInstance().getLoadedModelFilename().equals("none")) {
+//                JOptionPane.showMessageDialog(this, "No model loaded. Please load an appropriate rare object detection model.", "Please load a model", JOptionPane.INFORMATION_MESSAGE);
+//            }
             cellRenderer = new SpotCellRenderer();
             init2();
             addPropertyChangeListener(NumSpotsClassifiedListener.NUMSPOTSCLASSIFIED, new NumSpotsClassifiedListener(100));
@@ -279,7 +279,7 @@ public class RareObjectDetectionModule extends AbstractSpotModule {
         final ObjectSegmentationWorker segWorker = createSpotDetectionWorker(rdf, iFrame.recognitionFrame, model, null); // tiles=null (last parameter)
 
         // no exclusion map so far
-        final ProgressPanel progressPanel = new ProgressPanel(oia.getTitle(), "Nuclei Detection", segWorker);
+        final ProgressPanel progressPanel = new ProgressPanel(oia.getTitle(), "Object Detection", segWorker);
         oia.addAndExecuteTask(progressPanel, true);
 
         new Thread() {
@@ -292,9 +292,9 @@ public class RareObjectDetectionModule extends AbstractSpotModule {
                     return;
                 }
                 if (shapes.size() == 0) {
-                    logger.info("No nuclei found.");
+                    logger.info("No object found.");
                     if (withGui)
-                        JOptionPane.showMessageDialog(RareObjectDetectionModule.this, "No nuclei found in selected region of interest", "No nuclei found", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(RareObjectDetectionModule.this, "No object found in selected region of interest", "No object found", JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
                 // shuffle shape list to be unbiased for manual classification
@@ -307,7 +307,7 @@ public class RareObjectDetectionModule extends AbstractSpotModule {
                 }
                 for (Shape shape : shapes) {
                     // at FOV to list
-                    ClassShape cs = new ClassShape("Nuclei", Color.white, ClassShape.SHAPETYPE_POLYGONEXT);
+                    ClassShape cs = new ClassShape("Object", Color.white, ClassShape.SHAPETYPE_POLYGONEXT);
                     PolygonExt pe = new PolygonExt((Polygon) shape);
                     cs.getShapeList().add(pe);
                     SpotAnnotation annotation = new RareEventAnnotation(SpotAnnotation.LABEL_UNIDENTIFIED, cs);

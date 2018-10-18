@@ -394,7 +394,10 @@ public class TiledImagePainter implements Closeable {
                         TiledImagePainter mipPainter = new TiledImagePainter(false);
                         mipPainter.loadImage(inputStrOrURL, mipNum, true);
                         double mipRatio = (double)mipPainter.getWidth()/mipPainter.getHeight();
-                        if (Math.abs(level0ratio-mipRatio)< PYRAMID_RATIO_DIFF) {   //  0.01d
+                        double mipDiff = Math.abs(level0ratio-mipRatio);
+                        logger.trace("level: "+mipNum+" mipDiff: "+mipDiff);
+                        if (mipDiff< PYRAMID_RATIO_DIFF)
+                        {   //  0.01d
                             if (logger.isTraceEnabled())
                                 logger.trace("mipmap loaded " + mipPainter.getWidth() + "x" + mipPainter.getHeight() + " mipNum:" + mipNum);
                             mipList.add(mipPainter);
@@ -413,7 +416,7 @@ public class TiledImagePainter implements Closeable {
 //                             else mipNum = -1;
                         }
                     }
-                } else {
+                } else {                                    
                     mipNum = -1;
                     break;
                 }
