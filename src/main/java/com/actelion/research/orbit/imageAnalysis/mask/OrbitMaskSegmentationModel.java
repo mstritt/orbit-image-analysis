@@ -33,61 +33,70 @@ import com.google.common.cache.LoadingCache;
 
 import java.awt.*;
 import java.awt.image.Raster;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 
-public class OrbitMaskSegmentationModel implements IOrbitMaskModelBased {
+public class OrbitMaskSegmentationModel implements IOrbitMaskModelBased, Serializable {
 
     private OrbitModel model;
-    private TiledImagePainter tip;
-    private LoadingCache<MyPoint,OrbitMaskSegmentation> tileShapeCache = CacheBuilder.
-            newBuilder().
-            //recordStats().
-            maximumSize(Runtime.getRuntime().availableProcessors()).
-            build(new CacheLoader<MyPoint, OrbitMaskSegmentation>() {
-                @Override
-                public OrbitMaskSegmentation load(MyPoint tile) throws Exception {
-                    double scaleOuter = 1.5d;
-                    double scaleInner = 0.8d;
-                    boolean bin = false;
-
-                    RecognitionFrame rf = new RecognitionFrame(tile.tip);
-                    List<Point> tiles = new ArrayList<>(1);
-                    tiles.add(new Point(tile.x,tile.y));
-                    ObjectSegmentationWorker segmentationWorker = new ObjectSegmentationWorker(null,rf,null,null,tiles);
-                    segmentationWorker.setModel(model);
-                    segmentationWorker.setNumThreads(1);
-                    segmentationWorker.setWithGUI(false);
-                    segmentationWorker.run();
-                    SegmentationResult segmentationResult = segmentationWorker.getSegmentationResult();
-                    List<Shape> shapeList = segmentationResult.getShapeList();
-                    if (bin && shapeList!=null) {
-                        // scale shape and exclude inner part
-                        List<Shape> binnedShapes = new ArrayList<>(shapeList.size());
-                        PolygonMetrics pm = new PolygonMetrics(null);
-                        for (Shape shape: shapeList) {
-                            if (shape instanceof PolygonExt) {
-                                PolygonExt pe = (PolygonExt) shape;
-                                pm.setPolygon(pe.clone());
-                                Shape outer = pe.scale(100d * scaleOuter, pm.getCenter());
-                                pm.setPolygon(pe.clone());
-                                Shape inner = pe.scale(100d * scaleInner, pm.getCenter());
-                                ShapeAnnotationList combined = new ShapeAnnotationList(new ArrayList<Shape>(), Collections.singletonList(inner), outer, outer.getBounds());
-                                binnedShapes.add(combined);
-                            }
-                        }
-                        shapeList = binnedShapes;
-                    }
-                    OrbitMaskSegmentation segMask = new OrbitMaskSegmentation(shapeList);
-                    return segMask;
-                }
-            });
+    private transient TiledImagePainter tip;
+    private transient LoadingCache<MyPoint,OrbitMaskSegmentation> tileShapeCache = null;
 
     public OrbitMaskSegmentationModel(OrbitModel model) {
         this.model = model;
+    }
+
+
+    private synchronized LoadingCache<MyPoint,OrbitMaskSegmentation> getTileShapeCache() {
+        if (tileShapeCache==null) {
+            tileShapeCache = CacheBuilder.
+                    newBuilder().
+                    //recordStats().
+                            maximumSize(Runtime.getRuntime().availableProcessors()).
+                            build(new CacheLoader<MyPoint, OrbitMaskSegmentation>() {
+                                @Override
+                                public OrbitMaskSegmentation load(MyPoint tile) throws Exception {
+                                    double scaleOuter = 1.5d;
+                                    double scaleInner = 0.8d;
+                                    boolean bin = false;
+
+                                    RecognitionFrame rf = new RecognitionFrame(tile.tip);
+                                    List<Point> tiles = new ArrayList<>(1);
+                                    tiles.add(new Point(tile.x,tile.y));
+                                    ObjectSegmentationWorker segmentationWorker = new ObjectSegmentationWorker(null,rf,null,null,tiles);
+                                    segmentationWorker.setModel(model);
+                                    segmentationWorker.setNumThreads(1);
+                                    segmentationWorker.setWithGUI(false);
+                                    segmentationWorker.run();
+                                    SegmentationResult segmentationResult = segmentationWorker.getSegmentationResult();
+                                    List<Shape> shapeList = segmentationResult.getShapeList();
+                                    if (bin && shapeList!=null) {
+                                        // scale shape and exclude inner part
+                                        List<Shape> binnedShapes = new ArrayList<>(shapeList.size());
+                                        PolygonMetrics pm = new PolygonMetrics(null);
+                                        for (Shape shape: shapeList) {
+                                            if (shape instanceof PolygonExt) {
+                                                PolygonExt pe = (PolygonExt) shape;
+                                                pm.setPolygon(pe.clone());
+                                                Shape outer = pe.scale(100d * scaleOuter, pm.getCenter());
+                                                pm.setPolygon(pe.clone());
+                                                Shape inner = pe.scale(100d * scaleInner, pm.getCenter());
+                                                ShapeAnnotationList combined = new ShapeAnnotationList(new ArrayList<Shape>(), Collections.singletonList(inner), outer, outer.getBounds());
+                                                binnedShapes.add(combined);
+                                            }
+                                        }
+                                        shapeList = binnedShapes;
+                                    }
+                                    OrbitMaskSegmentation segMask = new OrbitMaskSegmentation(shapeList);
+                                    return segMask;
+                                }
+                            });
+        }
+        return tileShapeCache;
     }
 
    
@@ -109,7 +118,7 @@ public class OrbitMaskSegmentationModel implements IOrbitMaskModelBased {
     @Override
     public int classNum(int x, int y, Raster raster) throws Exception {
         MyPoint tile = new MyPoint(tip.getImage().XToTileX(x),tip.getImage().YToTileY(y), tip);
-        OrbitMaskSegmentation segMask = tileShapeCache.get(tile);
+        OrbitMaskSegmentation segMask = getTileShapeCache().get(tile);
         return segMask.classNum(x,y,raster);
     }
 
@@ -147,10 +156,10 @@ public class OrbitMaskSegmentationModel implements IOrbitMaskModelBased {
         }
     }
 
-    class MyPoint {
+    class MyPoint implements Serializable {
         private int x;
         private int y;
-        private TiledImagePainter tip;
+        private transient TiledImagePainter tip;
 
         public MyPoint(int x, int y, TiledImagePainter tip) {
             this.x = x;

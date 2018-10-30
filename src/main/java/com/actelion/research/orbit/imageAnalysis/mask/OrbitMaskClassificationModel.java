@@ -28,13 +28,14 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 
 import java.awt.image.Raster;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 
 /**
  * Not thread-safe.
  */
-public class OrbitMaskClassificationModel implements IOrbitMaskModelBased {
+public class OrbitMaskClassificationModel implements IOrbitMaskModelBased, Serializable {
 
     private OrbitModel model;
     private HashSet<Integer> activeClasses;

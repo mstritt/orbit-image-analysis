@@ -23,8 +23,9 @@ import com.actelion.research.orbit.imageAnalysis.utils.TiledImagePainter;
 
 import java.awt.*;
 import java.awt.image.Raster;
+import java.io.Serializable;
 
-public class OrbitMaskThreshold implements IOrbitMask {
+public class OrbitMaskThreshold implements IOrbitMask, Serializable {
 
     private int min;
     private int max;

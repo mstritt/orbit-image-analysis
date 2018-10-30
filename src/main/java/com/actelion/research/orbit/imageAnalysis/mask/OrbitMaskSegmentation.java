@@ -23,10 +23,11 @@ import com.actelion.research.orbit.imageAnalysis.utils.TiledImagePainter;
 
 import java.awt.*;
 import java.awt.image.Raster;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrbitMaskSegmentation implements IOrbitMask {
+public class OrbitMaskSegmentation implements IOrbitMask, Serializable {
     private List<Shape> shapeList;
 
     public OrbitMaskSegmentation(List<Shape> shapeList) {
