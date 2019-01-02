@@ -165,7 +165,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
             if (useCache && OrbitTiledImage2.tileCache != null) {
                 Raster cachedRaster = OrbitTiledImage2.tileCache.getIfPresent(tileP);
                 if (initialized && cachedRaster != null) {
-                    //logger.trace("cache hit");
+                   // logger.trace("cache hit");
                     return cachedRaster;
                 } 
             }
@@ -174,6 +174,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         }
 
         // not in cache
+         //logger.trace("cache miss");
 
         Raster tile = getTileData(tileX, tileY, channelContributionsCloned, analysis, analysisHues);
 
@@ -420,7 +421,11 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
      * make sure that a PixelInterleavedSampleModel is returned
      */
     private static PlanarImage makeCompatibleSamplemodel(PlanarImage source, PlanarImage result) {
+
+        // really needed??? - what if singlepixelpackedsamplemodel ?
+
         if (!(source.getSampleModel() instanceof PixelInterleavedSampleModel)) {
+            logger.debug("makeCompatibleSamplemodel");
             BufferedImage img = new BufferedImage(result.getWidth(), result.getHeight(), BufferedImage.TYPE_INT_RGB);
             img.createGraphics().drawImage(result.getAsBufferedImage(), 0, 0, null);
             result = PlanarImage.wrapRenderedImage(img);

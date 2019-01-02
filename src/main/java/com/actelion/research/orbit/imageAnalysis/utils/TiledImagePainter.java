@@ -471,7 +471,7 @@ public class TiledImagePainter implements Closeable {
     public Raster getData(Rectangle region, FeatureDescription fd) throws OrbitImageServletException {
         Raster r = null;
         try {
-            PlanarImage pi = getModifiedImage(fd);
+            PlanarImage pi = getModifiedImage(fd, region);
             r = pi.getExtendedData(region, BorderExtender.createInstance(BorderExtender.BORDER_COPY));
         } catch (Exception e) {
             e.printStackTrace();
@@ -494,13 +494,33 @@ public class TiledImagePainter implements Closeable {
         else return BufferedImage.TYPE_INT_RGB;
     }
 
+    public PlanarImage getModifiedImage(FeatureDescription featureDescription) {
+        return getModifiedImage(featureDescription,null);
+    }
+
     /**
      * Returns the PlanarImage with all modifications (e.g. median filter) applied. Used for classification.
      *
      * @return
      */
-    public PlanarImage getModifiedImage(FeatureDescription featureDescription) {
+    public PlanarImage getModifiedImage(FeatureDescription featureDescription, Rectangle region) {
         PlanarImage pi = image;
+
+        /*
+        if (region!=null) {      // crop
+            int w = featureDescription.getWindowSize();
+            Rectangle r = new Rectangle(region.x+w,region.y+w,region.width-w-w-1,region.height-w-w-1);
+          //  System.out.println("w: "+w+" r: "+r);
+            ParameterBlock mpb = new ParameterBlock();
+            mpb.addSource(pi);
+            mpb.add((float)(r.x)); // x
+            mpb.add((float)(r.y)); // y
+            mpb.add((float)(r.width)); // width
+            mpb.add((float)(r.height));   // height
+            mpb.add(null); // renderinghints
+            pi = JAI.create("crop", mpb, null);
+        }
+        */
 
 // multichannel features should not be set here (too slow), but instead before a certain task starts (e.g. in OrbitHelper.Segmentation)
 //        if (pi instanceof OrbitTiledImage2) {

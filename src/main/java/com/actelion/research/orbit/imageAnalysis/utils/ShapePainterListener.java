@@ -447,12 +447,13 @@ public class ShapePainterListener extends MouseInputAdapter {
         }
         else  { // brush
             curPoly.addPoint(x, y);
+            //recognitionFrame.repaint(e.getX()-5,e.getY()-5,10,10);
             recognitionFrame.repaint();
         }
     }
 
     public void mouseReleased(MouseEvent e) {
-        if (e.getButton()!=MouseEvent.BUTTON1) return; // end only if first/left mouse button is released
+        if (e==null || e.getButton()!=MouseEvent.BUTTON1) return; // end only if first/left mouse button is released
 
         RecognitionFrame recognitionFrame = recognitionFrameRef.get();
         if (recognitionFrame == null) return;

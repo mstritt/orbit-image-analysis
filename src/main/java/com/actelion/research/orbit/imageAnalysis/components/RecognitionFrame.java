@@ -135,6 +135,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
     private static final boolean ignoreRepaint = true;
     private static final boolean opaque = false;
     private static final boolean doubleBuffered = false;
+    private static final boolean offscreenRendering = false;
     private static final AtomicInteger activeAnnotationGroup = new AtomicInteger(0); // annotation group -> see annotationPanel
     private BufferedImage screenImage = null;
     private BufferedImage lastImage = null;
@@ -142,6 +143,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
     private ScreenProps screenProps = null;
     private AtomicBoolean forceRepaint = new AtomicBoolean(true);
     private AtomicBoolean drawing = new AtomicBoolean(false);
+
     /**
      * @param picObj can ob url or orbitId
      * @throws OrbitImageServletException
@@ -563,18 +565,26 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
 
     }
 
-
     public void paintComponent(Graphics g) {
+        paintComponent(g, true);
+    }
+
+
+    public void paintComponent(Graphics g, boolean fullRepaint) {
         if (bimg == null) return;
         ScreenProps currentScreenprops = new ScreenProps(viewPortOffset.getX(),viewPortOffset.getY(),viewPortSize.getWidth(),viewPortSize.getHeight(),scale,opacity);
+        Graphics2D g2d;
+        if (offscreenRendering) {
+            if (screenImage == null || g.getClipBounds().width != screenImage.getWidth() || g.getClipBounds().height != screenImage.getHeight()) {
+                GraphicsConfiguration gconf = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+                screenImage = gconf.createCompatibleImage(g.getClipBounds().width, g.getClipBounds().height);
+                forceRepaint.set(true);
+            }
+            g2d = screenImage.createGraphics();
+        } else {
+            g2d = (Graphics2D) g;
+        }
 
-         if (screenImage==null || g.getClipBounds().width!=screenImage.getWidth() || g.getClipBounds().height!=screenImage.getHeight()) {
-            GraphicsConfiguration gconf = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
-            screenImage = gconf.createCompatibleImage(g.getClipBounds().width, g.getClipBounds().height);
-            forceRepaint.set(true);
-         }
-        //Graphics2D g2d = (Graphics2D) g;
-        Graphics2D g2d = screenImage.createGraphics();
         try {
             // "viewPort"
             //System.out.println("vpSize: "+viewPortSize+" vpOffs: "+viewPortOffset+" image: "+bimg.image);
@@ -582,17 +592,22 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
 
             if (viewPortSize.getWidth() <= 0 || viewPortSize.getHeight() <= 0) return;
 
-            if (forceRepaint.get() || screenProps==null || !currentScreenprops.equals(screenProps)) {
-                g2d.setColor(this.getBackground());
-                g2d.fillRect(0, 0, screenImage.getWidth(), screenImage.getHeight());
+            if (offscreenRendering) {
+                if (forceRepaint.get() || screenProps == null || !currentScreenprops.equals(screenProps)) {
+                    if (fullRepaint) {
+                        g2d.setColor(this.getBackground());
+                        g2d.fillRect(0, 0, screenImage.getWidth(), screenImage.getHeight());
+                    }
+                }
             }
 
             g2d.translate(-viewPortOffset.getX(), -viewPortOffset.getY());
 
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
+//            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//            g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+//            g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
+//            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+
             //g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
             AffineTransform oldTransform = g2d.getTransform();
@@ -603,6 +618,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
             double vpWidth = viewPortSize.getWidth();                
             double vpHeight = viewPortSize.getHeight();
 
+            if (fullRepaint) {
             if (!drawing.get()) {
                 drawing.set(true);
                 if (forceRepaint.get() || screenProps == null || !currentScreenprops.equals(screenProps)) {
@@ -636,6 +652,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
                         bimg.drawImage(g2d, viewPortOffset.getX(), viewPortOffset.getY(), vpWidth, vpHeight, getScale(), -1);
 
                     }
+                }
                 }
                 drawing.set(false);
             }
@@ -917,9 +934,11 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
                             if (annotation instanceof SpotAnnotation) {
                                 SpotAnnotation sa = (SpotAnnotation) annotation;
                                 if (sa.isSelected()) {
-                                    g2d.setColor(Color.yellow);
+                                    g2d.setColor(Color.magenta);
                                 } else {
                                     // set class color
+                                   // g2d.setColor(new Color(annotation.getColor()));
+                                    g2d.setColor(Color.green);
                                     if (sa.getClassNum() >= 0 && model != null && model.getClassShapes().size() > sa.getClassNum()) {
                                         g2d.setColor(model.getClassShapes().get(sa.getClassNum()).getColor());
                                     }
@@ -997,8 +1016,10 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            g.drawImage(screenImage,0,0,null);
-            g2d.dispose();
+            if (offscreenRendering) {
+                g.drawImage(screenImage, 0, 0, null);
+                g2d.dispose();
+            }
         }
 
     }
@@ -1021,6 +1042,14 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
         }
 
     }
+
+//    public void repaint(boolean fullRepaint) {
+//        if (fullRepaint) {
+//            repaint();
+//        }  else {
+//            paintComponent(getRootPane().getGraphics(),false);
+//        }
+//    }
 
     @Override
     public void repaint() {
@@ -1929,7 +1958,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             ScreenProps that = (ScreenProps) o;
-            return Double.compare(that.vpOffsX, vpOffsX) == 0 &&
+            return  Double.compare(that.vpOffsX, vpOffsX) == 0 &&
                     Double.compare(that.vpOffsY, vpOffsY) == 0 &&
                     Double.compare(that.vpWidthM, vpWidthM) == 0 &&
                     Double.compare(that.vpHeight, vpHeight) == 0 &&
