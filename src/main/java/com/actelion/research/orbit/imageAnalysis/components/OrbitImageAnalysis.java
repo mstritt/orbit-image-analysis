@@ -850,7 +850,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     protected String getInfoString() {
         String infoStr = "Orbit Image Analysis Version " + OrbitUtils.VERSION_STR + "\n" +
-                "Copyright (c) 2009-2018, Idorsia Pharmaceuticals Ltd. under GPLv3 license.\n" +
+                "Copyright (c) 2009-2019, Idorsia Pharmaceuticals Ltd. under GPLv3 license.\n" +
                 "Developed by Manuel Stritt.";
 
         infoStr += "\n\nLogin User: " + loginUser;
