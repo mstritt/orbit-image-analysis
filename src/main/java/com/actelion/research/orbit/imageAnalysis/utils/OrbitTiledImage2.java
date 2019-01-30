@@ -50,7 +50,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
     protected String filename = "";
     public static Cache<PointAndName, Raster> tileCache = null;
     private static final ReentrantReadWriteLock cacheLock = new ReentrantReadWriteLock();
-    private static final boolean doCacheLock = false;
+    private static final boolean doCacheLock = true;
     private boolean useCache = true; //!ScaleoutMode.SCALEOUTMODE.get();
     protected int photometric = PHOTOMETRIC_YCbCr;
     //protected static final ColorModel rgbColorModel = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.TYPE_YCbCr), new int[]{8,8,8}, false, false, Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
@@ -75,25 +75,19 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
     private static void initCache() {
         logger.info("(re-)creating tile cache");
-        if (doCacheLock) OrbitTiledImage2.cacheLock.writeLock().lock();
-        try {
-            long mem = Runtime.getRuntime().maxMemory();
-            tileCache = CacheBuilder.
-                    newBuilder().
-                    //recordStats().
-                    expireAfterWrite(7, TimeUnit.MINUTES).
-                    maximumWeight(mem/2).
-                    weigher(new Weigher<PointAndName, Raster>() {
-                        @Override
-                        public int weigh(PointAndName key, Raster raster) {
-                            return raster.getWidth()*raster.getHeight() * 3 * 4;
-                        }
-                    }).
-                    build();
-
-        } finally {
-            if (doCacheLock) OrbitTiledImage2.cacheLock.writeLock().unlock();
-        }
+        long mem = ScaleoutMode.SCALEOUTMODE.get() ? 1024L*1024L*1024L*4L : Runtime.getRuntime().maxMemory()/2;
+        tileCache = CacheBuilder.
+                newBuilder().
+                //recordStats().
+                expireAfterWrite(7, TimeUnit.MINUTES).
+                maximumWeight(mem).
+                weigher(new Weigher<PointAndName, Raster>() {
+                    @Override
+                    public int weigh(PointAndName key, Raster raster) {
+                        return raster.getWidth()*raster.getHeight() * 3 * 4;
+                    }
+                }).
+                build();
     }
 
     public OrbitTiledImage2() {
@@ -247,8 +241,13 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
         // re-init cache disabled. Too many problems due to different tile sizes (e.g. overview vs normal)
         //  -> only init once...
-        if (useCache && (OrbitTiledImage2.tileCache == null)) {
-               initCache();
+        if (doCacheLock) OrbitTiledImage2.cacheLock.writeLock().lock();
+        try {
+            if (useCache && (OrbitTiledImage2.tileCache == null)) {
+                initCache();
+            }
+        } finally {
+            if (doCacheLock) OrbitTiledImage2.cacheLock.writeLock().unlock();
         }
 
         // the put is a "read" method because the cache is not rebuild (and put/get is threadsafe)

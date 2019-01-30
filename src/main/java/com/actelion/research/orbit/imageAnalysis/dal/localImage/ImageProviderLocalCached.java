@@ -22,8 +22,11 @@ package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.dal.IImageProvider;
 import com.actelion.research.orbit.dal.IOrbitImage;
+import com.actelion.research.orbit.dao.DAODataFile;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
+import com.actelion.research.orbit.imageprovider.ImageProviderOrbit;
+import com.actelion.research.orbit.utils.RawUtilsCommon;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,13 +50,19 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
     }
 
     @Override
-    public IOrbitImage createOrbitImage(RawDataFile rdf, int level) throws Exception {
-        File file = stageFile(rdf);
-
+    public synchronized IOrbitImage createOrbitImage(RawDataFile rdf, int level) throws Exception {
+        // special tif treatment: all smaller levels needed
+        if (rdf.getFileType().equals(RawUtilsCommon.DATA_TYPE_IMAGE_TIFF)) {
+           for (int l=0; l<level; l++) {
+               stageFile(rdf,l);
+           }
+        }
+        File file = stageFile(rdf,level);
         if (file.exists()) {
             logger.info("using local file: "+file.getAbsolutePath());
             RawDataFile rdf2 = rdf.clone();
-            rdf2.setFileName(rdf.getRawDataFileId()+"."+rdf.getEnding());
+            String ending =  rdf.getEnding();
+            rdf2.setFileName(rdf.getRawDataFileId()+"."+ending);
             rdf2.setDataPath(cacheDir);
             return super.createOrbitImage(rdf2, level);
         } else {
@@ -62,11 +71,11 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
         }
     }
 
-    public File stageFile(RawDataFile rdf) throws Exception {
-        File file = new File (cacheDir + File.separator + rdf.getRawDataFileId()+"."+rdf.getEnding());
-
+    public synchronized File stageFile(RawDataFile rdf, int level) throws Exception {
+        String ending = getEnding(rdf,level);
+        File file = new File (cacheDir + File.separator + rdf.getRawDataFileId()+"."+ending);
         if (!file.exists()) {
-            clone(rdf,cacheDir);
+            clone(rdf,level,cacheDir);
         }
         return file;
     }
@@ -75,14 +84,19 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
     public void close() throws IOException {
         super.close();
         for (File file: cachedFiles) {
-            FileUtils.forceDelete(file);
+            try {
+               FileUtils.forceDelete(file);
+            } catch (Exception e) {
+               file.deleteOnExit();
+            }
         }
     }
 
-    private void clone(RawDataFile rdf, String dir) throws Exception {
+    private void clone(RawDataFile rdf, int level, String dir) throws Exception {
         File dest = new File(dir);
         dest.mkdirs();
-        cloneGeneric(rdf,dir);
+        cloneGeneric(rdf,level,dir);
+        // TODO other companion files?
         if (rdf.getEnding().equalsIgnoreCase("ndpis")) {
             // download all channels
             File file = new File(dest.toString()+File.separator+rdf.getRawDataFileId()+"."+rdf.getEnding());
@@ -90,7 +104,7 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
             int[] rdfIds = extractNDPIIds(text);
             for (int id: rdfIds) {
                 RawDataFile rdf2 = DALConfig.getImageProvider().LoadRawDataFile(id);
-                cloneGeneric(rdf2,dir);
+                cloneGeneric(rdf2,level,dir);
             }
         }
 
@@ -117,18 +131,41 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
         return ndpiFiles;
     }
 
-    private void cloneGeneric(RawDataFile rdf, String dir) throws IOException {
-        cloneHTTP(rdf,dir);
+    private void cloneGeneric(RawDataFile rdf, int level, String dir) throws IOException {
+        cloneHTTP(rdf,level,dir);
        
     }
 
-    private void cloneHTTP(RawDataFile rdf, String dir) throws IOException {
+    private void cloneHTTP(RawDataFile rdf, int level, String dir) throws IOException {
         int rdfId = rdf.getRawDataFileId();
-        URL url =  imageProvider.getRawDataFileUrl(rdf);
+        URL url;
+        if (rdf.getFileType().equals(RawUtilsCommon.DATA_TYPE_IMAGE_TIFF)) {
+            url = level == 0 ? imageProvider.getRawDataFileUrl(rdf) : imageProvider.getRawDataFileUrl(rdf, level);
+            url = new URL(url.toString() + "&raw=true");
+        } else {
+            url = imageProvider.getRawDataFileUrl(rdf);
+        }
         logger.info("downloading url: "+url);
-        File file = new File(dir+File.separator+rdfId+"."+rdf.getEnding());
+        String ending = getEnding(rdf,level);
+        File file = new File(dir+File.separator+rdfId+"."+ending);
         FileUtils.copyURLToFile(url,file);
         cachedFiles.add(file);
+    }
+
+    private String getEnding(RawDataFile rdf, int level) {
+        boolean multiLevelTiff  = rdf.getFileType().equals(RawUtilsCommon.DATA_TYPE_IMAGE_TIFF);
+        String ending = multiLevelTiff? (level==0? rdf.getEnding() : level +"."+rdf.getEnding()) : rdf.getEnding();
+        return ending;
+    }
+
+    public static void main(String[] args) throws Exception {
+        System.out.println("test");
+        ImageProviderLocalCached ip = new ImageProviderLocalCached("d:/NoBackup/cache",new ImageProviderOrbit());
+        //IOrbitImage img = ip.createOrbitImage(DAODataFile.LoadRawDataFile(5642743),2);
+        IOrbitImage img = ip.createOrbitImage(DAODataFile.LoadRawDataFile(6609613),2);
+        System.out.println("WxH: "+img.getWidth()+" x "+img.getHeight());
+        ip.close();
+
     }
     
 }

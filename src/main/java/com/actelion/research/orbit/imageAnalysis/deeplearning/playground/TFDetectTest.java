@@ -22,6 +22,7 @@ package com.actelion.research.orbit.imageAnalysis.deeplearning.playground;
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
+import org.tensorflow.TensorFlow;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -36,7 +37,7 @@ import java.util.Date;
 public class TFDetectTest {
 
     private static final String MODEL_DIR = "D:\\data\\glomeruli\\";
-    private static final String MODEL_NAME = "20180202_glomeruli_detection.pb";
+    private static final String MODEL_NAME = "20180202_glomeruli_detection_noquant.pb";
     private static final String INPUT_IMAGE = "D:\\data\\glomeruli\\4730025_tile27x18.jpg";
     private static final String OUTPUT_IMAGE = "D:\\data\\glomeruli\\out.jpg";
 
@@ -134,6 +135,7 @@ public class TFDetectTest {
 	}*/
 
     private static long[] executeInceptionGraph(byte[] graphDef, Tensor<Float> input) {
+        System.out.println("TF version "+TensorFlow.version());
         try (Graph g = new Graph()) {
             g.importGraphDef(graphDef);
             try (Session s = new Session(g);
