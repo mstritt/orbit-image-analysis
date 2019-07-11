@@ -128,11 +128,13 @@ public class ClassificationWorkerMapReduce extends OrbitWorker implements ITaskR
                 classificationResultMap = executor.execute(imageTiles, mapReduce);
                 this.classificationResultMap = classificationResultMap;
             } catch (Exception e) {
+                e.printStackTrace();
                 logger.error("Error executing classification task: ", e);
             }
             taskResult = produceTaskResult(classificationResultMap, true);
         } catch (Exception e) {
             logger.error("Classification interrupted", e);
+            e.printStackTrace();
         }
     }
 

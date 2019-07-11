@@ -55,11 +55,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class OrbitUtils {
-    // label:  OrbitImageAnalysis281
     public static final String VERSION_STR = getVersion() + (ScaleoutMode.SCALEOUTMODE.get() ? "G" : "") + (OrbitUtils.DEVELOPMENTMODE ? " DEVELOPMENT" : "");
     public static final boolean DEVELOPMENTMODE = false;
     public static long SLEEP_TILE = 0; // 13*1000L;
@@ -134,6 +134,18 @@ public class OrbitUtils {
     }
 
     public static String getCurrentDir() {
+        return "/tmp";
+        /*
+        String tempDir = "/";
+        try {
+            File temp = File.createTempFile("temp-file-name", ".tmp");
+            tempDir = temp.getAbsolutePath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return tempDir;
+        */
+        /*
         String path = "";
         try {
             path = System.getProperty("user.dir");
@@ -143,7 +155,9 @@ public class OrbitUtils {
             }
         }  catch (Exception e) {}
         return path;
+        */
     }
+
 
     public static byte[] getContentBytes(URL url) {
         byte[] bytes = new byte[4096];
@@ -459,6 +473,25 @@ public class OrbitUtils {
         double area = (double) pixelInROI * mumPPSquare;
         //System.out.println("roiBB: "+roi.getBounds()+"  pixel: "+pixelInROI+"  mumPP: "+mumPerPixel+"  mumPPSquare: "+mumPPSquare);
         return area;
+    }
+
+    public static List<RawDataFile> filterOnlyWithROI(final List<RawDataFile> rdfList, int roiGroup) {
+        return  rdfList.stream().filter(rdf -> {
+            try {
+                List<RawAnnotation> annotations = DALConfig.getImageProvider().LoadRawAnnotationsByRawDataFile(rdf.getRawDataFileId(), RawAnnotation.ANNOTATION_TYPE_IMAGE);
+                if (annotations!=null) {
+                    for (RawAnnotation annotation: annotations) {
+                        ImageAnnotation ia = new ImageAnnotation(annotation);
+                        if (ia.getGroup()==roiGroup && ia.getSubType()==ImageAnnotation.SUBTYPE_ROI) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            } catch (Exception e) {
+                return false;
+            }
+        }).collect(Collectors.toList());
     }
 
 

@@ -937,8 +937,9 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
                                     g2d.setColor(Color.magenta);
                                 } else {
                                     // set class color
-                                   // g2d.setColor(new Color(annotation.getColor()));
-                                    g2d.setColor(Color.green);
+                                    g2d.setColor(new Color(annotation.getColor()));
+                                   // g2d.setStroke(new BasicStroke(3.5f));
+                                   // g2d.setColor(Color.green);
                                     if (sa.getClassNum() >= 0 && model != null && model.getClassShapes().size() > sa.getClassNum()) {
                                         g2d.setColor(model.getClassShapes().get(sa.getClassNum()).getColor());
                                     }

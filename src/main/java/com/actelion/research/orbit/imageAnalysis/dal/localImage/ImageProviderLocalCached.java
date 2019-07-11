@@ -22,10 +22,8 @@ package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.dal.IImageProvider;
 import com.actelion.research.orbit.dal.IOrbitImage;
-import com.actelion.research.orbit.dao.DAODataFile;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
-import com.actelion.research.orbit.imageprovider.ImageProviderOrbit;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -83,13 +81,13 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
     @Override
     public void close() throws IOException {
         super.close();
-        for (File file: cachedFiles) {
-            try {
-               FileUtils.forceDelete(file);
-            } catch (Exception e) {
-               file.deleteOnExit();
-            }
-        }
+//        for (File file: cachedFiles) {
+//            try {
+//               FileUtils.forceDelete(file);
+//            } catch (Exception e) {
+//               file.deleteOnExit();
+//            }
+//        }
     }
 
     private void clone(RawDataFile rdf, int level, String dir) throws Exception {
@@ -158,14 +156,5 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
         return ending;
     }
 
-    public static void main(String[] args) throws Exception {
-        System.out.println("test");
-        ImageProviderLocalCached ip = new ImageProviderLocalCached("d:/NoBackup/cache",new ImageProviderOrbit());
-        //IOrbitImage img = ip.createOrbitImage(DAODataFile.LoadRawDataFile(5642743),2);
-        IOrbitImage img = ip.createOrbitImage(DAODataFile.LoadRawDataFile(6609613),2);
-        System.out.println("WxH: "+img.getWidth()+" x "+img.getHeight());
-        ip.close();
 
-    }
-    
 }

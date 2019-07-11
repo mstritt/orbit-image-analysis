@@ -75,7 +75,8 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
     private static void initCache() {
         logger.info("(re-)creating tile cache");
-        long mem = ScaleoutMode.SCALEOUTMODE.get() ? 1024L*1024L*1024L*4L : Runtime.getRuntime().maxMemory()/2;
+        long mem = ScaleoutMode.SCALEOUTMODE.get() ? 512L*512L*3*4*200 : Runtime.getRuntime().maxMemory()/2;
+      //  long mem = (512L*512L*3*4*200);
         tileCache = CacheBuilder.
                 newBuilder().
                 //recordStats().
@@ -230,6 +231,12 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         if (((redActive == false) && (redChannel == null)) || ((greenActive == false) && (greenChannel == null)) || ((blueActive == false) && (blueChannel == null))) {
             bi = createImage(tile, bi, getSampleModel(), getColorModel());
             bi = activeChannels(PlanarImage.wrapRenderedImage(bi), redActive, greenActive, blueActive).getAsBufferedImage();
+        }
+
+         final boolean normalizeHistogram = false;
+         if (normalizeHistogram) {
+            bi = createImage(tile, bi, getSampleModel(), getColorModel());
+            bi = normalizeHistogram(bi);
         }
 
 
@@ -573,6 +580,14 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         result = makeCompatibleSamplemodel(src, result);
         return result;
 
+    }
+
+    public static BufferedImage normalizeHistogram(BufferedImage bi) {
+        // TODO replace lut
+        final int[] lut = new int[]{8, 9, 9, 9, 9, 10, 11, 11, 11, 12, 12, 15, 16, 16, 16, 17, 42, 60, 68, 72, 75, 79, 85, 91, 93, 96, 99, 103, 108, 112, 113, 114, 118, 119, 120, 125, 126, 129, 131, 131, 134, 137, 138, 139, 140, 141, 142, 144, 145, 146, 147, 148, 149, 151, 153, 154, 154, 155, 155, 155, 157, 158, 160, 161, 161, 162, 163, 163, 164, 165, 166, 166, 168, 170, 171, 171, 171, 171, 173, 174, 175, 175, 177, 177, 177, 178, 178, 180, 180, 181, 183, 183, 184, 185, 186, 186, 186, 187, 187, 189, 189, 190, 190, 193, 193, 193, 194, 194, 195, 196, 196, 196, 197, 198, 198, 199, 199, 199, 200, 202, 202, 202, 202, 202, 203, 204, 204, 204, 205, 205, 206, 206, 206, 207, 207, 208, 208, 208, 208, 209, 209, 209, 209, 209, 211, 211, 211, 211, 212, 212, 212, 213, 213, 213, 213, 214, 214, 214, 214, 214, 214, 215, 215, 215, 215, 215, 215, 216, 216, 216, 216, 216, 216, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218, 218};
+        BufferedImage normBi = HistogramMatcher.matchHisto(bi,lut);
+        bi.getGraphics().drawImage(normBi, 0, 0, null);
+        return bi;
     }
 
 

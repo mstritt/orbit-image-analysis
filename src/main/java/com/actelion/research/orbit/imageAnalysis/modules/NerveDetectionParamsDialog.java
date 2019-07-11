@@ -107,7 +107,7 @@ public class NerveDetectionParamsDialog extends JDialog {
     private void initGui() {
         setVisible(false);
         setTitle("Nerve Detection Parameters");
-        setSize(350, 400);
+        setSize(350, 600);
         setResizable(false);
         RawUtilsCommon.centerComponent(this);
 

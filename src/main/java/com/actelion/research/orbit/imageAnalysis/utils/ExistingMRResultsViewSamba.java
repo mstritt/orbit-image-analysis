@@ -15,6 +15,7 @@
 
 package com.actelion.research.orbit.imageAnalysis.utils;
 
+import com.actelion.research.mapReduceGeneric.IRemoteContextStore;
 import com.actelion.research.mapReduceGeneric.RemoteFile;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
@@ -59,9 +60,18 @@ public class ExistingMRResultsViewSamba extends JInternalFrame {
     protected TaskEntry selectedTask = null;
     protected AtomicBoolean updating = new AtomicBoolean(false);
     protected DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    private String basePath = "sparkresults";
+    private IRemoteContextStore remoteContextStore = null;
 
 
     public ExistingMRResultsViewSamba() throws Exception {
+        this(null,null);
+    }
+
+    public ExistingMRResultsViewSamba(IRemoteContextStore remoteContextStore, String basePath) throws Exception {
+        this.remoteContextStore = remoteContextStore;
+        if (basePath!=null)
+            this.basePath = basePath;
 
         taskList.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent arg0) {
@@ -129,9 +139,13 @@ public class ExistingMRResultsViewSamba extends JInternalFrame {
                             e.printStackTrace();
                         } 
                         logger.info("reading resultfile: "+selectedTask);
-                            try (InputStream fis = new ByteArrayInputStream(DALConfig.getScaleOut().getRemoteContextStore().readFromRemote("sparkresults/"+selectedTask.getFilename()))) {
+                        logger.debug("remote context store: "+getRemoteContextStore());
+                            try (InputStream fis = new ByteArrayInputStream(getRemoteContextStore().readFromRemote(basePath+"/"+selectedTask.getFilename()))) {
                                 ObjectInputStream ois = new ObjectInputStream(fis);
-                                Map map = (Map) ois.readObject();  // <Integer, ClassificationResult>
+                                Object obj = ois.readObject();
+                                Map map;
+                                if (obj instanceof List) map = (Map) ((List) obj).get(0);
+                                else map = (Map) obj;  // <Integer, ClassificationResult>
                                 
                             ITaskResultProducer worker = TaskResultProducerFactoryGeneric.createTaskResultProducer(map);
                             TaskResult taskResult = worker.produceTaskResult(map, roiAreaCb.isSelected());
@@ -174,12 +188,23 @@ public class ExistingMRResultsViewSamba extends JInternalFrame {
 
     }
 
+    private IRemoteContextStore getRemoteContextStore() {
+        if (remoteContextStore==null) {
+            remoteContextStore = DALConfig.getScaleOut().getRemoteContextStore();
+        }
+        System.out.println("remotecontext store: "+remoteContextStore);
+        return remoteContextStore;
+    }
+
 
     protected void fillTaskList() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, IOException {
-        List<RemoteFile> files = DALConfig.getScaleOut().getRemoteContextStore().listFilenames("sparkresults",true);
+        List<RemoteFile> files = getRemoteContextStore().listFilenames(basePath,true);
         DefaultListModel model = new DefaultListModel();
         for (RemoteFile file : files) {
-            model.addElement(new TaskEntry(file.getName(),file.getDate()));
+            //if (file.getName().toLowerCase().endsWith(".out"))
+            {
+                model.addElement(new TaskEntry(file.getName(), file.getDate()));
+            }
         }
         taskList.setModel(model);
     }
@@ -237,6 +262,7 @@ public class ExistingMRResultsViewSamba extends JInternalFrame {
             this.orbitModel = orbitModel;
         }
     }
+
 
 
 }

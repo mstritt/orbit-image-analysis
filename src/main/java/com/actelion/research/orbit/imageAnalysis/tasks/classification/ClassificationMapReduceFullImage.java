@@ -64,7 +64,7 @@ public class ClassificationMapReduceFullImage implements IMapReduce<String, Inte
             List<RawDataFile> rdfList = Collections.singletonList(DALConfig.getImageProvider().LoadRawDataFile(imageTiles.getRawDataFileId()));
             boolean useScaleout = false;  
             ClassificationWorkerMapReduce cw = new ClassificationWorkerMapReduce(model, rdfList, useScaleout);
-            ((MapReduceExecutorLocalMultiCore)cw.getExecutor()).setMaxThreads(10);
+            ((MapReduceExecutorLocalMultiCore)cw.getExecutor()).setMaxThreads(Runtime.getRuntime().availableProcessors());
             cw.run();  // perform the classification
 
             Map<Integer,ClassificationResult> res = cw.getClassificationResultMap();

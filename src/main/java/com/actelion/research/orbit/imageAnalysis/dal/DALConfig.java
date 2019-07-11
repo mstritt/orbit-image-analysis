@@ -101,12 +101,13 @@ public class DALConfig {
             logger.info("scaleout mode: "+ScaleoutMode.SCALEOUTMODE.get());
 //            if (localImageCache && ScaleoutMode.SCALEOUTMODE.get()) {
 //                File tempDir = new File(OrbitUtils.getCurrentDir()+File.separator+"tempimages");
-//                tempDir.deleteOnExit();
+//                //tempDir.deleteOnExit();
 //                logger.info("local file cache temp dir: "+tempDir.getAbsolutePath());
 //                ((ImageProviderOrbit) imageProvider).setLocalImageProvider(new ImageProviderLocalCached(tempDir.getAbsolutePath(), imageProvider));
 //            }
 
             scaleOut = (IScaleout) Class.forName(props.getProperty("ScaleOut")).newInstance();
+            //scaleOut = new ScaleoutSparkClusterTest2();
             String sparkMaster = props.getProperty("SparkMaster", "local[*]");
 
             String strTempUsers = props.getProperty("TemporaryUsers");

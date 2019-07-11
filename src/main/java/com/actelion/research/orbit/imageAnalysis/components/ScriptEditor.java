@@ -67,11 +67,12 @@ public class ScriptEditor extends JInternalFrame {
         scriptArea.setMarkOccurrences(true);
 
 //		LanguageSupportFactory.get().register(scriptArea);
-//		scriptArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+//		scriptArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
 
         CompletionProvider provider = new OrbitCompletionProvider();
         AutoCompletion ac = new AutoCompletion(provider);
         ac.install(scriptArea);
+
 
         Theme theme = null;
         try {
@@ -234,8 +235,8 @@ public class ScriptEditor extends JInternalFrame {
 
 
     public static void main(String[] args) {
-        //  ScriptEditor scriptEditor = new ScriptEditor();
-        //  scriptEditor.showScriptEditor(null);
+         // ScriptEditor scriptEditor = new ScriptEditor();
+         // scriptEditor.setVisible(true);
     }
 
 }
