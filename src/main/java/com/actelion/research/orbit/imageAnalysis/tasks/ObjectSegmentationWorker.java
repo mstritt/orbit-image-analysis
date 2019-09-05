@@ -23,6 +23,7 @@ import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.InstSegMaskRCNN;
 import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTiled;
 import com.actelion.research.orbit.imageAnalysis.imaging.IJUtils;
 import com.actelion.research.orbit.imageAnalysis.models.*;
@@ -40,6 +41,9 @@ import imageJ.RankFiltersOrbit;
 import imageJ.graphcut.Graph_Cut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tensorflow.Graph;
+import org.tensorflow.Session;
+import org.tensorflow.Tensor;
 
 import javax.media.jai.PlanarImage;
 import javax.swing.*;
@@ -47,8 +51,10 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -60,6 +66,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Object segmentation based on a foreground/background image.
  */
 public class ObjectSegmentationWorker extends OrbitWorker {
+    private static final String MODEL_DIR = "C:\\git\\python\\DSB_2018_DEEPRETINA\\logs\\final";
+    private static final String MODEL_NAME = "deepretina_final.pb";
+
     private int minSegmentationSize = 10;
     private final static Logger logger = LoggerFactory.getLogger(ObjectSegmentationWorker.class);
     private RecognitionFrame rf = null;
@@ -254,7 +263,26 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                 setFilterTileEdgeShapes(segmentationModel.getFeatureDescription().isFilterTileEdgeShapes());
             }
             final int numSamples = rf.bimg.getImage().getNumBands();
-            
+
+            // init maskrcnn segmentation
+            boolean mumfordShahSegmentation = segmentationModel != null && segmentationModel.getFeatureDescription().isMumfordShahSegmentation();
+            boolean deepLearningSegmentation = false;
+            final InstSegMaskRCNN segMaskRCNN;
+            final byte[] graphDef;
+            final Graph tfGraph;
+            final Session tfSession;
+            if (deepLearningSegmentation) {
+                segMaskRCNN = new InstSegMaskRCNN();
+                graphDef = Files.readAllBytes(Paths.get(MODEL_DIR, MODEL_NAME));
+                tfGraph = segMaskRCNN.loadGraph(graphDef);
+                tfSession = segMaskRCNN.createSession(tfGraph);
+            } else {
+                segMaskRCNN = null;
+                graphDef = null;
+                tfGraph = null;
+                tfSession = null;
+            }
+
             List<Future<SegmentationResult>> tileSegments;
 
             for (final Point currentTile : tiles) {
@@ -368,14 +396,17 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                             if (roffsY < 0) roffsY = 0;    // handle out-of-image ROIs
                         }
 
-                        boolean mumfordShahSegmentation = segmentationModel != null && segmentationModel.getFeatureDescription().isMumfordShahSegmentation();
+
 
                         // here the actual segmentation per tile happens
                         List<Shape> tileSegmentations;
-                        if (mumfordShahSegmentation)
+                        if (deepLearningSegmentation) {
+                            tileSegmentations = getObjectSegmentationsTileDeepLearning(classImage, originalClassImage, sourceImage, fullROI, roffsX, roffsY, segMaskRCNN, tfSession);
+                        }  else if (mumfordShahSegmentation) {
                             tileSegmentations = getObjectSegmentationsTileMumfordShah(classImage, originalClassImage, sourceImage, fullROI, roffsX, roffsY);
-                        else
+                        } else {
                             tileSegmentations = getObjectSegmentationsTile(classImage, originalClassImage, fullROI, roffsX, roffsY);
+                        }
 
                         segments.addAll(tileSegmentations);
                         logger.trace("end segmentation: #objects: " + segments.size());
@@ -420,6 +451,15 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
             tileSegments = executor.invokeAll(tileTaskList);
 
+            // maskrcnn close
+            if (deepLearningSegmentation) {
+                if (tfSession != null) {
+                    tfSession.close();
+                }
+                if (tfGraph!=null) {
+                    tfGraph.close();
+                }
+            }
 
             String[] featureNames = new ObjectFeatureBuilderTiled(segmentationModel).getFeatureNames(numSamples);
             SegmentationResult allSegmentsAndFeatures = new SegmentationResult(0, 0, Arrays.asList(featureNames), new ArrayList<Shape>(), new ArrayList<double[]>());
@@ -923,6 +963,126 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             {
                 if ((fullROI == null) || fullROI.contains(s.getBounds().getCenterX(), s.getBounds().getCenterY())) {
                     if (!shapeInNegativeChannel(s) && !inverseShape(s, offsX, offsY, originalClassImage)) {
+                        shapeList.add(s);
+                    }
+                }
+            }
+        }
+
+
+        // scale
+        if (plasmaScale != 1) {
+            logger.trace("scaling object shape by factor " + plasmaScale);
+            List<Shape> scaledShapes = new ArrayList<Shape>(shapeList.size());
+            PolygonMetrics pm = new PolygonMetrics(null);
+            for (Shape shape : shapeList) {
+                PolygonExt pe = (PolygonExt) shape;
+                pm.setPolygon(pe);
+                pe = pe.scale(100d * plasmaScale, pm.getCenter());
+                scaledShapes.add(pe);
+            }
+            shapeList = scaledShapes;
+        }
+
+        return shapeList;
+    }
+
+
+    public List<Shape> getObjectSegmentationsTileDeepLearning(final TiledImageWriter classImage, final TiledImageWriter originalClassImage, final BufferedImage sourceImage,  Shape fullROI, int offsX, int offsY, final InstSegMaskRCNN segMaskRCNN, final Session tfSession) {
+        logger.trace("deep learning segmentation");
+
+        if (segmentationModel!=null) {
+          //  read DL specific features
+          //  alpha = segmentationModel.getFeatureDescription().getMumfordShahAlpha();
+        }
+
+        List<Polygon> polyList = new ArrayList<>();
+        int maxDLTileSize = 512;
+        if (sourceImage.getWidth()<=maxDLTileSize && sourceImage.getHeight()<=maxDLTileSize) {
+            logger.info("-- full image segmentation");
+            // small tile - segment on full tile
+            Tensor<Float> input = segMaskRCNN.convertBufferedImageToTensor(sourceImage);
+            InstSegMaskRCNN.RawDetections rawDetections = segMaskRCNN.executeInceptionGraph(tfSession,input);
+            input.close();
+            InstSegMaskRCNN.Detections detections = segMaskRCNN.processDetections(sourceImage.getWidth(),sourceImage.getHeight(),rawDetections);
+            List<Polygon> pList = new ArrayList<>(detections.getContours());
+            //translatePolygons(pList,roffsX,roffsY);
+            polyList.addAll(pList);
+        } else {
+            logger.info("-- tiled image segmentation");
+            // big tile - segment on tileparts
+            PlanarImage piSource = PlanarImage.wrapRenderedImage(sourceImage);
+            ImageTiler sourceTiler = new ImageTiler(piSource,maxDLTileSize,maxDLTileSize);
+            Iterator<BufferedImage> imageTiles = sourceTiler.iterator();
+            Point[] tileIdx = sourceTiler.getTileIndices();
+            int idx=0;
+            while (imageTiles.hasNext()) {
+                BufferedImage sourceImageTile = imageTiles.next();
+                Tensor<Float> input = segMaskRCNN.convertBufferedImageToTensor(sourceImageTile);
+                InstSegMaskRCNN.RawDetections rawDetections = segMaskRCNN.executeInceptionGraph(tfSession,input);
+                input.close();
+                InstSegMaskRCNN.Detections detections = segMaskRCNN.processDetections(sourceImageTile.getWidth(),sourceImageTile.getHeight(),rawDetections);
+                List<Polygon> pList = new ArrayList<>(detections.getContours());
+                //pList = filterEdgePolygons(pList,maxDLTileSize,maxDLTileSize);   // needed?
+                translatePolygons(pList, sourceTiler.getTiledImage().tileXToX(tileIdx[idx].x), sourceTiler.getTiledImage().tileYToY(tileIdx[idx].y));
+                polyList.addAll(pList);
+                idx++;
+            }
+
+        }
+
+        if (polyList.size()==0) {
+            logger.debug("no segmentations");
+            return new ArrayList<>(0);
+        } else {
+            logger.debug("# segmented objects (deep learning): " + polyList.size());
+        }
+
+        List<List<Point>> pListList = new ArrayList<>(polyList.size());
+        for (int i=0; i<polyList.size(); i++) {
+            Polygon poly = polyList.get(i);
+            List<Point> pList = new ArrayList<>(poly.npoints);
+            for (int p=0; p<poly.npoints; p++) {
+                pList.add(new Point(poly.xpoints[p],poly.ypoints[p]));
+            }
+            pListList.add(pList);
+        }
+        logger.trace("points conversion end");
+
+
+        // transform to polygons; discards polygons with length>maxSegmentationLength or openDistance > maxOpenDistance (FeatureDescription)
+        boolean skipPoly = false;
+        List<Shape> shapeList = new ArrayList<Shape>(pListList.size());
+        for (List<Point> pList : pListList) {
+            if (pList == null || pList.size() == 0) continue;
+            Shape s = new PolygonExt();
+            int roiOffsX = offsX;
+            int roiOffsY = offsY;
+            skipPoly = false;
+            if (segmentationModel != null && pList.size() > segmentationModel.getFeatureDescription().getMaxSegmentationLength())
+                continue;
+            if (segmentationModel != null && pList.get(0).distance(pList.get(pList.size() - 1)) > segmentationModel.getFeatureDescription().getMaxOpenDistance())
+                continue;
+            for (Point p : pList) {
+                if ((exclusionMap == null || !exclusionMap.isExcluded(p.x + roiOffsX, p.y + roiOffsY))) {
+                    ((Polygon) s).addPoint(p.x + roiOffsX, p.y + roiOffsY); // add points and adjust roi offset
+                } else {
+                    skipPoly = true;
+                    break;
+                }
+            }
+
+            if (skipPoly) continue;
+
+            // here polygons might be filtered
+
+            int dilateNum = 0;
+            int erodeNum = 0;
+            int adjust = Math.min(0, dilateNum - erodeNum);
+            if ((s.getBounds().width - (adjust * 2) >= minSegmentationSize) && (s.getBounds().height - (adjust * 2) >= minSegmentationSize)) // at least one site > MIN_SEGMENT_SIZE
+            {
+                if ((fullROI == null) || fullROI.contains(s.getBounds().getCenterX(), s.getBounds().getCenterY())) {
+                    if (!shapeInNegativeChannel(s) /*&& !inverseShape(s, offsX, offsY, originalClassImage)*/)   {
                         shapeList.add(s);
                     }
                 }
