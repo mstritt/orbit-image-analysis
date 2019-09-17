@@ -38,13 +38,16 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 
 public class FeaturesAdminFrame extends JDialog {
@@ -83,6 +86,9 @@ public class FeaturesAdminFrame extends JDialog {
     private IntegerTextField tfMFSAlpha = null;
     private IntegerTextField tfMFSCellSize = null;
 
+    private JCheckBox cbDeepLearning = null;
+    private JTextField tfDeepLearningModelPath = null;
+
     private JCheckBox cbDisableWatershed = null;
     private JCheckBox cbDoCombineCrossTiles = null;
     private JCheckBox cbDilateBeforeErode = null;
@@ -93,11 +99,12 @@ public class FeaturesAdminFrame extends JDialog {
     private JCheckBox cbUseImageAdjustments = null;
 
 
-    private int frameWidth = 630;
+    private int frameWidth = 800;   // 630
     private int frameHeight = 950;
     private int btnHeight = 35;
     public static int selectedTab = 0;
     private FeatureDescription featureDescription = null;
+    protected Preferences prefs = Preferences.userNodeForPackage(OrbitImageAnalysis.class);
 
     public FeaturesAdminFrame(FeatureDescription featureDescription) {
         this(featureDescription, -1);
@@ -461,6 +468,59 @@ public class FeaturesAdminFrame extends JDialog {
 
         tabs.add("Segmentation", panelSegmentation);
 
+        // deep learning
+
+        JPanel panelDeepLearning = new JPanel();
+        panelDeepLearning.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
+
+        cbDeepLearning = new JCheckBox("Deep Learning Segmentation", featureDescription.isDeepLearningSegmentation());  // large object detection
+        cbDeepLearning.setToolTipText("Enable deep learning instance segmentation. Select a segmentation model before using it.");
+        setCompBounds(cbDeepLearning, frameWidth, 0);
+        panelDeepLearning.add(cbDeepLearning);
+
+        panel = new JPanel(new GridLayout(1, 2));
+        lab = new JLabel("Deep Learning Model Path or URL:");
+        panel.add(lab);
+        JPanel pathPanel = new JPanel(new FlowLayout());
+        tfDeepLearningModelPath = new JTextField(featureDescription.getDeepLearningModelPath(), 15);
+        tfDeepLearningModelPath.setToolTipText("can be a full path to a model file or a URL");
+        tfDeepLearningModelPath.setHorizontalAlignment(JTextField.LEFT);
+        pathPanel.add(tfDeepLearningModelPath);
+
+
+
+        final JButton fileSelectBtn = new JButton("browse");
+        fileSelectBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                        "DL Segmentation Models (*.pb)", "pb");
+                fileChooser.setFileFilter(filter);
+                fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
+                String dir = prefs.get("OrbitImageAnalysis.OpenDeepLearningModelPath", null);
+                if (dir != null) {
+                    File cd = new File(dir);
+                    fileChooser.setCurrentDirectory(cd);
+                }
+                int returnVal = fileChooser.showSaveDialog(FeaturesAdminFrame.this);
+
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    prefs.put("OrbitImageAnalysis.OpenDeepLearningModelPath", fileChooser.getCurrentDirectory().getAbsolutePath());
+                    String fn = fileChooser.getSelectedFile().getAbsolutePath();
+                    File file = new File(fn);
+                    if (file.isDirectory()) return;
+                    tfDeepLearningModelPath.setText(file.getAbsolutePath());
+                }
+            }
+        });
+        pathPanel.add(fileSelectBtn);
+
+        panel.add(pathPanel);
+        setCompBounds(panel, frameWidth - 50, 0);
+        panelDeepLearning.add(panel);
+
+        tabs.add("Deep Learning", panelDeepLearning);
 
         // roi
 
@@ -649,6 +709,8 @@ public class FeaturesAdminFrame extends JDialog {
         tfMFSAlpha.setInt(featureDescription.getMumfordShahAlpha());
         tfMFSCellSize.setInt(featureDescription.getMumfordShahCellSize());
 
+        cbDeepLearning.setSelected(featureDescription.isDeepLearningSegmentation());
+        tfDeepLearningModelPath.setText(featureDescription.getDeepLearningModelPath());
 
         // roi
 
@@ -848,6 +910,9 @@ public class FeaturesAdminFrame extends JDialog {
         featureDescription.setMumfordShahSegmentation(cbMFS.isSelected());
         featureDescription.setMumfordShahAlpha(tfMFSAlpha.getInt());
         featureDescription.setMumfordShahCellSize(tfMFSCellSize.getInt());
+
+        featureDescription.setDeepLearningSegmentation(cbDeepLearning.isSelected());
+        featureDescription.setDeepLearningModelPath(tfDeepLearningModelPath.getText());
 
         // fluo channels
         String[] activeFluoChannels = cbFluoChannels.getCheckedItems();

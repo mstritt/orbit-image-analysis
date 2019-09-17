@@ -39,6 +39,7 @@ import ij.process.BinaryProcessor;
 import ij.process.ByteProcessor;
 import imageJ.RankFiltersOrbit;
 import imageJ.graphcut.Graph_Cut;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tensorflow.Graph;
@@ -51,8 +52,9 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
+import java.io.File;
+import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -266,14 +268,29 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
             // init maskrcnn segmentation
             boolean mumfordShahSegmentation = segmentationModel != null && segmentationModel.getFeatureDescription().isMumfordShahSegmentation();
-            boolean deepLearningSegmentation = false;
+            boolean deepLearningSegmentation = segmentationModel != null && segmentationModel.getFeatureDescription().isDeepLearningSegmentation();
             final InstSegMaskRCNN segMaskRCNN;
             final byte[] graphDef;
             final Graph tfGraph;
             final Session tfSession;
             if (deepLearningSegmentation) {
                 segMaskRCNN = new InstSegMaskRCNN();
-                graphDef = Files.readAllBytes(Paths.get(MODEL_DIR, MODEL_NAME));
+                String fn = segmentationModel.getFeatureDescription().getDeepLearningModelPath();
+                if (fn==null) {
+                    logger.error("Deep learning model file or url not set. Please specify a file or url in the segmentation settings.");
+                    return;
+                }
+                if (fn.toLowerCase().startsWith("http")) {
+                    graphDef = IOUtils.toByteArray(new URL(fn).openStream());
+                } else {
+                    File dlModel = new File(fn);
+                    if (!dlModel.exists()) {
+                        logger.error("Deep learning model file not found (" + dlModel.getAbsolutePath() + ")");
+                        return;
+                    } else {
+                        graphDef = Files.readAllBytes(dlModel.toPath());
+                    }
+                }
                 tfGraph = segMaskRCNN.loadGraph(graphDef);
                 tfSession = segMaskRCNN.createSession(tfGraph);
             } else {
@@ -281,6 +298,14 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                 graphDef = null;
                 tfGraph = null;
                 tfSession = null;
+            }
+
+            if (deepLearningSegmentation) {
+                logger.info("segmentation mode: deep learning");
+            }  else if (mumfordShahSegmentation) {
+                logger.info("segmentation mode: mumford-shah");
+            } else {
+                logger.info("segmentation mode: normal");
             }
 
             List<Future<SegmentationResult>> tileSegments;
@@ -351,26 +376,29 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
                         BufferedImage sourceImage = null;
                         TiledImageWriter classImage = null;
-                        if (!dontClassify && segmentationModel != null) {
-                            RecognitionFrame rf2 = makeROIImage(rf, roi);
-                            sourceImage = rf2.bimg.getImage().getAsBufferedImage();
-                            if (false /*dlSegmentation*/) {
-                               // BufferedImage mask = dlSegment.segmentInput(sourceImage,tfSession, segmentationModel.getClassShapes().get(0).getColor(), segmentationModel.getClassShapes().get(1).getColor() );
-                               // classImage = new TiledImageWriter(mask);
+                        if (!deepLearningSegmentation) {
+                            if (!dontClassify && segmentationModel != null) {
+                                RecognitionFrame rf2 = makeROIImage(rf, roi);
+                                sourceImage = rf2.bimg.getImage().getAsBufferedImage();
+                                if (false /*dlSegmentation*/) {
+                                    // BufferedImage mask = dlSegment.segmentInput(sourceImage,tfSession, segmentationModel.getClassShapes().get(0).getColor(), segmentationModel.getClassShapes().get(1).getColor() );
+                                    // classImage = new TiledImageWriter(mask);
+                                } else {
+                                    ClassificationWorker rw = new ClassificationWorker(rdf, rf2, segmentationModel, true, null, null);
+                                    rw.setNumClassificationThreads(1); // runs already in a multithreaded container
+                                    rw.doWork();
+                                    classImage = rf2.getClassImage();
+                                }
+                                if (logger.isTraceEnabled())
+                                    logger.trace("created classImage for current tile (roi=" + roi + "); classImage=" + classImage.getImage());
                             } else {
-                                ClassificationWorker rw = new ClassificationWorker(rdf, rf2, segmentationModel, true, null, null);
-                                rw.setNumClassificationThreads(1); // runs already in a multithreaded container
-                                rw.doWork();
-                                classImage = rf2.getClassImage();
+                                classImage = makeClassImage(rf, roi);
+                                if (logger.isTraceEnabled())
+                                    logger.trace("reusing classImage for current tile; classImage=" + classImage.getImage());
                             }
-                            if (logger.isTraceEnabled())
-                                logger.trace("created classImage for current tile (roi=" + roi + "); classImage=" + classImage.getImage());
-                        } else {
-                            classImage = makeClassImage(rf, roi);
-                            if (logger.isTraceEnabled())
-                                logger.trace("reusing classImage for current tile; classImage=" + classImage.getImage());
                         }
-                        if (sourceImage == null && segmentationModel != null && segmentationModel.getFeatureDescription().isMumfordShahSegmentation()) {
+
+                        if (sourceImage == null && segmentationModel != null && (segmentationModel.getFeatureDescription().isMumfordShahSegmentation() || segmentationModel.getFeatureDescription().isDeepLearningSegmentation())) {
                             RecognitionFrame rf2 = makeROIImage(rf, roi);
                             sourceImage = rf2.bimg.getImage().getAsBufferedImage();
                         }
@@ -380,7 +408,9 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
 
                         // apply ImagePlus modifications, if any
-                        classImage = applyImagePlusModifications(classImage);
+                        if (!deepLearningSegmentation) {
+                            classImage = applyImagePlusModifications(classImage);
+                        }
                         // for cytoplasmaSegmentation only two classes are allowed. The applyImagePlusMod performs a voronoi diagram, so the original class image is modified, thus originalClassImage must be set again (but only with two classes (foreground/background)!
                         if (isCytoplasmaSegmentation())
                             originalClassImage = classImage;
@@ -401,7 +431,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                         // here the actual segmentation per tile happens
                         List<Shape> tileSegmentations;
                         if (deepLearningSegmentation) {
-                            tileSegmentations = getObjectSegmentationsTileDeepLearning(classImage, originalClassImage, sourceImage, fullROI, roffsX, roffsY, segMaskRCNN, tfSession);
+                            tileSegmentations = getObjectSegmentationsTileDeepLearning(sourceImage, fullROI, roffsX, roffsY, segMaskRCNN, tfSession);
                         }  else if (mumfordShahSegmentation) {
                             tileSegmentations = getObjectSegmentationsTileMumfordShah(classImage, originalClassImage, sourceImage, fullROI, roffsX, roffsY);
                         } else {
@@ -988,7 +1018,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
     }
 
 
-    public List<Shape> getObjectSegmentationsTileDeepLearning(final TiledImageWriter classImage, final TiledImageWriter originalClassImage, final BufferedImage sourceImage,  Shape fullROI, int offsX, int offsY, final InstSegMaskRCNN segMaskRCNN, final Session tfSession) {
+    public List<Shape> getObjectSegmentationsTileDeepLearning(final BufferedImage sourceImage,  Shape fullROI, int offsX, int offsY, final InstSegMaskRCNN segMaskRCNN, final Session tfSession) {
         logger.trace("deep learning segmentation");
 
         if (segmentationModel!=null) {

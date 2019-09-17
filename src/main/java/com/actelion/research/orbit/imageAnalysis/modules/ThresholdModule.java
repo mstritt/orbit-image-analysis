@@ -70,7 +70,7 @@ public class ThresholdModule extends AbstractOrbitModule {
         String deconvName = OrbitImageAnalysis.getInstance().getModel().getFeatureDescription().getDeconvName();
         boolean useImageAdjustments = OrbitImageAnalysis.getInstance().getModel().getFeatureDescription().isUseImageAdjustments();
         String[] activeFluoChannels = OrbitImageAnalysis.getInstance().getModel().getFeatureDescription().getActiveFluoChannels();
-        FeatureDescription fd = new FeatureDescription(1, 3, FeatureDescription.FEATURE_SET_INTENS, 0, false, numBlur, skipRed, skipGreen, skipBlue, 1, null, false, false, deconvChannel, deconvName, useImageAdjustments,activeFluoChannels,false,0,0, OrbitUtils.getMergedHueMap());
+        FeatureDescription fd = new FeatureDescription(1, 3, FeatureDescription.FEATURE_SET_INTENS, 0, false, numBlur, skipRed, skipGreen, skipBlue, 1, null, false, false, deconvChannel, deconvName, useImageAdjustments,activeFluoChannels,false,0,0, false, null, OrbitUtils.getMergedHueMap());
         List<ClassShape> classShapes = OrbitImageAnalysis.getInstance().getModel().getClassShapes();
         if (classShapes.size() < 2) {
             logger.error("Please define a two class setup (negative (<=threthold) and positive (>threshold) class");

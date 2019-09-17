@@ -70,6 +70,8 @@ public class FeatureDescription implements Serializable, Cloneable {
     private int mumfordShahAlpha = 5;
     private int mumfordShahCellSize = 18;
     private Map<String,Float> hueMap = null;
+    private boolean deepLearningSegmentation = false;
+    private String deepLearningModelPath = null;
 
     // MIHC
     private boolean mihcActive = false;
@@ -87,7 +89,7 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.windowSize = windowSize;
     }
 
-    public FeatureDescription(int windowSize, int sampleSize, int featureSet, int minSegmentationSize, boolean minAreaClassification, int numBlur, boolean skipRed, boolean skipGreen, boolean skipBlue, double segmentationScale, int[] featureClasses, boolean deactivateWatershed, boolean filterTileEdgeShapes, int deconvChannel, String deconvName, boolean useImageAdjustments, String[] activeFluoChannels, boolean mumfordShahSegmentation, int mumfordShahAlpha, int mumfordShahCellSize, Map<String, Float> hueMap) {
+    public FeatureDescription(int windowSize, int sampleSize, int featureSet, int minSegmentationSize, boolean minAreaClassification, int numBlur, boolean skipRed, boolean skipGreen, boolean skipBlue, double segmentationScale, int[] featureClasses, boolean deactivateWatershed, boolean filterTileEdgeShapes, int deconvChannel, String deconvName, boolean useImageAdjustments, String[] activeFluoChannels, boolean mumfordShahSegmentation, int mumfordShahAlpha, int mumfordShahCellSize, boolean deepLearningSegmentation, String deepLearningModelPath, Map<String, Float> hueMap) {
         this.windowSize = windowSize;
         this.sampleSize = sampleSize;
         this.featureSet = featureSet;
@@ -108,6 +110,8 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.mumfordShahSegmentation = mumfordShahSegmentation;
         this.mumfordShahAlpha = mumfordShahAlpha;
         this.mumfordShahCellSize = mumfordShahCellSize;
+        this.deepLearningSegmentation = deepLearningSegmentation;
+        this.deepLearningModelPath = deepLearningModelPath;
         this.hueMap = hueMap;
     }
 
@@ -397,6 +401,22 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.mumfordShahCellSize = mumfordShahCellSize;
     }
 
+    public boolean isDeepLearningSegmentation() {
+        return deepLearningSegmentation;
+    }
+
+    public void setDeepLearningSegmentation(boolean deepLearningSegmentation) {
+        this.deepLearningSegmentation = deepLearningSegmentation;
+    }
+
+    public String getDeepLearningModelPath() {
+        return deepLearningModelPath;
+    }
+
+    public void setDeepLearningModelPath(String deepLearningModelPath) {
+        this.deepLearningModelPath = deepLearningModelPath;
+    }
+
     public Map<String, Float> getHueMap() {
         return hueMap;
     }
@@ -514,6 +534,8 @@ public class FeatureDescription implements Serializable, Cloneable {
                 ", mumfordShahSegmentation="+mumfordShahSegmentation +
                 ", mumfordShahAlpha="+mumfordShahAlpha +
                 ", mumfordShahCellSize="+mumfordShahCellSize +
+                ", deepLearningSegmentation="+deepLearningSegmentation +
+                ", deepLearningSegmentationModelPath="+deepLearningModelPath +
                 ", hueMap="+getHueMapString() +
                 ", mihcActive="+mihcActive+
                 '}';

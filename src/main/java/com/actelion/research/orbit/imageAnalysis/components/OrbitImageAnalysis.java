@@ -1217,7 +1217,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         ImageFrame iFrame = getIFrame();
 
         if (localModel.getSegmentationModel() == null) {
-            JOptionPane.showMessageDialog(this, "No primary segmentation model available.\nPlease first choose a two-class configuration, specify back and foreground and execute a training.\n(Or load a model that already contains a segmentation model.)", "No segmentation model available", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "No primary segmentation model available.\nPlease first define a segmentation model and click the 'set primary segmentation model' button.", "No segmentation model available", JOptionPane.ERROR_MESSAGE);
             return null;
         } else {
             if (localModel.getSegmentationModel().getClassShapes().size() < 2)
@@ -1945,7 +1945,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
 
     public void setModelAsSegmentationModel(OrbitModel model, boolean withGUI) {
-        if (model == null || model.getClassifier() == null /*|| model.getStructure()==null*/) {
+        boolean deepLearningSegmentation = model != null && model.getFeatureDescription().isDeepLearningSegmentation();     // it's model, not model.getSegmentationModel(), because the segmentationModel will be set here
+        if (!deepLearningSegmentation && (model == null || model.getClassifier() == null)) {
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The primary segmentation model cannot be set.\nPlease first specify class regions and do a classification\nor at least a training.", "Cannot set segmentation model", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -2474,6 +2475,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             segModel.getFeatureDescription().setMumfordShahSegmentation(featureDescription.isMumfordShahSegmentation());
             segModel.getFeatureDescription().setMumfordShahAlpha(featureDescription.getMumfordShahAlpha());
             segModel.getFeatureDescription().setMumfordShahCellSize(featureDescription.getMumfordShahCellSize());
+
+            segModel.getFeatureDescription().setDeepLearningSegmentation(featureDescription.isDeepLearningSegmentation());
+            segModel.getFeatureDescription().setDeepLearningModelPath(featureDescription.getDeepLearningModelPath());
         }
     }
 
