@@ -52,7 +52,7 @@ repositories {
         url 'https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/'    // just for thredds-parent-4.3.22 used by netcdf-4.3.22
     }
     maven {
-        url 'http://maven.scijava.org/content/repositories/snapshots/'    // for legacy-imglib1-2.0.0-SNAPSHOT.jar used by imagej1 compatible graph_cut
+        url 'https://maven.scijava.org/content/repositories/snapshots/'    // for legacy-imglib1-2.0.0-SNAPSHOT.jar used by imagej1 compatible graph_cut
     }
     maven {
         url 'http://maven.imagej.net/content/repositories/releases/'  // scifio
