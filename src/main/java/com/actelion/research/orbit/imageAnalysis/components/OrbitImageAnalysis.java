@@ -77,8 +77,8 @@ import java.beans.PropertyVetoException;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -3923,14 +3923,15 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         }
     };
-    public final ActionListener showTMASpotModuleActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            setShowTMASpotModule(!isShowTMASpotModule());
-            if (isShowTMASpotModule()) {
-                metaBar.addOrbitModule(getTMASpotModule());
-            } else {
-                metaBar.removeOrbitModule(getTMASpotModule());
-            }
+    public final ActionListener showTMASpotModuleActionListener = e -> {
+        setShowTMASpotModule(!isShowTMASpotModule());
+        if (isShowTMASpotModule()) {
+            metaBar.addOrbitModule(getTMASpotModule());
+            // Bring this tab to the front, since the user wants to start with this
+            // module if they added the tab by selecting 'Tools > Extensions > TMA Spot Detection'.
+            metaBar.setSelectedComponent(getTMASpotModule());
+        } else {
+            metaBar.removeOrbitModule(getTMASpotModule());
         }
     };
     public final ActionListener showManualBoxCountActionListener = new ActionListener() {

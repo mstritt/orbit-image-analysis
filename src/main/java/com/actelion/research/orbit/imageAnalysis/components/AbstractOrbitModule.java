@@ -26,9 +26,15 @@ public abstract class AbstractOrbitModule extends JPanel {
 
     public abstract String getName();
 
-    public abstract void init(); // adds all components to the panel
+    /**
+     * Adds all components to the JPanel.
+     */
+    public abstract void init();
 
-    public abstract void reset(); // remove values if image is closed
+    /**
+     * Remove values from the JPanel if the image is closed.
+     */
+    public abstract void reset();
 
     public AbstractOrbitModule() {
         init();
