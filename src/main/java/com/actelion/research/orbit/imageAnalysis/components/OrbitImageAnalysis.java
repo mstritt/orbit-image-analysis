@@ -2280,7 +2280,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     public void exitProcedure() {
         if (JOptionPane.showConfirmDialog(this,
-                "Do you really want to exit the Orbit Image Analysis?",
+                "Do you really want to exit Orbit Image Analysis?",
                 "Exit Orbit Image Analysis", JOptionPane.YES_NO_OPTION)
                 == JOptionPane.YES_OPTION) {
 
