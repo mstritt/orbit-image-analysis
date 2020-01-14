@@ -1,6 +1,6 @@
 /*
  *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2018 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
+ *     Copyright (C) 2009 - 2020 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -301,10 +301,12 @@ public class OrbitMenu extends JRibbonFrame {
         buttonImg1.addActionListener(oia == null ? null : oia.loadOverviewActionListener);
         imageBandOpenSpecial.addCommandButton(buttonImg1, RibbonElementPriority.TOP);
 
+        /*
         JCommandButton buttonImg2 = new JCommandButton("Open Spot Detection", new DocumentOpen5());
         buttonImg2.setActionRichTooltip(new RichTooltip("Load Image for TMA Spot Detection", "Load a special resolution image on which the TMA spot detection can be performed."));
         buttonImg2.addActionListener(oia == null ? null : oia.loadTMAThumbnailActionListener);
         imageBandOpenSpecial.addCommandButton(buttonImg2, RibbonElementPriority.TOP);
+        */
 
         JCommandButton buttonImg3 = new JCommandButton("Open Resolution for Printing", new DocumentOpen5());
         buttonImg3.setActionRichTooltip(new RichTooltip("Load Printing Resolution", "Load a medium size resolution which is suitable for printing."));
@@ -1138,6 +1140,7 @@ public class OrbitMenu extends JRibbonFrame {
         buttonManualBoxCount.addActionListener(oia == null ? null : oia.showManualBoxCountActionListener);
         extensionsBand.addCommandButton(buttonManualBoxCount, RibbonElementPriority.MEDIUM);
 
+        /*
         JCommandToggleButton buttonTMASpots = new JCommandToggleButton("TMA Spot Detection", new TabNew6());
         buttonTMASpots.setBackground(Color.white);
         RichTooltip richTooltipTMASpots = new RichTooltip("TMA Spot Detection", "Show the TMA Spot Detection module.");
@@ -1146,6 +1149,7 @@ public class OrbitMenu extends JRibbonFrame {
         buttonTMASpots.setActionRichTooltip(richTooltipTMASpots);
         buttonTMASpots.addActionListener(oia == null ? null : oia.showTMASpotModuleActionListener);
         extensionsBand.addCommandButton(buttonTMASpots, RibbonElementPriority.MEDIUM);
+        */
 
         JCommandToggleButton buttonThresholdClassification = new JCommandToggleButton("Threshold Classification", new TabNew6());
         buttonThresholdClassification.setBackground(Color.white);

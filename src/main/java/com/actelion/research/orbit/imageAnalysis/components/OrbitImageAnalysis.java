@@ -1,6 +1,6 @@
 /*
  *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2018 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
+ *     Copyright (C) 2009 - 2020 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -3923,6 +3923,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         }
     };
+    /*
     public final ActionListener showTMASpotModuleActionListener = e -> {
         setShowTMASpotModule(!isShowTMASpotModule());
         if (isShowTMASpotModule()) {
@@ -3934,6 +3935,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             metaBar.removeOrbitModule(getTMASpotModule());
         }
     };
+    */
     public final ActionListener showManualBoxCountActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             setShowManualBoxCount(!isShowManualBoxCount());
@@ -4694,10 +4696,12 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         this.showMihcModule = showMihcModule;
     }
 
+    @Deprecated
     public boolean isShowTMASpotModule() {
         return showTMASpotModule;
     }
 
+    @Deprecated
     public void setShowTMASpotModule(boolean showTMASpotModule) {
         this.showTMASpotModule = showTMASpotModule;
     }
