@@ -586,6 +586,12 @@ public class OrbitMenu extends JRibbonFrame {
         buttonSegmentationRoi.addActionListener(oia == null ? null : oia.segmentationROIActionListener);
         specialBand.addCommandButton(buttonSegmentationRoi, RibbonElementPriority.MEDIUM);
 
+        JCommandButton buttonGridRoi = new JCommandButton("TMA / Grid", new Grid());
+        RichTooltip richTooltipGridRoi = new RichTooltip("TMA / Grid", "Auto-suggest ROIs for samples on a grid, e.g. a Tissue Microarray (TMA) slide.");
+        buttonGridRoi.setActionRichTooltip(richTooltipGridRoi);
+        buttonGridRoi.addActionListener(oia == null ? null : oia.gridRoiActionListener);
+        specialBand.addCommandButton(buttonGridRoi, RibbonElementPriority.MEDIUM);
+
         RibbonTask roiTask = new RibbonTask("ROI", roiBand, specialBand);
         ribbon.addTask(roiTask);
     }

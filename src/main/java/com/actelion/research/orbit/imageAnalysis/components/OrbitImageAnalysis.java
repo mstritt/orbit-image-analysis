@@ -29,6 +29,7 @@ import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.gui.AbstractOrbitTree;
 import com.actelion.research.orbit.gui.RdfSearchBox;
+import com.actelion.research.orbit.imageAnalysis.TMA.TMASpotGUI;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame.Tools;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
@@ -205,7 +206,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private NerveDetectionModule nerveDetectionModule = null;
     private ManualClassificationModule manualClassificationModule = null;
     private ManualBoxCountModule manualBoxCountModule = null;
-    private TMASpotModule tmaSpotModule = null;
+    private TMASpotGUI tmaSpotGUI = null;
     private ThresholdModule thresholdModule = null;
     private ExclusionModule exclusionModule = null;
     private MihcModule mihcModule = null;
@@ -4363,6 +4364,20 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     };
 
+    public final ActionListener gridRoiActionListener = e -> {
+        TMASpotGUI tma = new TMASpotGUI(true);
+        /*
+        setShowTMASpotModule(!isShowTMASpotModule());
+        if (isShowTMASpotModule()) {
+            metaBar.addOrbitModule(getTMASpotModule());
+            // Bring this tab to the front, since the user wants to start with this
+            // module if they added the tab by selecting 'Tools > Extensions > TMA Spot Detection'.
+            metaBar.setSelectedComponent(getTMASpotModule());
+        } else {
+            metaBar.removeOrbitModule(getTMASpotModule());
+        }
+         */
+    };
 
     public final ActionListener scriptEditorActionListener = new ActionListener() {
         @Override
@@ -4587,11 +4602,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         return manualBoxCountModule;
     }
 
-    public TMASpotModule getTMASpotModule() {
-        if (tmaSpotModule == null) {
-            tmaSpotModule = new TMASpotModule(true);
+    public TMASpotGUI getTMASpotModule() {
+        if (tmaSpotGUI == null) {
+            tmaSpotGUI = new TMASpotGUI(true);
         }
-        return tmaSpotModule;
+        return tmaSpotGUI;
     }
 
     public ThresholdModule getThresholdModule() {
