@@ -127,3 +127,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+/gradlew.bat
+/gradlew
