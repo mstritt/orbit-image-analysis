@@ -1,6 +1,6 @@
 /*
  *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2019 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
+ *     Copyright (C) 2009 - 2020 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 package com.actelion.research.orbit.imageAnalysis.deeplearning.playground;
 
+import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.MaskRCNNAnchors;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
 import com.actelion.research.orbit.imageAnalysis.models.RectangleExt;
 import com.actelion.research.orbit.imageAnalysis.utils.MarchingSquares;
@@ -288,7 +289,7 @@ public class InstSegMaskRCNN {
 
     private synchronized Tensor<Float> getAnchors() {
         if (anchors==null) {
-            float[] fArr = MaskRCNNAnchors.GenerateAnchors();
+            float[] fArr = MaskRCNNAnchors.GenerateAnchors(DESIRED_SIZE);
             anchors = Tensor.create(new long[]{1,fArr.length/4,4}, FloatBuffer.wrap(fArr));
         }
         return anchors;

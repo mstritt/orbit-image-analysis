@@ -562,6 +562,23 @@ public class OrbitHelper {
         return Classify(rdf,_rf,maskFrame,_model,tiles,numThreads,overrideROI);
     }
 
+    /**
+     * Rdf is used for mip-level and exclusion model, but can be null (if mip and exclusion model is not used).
+     * _rf can be null, the rf is created based on rdf.
+     *
+     * @param rdf         can be null, then set _rf
+     * @param _rf         can be null, then set rdf
+     * @param _model
+     * @param tiles       can be null - then all tiles are used
+     * @param numThreads  currently not used (only one thread is used)
+     * @param overrideROI
+     * @return
+     * @throws Exception
+     */
+    public static ClassificationResult Classify(final RawDataFile rdf, final RecognitionFrame _rf, final RecognitionFrame _maskFrame,  final OrbitModel _model, List<Point> tiles, int numThreads, IScaleableShape overrideROI) throws Exception {
+        return Classify(rdf,_rf,_maskFrame, _model, tiles, numThreads, overrideROI, false);
+    }
+
         /**
          * Rdf is used for mip-level and exclusion model, but can be null (if mip and exclusion model is not used).
          * _rf can be null, the rf is created based on rdf.
@@ -572,10 +589,11 @@ public class OrbitHelper {
          * @param tiles       can be null - then all tiles are used
          * @param numThreads  currently not used (only one thread is used)
          * @param overrideROI
+         * @param writeClassificationImage
          * @return
          * @throws Exception
          */
-    public static ClassificationResult Classify(final RawDataFile rdf, final RecognitionFrame _rf, final RecognitionFrame _maskFrame,  final OrbitModel _model, List<Point> tiles, int numThreads, IScaleableShape overrideROI) throws Exception {
+    public static ClassificationResult Classify(final RawDataFile rdf, final RecognitionFrame _rf, final RecognitionFrame _maskFrame,  final OrbitModel _model, List<Point> tiles, int numThreads, IScaleableShape overrideROI, boolean writeClassificationImage) throws Exception {
         final double pixelFuzzyness = 0d;
         final double tileFuzzyness = 0d;
 
@@ -632,7 +650,7 @@ public class OrbitHelper {
             rf.setRatio(ratio);
             rf.setClassImage(new TiledImageWriter(rf.bimg.getWidth(), rf.bimg.getHeight(), rf.bimg.getTileWidth(), rf.bimg.getTileHeight()));
             // TODO multithread version
-            ClassificationTaskTiled classificationTask = new ClassificationTaskTiled(ClassifierWrapper.makeCopy(model.getClassifier()), model.getStructure(), model.getFeatureDescription(),/*rf.getClassShapes()*/model.getClassShapes(), rf.getROI(), model.getMask()!=null?model.getMask().clone():null, maskFrame.bimg,  rf.bimg, rf.getClassImage(), tiles, false);
+            ClassificationTaskTiled classificationTask = new ClassificationTaskTiled(ClassifierWrapper.makeCopy(model.getClassifier()), model.getStructure(), model.getFeatureDescription(),/*rf.getClassShapes()*/model.getClassShapes(), rf.getROI(), model.getMask()!=null?model.getMask().clone():null, maskFrame.bimg,  rf.bimg, rf.getClassImage(), tiles, writeClassificationImage);
             classificationTask.setPixelFuzzyness(pixelFuzzyness);
             if (exMap != null) classificationTask.setExclusionMapGen(exMap);
             Long[] vals = classificationTask.call();
