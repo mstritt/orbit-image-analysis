@@ -71,8 +71,13 @@ final class SplashScreen extends Frame {
         initImageAndTracker();
         //setSize(fImage.getWidth(NO_OBSERVER), fImage.getHeight(NO_OBSERVER));
         Dimension dimImageSize = new Dimension(800, 533);
-        setLocation((getToolkit().getScreenSize().width - dimImageSize.width) / 2,
-                (getToolkit().getScreenSize().height - dimImageSize.height) / 2);
+        //setLocation((getToolkit().getScreenSize().width - dimImageSize.width) / 2,
+        //        (getToolkit().getScreenSize().height - dimImageSize.height) / 2);
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] gds = ge.getScreenDevices();
+        GraphicsConfiguration gc = gds[0].getDefaultConfiguration();
+        Rectangle rect = gc.getBounds();
+        setLocation((int) rect.getCenterX(), (int) rect.getCenterY());
         setSize(dimImageSize);
 
 
@@ -107,9 +112,15 @@ final class SplashScreen extends Frame {
             super(aParent);
             this.fImage = aImage;
             setSize(fImage.getWidth(NO_OBSERVER), fImage.getHeight(NO_OBSERVER));
-            Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+            //Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
             Rectangle window = getBounds();
-            setLocation((screen.width - window.width) / 2, (screen.height - window.height) / 2);
+            //setLocation((screen.width - window.width) / 2, (screen.height - window.height) / 2);
+
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            GraphicsDevice[] gds = ge.getScreenDevices();
+            GraphicsConfiguration gc = gds[0].getDefaultConfiguration();
+            Rectangle rect = gc.getBounds();
+            setLocation((int) rect.getCenterX() - (window.width / 2), ((int) rect.getCenterY() - (window.height / 2)));
             setVisible(true);
         }
 
