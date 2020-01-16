@@ -156,7 +156,7 @@ public class ScriptEditor extends JInternalFrame {
 
         final JSplitPane splitPaneMain = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scriptAreaScrollPane, tabOutPane);
         //scriptArea.setBackground(Color.white);
-
+        //scriptArea.setFont(scriptArea.getFont().deriveFont(26f));
 
         scriptArea.setText("import com.actelion.research.orbit.imageAnalysis.components.*\n" +
                 "import com.actelion.research.orbit.imageAnalysis.models.*\n" +

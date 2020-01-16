@@ -68,9 +68,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Object segmentation based on a foreground/background image.
  */
 public class ObjectSegmentationWorker extends OrbitWorker {
-    private static final String MODEL_DIR = "C:\\git\\python\\DSB_2018_DEEPRETINA\\logs\\final";
-    private static final String MODEL_NAME = "deepretina_final.pb";
-
     private int minSegmentationSize = 10;
     private final static Logger logger = LoggerFactory.getLogger(ObjectSegmentationWorker.class);
     private RecognitionFrame rf = null;
