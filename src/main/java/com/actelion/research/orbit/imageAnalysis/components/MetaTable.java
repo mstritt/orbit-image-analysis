@@ -29,7 +29,7 @@ import com.actelion.research.orbit.utils.RawMetaFactoryFile;
 import com.actelion.research.orbit.utils.RawMetaListBuilder;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
 import com.l2fprod.common.swing.JOutlookBar;
-import org.pushingpixels.substance.api.renderers.SubstanceDefaultTableCellRenderer;
+import org.pushingpixels.substance.api.renderer.SubstanceDefaultTableCellRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

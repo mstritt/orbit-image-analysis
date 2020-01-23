@@ -18,9 +18,10 @@
  */
 package com.actelion.research.orbit.imageAnalysis.utils;
 
-import org.pushingpixels.flamingo.api.common.AsynchronousLoadListener;
-import org.pushingpixels.flamingo.api.common.AsynchronousLoading;
-import org.pushingpixels.flamingo.internal.utils.FlamingoUtilities;
+// TODO: Add ...neon.api.Async... when upgrading to the next Radiance release (>2.5.1)
+import org.pushingpixels.neon.AsynchronousLoadListener;
+import org.pushingpixels.neon.AsynchronousLoading;
+import org.pushingpixels.neon.NeonCortex;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -243,7 +244,7 @@ abstract class ImageWrapperIcon implements Icon, AsynchronousLoading {
                 float scale = Math.max(scaleX, scaleY);
                 if (scale > 1.0f) {
                     int finalWidth = (int) (originalImage.getWidth() / scale);
-                    result = FlamingoUtilities.createThumbnail(originalImage,
+                    result = NeonCortex.createThumbnail(originalImage,
                             finalWidth);
                 }
 
