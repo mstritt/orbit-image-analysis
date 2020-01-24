@@ -124,21 +124,21 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     final JFileChooser fileChooser = new JFileChooser();
     private boolean objectSegmentationEnabled = false;
     private boolean cellCountEnabled = false;
-    private JCheckBoxMenuItem performClusteringCheckbox = null;
+    private final JCheckBoxMenuItem performClusteringCheckbox = null;
     public final JCheckBoxMenuItem loadAllLayersMultiChannel = new JCheckBoxMenuItem("Load Full Pyramid", true);
 
-    private JMenuItem loadlowResImageItem = null;
-    private JMenuItem loadmediumResImageItem = null;
-    private JMenuItem loadSVSLabelItem = null;
-    private JMenuItem loadSVSOverviewItem = null;
-    private JMenu loadSpecialLayerItem = null;
+    private final JMenuItem loadlowResImageItem = null;
+    private final JMenuItem loadmediumResImageItem = null;
+    private final JMenuItem loadSVSLabelItem = null;
+    private final JMenuItem loadSVSOverviewItem = null;
+    private final JMenu loadSpecialLayerItem = null;
     protected final JMenuItem menuLogOff = new JMenuItem("Log off ");
     protected final JMenuItem menuLogIn = new JMenuItem("Login");
     protected final JCheckBox syncFramesCheckbox = new JCheckBox("Sync Frames", false);
     protected final JCheckBoxMenuItem showGaugeCheckbox = new JCheckBoxMenuItem("Show Gauge", true);
     protected final JCheckBoxMenuItem showMarkupCheckbox = new JCheckBoxMenuItem("Show Markup");
 
-    private JToolBar toolBar = null;
+    private final JToolBar toolBar = null;
     private JComboBox sizeBox = null;
     private JComboBox classBox = null;
 
@@ -199,7 +199,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private NerveDetectionModule nerveDetectionModule = null;
     private ManualClassificationModule manualClassificationModule = null;
     private ManualBoxCountModule manualBoxCountModule = null;
-    private TMASpotGUI tmaSpotGUI = null;
     private ThresholdModule thresholdModule = null;
     private ExclusionModule exclusionModule = null;
     private MihcModule mihcModule = null;
@@ -296,9 +295,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             */
         //};
         OrbitMenu orbitMenu = new OrbitMenu(this);
-        orbitMenu.configureRibbon();
-        //this.orbitMenu = orbitMenu;
+        orbitMenu.configureRibbon(getRibbon());
 
+        /*
         orbitMenu.applyComponentOrientation(ComponentOrientation.getOrientation(Locale.getDefault()));
         Rectangle r = GraphicsEnvironment.getLocalGraphicsEnvironment()
                 .getMaximumWindowBounds();
@@ -315,7 +314,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
         orbitMenu.getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
                 .put(keyStroke, "installTracingRepaintManager");
-
+        */
         /*
         this.setTitle(title);
         java.net.URL imgURL = this.getClass().getResource(OrbitImageAnalysis.LOGO_NAME);
@@ -559,9 +558,30 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         };
         statusBarUpdater.scheduleAtFixedRate(statusBarUpdate, 0, 120, TimeUnit.SECONDS);
 
+        // TODO: Check that these settings are reasonable.
+        /*
+        this.applyComponentOrientation(ComponentOrientation.getOrientation(Locale.getDefault()));
+        Rectangle r = GraphicsEnvironment.getLocalGraphicsEnvironment()
+                .getMaximumWindowBounds();
+        this.setPreferredSize(new Dimension(r.width, r.height / 2));
+        this.setMinimumSize(new Dimension(r.width / 10, r.height / 4));
+        this.pack();
+        this.setLocation(r.x, r.y);
+        this.setVisible(true);
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        */
+        // TODO: Is this needed?
+        /*
+        KeyStroke keyStroke = (NeonCortex.getPlatform() == NeonCortex
+                .Platform.MACOS) ? KeyStroke.getKeyStroke("meta alt E") :
+                KeyStroke.getKeyStroke("alt shift E");
 
+        orbitMenu.getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+                .put(keyStroke, "installTracingRepaintManager");
+        */
+
+        // TODO: The original display/close code.
         pack();
-
         this.setSize(size);
         this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -597,7 +617,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         */
 
         // TODO: Reenable this...
-        //updateMenuImageProviderEntries();
+        updateMenuImageProviderEntries();
         this.setVisible(true);
 
         if (DALConfig.isCheckVersion()) {
@@ -2925,15 +2945,17 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             JFrame.setDefaultLookAndFeelDecorated(true);
             EventQueue.invokeLater(() -> {
                 // Not 100% sure that we should decorate this bar, need to do some tests
-                JFrame.setDefaultLookAndFeelDecorated(true);
+                //JFrame.setDefaultLookAndFeelDecorated(true);
+
                 SubstanceCortex.GlobalScope.setSkin(new GraphiteAquaSkin());
 
+                // TODO: I think this is no longer needed...
                 /*
                 if (!ScaleoutMode.SCALEOUTMODE.get()) {
                     try {
                         // TODO: Is this the right place for this?
                         if (OrbitUtils.DARKUI) {
-                            UIManager.setLookAndFeel("org.pushingpixels.substance.api.skin.SubstanceGraphiteGlassLookAndFeel");
+                            //UIManager.setLookAndFeel("org.pushingpixels.substance.api.skin.SubstanceGraphiteGlassLookAndFeel");
                         } else {
                             UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
                         }

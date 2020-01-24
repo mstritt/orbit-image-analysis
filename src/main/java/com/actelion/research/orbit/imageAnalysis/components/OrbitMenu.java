@@ -1188,7 +1188,7 @@ public class OrbitMenu extends JRibbonFrame {
 
     }
 
-    public void configureRibbon() {
+    public void configureRibbon(final JRibbon ribbon) {
         this.createCommands();
         this.createStyleGalleryModel();
 
@@ -1289,28 +1289,28 @@ public class OrbitMenu extends JRibbonFrame {
                 logsBand);
 
         // Add the tabs to the Window.
-        this.getRibbon().addTask(imageTask);
-        this.getRibbon().addTask(editTask);
-        this.getRibbon().addTask(modelTask);
-        this.getRibbon().addTask(exclusionModelTask);
-        this.getRibbon().addTask(classificationTask);
-        this.getRibbon().addTask(objectDetectionTask);
-        this.getRibbon().addTask(roiTask);
-        this.getRibbon().addTask(maskTask);
-        this.getRibbon().addTask(batchTask);
-        this.getRibbon().addTask(toolsTask);
-        this.getRibbon().addTask(viewTask);
-        this.getRibbon().addTask(helpTask);
+        ribbon.addTask(imageTask);
+        ribbon.addTask(editTask);
+        ribbon.addTask(modelTask);
+        ribbon.addTask(exclusionModelTask);
+        ribbon.addTask(classificationTask);
+        ribbon.addTask(objectDetectionTask);
+        ribbon.addTask(roiTask);
+        ribbon.addTask(maskTask);
+        ribbon.addTask(batchTask);
+        ribbon.addTask(toolsTask);
+        ribbon.addTask(viewTask);
+        ribbon.addTask(helpTask);
 
-        configureApplicationMenu();
-        configureTaskBar();
+        configureApplicationMenu(ribbon);
+        configureTaskBar(ribbon);
 
     }
 
     /**
      * Define the application menu (The 'Orbit icon').
      */
-    private void configureApplicationMenu() {
+    private void configureApplicationMenu(final JRibbon ribbon) {
         // TODO: Figure out how to change the tab into an image.
         Map<Command, CommandButtonPresentationModel.Overlay> applicationMenuOverlays =
                 new HashMap<>();
@@ -1410,7 +1410,7 @@ public class OrbitMenu extends JRibbonFrame {
             ribbonMenuCommandProjection.setSecondaryLevelCommandPresentationState(
                     applicationMenuSecondaryStates);
 
-            this.getRibbon().setApplicationMenuCommand(ribbonMenuCommandProjection);
+            ribbon.setApplicationMenuCommand(ribbonMenuCommandProjection);
         } catch (Throwable t) {
             t.printStackTrace(System.err);
         }
@@ -1420,9 +1420,7 @@ public class OrbitMenu extends JRibbonFrame {
      * Define the task bar.
      * The smaller links at the top of the window.
      */
-    private void configureTaskBar() {
-        JRibbon ribbon = this.getRibbon();
-
+    private void configureTaskBar(final JRibbon ribbon) {
         // Hand tool
         ribbon.addTaskbarCommand(this.handToolCommand);
         // Classes
@@ -2322,7 +2320,7 @@ public class OrbitMenu extends JRibbonFrame {
             SubstanceCortex.GlobalScope.setSkin(new GraphiteAquaSkin());
 
             final OrbitMenu orbitmenu = new OrbitMenu();
-            orbitmenu.configureRibbon();
+            orbitmenu.configureRibbon(orbitmenu.getRibbon());
 
             orbitmenu.applyComponentOrientation(ComponentOrientation.getOrientation(Locale.getDefault()));
             Rectangle r = GraphicsEnvironment.getLocalGraphicsEnvironment()
