@@ -30,6 +30,8 @@ import java.util.List;
 
 public class OrbitMenu extends JRibbonFrame {
 
+    private OrbitImageAnalysis oia = null;
+
     private ResourceBundle resourceBundle;
 
     // Commands for Image tasks
@@ -168,6 +170,11 @@ public class OrbitMenu extends JRibbonFrame {
         Locale currLocale = Locale.getDefault();
         resourceBundle = ResourceBundle.getBundle("Resources", currLocale);
         setTitle(resourceBundle.getString("Frame.title"));
+    }
+
+    public OrbitMenu(OrbitImageAnalysis oia) {
+        this();
+        this.oia = oia;
     }
 
     private class ExpandActionListener implements CommandAction {
