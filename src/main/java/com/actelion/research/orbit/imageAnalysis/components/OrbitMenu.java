@@ -1346,7 +1346,7 @@ public class OrbitMenu extends JRibbonFrame {
             // TODO: Change the image to a screenshot of our application menu bar.
             final BufferedImage appMenuButtonTooltipImage = ImageIO
                     .read(OrbitMenu.class.getResource(
-                            "/com/actelion/research/orbit/imageAnalysis/ribbon/" +
+                            "/ribbon/" +
                                     "appmenubutton-tooltip-main.png"));
             final int appMenuButtonTooltipImageWidth = appMenuButtonTooltipImage.getWidth();
             final int appMenuButtonTooltipImageHeight = appMenuButtonTooltipImage.getHeight();
