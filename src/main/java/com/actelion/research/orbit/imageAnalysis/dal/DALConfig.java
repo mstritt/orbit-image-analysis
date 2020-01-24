@@ -76,7 +76,8 @@ public class DALConfig {
             try {
                 // TODO: What is happening here?
                 // https://docs.oracle.com/javase/9/docs/api/java/lang/Class.html#newInstance--
-                imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).newInstance();
+                //imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).newInstance();
+                imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).getDeclaredConstructors()[0].newInstance();
                 //imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).getDeclaredConstructor().newInstance();
             } catch (IllegalStateException e) {
                 final String m = e.getMessage() + "\n\nOrbit will continue with the fallback local filesystem image provider.";

@@ -60,6 +60,8 @@ import org.pushingpixels.flamingo.api.ribbon.JRibbonFrame;
 import org.pushingpixels.neon.NeonCortex;
 import org.pushingpixels.substance.api.SubstanceCortex;
 import org.pushingpixels.substance.api.skin.GraphiteAquaSkin;
+import org.pushingpixels.substance.api.skin.SubstanceGraphiteAquaLookAndFeel;
+import org.pushingpixels.substance.api.skin.SubstanceRavenLookAndFeel;
 import org.slf4j.LoggerFactory;
 
 import javax.media.jai.JAI;
@@ -149,7 +151,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private RenderGrid renderGrid = null;
     private LoupeWithScale loupeWithScale = null;
     private JPanel propertyPanel = null;
-    //private MetaTabs metaBar = null;
+    private MetaTabs metaBar = null;
     private JPanel taskPanel = null;
     private AbstractOrbitTree rdTree;
     private ImageList imageList = null;
@@ -331,8 +333,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
         // if local filesystem image provider, switch to Image menu to show open from local file button (otherwise the classification task will be shown)
         if (DALConfig.isLocalImageProvider()) {
-            // TODO: reenable this...
-            orbitMenu.getRibbon();
+            // TODO: fix this so it points to the right place.
+            this.getRibbon();
         }
 
         ImagePreview preview = new ImagePreview(fileChooser);
@@ -398,23 +400,27 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         treeListSplit.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0), "none");
 
         //Lay out the main panel.
-        final Color backgroundColor = new Color(42, 42, 42);
-        desktop = new JDesktopPane() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (OrbitUtils.DARKUI) {
-                    g.setColor(backgroundColor);
-                    g.fillRect(0, 0, getWidth(), getHeight());
-                }
-            }
-        };
 
-        desktop.setLayout(null);
+        //final Color backgroundColor = new Color(42, 42, 42);
+        desktop = new JDesktopPane();
+//        desktop = new JDesktopPane() {
+//            @Override
+//            protected void paintComponent(Graphics g) {
+//                super.paintComponent(g);
+//                if (OrbitUtils.DARKUI) {
+//                    g.setColor(backgroundColor);
+//                    g.fillRect(0, 0, getWidth(), getHeight());
+//                }
+//            }
+//        };
+
+//        desktop.setLayout(null);
 
         desktop.setTransferHandler(desktopTransferHandler);
 
+
         // actionMap for copy&paste
+
         ActionMap map = desktop.getActionMap();
         map.put(TransferHandler.getCutAction().getValue(Action.NAME),
                 TransferHandler.getCutAction());
@@ -475,7 +481,14 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         gbcLoupe.gridy = 4;
 
         // TODO: Check iFrame != null check removal was ok.
-        renderGrid = new RenderGrid(null);
+        if (iFrame != null) {
+            renderGrid = new RenderGrid(iFrame.recognitionFrame.bimg);
+            renderGrid.setViewportSize(iFrame.getSize());
+            renderGrid.setImageSize(new Dimension(iFrame.recognitionFrame.bimg.getWidth(), iFrame.recognitionFrame.bimg.getHeight())); // scale?
+            iFrame.setRenderGrid(renderGrid);
+        } else {
+            renderGrid = new RenderGrid(null);
+        }
 
         scaleSlider = new SliderWithListener(JSlider.HORIZONTAL, 2, 800, 400);
         scaleSlider.setMajorTickSpacing(100);
@@ -504,13 +517,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         propertyUpperPanel.add(taskPanel, gbcWorkers);
 
         // TODO: Re-enable the metabar, it uses some old substance stuff.
-        //metaBar = new MetaTabs();
+        metaBar = new MetaTabs();
 
         loupeWithScale = new LoupeWithScale();
 
-        //splitPanePropLoupe = new JSplitPane(JSplitPane.VERTICAL_SPLIT, metaBar, loupeWithScale);
+        splitPanePropLoupe = new JSplitPane(JSplitPane.VERTICAL_SPLIT, metaBar, loupeWithScale);
         // TODO: Re-enable the metaBar...
-        splitPanePropLoupe = new JSplitPane(JSplitPane.VERTICAL_SPLIT, loupeWithScale, loupeWithScale);
+        //splitPanePropLoupe = new JSplitPane(JSplitPane.VERTICAL_SPLIT, loupeWithScale, loupeWithScale);
         splitPanePropLoupe.setOneTouchExpandable(true);
         splitPanePropLoupe.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0), "none");
         splitPanePropLoupe.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0), "none");
@@ -559,7 +572,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         statusBarUpdater.scheduleAtFixedRate(statusBarUpdate, 0, 120, TimeUnit.SECONDS);
 
         // TODO: Check that these settings are reasonable.
-        /*
+
         this.applyComponentOrientation(ComponentOrientation.getOrientation(Locale.getDefault()));
         Rectangle r = GraphicsEnvironment.getLocalGraphicsEnvironment()
                 .getMaximumWindowBounds();
@@ -569,7 +582,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         this.setLocation(r.x, r.y);
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        */
+
         // TODO: Is this needed?
         /*
         KeyStroke keyStroke = (NeonCortex.getPlatform() == NeonCortex
@@ -581,10 +594,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         */
 
         // TODO: The original display/close code.
-        pack();
-        this.setSize(size);
-        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+//        pack();
+//        this.setSize(size);
+//        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+//        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 exitProcedure();
@@ -1559,7 +1573,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 iFrame.setRdf(rdf);
 
                 //TODO: Re-enable metaBar
-                /*
+
                 // meta data
                 try {
                     if (rdf.getRawDataId() <= 0) logger.warn("RawData not set for RawDataFile " + rdf.toStringDetail());
@@ -1613,7 +1627,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 } catch (Exception e) {
                     logger.error("cannot load rawData", e);
                 }
-                */
+
                 if (iFrameTitle != null) {
                     iFrame.setTitle(iFrameTitle);
                 }
@@ -2362,11 +2376,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         } else if (evt.getPropertyName().equals(ImageList.PROPERTY_DISPLAY_META)) {
             final RawDataFile rdf = (RawDataFile) evt.getNewValue();
             SwingUtilities.invokeLater(() -> {
-                // TODO: Reenable.
-                /*
                 metaBar.listMetas(rdf);
                 metaBar.repaint();
-                */
             });
         } else if (evt.getPropertyName().equals(ClassAdminFrame.CLASSADMIN_DONE)) {
             // synchronize classShape lists in all iFrames
@@ -2438,10 +2449,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 } else {
                     renderGrid.setImage(null);
                     loupeWithScale.getLoupe().setImage(null);
-                    // TODO: Re-enable
-                    /*
+
                     metaBar.clearMetasAndAnnotations();
-                    */
+
                     propertyPanel.revalidate();
                     propertyPanel.repaint();
                 }
@@ -2942,33 +2952,42 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
         try {
             final String allStr = all.toString();
-            JFrame.setDefaultLookAndFeelDecorated(true);
-            EventQueue.invokeLater(() -> {
+            //JFrame.setDefaultLookAndFeelDecorated(true);
+            SwingUtilities.invokeLater(() -> {
                 // Not 100% sure that we should decorate this bar, need to do some tests
                 //JFrame.setDefaultLookAndFeelDecorated(true);
+                // TODO: See: "How do i make Substance to paint the title panes?"
+                // https://github.com/kirill-grouchnikov/radiance/blob/master/docs/substance/faq.md
 
                 SubstanceCortex.GlobalScope.setSkin(new GraphiteAquaSkin());
+//
+//                try {
+//                    UIManager.setLookAndFeel(new SubstanceGraphiteAquaLookAndFeel());
+//                } catch (UnsupportedLookAndFeelException e) {
+//                    e.printStackTrace();
+//                }
+
 
                 // TODO: I think this is no longer needed...
-                /*
-                if (!ScaleoutMode.SCALEOUTMODE.get()) {
-                    try {
-                        // TODO: Is this the right place for this?
-                        if (OrbitUtils.DARKUI) {
-                            //UIManager.setLookAndFeel("org.pushingpixels.substance.api.skin.SubstanceGraphiteGlassLookAndFeel");
-                        } else {
-                            UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-                        }
+//
+//                if (!ScaleoutMode.SCALEOUTMODE.get()) {
+//                    try {
+//                        // TODO: Is this the right place for this?
+//                        if (OrbitUtils.DARKUI) {
+//                            UIManager.setLookAndFeel(new SubstanceGraphiteAquaLookAndFeel());
+//                        } else {
+//                            UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+//                        }
+//
+//                    } catch (Exception e) {
+//                        // TODO: Think that this is no longer required...
+//                        // Or at least send to logger?
+//                        if (OrbitUtils.DARKUI)
+//                            System.out.println("Warning: Substance look and feel not supported.");
+//                        else System.out.println("Warning: Nimbus look and feel not supported.");
+//                    }
+//                }
 
-                    } catch (Exception e) {
-                        // TODO: Think that this is no longer required...
-                        // Or at least send to logger?
-                        if (OrbitUtils.DARKUI)
-                            System.out.println("Warning: Substance look and feel not supported.");
-                        else System.out.println("Warning: Nimbus look and feel not supported.");
-                    }
-                }
-                */
 
                 getInstance();
                 if (logFrame != null) logFrame.updateUI();
@@ -3003,7 +3022,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
         initSingleApplication(args);
         if (showSplash && OrbitUtils.DARKUI) {
-            EventQueue.invokeLater(splashScreen::dispose);
+            SwingUtilities.invokeLater(splashScreen::dispose);
         }
     }
 
@@ -3041,7 +3060,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
 
             DALConfig.switchLocalRemoteImageProvider();
-            // TODO: Reenable this.
             updateMenuImageProviderEntries();
 
             String s = isLocalImageProvider() ? "Image provider local is active." : "Image provider remote is active.";
@@ -3050,29 +3068,26 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
     // TODO: Logic around image provider buttons.
-
+    // TODO: Figure out what needs to happen here...
     public void updateMenuImageProviderEntries() {
         //String openButtonTitel = isLocalImageProvider() ? OrbitMenu.openFromLocalStr : OrbitMenu.openFromServerStr;
         //orbitMenu.getAmOpenOrbit().setText(openButtonTitel);
         //orbitMenu.getButtonopenFromOrbit().setText(openButtonTitel);
         // tree / imagelist
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                imageList.setModel(new DefaultListModel()); // clear image list
-                rdTree.setEnabled(!isLocalImageProvider());
-                /*
-                orbitMenu.getSwitchImageProviderBtn().setEnabled(!DALConfig.onlyLocalImageProviderAvailable());
-                orbitMenu.getButtonExecuteScaleout().setEnabled(!DALConfig.isLocalImageProvider());
-                orbitMenu.getButtonRetrieveExistingResults().setEnabled(!DALConfig.isLocalImageProvider());
-                orbitMenu.getAmEntryOpenModelOrbit().setEnabled(!DALConfig.isLocalImageProvider());
-                orbitMenu.getAmSaveModelOrbit().setEnabled(!DALConfig.isLocalImageProvider());
-                orbitMenu.getButtonSaveModelOrbit().setEnabled(!DALConfig.isLocalImageProvider());
-                orbitMenu.getButtonLoadAndSetServer().setEnabled(!DALConfig.isLocalImageProvider());
-                orbitMenu.getButtonOrbitBrowser().setEnabled(!DALConfig.isLocalImageProvider());
-                orbitMenu.getButtonModelOpenOrbit().setEnabled(!DALConfig.isLocalImageProvider());
-                */
-            }
+        SwingUtilities.invokeLater(() -> {
+            imageList.setModel(new DefaultListModel()); // clear image list
+            rdTree.setEnabled(!isLocalImageProvider());
+            /*
+            orbitMenu.getSwitchImageProviderBtn().setEnabled(!DALConfig.onlyLocalImageProviderAvailable());
+            orbitMenu.getButtonExecuteScaleout().setEnabled(!DALConfig.isLocalImageProvider());
+            orbitMenu.getButtonRetrieveExistingResults().setEnabled(!DALConfig.isLocalImageProvider());
+            orbitMenu.getAmEntryOpenModelOrbit().setEnabled(!DALConfig.isLocalImageProvider());
+            orbitMenu.getAmSaveModelOrbit().setEnabled(!DALConfig.isLocalImageProvider());
+            orbitMenu.getButtonSaveModelOrbit().setEnabled(!DALConfig.isLocalImageProvider());
+            orbitMenu.getButtonLoadAndSetServer().setEnabled(!DALConfig.isLocalImageProvider());
+            orbitMenu.getButtonOrbitBrowser().setEnabled(!DALConfig.isLocalImageProvider());
+            orbitMenu.getButtonModelOpenOrbit().setEnabled(!DALConfig.isLocalImageProvider());
+            */
         });
     }
 
@@ -4181,11 +4196,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
     //TODO: Re-enable metaBar.
-    /*
     public MetaTabs getMetaBar() {
         return metaBar;
     }
-    */
 
     public RenderGrid getRenderGrid() {
         return renderGrid;

@@ -1435,7 +1435,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getImageBand() {
         JRibbonBand openImageBand = new JRibbonBand(
                 resourceBundle.getString("Image.OpenImage.textBandTitle"),
-                document_open_5.factory(),
+                null,
                 new ExpandActionListener());
 
         openImageBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1459,7 +1459,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getOpenSpecialBand() {
         JRibbonBand openSpecialBand = new JRibbonBand(
                 resourceBundle.getString("Image.OpenSpecial.textBandTitle"),
-                document_open_5.factory(),
+                null,
                 new ExpandActionListener());
 
         openSpecialBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1491,7 +1491,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getSaveBand() {
         JRibbonBand saveImageBand = new JRibbonBand(
                 resourceBundle.getString("Image.Save.textBandTitle"),
-                document_save_as_3.factory(),
+                null,
                 new ExpandActionListener());
 
         saveImageBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1515,7 +1515,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getImageProviderBand() {
         JRibbonBand imageProviderBand = new JRibbonBand(
                 resourceBundle.getString("Image.ImageProvider.textBandTitle"),
-                system_run_5.factory(),
+                null,
                 new ExpandActionListener());
 
         imageProviderBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1539,7 +1539,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getCopyBand() {
         JRibbonBand copyBand = new JRibbonBand(
                 resourceBundle.getString("Edit.Copy.textBandTitle"),
-                document_open_5.factory(),
+                null,
                 new ExpandActionListener());
 
         copyBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1569,7 +1569,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getPasteBand() {
         JRibbonBand pasteBand = new JRibbonBand(
                 resourceBundle.getString("Edit.Paste.textBandTitle"),
-                document_open_5.factory(),
+                null,
                 new ExpandActionListener());
 
         pasteBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1593,7 +1593,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getOpenModelBand() {
         JRibbonBand openModelBand = new JRibbonBand(
                 resourceBundle.getString("Model.OpenModel.textBandTitle"),
-                document_open_5.factory(),
+                null,
                 new ExpandActionListener());
 
         openModelBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1623,7 +1623,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getSaveModelBand() {
         JRibbonBand saveModelBand = new JRibbonBand(
                 resourceBundle.getString("Model.SaveModel.textBandTitle"),
-                document_save_3.factory(),
+                null,
                 new ExpandActionListener());
 
         saveModelBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1656,7 +1656,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getConfigureModelBand() {
         JRibbonBand configureModelBand = new JRibbonBand(
                 resourceBundle.getString("Model.ConfigureModel.textBandTitle"),
-                document_save_3.factory(),
+                null,
                 new ExpandActionListener());
 
         configureModelBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1689,7 +1689,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getClusteringModelBand() {
         JRibbonBand clusteringBand = new JRibbonBand(
                 resourceBundle.getString("Model.Clustering.textBandTitle"),
-                clustering.factory(),
+                null,
                 new ExpandActionListener());
 
         clusteringBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1713,7 +1713,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getResetModelBand() {
         JRibbonBand configureModelBand = new JRibbonBand(
                 resourceBundle.getString("Model.Reset.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         configureModelBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1746,7 +1746,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getSetupClassesBand() {
         JRibbonBand setupClassesBand = new JRibbonBand(
                 resourceBundle.getString("ExclusionModel.Setup.textBandTitle"),
-                configure_4.factory(),
+                null,
                 new ExpandActionListener());
 
         setupClassesBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1770,7 +1770,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getDrawBand() {
         JRibbonBand drawBand = new JRibbonBand(
                 resourceBundle.getString("ExclusionModel.Draw.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         drawBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1803,7 +1803,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getExclusionModelBand() {
         JRibbonBand exclusionModelBand = new JRibbonBand(
                 resourceBundle.getString("ExclusionModel.Exclusion.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         exclusionModelBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1851,7 +1851,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getMachineLearningBand() {
         JRibbonBand exclusionModelBand = new JRibbonBand(
                 resourceBundle.getString("Classification.MachineLearning.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         exclusionModelBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1881,7 +1881,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getObjectSegmentationBand() {
         JRibbonBand objectSegmentationBand = new JRibbonBand(
                 resourceBundle.getString("ObjectDetection.ObjectSegmentation.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         objectSegmentationBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1926,7 +1926,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getObjectClassificationBand() {
         JRibbonBand objectClassificationBand = new JRibbonBand(
                 resourceBundle.getString("ObjectDetection.ObjectClassification.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         objectClassificationBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1962,7 +1962,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getRoiBand() {
         JRibbonBand roiBand = new JRibbonBand(
                 resourceBundle.getString("ROI.RegionOfInterest.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         roiBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -1995,7 +1995,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getSpecialRoiBand() {
         JRibbonBand specialroiBand = new JRibbonBand(
                 resourceBundle.getString("ROI.SpecialROIs.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         specialroiBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -2022,7 +2022,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getModelBasedMasksBand() {
         JRibbonBand modelBasedMasksBand = new JRibbonBand(
                 resourceBundle.getString("Mask.ModelBasedMasks.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         modelBasedMasksBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -2058,7 +2058,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getBatchBand() {
         JRibbonBand batchBand = new JRibbonBand(
                 resourceBundle.getString("Batch.BatchExecute.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         batchBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -2091,7 +2091,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getManageFilesBand() {
         JRibbonBand manageFilesBand = new JRibbonBand(
                 resourceBundle.getString("Tools.ManageFiles.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         manageFilesBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -2121,7 +2121,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getSaveImageBand() {
         JRibbonBand saveImageBand = new JRibbonBand(
                 resourceBundle.getString("Tools.SaveImage.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         saveImageBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -2151,7 +2151,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getScriptBand() {
         JRibbonBand scriptBand = new JRibbonBand(
                 resourceBundle.getString("Tools.Script.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         scriptBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -2175,7 +2175,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getArrangeBand() {
         JRibbonBand arrangeBand = new JRibbonBand(
                 resourceBundle.getString("View.Arrange.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         arrangeBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -2208,7 +2208,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getShowBand() {
         JRibbonBand showBand = new JRibbonBand(
                 resourceBundle.getString("View.Show.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         showBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -2253,7 +2253,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getDocumentationBand() {
         JRibbonBand documentationBand = new JRibbonBand(
                 resourceBundle.getString("Help.Documentation.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         documentationBand.setExpandButtonRichTooltip(RichTooltip.builder()
@@ -2280,7 +2280,7 @@ public class OrbitMenu extends JRibbonFrame {
     private JRibbonBand getLogsBand() {
         JRibbonBand logsBand = new JRibbonBand(
                 resourceBundle.getString("Help.Logs.textBandTitle"),
-                edit_clear_3.factory(),
+                null,
                 new ExpandActionListener());
 
         logsBand.setExpandButtonRichTooltip(RichTooltip.builder()

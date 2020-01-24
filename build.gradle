@@ -54,7 +54,7 @@ ext.orbitVersion = new File(projectDir,"src/main/resources/version.txt").text;
 ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
 
 repositories {
-    mavenLocal()
+    //mavenLocal()
     mavenCentral()
     maven {
         url 'http://artifacts.openmicroscopy.org/artifactory/maven/'

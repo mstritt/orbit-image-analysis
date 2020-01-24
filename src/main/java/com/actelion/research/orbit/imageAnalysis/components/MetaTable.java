@@ -61,24 +61,25 @@ public class MetaTable extends JOutlookBar {
 
     private void addDefaultTable() {
 
-//		SwingUtilities.invokeLater(new Runnable() {
-//			@Override
-//			public void run() {
-//				Object[][] vals = new String[1][2];
-//				vals[0][0] = ""; vals[0][1] = "";
-//				JTable table =  new JTable(vals, tableHeader);
-//				table.setCellEditor(new MetaCellEditor());
-//				MetaTable.this.add("Meta Data",table);
-//			}
-//		});
+//		SwingUtilities.invokeLater(() -> {
+//            Object[][] vals = new String[1][2];
+//            vals[0][0] = ""; vals[0][1] = "";
+//            JTable table =  new JTable(vals, tableHeader);
+//            table.setCellEditor(new MetaCellEditor());
+//            MetaTable.this.add("Meta Data",table);
+//        });
+
 
         Object[][] vals = new String[1][2];
         vals[0][0] = "";
         vals[0][1] = "";
         JTable table = new JTable(vals, tableHeader);
-        table.setCellEditor(new MetaCellEditor());
+        MetaCellEditor mce = new MetaCellEditor();
+        // TODO: Re-enable this...
+        //table.setCellEditor(mce);
 
         this.add("Meta Data", new JScrollPane(table));
+
     }
 
 
