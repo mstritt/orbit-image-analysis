@@ -185,7 +185,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private boolean showNerveDetection = false;
     private boolean showManualClassification = false;
     private boolean showManualBoxCount = false;
-    private boolean showTMASpotModule = false;
     private boolean showThresholdClassification = false;
     private boolean showMihcModule = false;
 
@@ -3426,54 +3425,239 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     // Exclusion Model Tab/Task Command Actions
 
-//    setupClassesCommand;
-//    eraserCommand;
-//    polygonCommand;
-//    circleCommand;
-//    rectangleCommand;
-//    trainSetClassifyCommand;
+    //TODO: See also ExclusionModule.java, is this really one command for exclusion model and classification?
+    public final CommandAction SetupClassesCommandAction = e -> {
+        if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+                "This will reset all current training shapes.\nDo you want to continue?",
+                "Reset current training data?", JOptionPane.YES_NO_OPTION)
+                == JOptionPane.YES_OPTION) {
+            resetMainModel();
+        }
+    };
+    public final CommandAction EraserCommandAction = e -> {
+        logger.debug("select polygon to delete");
+        if (getIFrame() != null) {
+            getIFrame().recognitionFrame.setSelectedTool(Tools.delete);
+            getIFrame().recognitionFrame.getMyListener().setDeleteMode(true);
+            getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            getIFrame().recognitionFrame.repaint();
+        }
+    };
+    public final CommandAction PolygonCommandAction = e -> {
+        logger.debug("brush selected");
+        updateSelectedClassShape();
+        if (getIFrame() != null) {
+            getIFrame().recognitionFrame.setSelectedTool(Tools.brush);
+            getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
+            getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_POLYGONEXT);
+            getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+        }
+    };
+    public final CommandAction CircleCommandAction = e -> {
+        logger.debug("circle selected");
+        updateSelectedClassShape();
+        if (getIFrame() != null) {
+            getIFrame().recognitionFrame.setSelectedTool(Tools.circle);
+            getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
+            getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_ARC);
+            getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+        }};
+    public final CommandAction RectangleCommandAction = e -> {
+        logger.debug("rectangle selected");
+        updateSelectedClassShape();
+        if (getIFrame() != null) {
+            getIFrame().recognitionFrame.setSelectedTool(Tools.rectangle);
+            getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
+            getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_RECTANGLE);
+            getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+        }
+    };
+    // TODO: Something different happening here... Need to figure out how best to tie in with ExclusionModule.java
+    public final CommandAction TrainSetClassifyCommandAction = e -> {};
+    public final CommandAction ClassifyTrainedExclusionModelCommandAction = e -> {};
+    public final CommandAction ConfigureExclusionClassesCommandAction = e -> {};
+    public final CommandAction LoadAndSetLocalCommandAction = e -> {};
+    public final CommandAction LoadAndSetServerCommandAction = e -> {};
+    public final CommandAction SetFromModelExplorerCommandAction = e -> {};
+    public final CommandAction ResetExclusionModelCommandAction = e -> {};
+    public final CommandAction ExclusionHelpCommandAction = e -> {};
 
+    // Classification Tab/Task Command Actions
+    public final CommandAction TrainCommandAction = e -> {
+        logger.debug("train");
+        if (getIFrame() != null) {
+            getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
+            train(true);
+            // TODO: This is broken with the switch to Command Actions. Temporarily commented...
+            //fingerActionListener.actionPerformed(null);
+        }
+    };
+    public final CommandAction DefineRoiCommandAction = e -> {
+        logger.debug("select ROI selected");
+        if (getIFrame() != null) {
+            getIFrame().recognitionFrame.setSelectedTool(Tools.roi);
+            getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
+            getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_POLYGONEXT);
+            getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+        }
+    };
+    public final CommandAction ClassifyCommandAction = e -> {
+        logger.debug("classify");
+        if (getIFrame() != null) {
+            getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
+            classify(false);
+            // TODO: This is broken with the switch to Command Actions. Temporarily commented...
+            //fingerActionListener.actionPerformed(null);
+        }
+    };
 
-//    public final ActionListener configClassActionListener
+    // Object Detection Tab/Task Command Actions
+    public final CommandAction SetPrimarySegmentationModelCommandAction = e -> setModelAsSegmentationModel(model, true);
+    public final CommandAction SetSecondarySegmentationModelCommandAction = e -> setModelAsSecondarySegmentationModel(model, true);
+    public final CommandAction ObjectSegmentationCommandAction = e -> objectSegmentation(true, false);
+    public final CommandAction ShowSegmentationHeatmapCommandAction = e -> {
+        this.setShowObjectHeatmap(!this.isShowObjectHeatmap());
+        OrbitModel model = this.getModel();
+        if (model == null || model.getFeatureDescription().getFeatureClasses() == null || model.getFeatureDescription().getFeatureClasses().length == 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Currently no feature classes are active.\n" +
+                            "The heatmap will only be shown if at least one feature class is active.\n" +
+                            "You can configure the feature classes in the Feature Configuration (F3), tab Classification.",
+                    "No Feature Classes active",
+                    JOptionPane.WARNING_MESSAGE);
+        }
+    };
+    public final CommandAction ObjectMarkerCommandAction = e -> {
+        logger.debug("cell tool selected");
+        updateSelectedClassShape();
+        if (getIFrame() != null) {
+            getIFrame().recognitionFrame.setSelectedTool(Tools.cell);
+            getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
+            getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_POLYGONEXT);
+            getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        }
+    };
+    public final CommandAction TrainObjectsCommandAction = e -> {
+        trainClassifyNucleid();
+        // TODO: temporarily disabled...
+//        fingerActionListener.actionPerformed(null);
+    };
+    public final CommandAction ObjectClassificationCommandAction = e -> classifyNucleid();
+
+    // ROI Tab/Task Command Actions
+    public final CommandAction ResetRoiCommandAction = e -> {
+        if (resetROI()) {
+            repaint();
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                    "ROI successfully reset.",
+                    "ROI reset",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                    "ROI reset failed.",
+                    "ROI reset",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    };
+    public final CommandAction InvertRoiCommandAction = e -> invertROI();
+    public final CommandAction MeasureAreaCommandAction = e -> {
+        try {
+            showRoiArea();
+        } catch (OrbitImageServletException e1) {
+            logger.error("Cannot compute ROI area", e1);
+        }
+    };
+    public final CommandAction SegmentationAsRoiCommandAction = e -> {
+        RecognitionFrame rf = getIFrame().recognitionFrame;
+        if (rf.getObjectSegmentationList() == null || rf.getObjectSegmentationList().size() == 0) {
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                    "The ROI cannot be set because no segmentation shapes are available.\n" +
+                            "Please perform a segmentation first.",
+                    "No segmentation shapes available",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        final ShapeExtList roiShape = new ShapeExtList(rf.getObjectSegmentationList(), null);
+        rf.setROI(roiShape);
+        logger.debug("roi set: " + rf.getROI());
+        JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                "The ROI has been successfully set based on segmentation shapes.",
+                "ROI successfully set",
+                JOptionPane.INFORMATION_MESSAGE);
+    };
+    public final CommandAction TmaRoiCommandAction = e -> this.tmaSpotGUI = new TMASpotGUI(true);
+
+    // Mask Tab/Task Command Actions
+    public final CommandAction SetClassificationMaskCommandAction = e -> {};
+    public final CommandAction SetSegmentationMaskCommandAction = e -> {};
+    public final CommandAction UnsetMaskCommandAction = e -> {};
+    public final CommandAction ConfigureMaskCommandAction = e -> {};
+    public final CommandAction MaskToExplorerCommandAction = e -> {};
+
+    // Batch Tab/Task Command Actions
+    public final CommandAction LocalExecutionCommandAction = e -> {};
+    public final CommandAction ScaleOutExecutionCommandAction = e -> {};
+    public final CommandAction RoiAreaComputationCommandAction = e -> {};
+    public final CommandAction RetrieveExistingResultsCommandAction = e -> {};
+
+    // Tools Tab/Task Command Actions
+    public final CommandAction OrbitBrowserCommandAction = e -> {};
+    public final CommandAction DbCleanupCommandAction = e -> {};
+    public final CommandAction ChannelColorResetCommandAction = e -> {};
+    public final CommandAction SaveFullImageCommandAction = e -> {};
+    public final CommandAction SaveCurrentViewCommandAction = e -> {};
+    public final CommandAction SaveClassificationImageCommandAction = e -> {};
+    public final CommandAction ScriptEditorCommandAction = e -> {};
+
+    // View Tab/Task Command Actions
+    public final CommandAction TileWindowsCommandAction = e -> {};
+    public final CommandAction CascadeWindowsCommandAction = e -> {};
+    public final CommandAction MinimizeWindowsCommandAction = e -> {};
+    public final CommandAction CloseWindowsCommandAction = e -> {};
+    public final CommandAction ShowToolbarCommandAction = e -> {};
+    public final CommandAction ShowStatusBarCommandAction = e -> {};
+    public final CommandAction ShowGaugeCommandAction = e -> {};
+    public final CommandAction ShowLabelsCommandAction = e -> {};
+    public final CommandAction ShowCenterCrossCommandAction = e -> {};
+    public final CommandAction ShowMarkupCommandAction = e -> {};
+    public final CommandAction ShowSyncFramesCommandAction = e -> {};
+    public final CommandAction ShowPopupResultsCommandAction = e -> {};
+
+    // Help Tab/Task Command Actions
+    public final CommandAction OrbitManualCommandAction = e -> {};
+    public final CommandAction AboutCommandAction = e -> {};
+    public final CommandAction ShowLogCommandAction = e -> {};
+    public final CommandAction ShowLogModelCommandAction = e -> {};
+
+    // Taskbar Commands
+    public final CommandAction HandToolCommandAction = e -> {};
+    public final CommandAction ListClassesModelCommandAction = e -> {};
+    public final CommandAction ConfigureClassesCommandAction = e -> {};
+    public final CommandAction ConfigureFeaturesCommandAction = e -> {};
+//    /**
+//     * calls objectSegmentation()
+//     *
+//     * @return
+//     */
+//    public final ActionListener objectSegmentationActionListener
 //            = new ActionListener() {
 //        public void actionPerformed(ActionEvent e) {
-//            //   ClassAdminFrame configFrame = new ClassAdminFrame(getIFrame().recognitionFrame.getClassShapes(),/*classBox,*/new ClassListCellRenderer(),getIFrame().getRecognitionFrame().getBoundaryClass());
-//            int boundaryClass = -1;
-//            if (getIFrame() != null) {
-//                boundaryClass = getIFrame().getRecognitionFrame().getBoundaryClass();
-//            }
-//            ClassAdminFrame configFrame = new ClassAdminFrame(model.getClassShapes(), new ClassListCellRenderer(), boundaryClass, true);
-//
-//            configFrame.addPropertyChangeListener(OrbitImageAnalysis.this);
-//            configFrame.setAlwaysOnTop(true);
-//            configFrame.setVisible(true);
+//            objectSegmentation(true, false);
 //        }
 //    };
 
-
-    /**
-     * calls objectSegmentation()
-     *
-     * @return
-     */
-    public final ActionListener objectSegmentationActionListener
-            = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            objectSegmentation(true, false);
-        }
-    };
-
-    /**
-     * calls nucleiClassification()
-     *
-     * @return
-     */
-    public final ActionListener objectClassificationActionListener
-            = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            classifyNucleid();
-        }
-    };
+//    /**
+//     * calls nucleiClassification()
+//     *
+//     * @return
+//     */
+//    public final ActionListener objectClassificationActionListener
+//            = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            classifyNucleid();
+//        }
+//    };
 
 
     /**
@@ -3684,47 +3868,47 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //            frame.setVisible(true);
 //        }
 //    };
-    public final ActionListener setCurrentModelAsSegmentationActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            setModelAsSegmentationModel(model, true);
-        }
-    };
-    public final ActionListener setCurrentModelAsSecondarySegmentationActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            setModelAsSecondarySegmentationModel(model, true);
-        }
-    };
+//    public final ActionListener setCurrentModelAsSegmentationActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            setModelAsSegmentationModel(model, true);
+//        }
+//    };
+//    public final ActionListener setCurrentModelAsSecondarySegmentationActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            setModelAsSecondarySegmentationModel(model, true);
+//        }
+//    };
 
 
-    public final ActionListener computeROIAreaActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            try {
-                showRoiArea();
-            } catch (OrbitImageServletException e1) {
-                logger.error("Cannot compute ROI area", e1);
-            }
-        }
-    };
-    public final ActionListener trainCellClassifierActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            trainClassifyNucleid();
-            fingerActionListener.actionPerformed(null);
-        }
-    };
-    public final ActionListener invertROIActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            invertROI();
-        }
-    };
-    public final ActionListener resetROIActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (resetROI()) {
-                repaint();
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "ROI successfully reset.", "ROI reset", JOptionPane.INFORMATION_MESSAGE);
-            } else
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "ROI reset failed.", "ROI reset", JOptionPane.ERROR_MESSAGE);
-        }
-    };
+//    public final ActionListener computeROIAreaActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            try {
+//                showRoiArea();
+//            } catch (OrbitImageServletException e1) {
+//                logger.error("Cannot compute ROI area", e1);
+//            }
+//        }
+//    };
+//    public final ActionListener trainCellClassifierActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            trainClassifyNucleid();
+//            fingerActionListener.actionPerformed(null);
+//        }
+//    };
+//    public final ActionListener invertROIActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            invertROI();
+//        }
+//    };
+//    public final ActionListener resetROIActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            if (resetROI()) {
+//                repaint();
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "ROI successfully reset.", "ROI reset", JOptionPane.INFORMATION_MESSAGE);
+//            } else
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "ROI reset failed.", "ROI reset", JOptionPane.ERROR_MESSAGE);
+//        }
+//    };
 
     public final ActionListener maskSetActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -3872,113 +4056,113 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
 
 
-    public final ActionListener brushActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            logger.debug("brush selected");
-            updateSelectedClassShape();
-            if (getIFrame() != null) {
-                getIFrame().recognitionFrame.setSelectedTool(Tools.brush);
-                getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
-                getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_POLYGONEXT);
-                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-            }
-        }
-    };
+//    public final ActionListener brushActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            logger.debug("brush selected");
+//            updateSelectedClassShape();
+//            if (getIFrame() != null) {
+//                getIFrame().recognitionFrame.setSelectedTool(Tools.brush);
+//                getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
+//                getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_POLYGONEXT);
+//                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+//            }
+//        }
+//    };
 
 
-    public final ActionListener circleActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            logger.debug("circle selected");
-            updateSelectedClassShape();
-            if (getIFrame() != null) {
-                getIFrame().recognitionFrame.setSelectedTool(Tools.circle);
-                getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
-                getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_ARC);
-                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-            }
-        }
-    };
+//    public final ActionListener circleActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            logger.debug("circle selected");
+//            updateSelectedClassShape();
+//            if (getIFrame() != null) {
+//                getIFrame().recognitionFrame.setSelectedTool(Tools.circle);
+//                getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
+//                getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_ARC);
+//                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+//            }
+//        }
+//    };
 
-    public final ActionListener rectangleActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            logger.debug("rectangle selected");
-            updateSelectedClassShape();
-            if (getIFrame() != null) {
-                getIFrame().recognitionFrame.setSelectedTool(Tools.rectangle);
-                getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
-                getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_RECTANGLE);
-                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-            }
-        }
-    };
+//    public final ActionListener rectangleActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            logger.debug("rectangle selected");
+//            updateSelectedClassShape();
+//            if (getIFrame() != null) {
+//                getIFrame().recognitionFrame.setSelectedTool(Tools.rectangle);
+//                getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
+//                getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_RECTANGLE);
+//                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+//            }
+//        }
+//    };
 
-    public final ActionListener cellMarkerActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            logger.debug("cell tool selected");
-            updateSelectedClassShape();
-            if (getIFrame() != null) {
-                getIFrame().recognitionFrame.setSelectedTool(Tools.cell);
-                getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
-                getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_POLYGONEXT);
-                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            }
-        }
-    };
+//    public final ActionListener cellMarkerActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            logger.debug("cell tool selected");
+//            updateSelectedClassShape();
+//            if (getIFrame() != null) {
+//                getIFrame().recognitionFrame.setSelectedTool(Tools.cell);
+//                getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
+//                getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_POLYGONEXT);
+//                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+//            }
+//        }
+//    };
 
-    public final ActionListener deleteActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            logger.debug("select polygon to delete");
-            if (getIFrame() != null) {
-                getIFrame().recognitionFrame.setSelectedTool(Tools.delete);
-                getIFrame().recognitionFrame.getMyListener().setDeleteMode(true);
-                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                getIFrame().recognitionFrame.repaint();
-            }
-        }
-    };
+//    public final ActionListener deleteActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            logger.debug("select polygon to delete");
+//            if (getIFrame() != null) {
+//                getIFrame().recognitionFrame.setSelectedTool(Tools.delete);
+//                getIFrame().recognitionFrame.getMyListener().setDeleteMode(true);
+//                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+//                getIFrame().recognitionFrame.repaint();
+//            }
+//        }
+//    };
 
-    public final ActionListener selectROIActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            logger.debug("select ROI selected");
-            if (getIFrame() != null) {
-                getIFrame().recognitionFrame.setSelectedTool(Tools.roi);
-                getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
-                getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_POLYGONEXT);
-                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-            }
-        }
-    };
+//    public final ActionListener selectROIActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            logger.debug("select ROI selected");
+//            if (getIFrame() != null) {
+//                getIFrame().recognitionFrame.setSelectedTool(Tools.roi);
+//                getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
+//                getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_POLYGONEXT);
+//                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+//            }
+//        }
+//    };
 
-    public final ActionListener trainActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            logger.debug("train");
-            if (getIFrame() != null) {
-                getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
-                train(true);
-                fingerActionListener.actionPerformed(null);
-            }
-        }
-    };
+//    public final ActionListener trainActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            logger.debug("train");
+//            if (getIFrame() != null) {
+//                getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
+//                train(true);
+//                fingerActionListener.actionPerformed(null);
+//            }
+//        }
+//    };
 
 
-    public final ActionListener classifyActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            logger.debug("classify");
-            if (getIFrame() != null) {
-                getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
-                classify(false);
-                fingerActionListener.actionPerformed(null);
-            }
-        }
-    };
+//    public final ActionListener classifyActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            logger.debug("classify");
+//            if (getIFrame() != null) {
+//                getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
+//                classify(false);
+//                fingerActionListener.actionPerformed(null);
+//            }
+//        }
+//    };
 
     public final ActionListener toggleMarkupActionListener = new ActionListener() {
         @Override
@@ -4381,17 +4565,17 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
 
 
-    public final ActionListener setupClassesMainModelActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
-                    "This will reset all current training shapes.\nDo you want to continue?",
-                    "Reset current training data?", JOptionPane.YES_NO_OPTION)
-                    == JOptionPane.YES_OPTION) {
-                resetMainModel();
-            }
-        }
-    };
+//    public final ActionListener setupClassesMainModelActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+//                    "This will reset all current training shapes.\nDo you want to continue?",
+//                    "Reset current training data?", JOptionPane.YES_NO_OPTION)
+//                    == JOptionPane.YES_OPTION) {
+//                resetMainModel();
+//            }
+//        }
+//    };
 
 
     public final ActionListener showPopupResultsActionListener = new ActionListener() {
@@ -4553,21 +4737,21 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
 
 
-    public final ActionListener segmentationROIActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            RecognitionFrame rf = getIFrame().recognitionFrame;
-            if (rf.getObjectSegmentationList() == null || rf.getObjectSegmentationList().size() == 0) {
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The ROI cannot be set because no segmentation shapes are available.\nPlease perform a segmentation first.", "No segmentation shapes available", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            final ShapeExtList roiShape = new ShapeExtList(rf.getObjectSegmentationList(), null);
-            rf.setROI(roiShape);
-            logger.debug("roi set: " + rf.getROI());
-            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The ROI has been successfully set based on segmentation shapes.", "ROI successfully set", JOptionPane.INFORMATION_MESSAGE);
-        }
-    };
+//    public final ActionListener segmentationROIActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            RecognitionFrame rf = getIFrame().recognitionFrame;
+//            if (rf.getObjectSegmentationList() == null || rf.getObjectSegmentationList().size() == 0) {
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The ROI cannot be set because no segmentation shapes are available.\nPlease perform a segmentation first.", "No segmentation shapes available", JOptionPane.ERROR_MESSAGE);
+//                return;
+//            }
+//
+//            final ShapeExtList roiShape = new ShapeExtList(rf.getObjectSegmentationList(), null);
+//            rf.setROI(roiShape);
+//            logger.debug("roi set: " + rf.getROI());
+//            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The ROI has been successfully set based on segmentation shapes.", "ROI successfully set", JOptionPane.INFORMATION_MESSAGE);
+//        }
+//    };
 
     public final ActionListener gridRoiActionListener = e -> {
         TMASpotGUI tma = new TMASpotGUI(true);
@@ -4914,16 +5098,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     public void setShowMihcModule(boolean showMihcModule) {
         this.showMihcModule = showMihcModule;
-    }
-
-    @Deprecated
-    public boolean isShowTMASpotModule() {
-        return showTMASpotModule;
-    }
-
-    @Deprecated
-    public void setShowTMASpotModule(boolean showTMASpotModule) {
-        this.showTMASpotModule = showTMASpotModule;
     }
 
     public ActionListener getBatchExportScaleoutActionListener() {

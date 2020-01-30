@@ -156,7 +156,7 @@ public class OrbitMenu extends JRibbonFrame {
 
     // Taskbar commands
     private Command handToolCommand;
-    private RibbonComboBoxContentModel<String> listClassesModel;
+    private RibbonComboBoxContentModel<String> listClassesModelCommand;
     private Command configureClassesCommand;
     private Command configureFeaturesCommand;
 
@@ -480,11 +480,11 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         // Exclusion Model Task commands
-
+        // TODO: Is this really one command for exclusion model and classification?
         this.setupClassesCommand  = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Setup.setupClasses.text"))
                 .setIconFactory(system_run_5.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.SetupClassesCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Setup.setupClasses.text"))
@@ -495,7 +495,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.eraserCommand = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Draw.eraser.text"))
                 .setIconFactory(draw_eraser_2.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.EraserCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Draw.eraser.text"))
@@ -506,7 +506,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.polygonCommand = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Draw.polygon.text"))
                 .setIconFactory(draw_poly.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.PolygonCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Draw.polygon.text"))
@@ -517,7 +517,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.circleCommand = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Draw.circle.text"))
                 .setIconFactory(draw_circle.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.CircleCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Draw.circle.text"))
@@ -528,7 +528,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.rectangleCommand = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Draw.rectangle.text"))
                 .setIconFactory(draw_rectangle.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.RectangleCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Draw.rectangle.text"))
@@ -539,7 +539,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.trainSetClassifyCommand  = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Exclusion.trainSetClassify.text"))
                 .setIconFactory(trainSetClassify.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.TrainSetClassifyCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.trainSetClassify.text"))
@@ -550,7 +550,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.classifyTrainedExclusionModelCommand = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Exclusion.classifyExclusionModel.text"))
                 .setIconFactory(applications_graphics_2.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ClassifyTrainedExclusionModelCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.classifyExclusionModel.text"))
@@ -561,7 +561,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.configureExclusionClassesCommand  = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.text"))
                 .setIconFactory(configure_4.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ConfigureExclusionClassesCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.text"))
@@ -572,7 +572,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.loadAndSetLocalCommand = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.text"))
                 .setIconFactory(document_open_5.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.LoadAndSetLocalCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.text"))
@@ -583,7 +583,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.loadAndSetServerCommand  = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.text"))
                 .setIconFactory(document_open_5.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.LoadAndSetServerCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.text"))
@@ -594,7 +594,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.setFromModelExplorerCommand = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.text"))
                 .setIconFactory(document_open_5.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.SetFromModelExplorerCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.text"))
@@ -605,7 +605,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.resetExclusionModelCommand = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Exclusion.resetExclusionModel.text"))
                 .setIconFactory(edit_delete_6.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ResetExclusionModelCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.resetExclusionModel.text"))
@@ -616,7 +616,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.exclusionHelpCommand = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Exclusion.exclusionHelp.text"))
                 .setIconFactory(help_about_3.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ExclusionHelpCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.exclusionHelp.text"))
@@ -624,10 +624,12 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
+        // Classification Task Commands
+
         this.trainCommand = Command.builder()
                 .setText(resourceBundle.getString("Classification.MachineLearning.train.text"))
                 .setIconFactory(training.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.TrainCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Classification.MachineLearning.train.text"))
@@ -638,7 +640,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.defineRoiCommand = Command.builder()
                 .setText(resourceBundle.getString("Classification.MachineLearning.defineRoi.text"))
                 .setIconFactory(draw_roi.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.DefineRoiCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Classification.MachineLearning.defineRoi.text"))
@@ -649,7 +651,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.classifyCommand = Command.builder()
                 .setText(resourceBundle.getString("Classification.MachineLearning.classify.text"))
                 .setIconFactory(applications_graphics_2.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ClassifyCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Classification.MachineLearning.classify.text"))
@@ -657,10 +659,12 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
+        // Object Detection Task Commands
+
         this.setPrimarySegmentationModelCommand = Command.builder()
                 .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setPrimarySegmentationModel.text"))
                 .setIconFactory(primarySeg.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.SetPrimarySegmentationModelCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setPrimarySegmentationModel.text"))
@@ -671,7 +675,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.setSecondarySegmentationModelCommand = Command.builder()
                 .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.text"))
                 .setIconFactory(secondarySeg.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.SetSecondarySegmentationModelCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.text"))
@@ -682,7 +686,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.objectSegmentationCommand = Command.builder()
                 .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.text"))
                 .setIconFactory(segmentation.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ObjectSegmentationCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.text"))
@@ -693,7 +697,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.showSegmentationHeatmapCommand = Command.builder()
                 .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.text"))
                 .setIconFactory(obj_heatmap.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ShowSegmentationHeatmapCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.text"))
@@ -704,7 +708,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.objectMarkerCommand = Command.builder()
                 .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectMarker.text"))
                 .setIconFactory(cellClassMarker.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ObjectMarkerCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectMarker.text"))
@@ -715,7 +719,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.trainObjectsCommand = Command.builder()
                 .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.text"))
                 .setIconFactory(object_training.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.TrainObjectsCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.text"))
@@ -726,7 +730,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.objectClassificationCommand = Command.builder()
                 .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.text"))
                 .setIconFactory(obj_classification.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ObjectClassificationCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.text"))
@@ -734,10 +738,12 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
+        // ROI Task Commands
+
         this.resetRoiCommand = Command.builder()
                 .setText(resourceBundle.getString("ROI.RegionOfInterest.resetRoi.text"))
                 .setIconFactory(edit_clear_3.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ResetRoiCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ROI.RegionOfInterest.resetRoi.text"))
@@ -748,7 +754,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.invertRoiCommand = Command.builder()
                 .setText(resourceBundle.getString("ROI.RegionOfInterest.invertRoi.text"))
                 .setIconFactory(draw_roi2_inverted.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.InvertRoiCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ROI.RegionOfInterest.invertRoi.text"))
@@ -759,7 +765,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.measureAreaCommand = Command.builder()
                 .setText(resourceBundle.getString("ROI.RegionOfInterest.measureArea.text"))
                 .setIconFactory(lineal.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.MeasureAreaCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ROI.RegionOfInterest.measureArea.text"))
@@ -770,7 +776,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.segmentationAsRoiCommand = Command.builder()
                 .setText(resourceBundle.getString("ROI.SpecialROIs.segmentationAsRoi.text"))
                 .setIconFactory(segmentation.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.SegmentationAsRoiCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ROI.SpecialROIs.segmentationAsRoi.text"))
@@ -781,7 +787,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.tmaRoiCommand = Command.builder()
                 .setText(resourceBundle.getString("ROI.SpecialROIs.tmaGrid.text"))
                 .setIconFactory(grid.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.TmaRoiCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ROI.SpecialROIs.tmaGrid.text"))
@@ -789,10 +795,12 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
+        // Mask Task Commands
+
         this.setClassificationMaskCommand = Command.builder()
                 .setText(resourceBundle.getString("Mask.ModelBasedMasks.setClassificationMask.text"))
                 .setIconFactory(set_maski.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.SetClassificationMaskCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.setClassificationMask.text"))
@@ -803,7 +811,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.setSegmentationMaskCommand = Command.builder()
                 .setText(resourceBundle.getString("Mask.ModelBasedMasks.setSegmentationMask.text"))
                 .setIconFactory(set_segmask.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.SetSegmentationMaskCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.setSegmentationMask.text"))
@@ -814,7 +822,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.unsetMaskCommand = Command.builder()
                 .setText(resourceBundle.getString("Mask.ModelBasedMasks.unsetMask.text"))
                 .setIconFactory(unset_mask.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.UnsetMaskCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.unsetMask.text"))
@@ -825,7 +833,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.configureMaskCommand = Command.builder()
                 .setText(resourceBundle.getString("Mask.ModelBasedMasks.configureMask.text"))
                 .setIconFactory(system_run_5.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ConfigureMaskCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.configureMask.text"))
@@ -836,7 +844,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.maskToExplorerCommand = Command.builder()
                 .setText(resourceBundle.getString("Mask.ModelBasedMasks.maskToExplorer.text"))
                 .setIconFactory(mask2browser.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.MaskToExplorerCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.maskToExplorer.text"))
@@ -844,10 +852,12 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
+        // Batch Task Commands
+
         this.localExecutionCommand = Command.builder()
                 .setText(resourceBundle.getString("Batch.BatchExecute.localExecution.text"))
                 .setIconFactory(system_run_3.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.LocalExecutionCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Batch.BatchExecute.localExecution.text"))
@@ -858,7 +868,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.scaleOutExecutionCommand = Command.builder()
                 .setText(resourceBundle.getString("Batch.BatchExecute.scaleoutExecution.text"))
                 .setIconFactory(system_run_3.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ScaleOutExecutionCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Batch.BatchExecute.scaleoutExecution.text"))
@@ -869,7 +879,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.roiAreaComputationCommand = Command.builder()
                 .setText(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.text"))
                 .setIconFactory(lineal.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.RoiAreaComputationCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.text"))
@@ -880,7 +890,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.retrieveExistingResultsCommand = Command.builder()
                 .setText(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.text"))
                 .setIconFactory(go_down_search.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.RetrieveExistingResultsCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.text"))
@@ -888,10 +898,12 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
+        // Tools Task Commands
+
         this.orbitBrowserCommand = Command.builder()
                 .setText(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.text"))
                 .setIconFactory(browser_wipp_Address_Book.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.OrbitBrowserCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.text"))
@@ -902,7 +914,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.dbCleanupCommand = Command.builder()
                 .setText(resourceBundle.getString("Tools.ManageFiles.dbCleanup.text"))
                 .setIconFactory(system_run_5.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.DbCleanupCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Tools.ManageFiles.dbCleanup.text"))
@@ -913,7 +925,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.channelColorResetCommand = Command.builder()
                 .setText(resourceBundle.getString("Tools.ManageFiles.channelColorReset.text"))
                 .setIconFactory(system_run_5.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ChannelColorResetCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Tools.ManageFiles.channelColorReset.text"))
@@ -924,7 +936,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.saveFullImageCommand = Command.builder()
                 .setText(resourceBundle.getString("Tools.SaveImage.saveFullImage.text"))
                 .setIconFactory(document_save_as_3.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.SaveFullImageCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Tools.SaveImage.saveFullImage.text"))
@@ -935,7 +947,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.saveCurrentViewCommand = Command.builder()
                 .setText(resourceBundle.getString("Tools.SaveImage.saveCurrentView.text"))
                 .setIconFactory(document_save_as_3.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.SaveCurrentViewCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Tools.SaveImage.saveCurrentView.text"))
@@ -946,7 +958,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.saveClassificationImageCommand = Command.builder()
                 .setText(resourceBundle.getString("Tools.SaveImage.saveClassificationImage.text"))
                 .setIconFactory(document_save_as_3.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.SaveClassificationImageCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Tools.SaveImage.saveClassificationImage.text"))
@@ -957,7 +969,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.scriptEditorCommand = Command.builder()
                 .setText(resourceBundle.getString("Tools.Script.retrieveExistingResults.text"))
                 .setIconFactory(Groovy_logo.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ScriptEditorCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Tools.Script.retrieveExistingResults.text"))
@@ -965,10 +977,12 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
+        // View Task Commands
+
         this.tileWindowsCommand = Command.builder()
                 .setText(resourceBundle.getString("View.Arrange.tileWindows.text"))
                 .setIconFactory(tile_windows.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.TileWindowsCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Arrange.tileWindows.text"))
@@ -979,7 +993,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.cascadeWindowsCommand = Command.builder()
                 .setText(resourceBundle.getString("View.Arrange.cascadeWindows.text"))
                 .setIconFactory(cascade_windows.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.CascadeWindowsCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Arrange.cascadeWindows.text"))
@@ -990,7 +1004,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.minimizeWindowsCommand = Command.builder()
                 .setText(resourceBundle.getString("View.Arrange.minimizeWindows.text"))
                 .setIconFactory(minimize_windows.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.MinimizeWindowsCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Arrange.minimizeWindows.text"))
@@ -1001,7 +1015,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.closeWindowsCommand = Command.builder()
                 .setText(resourceBundle.getString("View.Arrange.closeWindows.text"))
                 .setIconFactory(close_windows.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.CloseWindowsCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Arrange.closeWindows.text"))
@@ -1012,7 +1026,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.showToolbarCommand = Command.builder()
                 .setText(resourceBundle.getString("View.Show.showToolbar.text"))
                 .setIconFactory(ribbon_bar.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ShowToolbarCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.showToolbar.text"))
@@ -1023,7 +1037,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.showStatusBarCommand = Command.builder()
                 .setText(resourceBundle.getString("View.Show.showStatusBar.text"))
                 .setIconFactory(status_bar.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ShowStatusBarCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.showStatusBar.text"))
@@ -1034,7 +1048,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.showGaugeCommand = Command.builder()
                 .setText(resourceBundle.getString("View.Show.showGauge.text"))
                 .setIconFactory(gauge.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ShowGaugeCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.showGauge.text"))
@@ -1045,7 +1059,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.showLabelsCommand = Command.builder()
                 .setText(resourceBundle.getString("View.Show.showLabels.text"))
                 .setIconFactory(sHOW_LABEL.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ShowLabelsCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.showLabels.text"))
@@ -1056,7 +1070,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.showCenterCrossCommand = Command.builder()
                 .setText(resourceBundle.getString("View.Show.showCenterCross.text"))
                 .setIconFactory(cross.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ShowCenterCrossCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.showCenterCross.text"))
@@ -1067,7 +1081,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.showMarkupCommand = Command.builder()
                 .setText(resourceBundle.getString("View.Show.showMarkup.text"))
                 .setIconFactory(toggle_markup.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ShowMarkupCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.showMarkup.text"))
@@ -1078,7 +1092,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.showSyncFramesCommand = Command.builder()
                 .setText(resourceBundle.getString("View.Show.syncFrames.text"))
                 .setIconFactory(sync_images.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ShowSyncFramesCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.syncFrames.text"))
@@ -1089,7 +1103,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.showPopupResultsCommand = Command.builder()
                 .setText(resourceBundle.getString("View.Show.popupResults.text"))
                 .setIconFactory(showPopups.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ShowPopupResultsCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.popupResults.text"))
@@ -1097,11 +1111,13 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
+        // Help Task Commands
+
         // TODO: fix this icon, seems to be missing from generated classes... HelpContents5()
         this.orbitManualCommand = Command.builder()
                 .setText(resourceBundle.getString("Help.Documentation.orbitManual.text"))
                 .setIconFactory(system_help_3.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.OrbitManualCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Help.Documentation.orbitManual.text"))
@@ -1112,7 +1128,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.aboutCommand = Command.builder()
                 .setText(resourceBundle.getString("Help.Documentation.about.text"))
                 .setIconFactory(help_about_3.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.AboutCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Help.Documentation.about.text"))
@@ -1124,7 +1140,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.showLogCommand = Command.builder()
                 .setText(resourceBundle.getString("Help.Logs.showLog.text"))
                 .setIconFactory(system_log_out_3.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ShowLogCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Help.Logs.showLog.text"))
@@ -1135,7 +1151,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.showLogModelCommand = Command.builder()
                 .setText(resourceBundle.getString("Help.Logs.logModel.text"))
                 .setIconFactory(writeModel.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened a model"))
+                .setAction(oia.ShowLogModelCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Help.Logs.logModel.text"))
@@ -1148,7 +1164,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.handToolCommand = Command.builder()
                 .setText(resourceBundle.getString("Taskbar.HandTool.textTaskbarTitle"))
                 .setIconFactory(hand_cursor_icon.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Hand tool"))
+                .setAction(oia.HandToolCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Taskbar.HandTool.textTaskbarTitle"))
@@ -1156,7 +1172,8 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
-        this.listClassesModel = RibbonDefaultComboBoxContentModel.<String>builder()
+        // TODO: Needs actions figuring out...
+        this.listClassesModelCommand = RibbonDefaultComboBoxContentModel.<String>builder()
                 .setItems(new String[] {
                         "Background      ",
                         "Tissue Class 1  ",
@@ -1170,7 +1187,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.configureClassesCommand = Command.builder()
                 .setText(resourceBundle.getString("Taskbar.ConfigureClasses.textTaskbarTitle"))
                 .setIconFactory(configure_4.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Configure Classes"))
+                .setAction(oia.ConfigureClassesCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Taskbar.ConfigureClasses.textTaskbarTitle"))
@@ -1181,7 +1198,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.configureFeaturesCommand = Command.builder()
                 .setText(resourceBundle.getString("Taskbar.ConfigureFeatures.textTaskbarTitle"))
                 .setIconFactory(preferences_desktop_2.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Configure Features"))
+                .setAction(oia.ConfigureFeaturesCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Taskbar.ConfigureFeatures.textTaskbarTitle"))
@@ -1430,7 +1447,7 @@ public class OrbitMenu extends JRibbonFrame {
         // Hand tool
         ribbon.addTaskbarCommand(this.handToolCommand);
         // Classes
-        ribbon.addTaskbarComponent(new RibbonComboBoxProjection(this.listClassesModel,
+        ribbon.addTaskbarComponent(new RibbonComboBoxProjection(this.listClassesModelCommand,
                 ComponentPresentationModel.withDefaults()));
         // Configure Classes
         ribbon.addTaskbarCommand(this.configureClassesCommand);
