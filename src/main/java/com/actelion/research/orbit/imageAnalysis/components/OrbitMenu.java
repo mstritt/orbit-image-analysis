@@ -1027,6 +1027,8 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("View.Show.showToolbar.text"))
                 .setIconFactory(ribbon_bar.factory())
                 .setAction(oia.ShowToolbarCommandAction)
+                // TODO: This needs to update when the ribbon is minimized or not...
+                .setToggleSelected(oia.isShowToolbar())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.showToolbar.text"))
@@ -1038,6 +1040,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("View.Show.showStatusBar.text"))
                 .setIconFactory(status_bar.factory())
                 .setAction(oia.ShowStatusBarCommandAction)
+                .setToggleSelected(oia.isShowStatusbar())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.showStatusBar.text"))
@@ -1049,6 +1052,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("View.Show.showGauge.text"))
                 .setIconFactory(gauge.factory())
                 .setAction(oia.ShowGaugeCommandAction)
+                .setToggleSelected(oia.isShowGauge())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.showGauge.text"))
@@ -1060,6 +1064,8 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("View.Show.showLabels.text"))
                 .setIconFactory(sHOW_LABEL.factory())
                 .setAction(oia.ShowLabelsCommandAction)
+                .setToggleSelected(oia.isShowAnnotationLabels())
+                .setToggleSelected(true)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.showLabels.text"))
@@ -1071,6 +1077,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("View.Show.showCenterCross.text"))
                 .setIconFactory(cross.factory())
                 .setAction(oia.ShowCenterCrossCommandAction)
+                .setToggleSelected(oia.isShowCenterCross())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.showCenterCross.text"))
@@ -1082,6 +1089,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("View.Show.showMarkup.text"))
                 .setIconFactory(toggle_markup.factory())
                 .setAction(oia.ShowMarkupCommandAction)
+                .setToggleSelected(oia.isShowMarkup())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.showMarkup.text"))
@@ -1093,6 +1101,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("View.Show.syncFrames.text"))
                 .setIconFactory(sync_images.factory())
                 .setAction(oia.ShowSyncFramesCommandAction)
+                .setToggleSelected(oia.isSyncFrames())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.syncFrames.text"))
@@ -1104,6 +1113,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("View.Show.popupResults.text"))
                 .setIconFactory(showPopups.factory())
                 .setAction(oia.ShowPopupResultsCommandAction)
+                .setToggleSelected(oia.isShowPopupResults())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("View.Show.popupResults.text"))

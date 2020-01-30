@@ -3589,50 +3589,329 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     public final CommandAction TmaRoiCommandAction = e -> this.tmaSpotGUI = new TMASpotGUI(true);
 
     // Mask Tab/Task Command Actions
-    public final CommandAction SetClassificationMaskCommandAction = e -> {};
-    public final CommandAction SetSegmentationMaskCommandAction = e -> {};
-    public final CommandAction UnsetMaskCommandAction = e -> {};
-    public final CommandAction ConfigureMaskCommandAction = e -> {};
-    public final CommandAction MaskToExplorerCommandAction = e -> {};
+    public final CommandAction SetClassificationMaskCommandAction = e -> {
+        if (maskSet()) {
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                    "Classification mask successfully set.",
+                    "Mask set",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                    "Please select a model in the model explorer which you want to use as mask.",
+                    "Mask set failed",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    };
+    public final CommandAction SetSegmentationMaskCommandAction = e -> {
+        if (maskSegmentationSet()) {
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                    "Segmentation mask successfully set.",
+                    "Mask set",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                    "Please select a model in the model explorer which you want to use as mask.",
+                    "Mask set failed",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    };
+    public final CommandAction UnsetMaskCommandAction = e -> {
+        if (model.getMask()!=null) {
+            model.setMask(null);
+            updateStatusBar();
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                    "Mask successfully unset.",
+                    "Mask unset",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                    "The model does not contain a mask.",
+                    "No mask to unset",
+                    JOptionPane.WARNING_MESSAGE);
+        }
+    };
+    public final CommandAction ConfigureMaskCommandAction = e -> {
+        if (model.getMask()!=null && model.getMask() instanceof IOrbitMaskModelBased) {
+            OrbitModel maskModel = ((IOrbitMaskModelBased) model.getMask()).getModel();
+            ClassAdminFrame configFrame = new ClassAdminFrame(maskModel.getClassShapes(), new ClassListCellRenderer(), -1, false);
+            configFrame.setAlwaysOnTop(true);
+            configFrame.setModal(true);
+            configFrame.setVisible(true);
+            ((IOrbitMaskModelBased) model.getMask()).reconfigure();
+        } else {
+            if (model.getMask() == null)
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                        "The model does not contain a mask.",
+                        "No mask to configure",
+                        JOptionPane.WARNING_MESSAGE);
+            else {
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                        "The mask is not model based, thus no model can be configured.",
+                        "Mask not model based",
+                        JOptionPane.WARNING_MESSAGE);
+            }
+        }
+    };
+    public final CommandAction MaskToExplorerCommandAction = e -> {
+        if (model.getMask()!=null && model.getMask() instanceof IOrbitMaskModelBased) {
+            getModelExplorer().addModel(((IOrbitMaskModelBased) model.getMask()).getModel().clone(),null,false);
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                    "Mask successfully unset.",
+                    "Mask unset",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            if (model.getMask() == null)
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                        "The model does not contain a mask.",
+                        "No mask to extract",
+                        JOptionPane.WARNING_MESSAGE);
+            else {
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                        "The mask is not model based, thus no model can be extracted.",
+                        "Mask not model based",
+                        JOptionPane.WARNING_MESSAGE);
+            }
+        }
+    };
 
     // Batch Tab/Task Command Actions
-    public final CommandAction LocalExecutionCommandAction = e -> {};
-    public final CommandAction ScaleOutExecutionCommandAction = e -> {};
-    public final CommandAction RoiAreaComputationCommandAction = e -> {};
-    public final CommandAction RetrieveExistingResultsCommandAction = e -> {};
+    public final CommandAction LocalExecutionCommandAction = e -> batchExportMapReduce(false);
+    public final CommandAction ScaleOutExecutionCommandAction = e -> batchExportMapReduce(true);
+    public final CommandAction RoiAreaComputationCommandAction = e -> batchExportROIAreasMR();
+    public final CommandAction RetrieveExistingResultsCommandAction = e -> {
+        // TODO: Does this still need Thread and invokeLater? See old code without lambdas...
+        new Thread(() -> SwingUtilities.invokeLater(() -> {
+            try {
+                addInternalFrame(DALConfig.getScaleOut().createExistingResultView());
+            } catch (Exception e1) {
+                e1.printStackTrace();
+                logger.error("error adding result retriever frame: ", e1);
+            }
+        })).start();
+    };
 
     // Tools Tab/Task Command Actions
-    public final CommandAction OrbitBrowserCommandAction = e -> {};
-    public final CommandAction DbCleanupCommandAction = e -> {};
-    public final CommandAction ChannelColorResetCommandAction = e -> {};
-    public final CommandAction SaveFullImageCommandAction = e -> {};
-    public final CommandAction SaveCurrentViewCommandAction = e -> {};
-    public final CommandAction SaveClassificationImageCommandAction = e -> {};
-    public final CommandAction ScriptEditorCommandAction = e -> {};
+    public final CommandAction OrbitBrowserCommandAction = e -> {
+        forceLogin();
+        if (loginOk) {
+            DALConfig.getImageProvider().openBrowser(loginUser, loginPassword);
+        }
+    };
+    public final CommandAction DbCleanupCommandAction = e -> {
+        forceLogin();
+        if (loginOk) {
+            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+                    "Do you really want to cleanup the local database?\n" +
+                            "Entries (e.g. annotations) of non-existing files will be removed.\n" +
+                            "This only affects the local files, not files on an image server.",
+                    "Cleanup local database",
+                    JOptionPane.YES_NO_OPTION)
+                        == JOptionPane.YES_OPTION) {
+                try {
+                    ImageProviderLocal.DBCleanup();
+                    JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                            "DB cleanup successfully completed.",
+                            "Cleanup completed",
+                            JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                    logger.error("DB cleanup error: " + e1.getMessage());
+                }
+            }
+        }
+    };
+    public final CommandAction ChannelColorResetCommandAction = e -> {
+        forceLogin();
+        if (loginOk) {
+            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+                    "Do you really want to reset all custom channel/color assignments?\n" +
+                            "Afterwards Orbit will use the default assignments.",
+                    "Reset channel/color assignments",
+                    JOptionPane.YES_NO_OPTION)
+                        == JOptionPane.YES_OPTION) {
+                try {
+                    resetChannelColorAssignmentsPreferences();
+                    JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                            "Channel/color assignments successfully reset.\n" +
+                                    "You have to restart Orbit to realize the settings.",
+                            "Channel/color assignment reset",
+                            JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                    logger.error("Channel/color assignment reset error: " + e1.getMessage());
+                }
+            }
+        }
+    };
+    public final CommandAction SaveFullImageCommandAction = e -> getIFrame().getRecognitionFrame().makeImageSnapshot();
+    public final CommandAction SaveCurrentViewCommandAction = e -> getIFrame().saveCurrentView();
+    public final CommandAction SaveClassificationImageCommandAction = e -> saveClassImage();
+    public final CommandAction ScriptEditorCommandAction = e -> {
+        boolean found = false;
+        for (JInternalFrame frame : desktop.getAllFrames()) {
+            if (frame instanceof ScriptEditor) {
+                found = true;
+                try {
+                    if (frame.isIcon())
+                        frame.setMaximum(true);
+                } catch (PropertyVetoException e1) {
+                    e1.printStackTrace();
+                }
+                desktop.setSelectedFrame(frame);
+                frame.requestFocus();
+                desktop.getDesktopManager().activateFrame(frame);
+            }
+        }
+        if (!found) {
+            addInternalFrame(createScriptEditor());
+        }
+    };
 
     // View Tab/Task Command Actions
-    public final CommandAction TileWindowsCommandAction = e -> {};
-    public final CommandAction CascadeWindowsCommandAction = e -> {};
-    public final CommandAction MinimizeWindowsCommandAction = e -> {};
-    public final CommandAction CloseWindowsCommandAction = e -> {};
-    public final CommandAction ShowToolbarCommandAction = e -> {};
-    public final CommandAction ShowStatusBarCommandAction = e -> {};
-    public final CommandAction ShowGaugeCommandAction = e -> {};
-    public final CommandAction ShowLabelsCommandAction = e -> {};
-    public final CommandAction ShowCenterCrossCommandAction = e -> {};
-    public final CommandAction ShowMarkupCommandAction = e -> {};
-    public final CommandAction ShowSyncFramesCommandAction = e -> {};
-    public final CommandAction ShowPopupResultsCommandAction = e -> {};
+    public final CommandAction TileWindowsCommandAction = e -> {
+        if (desktop.getAllFrames() == null) return;
+        if (desktop.getAllFrames().length < 1) return;
+        int numFrames = desktop.getAllFrames().length;
+        int numX = (int) Math.round(Math.sqrt(numFrames) - 0.4999d);
+        int numY = (int) Math.round(Math.sqrt(numFrames));
+        if (numX * numY < numFrames) numY++;
+        int frameWidth = desktop.getWidth() / numX;
+        int frameHeight = desktop.getHeight() / numY;
+
+        int x = 0;
+        int y = 0;
+        final JInternalFrame[] frames = desktop.getAllFrames();
+        for (int i = 0; i < frames.length; ++i) {
+            try {
+                frames[i].setMaximum(true);
+                frames[i].setMaximum(false);
+                frames[i].setBounds(x * frameWidth, y * frameHeight, frameWidth, frameHeight);
+                frames[i].setSelected(true);
+            } catch (PropertyVetoException e1) {
+                e1.printStackTrace();
+            }
+            x++;
+            if (x >= numX) {
+                x = 0;
+                y++;
+            }
+        }
+    };
+    public final CommandAction CascadeWindowsCommandAction = e -> {
+        Dimension dim = defaultWindowDimension;
+        int xoffs = 25;
+        int yoffs = 25;
+        final JInternalFrame[] frames = desktop.getAllFrames();
+        for (int i = 0; i < frames.length; ++i) {
+            try {
+                frames[i].setMaximum(true);
+                frames[i].setMaximum(false);
+                frames[i].setBounds(xoffs + i * xoffs, yoffs + i * yoffs, dim.width, dim.height);
+                frames[i].setSelected(true);
+            } catch (PropertyVetoException e1) {
+                e1.printStackTrace();
+            }
+        }
+    };
+    public final CommandAction MinimizeWindowsCommandAction = e -> {
+        final JInternalFrame[] frames = desktop.getAllFrames();
+        for (int i = 0; i < frames.length; ++i) {
+            try {
+                frames[i].setIcon(true);
+            } catch (PropertyVetoException e1) {
+                e1.printStackTrace();
+            }
+        }
+    };
+    public final CommandAction CloseWindowsCommandAction = e -> {
+        if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+                "Do you really want to close all windows?",
+                "Close Windows", JOptionPane.YES_NO_OPTION)
+                    == JOptionPane.YES_OPTION) {
+            final JInternalFrame[] frames = desktop.getAllFrames();
+            for (int i = 0; i < frames.length; ++i) {
+                try {
+                    frames[i].setClosed(true);
+                } catch (PropertyVetoException e1) {
+                    e1.printStackTrace();
+                }
+                if (frames[i] != null)
+                    frames[i].dispose();
+            }
+        }
+    };
+    public final CommandAction ShowToolbarCommandAction = e -> getRibbon().setMinimized(!getRibbon().isMinimized());
+    public final CommandAction ShowStatusBarCommandAction = e -> {
+        showStatusbar = !showStatusbar;
+        if (showStatusbar) {
+            statusBar.setVisible(true);
+            e.getCommand().setToggleSelected(true);
+        } else {
+            statusBar.setVisible(false);
+            e.getCommand().setToggleSelected(false);
+        }
+    };
+    public final CommandAction ShowGaugeCommandAction = e -> {
+        showGauge = !showGauge;
+        desktop.repaint();
+    };
+    public final CommandAction ShowLabelsCommandAction = e -> {
+        showAnnotationLabels = !showAnnotationLabels;
+        if (getIFrames() != null) {
+            for (ImageFrame iFrame : getIFrames()) {
+                iFrame.recognitionFrame.setDisplayAnnotationLabels(showAnnotationLabels);
+                iFrame.recognitionFrame.repaint();
+            }
+        }
+    };
+    public final CommandAction ShowCenterCrossCommandAction = e -> {
+        showCenterCross = !showCenterCross;
+        renderGrid.setShowCross(showCenterCross);
+        renderGrid.repaint();
+    };
+    public final CommandAction ShowMarkupCommandAction = e -> {
+        logger.debug("toggle markup");
+        toggleMarkup();
+    };
+    public final CommandAction ShowSyncFramesCommandAction = e -> syncFrames = !syncFrames;
+    public final CommandAction ShowPopupResultsCommandAction = e -> showPopupResults = !showPopupResults;
 
     // Help Tab/Task Command Actions
-    public final CommandAction OrbitManualCommandAction = e -> {};
-    public final CommandAction AboutCommandAction = e -> {};
-    public final CommandAction ShowLogCommandAction = e -> {};
-    public final CommandAction ShowLogModelCommandAction = e -> {};
+    public final CommandAction OrbitManualCommandAction = e -> OrbitUtils.openPdfUrl(OrbitUtils.orbitHelpURL);
+    public final CommandAction AboutCommandAction = e -> {
+        if (logger.isTraceEnabled()) {
+            logger.trace("Open Frames:");
+            for (JInternalFrame frame : desktop.getAllFrames()) {
+                logger.trace("Frame: " + frame.getTitle());
+            }
+            logger.trace("PropertyChangeListeners in OrbitImageAnalysis:");
+            for (PropertyChangeListener pc : OrbitImageAnalysis.this.getPropertyChangeListeners()) {
+                logger.trace("PCL: " + pc);
+            }
+        }
+        JOptionPane.showMessageDialog(OrbitImageAnalysis.this,  //(Component) e.getSource()
+                getInfoString(),
+                "About Orbit Image Analysis", JOptionPane.INFORMATION_MESSAGE);
+    };
+    public final CommandAction ShowLogCommandAction = e -> showLog();
+    public final CommandAction ShowLogModelCommandAction = e -> {
+        logger.info("Model Information:\n" + model);
+        if (!ScaleoutMode.SCALEOUTMODE.get()) {
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model information written to log. Please open the log window to see the information.", "Model written to log", JOptionPane.INFORMATION_MESSAGE);
+        }
+    };
 
     // Taskbar Commands
-    public final CommandAction HandToolCommandAction = e -> {};
+    public final CommandAction HandToolCommandAction = e -> {
+        logger.debug("finger tool");
+        if (getIFrame() != null) {
+            getIFrame().recognitionFrame.setSelectedTool(Tools.finger);
+            getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        }
+    };
+    // TODO: Figure this out.
     public final CommandAction ListClassesModelCommandAction = e -> {};
+    // TODO: These command actions are already defined elsewhere?
     public final CommandAction ConfigureClassesCommandAction = e -> {};
     public final CommandAction ConfigureFeaturesCommandAction = e -> {};
 //    /**
@@ -3660,117 +3939,117 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //    };
 
 
-    /**
-     * cascades all iFrames in desktop
-     *
-     * @return
-     */
-    public final ActionListener desktopCascadeActionListener
-            = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            Dimension dim = defaultWindowDimension;
-            int xoffs = 25;
-            int yoffs = 25;
-            final JInternalFrame[] frames = desktop.getAllFrames();
-            for (int i = 0; i < frames.length; ++i) {
-                try {
-                    frames[i].setMaximum(true);
-                    frames[i].setMaximum(false);
-                    frames[i].setBounds(xoffs + i * xoffs, yoffs + i * yoffs, dim.width, dim.height);
-                    frames[i].setSelected(true);
-                } catch (PropertyVetoException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        }
-    };
+//    /**
+//     * cascades all iFrames in desktop
+//     *
+//     * @return
+//     */
+//    public final ActionListener desktopCascadeActionListener
+//            = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            Dimension dim = defaultWindowDimension;
+//            int xoffs = 25;
+//            int yoffs = 25;
+//            final JInternalFrame[] frames = desktop.getAllFrames();
+//            for (int i = 0; i < frames.length; ++i) {
+//                try {
+//                    frames[i].setMaximum(true);
+//                    frames[i].setMaximum(false);
+//                    frames[i].setBounds(xoffs + i * xoffs, yoffs + i * yoffs, dim.width, dim.height);
+//                    frames[i].setSelected(true);
+//                } catch (PropertyVetoException e1) {
+//                    e1.printStackTrace();
+//                }
+//            }
+//        }
+//    };
 
 
-    /**
-     * aranges all iFrames in desktop
-     *
-     * @return
-     */
-    public final ActionListener desktopArrangeActionListener
-            = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (desktop.getAllFrames() == null) return;
-            if (desktop.getAllFrames().length < 1) return;
-            int numFrames = desktop.getAllFrames().length;
-            int numX = (int) Math.round(Math.sqrt(numFrames) - 0.4999d);
-            int numY = (int) Math.round(Math.sqrt(numFrames));
-            if (numX * numY < numFrames) numY++;
-            int frameWidth = desktop.getWidth() / numX;
-            int frameHeight = desktop.getHeight() / numY;
-
-            int x = 0;
-            int y = 0;
-            final JInternalFrame[] frames = desktop.getAllFrames();
-            for (int i = 0; i < frames.length; ++i) {
-                try {
-                    frames[i].setMaximum(true);
-                    frames[i].setMaximum(false);
-                    frames[i].setBounds(x * frameWidth, y * frameHeight, frameWidth, frameHeight);
-                    frames[i].setSelected(true);
-                } catch (PropertyVetoException e1) {
-                    e1.printStackTrace();
-                }
-                x++;
-                if (x >= numX) {
-                    x = 0;
-                    y++;
-                }
-            }
-        }
-    };
-
-
-    /**
-     * closes all iFrames in desktop.
-     * TODO: check running tasks!
-     *
-     * @return
-     */
-    public final ActionListener desktopCloseAllActionListener
-            = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
-                    "Do you really want to close all windows?",
-                    "Close Windows", JOptionPane.YES_NO_OPTION)
-                    == JOptionPane.YES_OPTION) {
-                final JInternalFrame[] frames = desktop.getAllFrames();
-                for (int i = 0; i < frames.length; ++i) {
-                    try {
-                        frames[i].setClosed(true);
-                    } catch (PropertyVetoException e1) {
-                        e1.printStackTrace();
-                    }
-                    if (frames[i] != null)
-                        frames[i].dispose();
-                }
-            }
-        }
-    };
+//    /**
+//     * aranges all iFrames in desktop
+//     *
+//     * @return
+//     */
+//    public final ActionListener desktopArrangeActionListener
+//            = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            if (desktop.getAllFrames() == null) return;
+//            if (desktop.getAllFrames().length < 1) return;
+//            int numFrames = desktop.getAllFrames().length;
+//            int numX = (int) Math.round(Math.sqrt(numFrames) - 0.4999d);
+//            int numY = (int) Math.round(Math.sqrt(numFrames));
+//            if (numX * numY < numFrames) numY++;
+//            int frameWidth = desktop.getWidth() / numX;
+//            int frameHeight = desktop.getHeight() / numY;
+//
+//            int x = 0;
+//            int y = 0;
+//            final JInternalFrame[] frames = desktop.getAllFrames();
+//            for (int i = 0; i < frames.length; ++i) {
+//                try {
+//                    frames[i].setMaximum(true);
+//                    frames[i].setMaximum(false);
+//                    frames[i].setBounds(x * frameWidth, y * frameHeight, frameWidth, frameHeight);
+//                    frames[i].setSelected(true);
+//                } catch (PropertyVetoException e1) {
+//                    e1.printStackTrace();
+//                }
+//                x++;
+//                if (x >= numX) {
+//                    x = 0;
+//                    y++;
+//                }
+//            }
+//        }
+//    };
 
 
-    /**
-     * minimizes all iFrames in desktop.
-     *
-     * @return
-     */
-    public final ActionListener desktopMinimizeAllActionListener
-            = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            final JInternalFrame[] frames = desktop.getAllFrames();
-            for (int i = 0; i < frames.length; ++i) {
-                try {
-                    frames[i].setIcon(true);
-                } catch (PropertyVetoException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        }
-    };
+//    /**
+//     * closes all iFrames in desktop.
+//     * TODO: check running tasks!
+//     *
+//     * @return
+//     */
+//    public final ActionListener desktopCloseAllActionListener
+//            = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+//                    "Do you really want to close all windows?",
+//                    "Close Windows", JOptionPane.YES_NO_OPTION)
+//                    == JOptionPane.YES_OPTION) {
+//                final JInternalFrame[] frames = desktop.getAllFrames();
+//                for (int i = 0; i < frames.length; ++i) {
+//                    try {
+//                        frames[i].setClosed(true);
+//                    } catch (PropertyVetoException e1) {
+//                        e1.printStackTrace();
+//                    }
+//                    if (frames[i] != null)
+//                        frames[i].dispose();
+//                }
+//            }
+//        }
+//    };
+
+
+//    /**
+//     * minimizes all iFrames in desktop.
+//     *
+//     * @return
+//     */
+//    public final ActionListener desktopMinimizeAllActionListener
+//            = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            final JInternalFrame[] frames = desktop.getAllFrames();
+//            for (int i = 0; i < frames.length; ++i) {
+//                try {
+//                    frames[i].setIcon(true);
+//                } catch (PropertyVetoException e1) {
+//                    e1.printStackTrace();
+//                }
+//            }
+//        }
+//    };
 
 
 //    public final ActionListener performClusteringActionListener = new ActionListener() {
@@ -3910,63 +4189,63 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //        }
 //    };
 
-    public final ActionListener maskSetActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (maskSet()) {
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Classification mask successfully set.", "Mask set", JOptionPane.INFORMATION_MESSAGE);
-            } else
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Please select a model in the model explorer which you want to use as mask.", "Mask set failed", JOptionPane.ERROR_MESSAGE);
-        }
-    };
+//    public final ActionListener maskSetActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            if (maskSet()) {
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Classification mask successfully set.", "Mask set", JOptionPane.INFORMATION_MESSAGE);
+//            } else
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Please select a model in the model explorer which you want to use as mask.", "Mask set failed", JOptionPane.ERROR_MESSAGE);
+//        }
+//    };
 
-    public final ActionListener maskSegmentationSetActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (maskSegmentationSet()) {
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Segmentation mask successfully set.", "Mask set", JOptionPane.INFORMATION_MESSAGE);
-            } else
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Please select a model in the model explorer which you want to use as mask.", "Mask set failed", JOptionPane.ERROR_MESSAGE);
-        }
-    };
+//    public final ActionListener maskSegmentationSetActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            if (maskSegmentationSet()) {
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Segmentation mask successfully set.", "Mask set", JOptionPane.INFORMATION_MESSAGE);
+//            } else
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Please select a model in the model explorer which you want to use as mask.", "Mask set failed", JOptionPane.ERROR_MESSAGE);
+//        }
+//    };
 
 
-    public final ActionListener maskUnSetActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (model.getMask()!=null) {
-                model.setMask(null);
-                updateStatusBar();
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Mask successfully unset.", "Mask unset", JOptionPane.INFORMATION_MESSAGE);
-            } else
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The model does not contain a mask.", "No mask to unset", JOptionPane.WARNING_MESSAGE);
-        }
-    };
+//    public final ActionListener maskUnSetActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            if (model.getMask()!=null) {
+//                model.setMask(null);
+//                updateStatusBar();
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Mask successfully unset.", "Mask unset", JOptionPane.INFORMATION_MESSAGE);
+//            } else
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The model does not contain a mask.", "No mask to unset", JOptionPane.WARNING_MESSAGE);
+//        }
+//    };
 
-    public final ActionListener mask2browserActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (model.getMask()!=null && model.getMask() instanceof IOrbitMaskModelBased) {
-                getModelExplorer().addModel(((IOrbitMaskModelBased) model.getMask()).getModel().clone(),null,false);
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Mask successfully unset.", "Mask unset", JOptionPane.INFORMATION_MESSAGE);
-            } else
-            if (model.getMask()==null)
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The model does not contain a mask.", "No mask to extract", JOptionPane.WARNING_MESSAGE);
-            else  JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The mask is not model based, thus no model can be extracted.", "Mask not model based", JOptionPane.WARNING_MESSAGE);
-        }
-    };
+//    public final ActionListener mask2browserActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            if (model.getMask()!=null && model.getMask() instanceof IOrbitMaskModelBased) {
+//                getModelExplorer().addModel(((IOrbitMaskModelBased) model.getMask()).getModel().clone(),null,false);
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Mask successfully unset.", "Mask unset", JOptionPane.INFORMATION_MESSAGE);
+//            } else
+//            if (model.getMask()==null)
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The model does not contain a mask.", "No mask to extract", JOptionPane.WARNING_MESSAGE);
+//            else  JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The mask is not model based, thus no model can be extracted.", "Mask not model based", JOptionPane.WARNING_MESSAGE);
+//        }
+//    };
 
-    public final ActionListener maskConfigureActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (model.getMask()!=null && model.getMask() instanceof IOrbitMaskModelBased) {
-                OrbitModel maskModel = ((IOrbitMaskModelBased) model.getMask()).getModel();
-                ClassAdminFrame configFrame = new ClassAdminFrame(maskModel.getClassShapes(), new ClassListCellRenderer(), -1, false);
-                configFrame.setAlwaysOnTop(true);
-                configFrame.setModal(true);
-                configFrame.setVisible(true);
-                ((IOrbitMaskModelBased) model.getMask()).reconfigure();
-            } else
-            if (model.getMask()==null)
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The model does not contain a mask.", "No mask to configure", JOptionPane.WARNING_MESSAGE);
-            else  JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The mask is not model based, thus no model can be configured.", "Mask not model based", JOptionPane.WARNING_MESSAGE);
-        }
-    };
+//    public final ActionListener maskConfigureActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            if (model.getMask()!=null && model.getMask() instanceof IOrbitMaskModelBased) {
+//                OrbitModel maskModel = ((IOrbitMaskModelBased) model.getMask()).getModel();
+//                ClassAdminFrame configFrame = new ClassAdminFrame(maskModel.getClassShapes(), new ClassListCellRenderer(), -1, false);
+//                configFrame.setAlwaysOnTop(true);
+//                configFrame.setModal(true);
+//                configFrame.setVisible(true);
+//                ((IOrbitMaskModelBased) model.getMask()).reconfigure();
+//            } else
+//            if (model.getMask()==null)
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The model does not contain a mask.", "No mask to configure", JOptionPane.WARNING_MESSAGE);
+//            else  JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The mask is not model based, thus no model can be configured.", "Mask not model based", JOptionPane.WARNING_MESSAGE);
+//        }
+//    };
 
 //    public final ActionListener resetEntireModelActionListener = new ActionListener() {
 //        public void actionPerformed(ActionEvent e) {
@@ -4164,111 +4443,111 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //        }
 //    };
 
-    public final ActionListener toggleMarkupActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            logger.debug("toggle markup");
-            toggleMarkup();
-        }
-    };
+//    public final ActionListener toggleMarkupActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            logger.debug("toggle markup");
+//            toggleMarkup();
+//        }
+//    };
 
-    public final ActionListener fingerActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            logger.debug("finger tool");
-            if (getIFrame() != null) {
-                getIFrame().recognitionFrame.setSelectedTool(Tools.finger);
-                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            }
-        }
-    };
+//    public final ActionListener fingerActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            logger.debug("finger tool");
+//            if (getIFrame() != null) {
+//                getIFrame().recognitionFrame.setSelectedTool(Tools.finger);
+//                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+//            }
+//        }
+//    };
 
 
-    public final ActionListener batchExportLocalActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            batchExportMapReduce(false);
-        }
-    };
-    public final ActionListener batchExportScaleoutActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            batchExportMapReduce(true);
-        }
-    };
-    public final ActionListener roiAreasBatchExportActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            batchExportROIAreasMR();
-        }
-    };
+//    public final ActionListener batchExportLocalActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            batchExportMapReduce(false);
+//        }
+//    };
+//    public final ActionListener batchExportScaleoutActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            batchExportMapReduce(true);
+//        }
+//    };
+//    public final ActionListener roiAreasBatchExportActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            batchExportROIAreasMR();
+//        }
+//    };
 
-    public final ActionListener retrieveExistingResultsActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                addInternalFrame(DALConfig.getScaleOut().createExistingResultView());
-                            } catch (Exception e1) {
-                                e1.printStackTrace();
-                                logger.error("error adding result retriever frame: ", e1);
-                            }
-                        }
-                    });
-                }
-            }).start();
-        }
-    };
+//    public final ActionListener retrieveExistingResultsActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    SwingUtilities.invokeLater(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            try {
+//                                addInternalFrame(DALConfig.getScaleOut().createExistingResultView());
+//                            } catch (Exception e1) {
+//                                e1.printStackTrace();
+//                                logger.error("error adding result retriever frame: ", e1);
+//                            }
+//                        }
+//                    });
+//                }
+//            }).start();
+//        }
+//    };
 
-    public final ActionListener orbitBrowserActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            forceLogin();
-            if (loginOk) {
-                DALConfig.getImageProvider().openBrowser(loginUser, loginPassword);
-            }
-        }
-    };
+//    public final ActionListener orbitBrowserActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            forceLogin();
+//            if (loginOk) {
+//                DALConfig.getImageProvider().openBrowser(loginUser, loginPassword);
+//            }
+//        }
+//    };
 
-    public final ActionListener dbCleanupActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            forceLogin();
-            if (loginOk) {
-                if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
-                        "Do you really want to cleanup the local database?\nEntries (e.g. annotations) of non-existing files will be removed.\nThis only affects the local files, not files on an image server.",
-                        "Cleanup local database", JOptionPane.YES_NO_OPTION)
-                        == JOptionPane.YES_OPTION) {
-                    try {
-                        ImageProviderLocal.DBCleanup();
-                        JOptionPane.showMessageDialog(OrbitImageAnalysis.this,"DB cleanup successfully completed.","Cleanup completed",JOptionPane.INFORMATION_MESSAGE);
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                        logger.error("DB cleanup error: " + e1.getMessage());
-                    }
-                }
-            }
-        }
-    };
+//    public final ActionListener dbCleanupActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            forceLogin();
+//            if (loginOk) {
+//                if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+//                        "Do you really want to cleanup the local database?\nEntries (e.g. annotations) of non-existing files will be removed.\nThis only affects the local files, not files on an image server.",
+//                        "Cleanup local database", JOptionPane.YES_NO_OPTION)
+//                        == JOptionPane.YES_OPTION) {
+//                    try {
+//                        ImageProviderLocal.DBCleanup();
+//                        JOptionPane.showMessageDialog(OrbitImageAnalysis.this,"DB cleanup successfully completed.","Cleanup completed",JOptionPane.INFORMATION_MESSAGE);
+//                    } catch (Exception e1) {
+//                        e1.printStackTrace();
+//                        logger.error("DB cleanup error: " + e1.getMessage());
+//                    }
+//                }
+//            }
+//        }
+//    };
 
-    public final ActionListener resetCustomHuesActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            forceLogin();
-            if (loginOk) {
-                if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
-                        "Do you really want to reset all custom channel/color assignments?\nAfterwards Orbit will use the default assignments.",
-                        "Reset channel/color assignments", JOptionPane.YES_NO_OPTION)
-                        == JOptionPane.YES_OPTION) {
-                    try {
-                        resetChannelColorAssignmentsPreferences();
-                        JOptionPane.showMessageDialog(OrbitImageAnalysis.this,"Channel/color assignments successfully reset.\nYou have to restart Orbit to realize the settings.","Channel/color assignment reset",JOptionPane.INFORMATION_MESSAGE);
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                        logger.error("Channel/color assignment reset error: " + e1.getMessage());
-                    }
-                }
-            }
-        }
-    };
+//    public final ActionListener resetCustomHuesActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            forceLogin();
+//            if (loginOk) {
+//                if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+//                        "Do you really want to reset all custom channel/color assignments?\nAfterwards Orbit will use the default assignments.",
+//                        "Reset channel/color assignments", JOptionPane.YES_NO_OPTION)
+//                        == JOptionPane.YES_OPTION) {
+//                    try {
+//                        resetChannelColorAssignmentsPreferences();
+//                        JOptionPane.showMessageDialog(OrbitImageAnalysis.this,"Channel/color assignments successfully reset.\nYou have to restart Orbit to realize the settings.","Channel/color assignment reset",JOptionPane.INFORMATION_MESSAGE);
+//                    } catch (Exception e1) {
+//                        e1.printStackTrace();
+//                        logger.error("Channel/color assignment reset error: " + e1.getMessage());
+//                    }
+//                }
+//            }
+//        }
+//    };
 
     private void resetChannelColorAssignmentsPreferences() throws BackingStoreException {
         Preferences channelPrefs = Preferences.userNodeForPackage(ChannelToHue.class);
@@ -4401,22 +4680,22 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
 
 
-    public final ActionListener saveFullImageActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            getIFrame().getRecognitionFrame().makeImageSnapshot();
-        }
-    };
-    public final ActionListener saveCurrentViewActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            getIFrame().saveCurrentView();
-        }
-    };
+//    public final ActionListener saveFullImageActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            getIFrame().getRecognitionFrame().makeImageSnapshot();
+//        }
+//    };
+//    public final ActionListener saveCurrentViewActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            getIFrame().saveCurrentView();
+//        }
+//    };
 
-    public final ActionListener helpBrowserActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            OrbitUtils.openPdfUrl(OrbitUtils.orbitHelpURL);
-        }
-    };
+//    public final ActionListener helpBrowserActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            OrbitUtils.openPdfUrl(OrbitUtils.orbitHelpURL);
+//        }
+//    };
 
     public final ActionListener tutorialsBrowserActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -4425,86 +4704,86 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
 
 
-    public final ActionListener showLogActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            showLog();
-        }
-    };
+//    public final ActionListener showLogActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            showLog();
+//        }
+//    };
 
-    public final ActionListener aboutActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Open Frames:");
-                for (JInternalFrame frame : desktop.getAllFrames()) {
-                    logger.trace("Frame: " + frame.getTitle());
-                }
-                logger.trace("PropertyChangeListeners in OrbitImageAnalysis:");
-                for (PropertyChangeListener pc : OrbitImageAnalysis.this.getPropertyChangeListeners()) {
-                    logger.trace("PCL: " + pc);
-                }
-            }
-            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,  //(Component) e.getSource()
-                    getInfoString(),
-                    "About Orbit Image Analysis", JOptionPane.INFORMATION_MESSAGE);
-        }
-    };
+//    public final ActionListener aboutActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            if (logger.isTraceEnabled()) {
+//                logger.trace("Open Frames:");
+//                for (JInternalFrame frame : desktop.getAllFrames()) {
+//                    logger.trace("Frame: " + frame.getTitle());
+//                }
+//                logger.trace("PropertyChangeListeners in OrbitImageAnalysis:");
+//                for (PropertyChangeListener pc : OrbitImageAnalysis.this.getPropertyChangeListeners()) {
+//                    logger.trace("PCL: " + pc);
+//                }
+//            }
+//            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,  //(Component) e.getSource()
+//                    getInfoString(),
+//                    "About Orbit Image Analysis", JOptionPane.INFORMATION_MESSAGE);
+//        }
+//    };
 
-    public final ActionListener writeModelInfosActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            logger.info("Model Information:\n" + model);
-            if (!ScaleoutMode.SCALEOUTMODE.get()) {
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model information written to log. Please open the log window to see the information.", "Model written to log", JOptionPane.INFORMATION_MESSAGE);
-            }
-        }
-    };
+//    public final ActionListener writeModelInfosActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            logger.info("Model Information:\n" + model);
+//            if (!ScaleoutMode.SCALEOUTMODE.get()) {
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model information written to log. Please open the log window to see the information.", "Model written to log", JOptionPane.INFORMATION_MESSAGE);
+//            }
+//        }
+//    };
 
-    public final ActionListener showToolbarActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            showToolbar = !showToolbar;
-            if (showToolbar) {
-                toolBar.setVisible(true);
-            } else {
-                toolBar.setVisible(false);
-            }
-        }
-    };
+//    public final ActionListener showToolbarActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            showToolbar = !showToolbar;
+//            if (showToolbar) {
+//                toolBar.setVisible(true);
+//            } else {
+//                toolBar.setVisible(false);
+//            }
+//        }
+//    };
 
-    public final ActionListener showStatusbarActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            showStatusbar = !showStatusbar;
-            if (showStatusbar) {
-                statusBar.setVisible(true);
-            } else {
-                statusBar.setVisible(false);
-            }
-        }
-    };
+//    public final ActionListener showStatusbarActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            showStatusbar = !showStatusbar;
+//            if (showStatusbar) {
+//                statusBar.setVisible(true);
+//            } else {
+//                statusBar.setVisible(false);
+//            }
+//        }
+//    };
 
-    public final ActionListener showGaugeActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            showGauge = !showGauge;
-            desktop.repaint();
-        }
-    };
+//    public final ActionListener showGaugeActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            showGauge = !showGauge;
+//            desktop.repaint();
+//        }
+//    };
 
-    public final ActionListener showAnnotationLabelsActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            showAnnotationLabels = !showAnnotationLabels;
-            if (getIFrames() != null)
-                for (ImageFrame iFrame : getIFrames()) {
-                    iFrame.recognitionFrame.setDisplayAnnotationLabels(showAnnotationLabels);
-                    iFrame.recognitionFrame.repaint();
-                }
-        }
-    };
+//    public final ActionListener showAnnotationLabelsActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            showAnnotationLabels = !showAnnotationLabels;
+//            if (getIFrames() != null)
+//                for (ImageFrame iFrame : getIFrames()) {
+//                    iFrame.recognitionFrame.setDisplayAnnotationLabels(showAnnotationLabels);
+//                    iFrame.recognitionFrame.repaint();
+//                }
+//        }
+//    };
 
-    public final ActionListener showCenterCrossActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            showCenterCross = !showCenterCross;
-            renderGrid.setShowCross(showCenterCross);
-            renderGrid.repaint();
-        }
-    };
+//    public final ActionListener showCenterCrossActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            showCenterCross = !showCenterCross;
+//            renderGrid.setShowCross(showCenterCross);
+//            renderGrid.repaint();
+//        }
+//    };
 
     public final ActionListener tipOfTheDayActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -4512,12 +4791,12 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     };
 
-    public final ActionListener syncFramesActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            syncFrames = !syncFrames;
-        }
-    };
+//    public final ActionListener syncFramesActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            syncFrames = !syncFrames;
+//        }
+//    };
 
 
     public final ActionListener setupClassesForObjectClassification = new ActionListener() {
@@ -4578,12 +4857,12 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //    };
 
 
-    public final ActionListener showPopupResultsActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            showPopupResults = !showPopupResults;
-        }
-    };
+//    public final ActionListener showPopupResultsActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            showPopupResults = !showPopupResults;
+//        }
+//    };
 
 
     public final ActionListener activateAllChannelsActionListener = new ActionListener() {
@@ -4815,12 +5094,12 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //        }
 //    };
 
-    public final ActionListener saveClassImageActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            saveClassImage();
-        }
-    };
+//    public final ActionListener saveClassImageActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            saveClassImage();
+//        }
+//    };
 
 
     public final ActionListener switchLocalRemoteImageProvider = new ActionListener() {
@@ -5100,9 +5379,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         this.showMihcModule = showMihcModule;
     }
 
-    public ActionListener getBatchExportScaleoutActionListener() {
-        return batchExportScaleoutActionListener;
-    }
+//    public ActionListener getBatchExportScaleoutActionListener() {
+//        return batchExportScaleoutActionListener;
+//    }
 
     public boolean isShowAnnotationLabels() {
         return showAnnotationLabels;
