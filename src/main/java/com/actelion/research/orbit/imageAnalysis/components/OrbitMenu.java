@@ -1,5 +1,7 @@
 package com.actelion.research.orbit.imageAnalysis.components;
 
+import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
+import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
 import org.pushingpixels.flamingo.api.common.CommandAction;
 import org.pushingpixels.flamingo.api.common.CommandActionEvent;
 import org.pushingpixels.flamingo.api.common.CommandButtonPresentationState;
@@ -175,6 +177,8 @@ public class OrbitMenu extends JRibbonFrame {
     public OrbitMenu(OrbitImageAnalysis oia) {
         this();
         this.oia = oia;
+        this.configureRibbon(oia.getRibbon());
+        updateMenuImageProviderEntries();
     }
 
     private class ExpandActionListener implements CommandAction {
@@ -184,13 +188,22 @@ public class OrbitMenu extends JRibbonFrame {
         }
     }
 
-    private void createCommands() {
+    public void updateMenuImageProviderEntries() {
+        // TODO: This is useful, but feels like it should be handled by a listener...
+        if (DALConfig.getImageProvider() instanceof ImageProviderLocal) {
+            this.openImageCommand.setText(resourceBundle.getString("Image.OpenImage.Local.text"));
+        } else {
+            this.openImageCommand.setText(resourceBundle.getString("Image.OpenImage.Server.text"));
+        }
+    }
+
+        private void createCommands() {
         // Image Task Commands
         this.openImageCommand = Command.builder()
                 .setText(resourceBundle.getString("Image.OpenImage.text"))
                 .setIconFactory(document_open_5.factory())
                 //TODO: setAction
-                .setAction((CommandActionEvent e) -> System.out.println("Opened an image"))
+                .setAction(oia.OpenImageCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Image.OpenImage.text"))
@@ -248,7 +261,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("Image.ImageProvider.SwitchImageProvider.text"))
                 .setIconFactory(system_run_3.factory())
                 //TODO: setAction
-                .setAction((CommandActionEvent e) -> System.out.println("Opened an image"))
+                .setAction(oia.ImageProviderCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Image.ImageProvider.SwitchImageProvider.text"))
@@ -1545,7 +1558,7 @@ public class OrbitMenu extends JRibbonFrame {
         return saveImageBand;
     }
 
-    private JRibbonBand getImageProviderBand() {
+    protected JRibbonBand getImageProviderBand() {
         JRibbonBand imageProviderBand = new JRibbonBand(
                 resourceBundle.getString("Image.ImageProvider.textBandTitle"),
                 null,

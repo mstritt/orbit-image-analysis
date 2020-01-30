@@ -28,7 +28,6 @@ import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.gui.AbstractOrbitTree;
-import com.actelion.research.orbit.gui.RdfSearchBox;
 import com.actelion.research.orbit.imageAnalysis.TMA.TMASpotGUI;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame.Tools;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
@@ -57,9 +56,6 @@ import org.jaitools.tilecache.DiskCachedTile;
 import org.jaitools.tiledimage.DiskMemImageOrbit;
 import org.jdesktop.swingx.JXLoginPane.Status;
 import org.pushingpixels.flamingo.api.common.CommandAction;
-import org.pushingpixels.flamingo.api.common.CommandActionEvent;
-import org.pushingpixels.flamingo.api.common.JCommandButton;
-import org.pushingpixels.flamingo.api.common.popup.JPopupPanel;
 import org.pushingpixels.flamingo.api.ribbon.JRibbonFrame;
 import org.pushingpixels.substance.api.SubstanceCortex;
 import org.pushingpixels.substance.api.skin.GraphiteAquaSkin;
@@ -299,7 +295,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //        makeClassCombobox();
 //        final JComboBox ccb = classBox;
 
-        OrbitMenu orbitMenu = new OrbitMenu(this);
+        //OrbitMenu orbitMenu = new OrbitMenu(this);
 // TODO: Delete this.
 //
 //            @Override
@@ -317,10 +313,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //                return new SpecialResMenu();
 //            }
 //        };
-        orbitMenu.configureRibbon(getRibbon());
-        this.orbitMenu = orbitMenu;
+        //orbitMenu.configureRibbon(getRibbon());
+        this.orbitMenu = new OrbitMenu(this);;
 
-
+        // TODO: Better handled by Radiance?
         this.setTitle(title);
         java.net.URL imgURL = this.getClass().getResource(OrbitImageAnalysis.LOGO_NAME);
         if (imgURL != null) {
@@ -365,6 +361,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         JPanel treePanel = new JPanel(new BorderLayout());
         treePanel.add(treeScrollPane, BorderLayout.CENTER);
         JComponent treeOptionPane = rdTree.createTreeOptionPane();
+        // TODO: treeOptionPane is always null!
         if (treeOptionPane != null) {   // is optional
             treePanel.add(treeOptionPane, BorderLayout.NORTH);
         }
@@ -596,12 +593,12 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         statusBarUpdater.scheduleAtFixedRate(statusBarUpdate, 0, 120, TimeUnit.SECONDS);
 
 
-        pack();
+//        pack();
 
-        this.setSize(size);
-        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-        //setLocation((size.width - getWidth())/2, (size.height - getHeight())/2);
-        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+//        this.setSize(size);
+//        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+//        //setLocation((size.width - getWidth())/2, (size.height - getHeight())/2);
+//        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 exitProcedure();
@@ -613,43 +610,43 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         sys.put("com.sun.media.jai.disableMediaLib", "true");
         System.setProperties(sys);
 
-
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                //getTipOfTheDay().showDialog(false);
-                //metaBar.addOrbitModule(getCellProfilerModule());
-                if (showExclusionModule) metaBar.addOrbitModule(getExclusionModule());
-                metaBar.addOrbitModule(getModelExplorer());
-                if (Runtime.getRuntime().availableProcessors() < 2) {
-                    JOptionPane.showConfirmDialog(null, "Orbit Image Analysis is optimized for a multi-core CPU.\nYour PC has only " + Runtime.getRuntime().availableProcessors() + " cores.\nYou can still run Orbit on this PC, but it is strongly recommended to use a better PC.", "Please use a better computer for Orbit.", JOptionPane.WARNING_MESSAGE);
-                }
-                //loadModel(new File(startModel), true,true);   // TODO
-
+        // Here we add some modules.
+        SwingUtilities.invokeLater(() -> {
+            if (showExclusionModule) metaBar.addOrbitModule(getExclusionModule());
+            metaBar.addOrbitModule(getModelExplorer());
+            if (Runtime.getRuntime().availableProcessors() < 2) {
+                JOptionPane.showConfirmDialog(null, "Orbit Image Analysis is optimized for a multi-core CPU.\nYour PC has only " + Runtime.getRuntime().availableProcessors() + " cores.\nYou can still run Orbit on this PC, but it is strongly recommended to use a better PC.", "Please use a better computer for Orbit.", JOptionPane.WARNING_MESSAGE);
             }
         });
 
 
-        updateMenuImageProviderEntries();
+        orbitMenu.updateMenuImageProviderEntries();
+
+        // Display settings for the window.
+        this.applyComponentOrientation(ComponentOrientation.getOrientation(Locale.getDefault()));
+        Rectangle r = GraphicsEnvironment.getLocalGraphicsEnvironment()
+                .getMaximumWindowBounds();
+        this.setPreferredSize(new Dimension(r.width, r.height));
+        this.setMinimumSize(new Dimension(r.width / 5, r.height / 3));
+        this.pack();
+        this.setLocation(r.x, r.y);
         this.setVisible(true);
 
         if (DALConfig.isCheckVersion()) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    UpdateChecker updateChecker = new UpdateChecker();
-                    updateChecker.checkUpdate();
-                }
+            SwingUtilities.invokeLater(() -> {
+                UpdateChecker updateChecker = new UpdateChecker();
+                updateChecker.checkUpdate();
             });
         }
     }
 
 
-    private TipOfTheDay getTipOfTheDay() {
-        if (_tipOfTheDay == null) {
-            _tipOfTheDay = new TipOfTheDay(this);
-        }
-        return _tipOfTheDay;
-    }
+//    private TipOfTheDay getTipOfTheDay() {
+//        if (_tipOfTheDay == null) {
+//            _tipOfTheDay = new TipOfTheDay(this);
+//        }
+//        return _tipOfTheDay;
+//    }
 
     private void showRoiArea() throws OrbitImageServletException {
         logger.info("showRoiArea called [method call]");
@@ -1479,7 +1476,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         renderGrid.repaint();
 
         loupeWithScale.getLoupe().setImage(getIFrame().recognitionFrame.bimg);
-        loupeWithScale.getLoupe().repaint();
+        //loupeWithScale.getLoupe().repaint();
 
         updateClassShapes(model.getClassShapes());
 
@@ -3022,7 +3019,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
 
             DALConfig.switchLocalRemoteImageProvider();
-            updateMenuImageProviderEntries();
+            orbitMenu.updateMenuImageProviderEntries();
 
             String s = isLocalImageProvider() ? "Image provider local is active." : "Image provider remote is active.";
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this, s, "Image Provider Changed", JOptionPane.INFORMATION_MESSAGE);
@@ -3030,7 +3027,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
     // TODO: This needs changing to handle the Image Provider stuff.
-    public void updateMenuImageProviderEntries() {
+//    public void updateMenuImageProviderEntries() {
 //        String openButtonTitel = isLocalImageProvider() ? OrbitMenu.openFromLocalStr : OrbitMenu.openFromServerStr;
 //        orbitMenu.getAmOpenOrbit().setText(openButtonTitel);
 //        orbitMenu.getButtonopenFromOrbit().setText(openButtonTitel);
@@ -3052,7 +3049,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //
 //            }
 //        });
-    }
+//    }
 
 
     //<editor-fold desc="ActionListeners">
@@ -3090,14 +3087,14 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //    };
 
 
-    public final ActionListener openFileOrbitActionListener
-            = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            for (ImageFrame iFrame : getIFrames())
-                iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
-            loadFileOrbit();
-        }
-    };
+//    public final ActionListener openFileOrbitActionListener
+//            = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            for (ImageFrame iFrame : getIFrames())
+//                iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
+//            loadFileOrbit();
+//        }
+//    };
 
 //    public final ActionListener openModelActionListener
 //            = new ActionListener() {
@@ -3212,11 +3209,22 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     // CommandActions for OrbitMenu
     // Open Tab/Task
     // TODO: OpenImage needs looking at due to multiple image provider support.
-//    public final CommandAction OpenImageCommandAction = e -> null;
+    public final CommandAction OpenImageCommandAction = e -> {
+        boolean isLocal = DALConfig.getImageProvider() instanceof ImageProviderLocal;
+        if(isLocal) {
+            for (ImageFrame iFrame : getIFrames())
+                iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
+            loadFileOrbit();
+        }
+    };
     public final CommandAction OverviewCommandAction = e -> loadSpecialImage(RawUtilsCommon.LEVEL_OVERVIEW);
 //    public final CommandAction OpenForPrintingCommandAction = e -> null;
 //    public final CommandAction OpenSpecialResolutionCommandAction = e -> null;
     public final CommandAction SaveAsOrbitFileCommandAction = e -> saveAsOrbitFile();
+    public final CommandAction ImageProviderCommandAction = e -> {
+        switchLocalRemoteImageProvider();
+    };
+
 
     // Edit Tab/Task
     public final CommandAction CopyImageCommandAction = e -> {
@@ -4785,11 +4793,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //        }
 //    };
 
-    public final ActionListener tipOfTheDayActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            getTipOfTheDay().showDialog(true);
-        }
-    };
+//    public final ActionListener tipOfTheDayActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            getTipOfTheDay().showDialog(true);
+//        }
+//    };
 
 //    public final ActionListener syncFramesActionListener = new ActionListener() {
 //        @Override
