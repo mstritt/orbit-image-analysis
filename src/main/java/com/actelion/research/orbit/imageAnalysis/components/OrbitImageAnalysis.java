@@ -903,32 +903,32 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
-    protected void addButtonsFile(JToolBar toolBar) {
-        JButton button = null;
-
-        //button = makeNavigationButton(null, LOADFILE, "open image file", "Open File");
-        button = new JButton("Open File (Orbit)");
-        button.setToolTipText("open image file from Orbit");
-        if (OrbitUtils.DARKUI)
-            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_folder_document.png"), "open file"));
-        else button.setIcon(UIManager.getIcon("Tree.openIcon"));
-        button.addActionListener(openFileOrbitActionListener);
-        toolBar.add(button);
-        button = new JButton("Open Model");
-        if (OrbitUtils.DARKUI)
-            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_folder_document.png"), "open model"));
-        else button.setIcon(UIManager.getIcon("Tree.openIcon"));
-        button.setToolTipText("open recognition model");
-        button.addActionListener(openModelActionListener);
-        toolBar.add(button);
-        button = new JButton("Save Model");
-        button.setToolTipText("save recognition model");
-        if (OrbitUtils.DARKUI)
-            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_floppy_disk.png"), "save model"));
-        else button.setIcon(UIManager.getIcon("FileView.floppyDriveIcon"));
-        button.addActionListener(saveModelAsActionListener);
-        toolBar.add(button);
-    }
+//    protected void addButtonsFile(JToolBar toolBar) {
+//        JButton button = null;
+//
+//        //button = makeNavigationButton(null, LOADFILE, "open image file", "Open File");
+//        button = new JButton("Open File (Orbit)");
+//        button.setToolTipText("open image file from Orbit");
+//        if (OrbitUtils.DARKUI)
+//            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_folder_document.png"), "open file"));
+//        else button.setIcon(UIManager.getIcon("Tree.openIcon"));
+//        button.addActionListener(openFileOrbitActionListener);
+//        toolBar.add(button);
+//        button = new JButton("Open Model");
+//        if (OrbitUtils.DARKUI)
+//            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_folder_document.png"), "open model"));
+//        else button.setIcon(UIManager.getIcon("Tree.openIcon"));
+//        button.setToolTipText("open recognition model");
+//        button.addActionListener(openModelActionListener);
+//        toolBar.add(button);
+//        button = new JButton("Save Model");
+//        button.setToolTipText("save recognition model");
+//        if (OrbitUtils.DARKUI)
+//            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_floppy_disk.png"), "save model"));
+//        else button.setIcon(UIManager.getIcon("FileView.floppyDriveIcon"));
+//        button.addActionListener(saveModelAsActionListener);
+//        toolBar.add(button);
+//    }
 
     public synchronized void makeClassCombobox() {
         // Class Combobox
@@ -965,99 +965,99 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
-    protected void addButtons(JToolBar toolBar) {
-        JButton button = null;
-
-        makeClassCombobox();
-
-        toolBar.add(classBox);
-
-
-        // configure class
-        button = new JButton(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Edit24.gif"), "configure classes"));
-        if (OrbitUtils.DARKUI)
-            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_gear_edit.png"), "configure classes"));
-        button.setToolTipText("edit classes");
-        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-        button.addActionListener(configClassActionListener);
-        toolBar.add(button);
-
-        toolBar.addSeparator();
-        toolBar.add(getSizeBox());
-        toolBar.addSeparator();
-
-
-        button = makeNavigationButton(deleteActionListener, "remove shape", null);
-        //button.setIcon(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Remove24.gif"), "remove"));
-        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/gomme_2.png"), "remove"));
-        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-        toolBar.add(button);
-
-        button = makeNavigationButton(brushActionListener, "brush tool", null);
-        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/brush.png"), "brush"));
-        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-        toolBar.add(button);
-
-        button = makeNavigationButton(circleActionListener, "circle tool", null);
-        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/circle.png"), "circle"));
-        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-        toolBar.add(button);
-
-        button = makeNavigationButton(rectangleActionListener, "rectangle tool", null);
-        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/rectangle.png"), "rectangle"));
-        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-        toolBar.add(button);
-
-        button = makeNavigationButton(cellMarkerActionListener, "mark cells", null);
-        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/nucleid.png"), "cell"));
-        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-        toolBar.add(button);
-
-
-        toolBar.addSeparator();
-
-        button = makeNavigationButton(fingerActionListener, "finger tool for dragging the image", null);
-        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/smallhand.png"), "finger tool"));
-        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-        toolBar.add(button);
-
-        button = makeNavigationButton(selectROIActionListener, "define region of interest (ROI)", null);
-        if (OrbitUtils.DARKUI)
-            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/roi_substance.png"), "region of interest"));
-        else button.setIcon(new ImageIcon(this.getClass().getResource("/resource/roi.png"), "roi tool"));
-        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-        toolBar.add(button);
-
-        toggleMarkupButton = makeNavigationButton(toggleMarkupActionListener, "switch markup on and off", null);
-        if (OrbitUtils.DARKUI)
-            toggleMarkupButton.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_switch2_on.png"), "toggel markup"));
-        else
-            toggleMarkupButton.setIcon(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/AlignCenter24.gif"), "toggel markup"));
-        if (!OrbitUtils.DARKUI) toggleMarkupButton.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-        toolBar.add(toggleMarkupButton);
-
-        toolBar.addSeparator();
-
-        button = makeNavigationButton(trainActionListener, "train", "train");
-        if (OrbitUtils.DARKUI)
-            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_dumbbell.png"), "(re)train"));
-        else
-            button.setIcon(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Play24.gif"), "(re)train"));
-        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(80, TOOLBAR_HEIGHT)); // 124?
-        toolBar.add(button);
-
-        button = makeNavigationButton(classifyActionListener, "classify", "classify");
-        if (OrbitUtils.DARKUI)
-            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/gear_run.png"), "toggel markup"));
-        else
-            button.setIcon(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Play24.gif"), "classify"));
-        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(80, TOOLBAR_HEIGHT)); // 124?
-        toolBar.add(button);
-
-        syncFramesCheckbox.addActionListener(setupClassesForObjectClassification);
-        toolBar.add(syncFramesCheckbox);
-
-    }
+//    protected void addButtons(JToolBar toolBar) {
+//        JButton button = null;
+//
+//        makeClassCombobox();
+//
+//        toolBar.add(classBox);
+//
+//
+//        // configure class
+//        button = new JButton(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Edit24.gif"), "configure classes"));
+//        if (OrbitUtils.DARKUI)
+//            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_gear_edit.png"), "configure classes"));
+//        button.setToolTipText("edit classes");
+//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
+//        button.addActionListener(configClassActionListener);
+//        toolBar.add(button);
+//
+//        toolBar.addSeparator();
+//        toolBar.add(getSizeBox());
+//        toolBar.addSeparator();
+//
+//
+//        button = makeNavigationButton(deleteActionListener, "remove shape", null);
+//        //button.setIcon(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Remove24.gif"), "remove"));
+//        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/gomme_2.png"), "remove"));
+//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
+//        toolBar.add(button);
+//
+//        button = makeNavigationButton(brushActionListener, "brush tool", null);
+//        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/brush.png"), "brush"));
+//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
+//        toolBar.add(button);
+//
+//        button = makeNavigationButton(circleActionListener, "circle tool", null);
+//        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/circle.png"), "circle"));
+//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
+//        toolBar.add(button);
+//
+//        button = makeNavigationButton(rectangleActionListener, "rectangle tool", null);
+//        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/rectangle.png"), "rectangle"));
+//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
+//        toolBar.add(button);
+//
+//        button = makeNavigationButton(cellMarkerActionListener, "mark cells", null);
+//        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/nucleid.png"), "cell"));
+//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
+//        toolBar.add(button);
+//
+//
+//        toolBar.addSeparator();
+//
+//        button = makeNavigationButton(fingerActionListener, "finger tool for dragging the image", null);
+//        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/smallhand.png"), "finger tool"));
+//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
+//        toolBar.add(button);
+//
+//        button = makeNavigationButton(selectROIActionListener, "define region of interest (ROI)", null);
+//        if (OrbitUtils.DARKUI)
+//            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/roi_substance.png"), "region of interest"));
+//        else button.setIcon(new ImageIcon(this.getClass().getResource("/resource/roi.png"), "roi tool"));
+//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
+//        toolBar.add(button);
+//
+//        toggleMarkupButton = makeNavigationButton(toggleMarkupActionListener, "switch markup on and off", null);
+//        if (OrbitUtils.DARKUI)
+//            toggleMarkupButton.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_switch2_on.png"), "toggel markup"));
+//        else
+//            toggleMarkupButton.setIcon(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/AlignCenter24.gif"), "toggel markup"));
+//        if (!OrbitUtils.DARKUI) toggleMarkupButton.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
+//        toolBar.add(toggleMarkupButton);
+//
+//        toolBar.addSeparator();
+//
+//        button = makeNavigationButton(trainActionListener, "train", "train");
+//        if (OrbitUtils.DARKUI)
+//            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_dumbbell.png"), "(re)train"));
+//        else
+//            button.setIcon(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Play24.gif"), "(re)train"));
+//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(80, TOOLBAR_HEIGHT)); // 124?
+//        toolBar.add(button);
+//
+//        button = makeNavigationButton(classifyActionListener, "classify", "classify");
+//        if (OrbitUtils.DARKUI)
+//            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/gear_run.png"), "toggel markup"));
+//        else
+//            button.setIcon(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Play24.gif"), "classify"));
+//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(80, TOOLBAR_HEIGHT)); // 124?
+//        toolBar.add(button);
+//
+//        syncFramesCheckbox.addActionListener(setupClassesForObjectClassification);
+//        toolBar.add(syncFramesCheckbox);
+//
+//    }
 
     protected JButton makeNavigationButton(final ActionListener actionListener, String toolTipText, String altText) {
         JButton button = new JButton();
@@ -3100,91 +3100,91 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     };
 
-    public final ActionListener openModelActionListener
-            = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            loadModel();
-        }
-    };
+//    public final ActionListener openModelActionListener
+//            = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            loadModel();
+//        }
+//    };
 
 
-    public final ActionListener saveModelAsActionListener
-            = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            saveModel(model, loadedModel);
-        }
-    };
+//    public final ActionListener saveModelAsActionListener
+//            = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            saveModel(model, loadedModel);
+//        }
+//    };
 
 
-    public final ActionListener saveModelOrbitActionListener
-            = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (!checkModelConsistancy(model)) return;
-            forceLogin();
-            if (loginOk) {
-                final JTextField name = new JTextField();
-                final JTextField elb = new JTextField();
-                // if model has already a name (e.g. a loaded model), set it as default
-                if (loadedModel != null && loadedModel.length() > 0 && !loadedModel.equalsIgnoreCase("none")) {
-                    name.setText(loadedModel);
-                }
+//    public final ActionListener saveModelOrbitActionListener
+//            = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            if (!checkModelConsistancy(model)) return;
+//            forceLogin();
+//            if (loginOk) {
+//                final JTextField name = new JTextField();
+//                final JTextField elb = new JTextField();
+//                // if model has already a name (e.g. a loaded model), set it as default
+//                if (loadedModel != null && loadedModel.length() > 0 && !loadedModel.equalsIgnoreCase("none")) {
+//                    name.setText(loadedModel);
+//                }
+//
+//                // try to set elb from loaded image (optional)
+//                ImageFrame iFrame = getIFrame();
+//                if (iFrame != null && iFrame.getRdf() != null) { // image from orbit loaded
+//                    try {
+//                        RawData rd = DALConfig.getImageProvider().LoadRawData(iFrame.getRdf().getRawDataId());
+//                        elb.setText(rd.getBioLabJournal());
+//                    } catch (Exception e1) {
+//                        e1.printStackTrace();
+//                    }
+//                }
+//
+//                Object[] message = {
+//                        "Model Name:", name,
+//                        "ELB (optional):", elb
+//                };
+//
+//                int option = JOptionPane.showConfirmDialog(null, message, "Save Model in Orbit", JOptionPane.OK_CANCEL_OPTION);
+//                if (option == JOptionPane.OK_OPTION) {
+//                    try {
+//                        if (name.getText().trim().length() > 0) {
+//                            model.cleanModel();
+//                            model.prepareModelforSaving(getIFrames());
+//                            int id = model.saveModelOrbit(elb.getText().trim(), name.getText().trim(), loginUser);
+//                            loadedModel = name.getText().trim();
+//                            updateStatusBar();
+//                            logger.info("model saved in Orbit with id: " + id);
+//                            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model successfully saved in Orbit", "Model saved", JOptionPane.INFORMATION_MESSAGE);
+//                        } else {
+//                            logger.warn("No name entered, model not saved!");
+//                            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model not saved in Orbit because no name has been entered", "Model not saved", JOptionPane.WARNING_MESSAGE);
+//                        }
+//                    } catch (Exception e1) {
+//                        e1.printStackTrace();
+//                        logger.error("cannot store model in Orbit (see log for details)");
+//                    }
+//                }
+//
+//            }
+//        }
+//    };
 
-                // try to set elb from loaded image (optional)
-                ImageFrame iFrame = getIFrame();
-                if (iFrame != null && iFrame.getRdf() != null) { // image from orbit loaded
-                    try {
-                        RawData rd = DALConfig.getImageProvider().LoadRawData(iFrame.getRdf().getRawDataId());
-                        elb.setText(rd.getBioLabJournal());
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                    }
-                }
 
-                Object[] message = {
-                        "Model Name:", name,
-                        "ELB (optional):", elb
-                };
-
-                int option = JOptionPane.showConfirmDialog(null, message, "Save Model in Orbit", JOptionPane.OK_CANCEL_OPTION);
-                if (option == JOptionPane.OK_OPTION) {
-                    try {
-                        if (name.getText().trim().length() > 0) {
-                            model.cleanModel();
-                            model.prepareModelforSaving(getIFrames());
-                            int id = model.saveModelOrbit(elb.getText().trim(), name.getText().trim(), loginUser);
-                            loadedModel = name.getText().trim();
-                            updateStatusBar();
-                            logger.info("model saved in Orbit with id: " + id);
-                            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model successfully saved in Orbit", "Model saved", JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            logger.warn("No name entered, model not saved!");
-                            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model not saved in Orbit because no name has been entered", "Model not saved", JOptionPane.WARNING_MESSAGE);
-                        }
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                        logger.error("cannot store model in Orbit (see log for details)");
-                    }
-                }
-
-            }
-        }
-    };
-
-
-    public final ActionListener openModelOrbitActionListener
-            = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            ModelBrowser modelBrowser = new ModelBrowser();
-            try {
-                forceLogin();
-                if (loginOk) {
-                    modelBrowser.showModelBrowser(OrbitImageAnalysis.this, loginUser);
-                }
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        }
-    };
+//    public final ActionListener openModelOrbitActionListener
+//            = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            ModelBrowser modelBrowser = new ModelBrowser();
+//            try {
+//                forceLogin();
+//                if (loginOk) {
+//                    modelBrowser.showModelBrowser(OrbitImageAnalysis.this, loginUser);
+//                }
+//            } catch (Exception e1) {
+//                e1.printStackTrace();
+//            }
+//        }
+//    };
 
 
     public final ActionListener saveAsOrbitActionListener
@@ -3201,31 +3201,254 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     };
 
-//    protected static class SaveAsOrbitFileActionListener implements CommandAction {
-//        @Override
-//        public void commandActivated(CommandActionEvent e) {
-//            saveAsOrbitFile();
+//    public final ActionListener openFileOrbitActionListener
+//            = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            for (ImageFrame iFrame : getIFrames())
+//                iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
+//            loadFileOrbit();
 //        }
-//    }
+//    };
 
+    // CommandActions for OrbitMenu
+    // Open Tab/Task
+    // TODO: OpenImage needs looking at due to multiple image provider support.
+//    public final CommandAction OpenImageCommandAction = e -> null;
+    public final CommandAction OverviewCommandAction = e -> loadSpecialImage(RawUtilsCommon.LEVEL_OVERVIEW);
+//    public final CommandAction OpenForPrintingCommandAction = e -> null;
+//    public final CommandAction OpenSpecialResolutionCommandAction = e -> null;
     public final CommandAction SaveAsOrbitFileCommandAction = e -> saveAsOrbitFile();
 
-
-    public final ActionListener configClassActionListener
-            = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            //   ClassAdminFrame configFrame = new ClassAdminFrame(getIFrame().recognitionFrame.getClassShapes(),/*classBox,*/new ClassListCellRenderer(),getIFrame().getRecognitionFrame().getBoundaryClass());
-            int boundaryClass = -1;
-            if (getIFrame() != null) {
-                boundaryClass = getIFrame().getRecognitionFrame().getBoundaryClass();
-            }
-            ClassAdminFrame configFrame = new ClassAdminFrame(model.getClassShapes(), new ClassListCellRenderer(), boundaryClass, true);
-
-            configFrame.addPropertyChangeListener(OrbitImageAnalysis.this);
-            configFrame.setAlwaysOnTop(true);
-            configFrame.setVisible(true);
+    // Edit Tab/Task
+    public final CommandAction CopyImageCommandAction = e -> {
+        if (getIFrame() != null) {
+            Transferable t = ((DesktopTransferHandler) desktopTransferHandler).createImageTransferable(getIFrame(), false);
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(t, null);
         }
     };
+    public final CommandAction CopyImageLinkCommandAction = e -> {
+        Transferable t = ((DesktopTransferHandler) desktopTransferHandler).createTransferable(desktop);
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(t, null);
+    };
+    public final CommandAction CopyImageFullCommandAction = e -> {
+        if (getIFrame() != null) {
+            if (OrbitUtils.isSmallImage(getIFrame().recognitionFrame.bimg.getImage())) {
+                Transferable t = ((DesktopTransferHandler) desktopTransferHandler).createImageTransferable(getIFrame(), true);
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(t, null);
+            } else {
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                        "The image is too large to be copied into the clipboard. " +
+                        "\nYou can use ALT-C to copy the currently visible region.",
+                        "Image too large", JOptionPane.WARNING_MESSAGE);
+            }
+        }
+    };
+    public final CommandAction PasteImageCommandAction = e -> {
+            String action = (String) TransferHandler.getPasteAction().getValue(Action.NAME);
+            Action a = desktop.getActionMap().get(action);
+            if (a != null) {
+                a.actionPerformed(new ActionEvent(desktop,
+                        ActionEvent.ACTION_PERFORMED,
+                        null));
+            }
+    };
+
+    // Model Tab/Task
+    public final CommandAction OpenModelServerCommandAction = e -> {
+        ModelBrowser modelBrowser = new ModelBrowser();
+        try {
+            forceLogin();
+            if (loginOk) {
+                modelBrowser.showModelBrowser(OrbitImageAnalysis.this, loginUser);
+            }
+        } catch (Exception e1) {
+            //TODO: To logger?
+            e1.printStackTrace();
+        }
+    };
+    public final CommandAction OpenModelCommandAction = e -> loadModel();
+    public final CommandAction RestoreTrainingShapesCommandAction = e -> {
+        try {
+            restoreClassShapes();
+        } catch (Exception e1) {
+            e1.printStackTrace();
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The training data could not be restored (see log for details).", "Error restoring training data", JOptionPane.ERROR_MESSAGE);
+        }
+    };
+    public final CommandAction SaveModelServerCommandAction = e -> {
+        if (!checkModelConsistancy(model)) return;
+        forceLogin();
+        if (loginOk) {
+            final JTextField name = new JTextField();
+            final JTextField elb = new JTextField();
+            // if model has already a name (e.g. a loaded model), set it as default
+            if (loadedModel != null && loadedModel.length() > 0 && !loadedModel.equalsIgnoreCase("none")) {
+                name.setText(loadedModel);
+            }
+
+            // try to set elb from loaded image (optional)
+            ImageFrame iFrame = getIFrame();
+            if (iFrame != null && iFrame.getRdf() != null) { // image from orbit loaded
+                try {
+                    RawData rd = DALConfig.getImageProvider().LoadRawData(iFrame.getRdf().getRawDataId());
+                    elb.setText(rd.getBioLabJournal());
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            }
+
+            Object[] message = {
+                    "Model Name:", name,
+                    "ELB (optional):", elb
+            };
+
+            int option = JOptionPane.showConfirmDialog(null, message, "Save Model in Orbit", JOptionPane.OK_CANCEL_OPTION);
+            if (option == JOptionPane.OK_OPTION) {
+                try {
+                    if (name.getText().trim().length() > 0) {
+                        model.cleanModel();
+                        model.prepareModelforSaving(getIFrames());
+                        int id = model.saveModelOrbit(elb.getText().trim(), name.getText().trim(), loginUser);
+                        loadedModel = name.getText().trim();
+                        updateStatusBar();
+                        logger.info("model saved in Orbit with id: " + id);
+                        JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model successfully saved in Orbit", "Model saved", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        logger.warn("No name entered, model not saved!");
+                        JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model not saved in Orbit because no name has been entered", "Model not saved", JOptionPane.WARNING_MESSAGE);
+                    }
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                    logger.error("cannot store model in Orbit (see log for details)");
+                }
+            }
+
+        }
+    };
+    public final CommandAction SaveModelAsCommandAction = e ->  saveModel(model, loadedModel);;
+    public final CommandAction SaveNestedExclusionModelCommandAction = e -> {
+        if (model.getExclusionModel() != null) {
+            model.cleanModel();
+            saveModel(model.getExclusionModel(), "");
+        } else {
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "This model contains no exclusion model.", "No exclusion model available.", JOptionPane.ERROR_MESSAGE);
+        }
+    };
+    public final CommandAction SaveNestedSegmentationModelCommandAction = e -> {
+        if (model.getSegmentationModel() != null) {
+            model.cleanModel();
+            saveModel(model.getSegmentationModel(), "");
+        } else {
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "This model contains no segmentation model.", "No segmentation model available.", JOptionPane.ERROR_MESSAGE);
+        }
+    };
+    public final CommandAction ClassesCommandAction = e -> {
+        int boundaryClass = -1;
+        if (getIFrame() != null) {
+            boundaryClass = getIFrame().getRecognitionFrame().getBoundaryClass();
+        }
+        ClassAdminFrame configFrame = new ClassAdminFrame(model.getClassShapes(), new ClassListCellRenderer(), boundaryClass, true);
+
+        configFrame.addPropertyChangeListener(OrbitImageAnalysis.this);
+        configFrame.setAlwaysOnTop(true);
+        configFrame.setVisible(true);
+    };
+    public final CommandAction FeaturesCommandAction = e -> {
+        FeaturesAdminFrame fFrame = new FeaturesAdminFrame(model.getFeatureDescription()); // check
+        fFrame.addPropertyChangeListener(OrbitImageAnalysis.this);
+        fFrame.setAlwaysOnTop(true);
+        fFrame.setVisible(true);
+    };
+    public final CommandAction FuzzinessCommandAction = e -> {
+        FuzzynessAdminFrame fFrame = new FuzzynessAdminFrame();
+        fFrame.setAlwaysOnTop(true);
+        fFrame.setVisible(true);
+    };
+    public final CommandAction ExclusionModelLevelCommandAction = e -> {
+        ExclusionAdminFrame frame = new ExclusionAdminFrame(model);
+        RawUtilsCommon.centerComponent(frame);
+        frame.setVisible(true);
+    };
+    public final CommandAction PerformClusteringCommandAction = e -> {
+        OrbitImageAnalysis.this.performClustering = !OrbitImageAnalysis.this.performClustering;
+        if (OrbitImageAnalysis.this.performClusteringCheckbox != null)
+            OrbitImageAnalysis.this.performClusteringCheckbox.setSelected(OrbitImageAnalysis.this.performClustering);
+    };
+    public final CommandAction ResetMainModelCommandAction = e -> {
+        if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+                "This will reset all current training shapes.\nDo you want to continue?",
+                "Reset current training data?", JOptionPane.YES_NO_OPTION)
+                == JOptionPane.YES_OPTION) {
+            if (resetMainModel())
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                        "Main model successfully reset.",
+                        "Main model reset",
+                        JOptionPane.INFORMATION_MESSAGE);
+            else
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                        "Main model reset failed.",
+                        "Main model reset",
+                        JOptionPane.ERROR_MESSAGE);
+        }
+    };
+    public final CommandAction ResetPrimarySegmentationModelCommandAction = e -> {
+        model.setSegmentationModel(null);
+        JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                "Segmentation model successfully reset.",
+                "Segmentation model reset",
+                JOptionPane.INFORMATION_MESSAGE);
+    };
+    public final CommandAction ResetSecondarySegmentationModelCommandAction = e -> {
+        model.setSecondarySegmentationModel(null);
+        JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                "Secondary segmentation model successfully reset.",
+                "Secondary segmentation model reset",
+                JOptionPane.INFORMATION_MESSAGE);
+    };
+    public final CommandAction ResetEntireModelCommandAction = e -> {
+        if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+                "This will reset all current training shapes.\nDo you want to continue?",
+                "Reset current training data?",
+                JOptionPane.YES_NO_OPTION)
+                    == JOptionPane.YES_OPTION) {
+            if (resetModel())
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                        "Model successfully reset.",
+                        "Model reset",
+                        JOptionPane.INFORMATION_MESSAGE);
+            else
+                JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                        "Model reset failed.",
+                        "Model reset",
+                        JOptionPane.ERROR_MESSAGE);
+        }
+    };
+
+    // Exclusion Model Tab/Task Command Actions
+
+//    setupClassesCommand;
+//    eraserCommand;
+//    polygonCommand;
+//    circleCommand;
+//    rectangleCommand;
+//    trainSetClassifyCommand;
+
+
+//    public final ActionListener configClassActionListener
+//            = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            //   ClassAdminFrame configFrame = new ClassAdminFrame(getIFrame().recognitionFrame.getClassShapes(),/*classBox,*/new ClassListCellRenderer(),getIFrame().getRecognitionFrame().getBoundaryClass());
+//            int boundaryClass = -1;
+//            if (getIFrame() != null) {
+//                boundaryClass = getIFrame().getRecognitionFrame().getBoundaryClass();
+//            }
+//            ClassAdminFrame configFrame = new ClassAdminFrame(model.getClassShapes(), new ClassListCellRenderer(), boundaryClass, true);
+//
+//            configFrame.addPropertyChangeListener(OrbitImageAnalysis.this);
+//            configFrame.setAlwaysOnTop(true);
+//            configFrame.setVisible(true);
+//        }
+//    };
 
 
     /**
@@ -3366,13 +3589,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
 
 
-    public final ActionListener performClusteringActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            OrbitImageAnalysis.this.performClustering = !OrbitImageAnalysis.this.performClustering;
-            if (OrbitImageAnalysis.this.performClusteringCheckbox != null)
-                OrbitImageAnalysis.this.performClusteringCheckbox.setSelected(OrbitImageAnalysis.this.performClustering);
-        }
-    };
+//    public final ActionListener performClusteringActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            OrbitImageAnalysis.this.performClustering = !OrbitImageAnalysis.this.performClustering;
+//            if (OrbitImageAnalysis.this.performClusteringCheckbox != null)
+//                OrbitImageAnalysis.this.performClusteringCheckbox.setSelected(OrbitImageAnalysis.this.performClustering);
+//        }
+//    };
 
     public final ActionListener pasteActionHandler = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -3416,36 +3639,36 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
 
 
-    public final ActionListener saveNestedExclusionModelActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (model.getExclusionModel() != null) {
-                model.cleanModel();
-                saveModel(model.getExclusionModel(), "");
-            } else {
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "This model contains no exclusion model.", "No exclusion model available.", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    };
-    public final ActionListener saveNestedSegmentationModelActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (model.getSegmentationModel() != null) {
-                model.cleanModel();
-                saveModel(model.getSegmentationModel(), "");
-            } else {
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "This model contains no segmentation model.", "No segmentation model available.", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    };
-    public final ActionListener configureFeaturesActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            FeaturesAdminFrame fFrame = new FeaturesAdminFrame(model.getFeatureDescription()); // check
-            fFrame.addPropertyChangeListener(OrbitImageAnalysis.this);
-            fFrame.setAlwaysOnTop(true);
-            fFrame.setVisible(true);
-        }
-    };
+//    public final ActionListener saveNestedExclusionModelActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            if (model.getExclusionModel() != null) {
+//                model.cleanModel();
+//                saveModel(model.getExclusionModel(), "");
+//            } else {
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "This model contains no exclusion model.", "No exclusion model available.", JOptionPane.ERROR_MESSAGE);
+//            }
+//        }
+//    };
+//    public final ActionListener saveNestedSegmentationModelActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            if (model.getSegmentationModel() != null) {
+//                model.cleanModel();
+//                saveModel(model.getSegmentationModel(), "");
+//            } else {
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "This model contains no segmentation model.", "No segmentation model available.", JOptionPane.ERROR_MESSAGE);
+//            }
+//        }
+//    };
+//    public final ActionListener configureFeaturesActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            FeaturesAdminFrame fFrame = new FeaturesAdminFrame(model.getFeatureDescription()); // check
+//            fFrame.addPropertyChangeListener(OrbitImageAnalysis.this);
+//            fFrame.setAlwaysOnTop(true);
+//            fFrame.setVisible(true);
+//        }
+//    };
     public final ActionListener configureFeaturesSegmentationActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             FeaturesAdminFrame fFrame = new FeaturesAdminFrame(model.getFeatureDescription(), 1); // check
@@ -3454,13 +3677,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             fFrame.setVisible(true);
         }
     };
-    public final ActionListener configureExclusionParametersActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            ExclusionAdminFrame frame = new ExclusionAdminFrame(model);
-            RawUtilsCommon.centerComponent(frame);
-            frame.setVisible(true);
-        }
-    };
+//    public final ActionListener configureExclusionParametersActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            ExclusionAdminFrame frame = new ExclusionAdminFrame(model);
+//            RawUtilsCommon.centerComponent(frame);
+//            frame.setVisible(true);
+//        }
+//    };
     public final ActionListener setCurrentModelAsSegmentationActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             setModelAsSegmentationModel(model, true);
@@ -3561,52 +3784,52 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     };
 
-    public final ActionListener resetEntireModelActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
-                    "This will reset all current training shapes.\nDo you want to continue?",
-                    "Reset current training data?", JOptionPane.YES_NO_OPTION)
-                    == JOptionPane.YES_OPTION) {
-                if (resetModel())
-                    JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model successfully reset.", "Model reset", JOptionPane.INFORMATION_MESSAGE);
-                else
-                    JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model reset failed.", "Model reset", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    };
-    public final ActionListener resetMainModelActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
-                    "This will reset all current training shapes.\nDo you want to continue?",
-                    "Reset current training data?", JOptionPane.YES_NO_OPTION)
-                    == JOptionPane.YES_OPTION) {
-                if (resetMainModel())
-                    JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Main model successfully reset.", "Main model reset", JOptionPane.INFORMATION_MESSAGE);
-                else
-                    JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Main model reset failed.", "Main model reset", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    };
-    public final ActionListener resetSecondarySegmentationModelActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            model.setSecondarySegmentationModel(null);
-            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Secondary segmentation model successfully reset.", "Secondary segmentation model reset", JOptionPane.INFORMATION_MESSAGE);
-        }
-    };
-    public final ActionListener resetSegmentationModelActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            model.setSegmentationModel(null);
-            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Segmentation model successfully reset.", "Segmentation model reset", JOptionPane.INFORMATION_MESSAGE);
-        }
-    };
+//    public final ActionListener resetEntireModelActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+//                    "This will reset all current training shapes.\nDo you want to continue?",
+//                    "Reset current training data?", JOptionPane.YES_NO_OPTION)
+//                    == JOptionPane.YES_OPTION) {
+//                if (resetModel())
+//                    JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model successfully reset.", "Model reset", JOptionPane.INFORMATION_MESSAGE);
+//                else
+//                    JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model reset failed.", "Model reset", JOptionPane.ERROR_MESSAGE);
+//            }
+//        }
+//    };
+//    public final ActionListener resetMainModelActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+//                    "This will reset all current training shapes.\nDo you want to continue?",
+//                    "Reset current training data?", JOptionPane.YES_NO_OPTION)
+//                    == JOptionPane.YES_OPTION) {
+//                if (resetMainModel())
+//                    JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Main model successfully reset.", "Main model reset", JOptionPane.INFORMATION_MESSAGE);
+//                else
+//                    JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Main model reset failed.", "Main model reset", JOptionPane.ERROR_MESSAGE);
+//            }
+//        }
+//    };
+//    public final ActionListener resetSecondarySegmentationModelActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            model.setSecondarySegmentationModel(null);
+//            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Secondary segmentation model successfully reset.", "Secondary segmentation model reset", JOptionPane.INFORMATION_MESSAGE);
+//        }
+//    };
+//    public final ActionListener resetSegmentationModelActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            model.setSegmentationModel(null);
+//            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Segmentation model successfully reset.", "Segmentation model reset", JOptionPane.INFORMATION_MESSAGE);
+//        }
+//    };
 
-    public final ActionListener configureFuzzynessActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            FuzzynessAdminFrame fFrame = new FuzzynessAdminFrame();
-            fFrame.setAlwaysOnTop(true);
-            fFrame.setVisible(true);
-        }
-    };
+//    public final ActionListener configureFuzzynessActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            FuzzynessAdminFrame fFrame = new FuzzynessAdminFrame();
+//            fFrame.setAlwaysOnTop(true);
+//            fFrame.setVisible(true);
+//        }
+//    };
     public final ActionListener exitProgramActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             exitProcedure();
@@ -3622,11 +3845,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             login();
         }
     };
-    public final ActionListener loadOverviewActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            loadSpecialImage(RawUtilsCommon.LEVEL_OVERVIEW);
-        }
-    };
+//    public final ActionListener loadOverviewActionListener = new ActionListener() {
+//        public void actionPerformed(ActionEvent e) {
+//            loadSpecialImage(RawUtilsCommon.LEVEL_OVERVIEW);
+//        }
+//    };
     public final ActionListener loadAperioLabelActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             loadSpecialImage(RawUtilsCommon.LEVEL_LABEL);
@@ -4396,17 +4619,17 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
-    public final ActionListener restoreClassShapesActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-                restoreClassShapes();
-            } catch (Exception e1) {
-                e1.printStackTrace();
-                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The training data could not be restored (see log for details).", "Error restoring training data", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    };
+//    public final ActionListener restoreClassShapesActionListener = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            try {
+//                restoreClassShapes();
+//            } catch (Exception e1) {
+//                e1.printStackTrace();
+//                JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The training data could not be restored (see log for details).", "Error restoring training data", JOptionPane.ERROR_MESSAGE);
+//            }
+//        }
+//    };
 
     public final ActionListener saveClassImageActionListener = new ActionListener() {
         @Override
