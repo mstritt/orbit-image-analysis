@@ -47,7 +47,7 @@ public class LoupeWithScale extends JPanel {
         scaleSlider.addChangeListener(e -> {
             double scale = scaleSlider.getValue();
             loupe.setScale(scale);
-            loupe.repaint();
+            //loupe.repaint();
         });
 
         // layout
