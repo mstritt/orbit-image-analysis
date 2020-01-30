@@ -56,6 +56,8 @@ import com.actelion.research.orbit.utils.RawUtilsCommon;
 import org.jaitools.tilecache.DiskCachedTile;
 import org.jaitools.tiledimage.DiskMemImageOrbit;
 import org.jdesktop.swingx.JXLoginPane.Status;
+import org.pushingpixels.flamingo.api.common.CommandAction;
+import org.pushingpixels.flamingo.api.common.CommandActionEvent;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
 import org.pushingpixels.flamingo.api.common.popup.JPopupPanel;
 import org.pushingpixels.flamingo.api.ribbon.JRibbonFrame;
@@ -3191,6 +3193,22 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             saveAsOrbitFile();
         }
     };
+
+    public final ActionListener getSaveModelAsActionListener2 = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+
+        }
+    };
+
+//    protected static class SaveAsOrbitFileActionListener implements CommandAction {
+//        @Override
+//        public void commandActivated(CommandActionEvent e) {
+//            saveAsOrbitFile();
+//        }
+//    }
+
+    public final CommandAction SaveAsOrbitFileCommandAction = e -> saveAsOrbitFile();
 
 
     public final ActionListener configClassActionListener

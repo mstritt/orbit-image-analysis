@@ -233,7 +233,8 @@ public class OrbitMenu extends JRibbonFrame {
         this.saveImageLinksCommand = Command.builder()
                 .setText(resourceBundle.getString("Image.Save.SaveLinks.text"))
                 .setIconFactory(document_save_as_3.factory())
-                .setAction((CommandActionEvent e) -> System.out.println("Opened an image"))
+                //.setAction((CommandActionEvent e) -> oia.saveAsOrbitActionListener2)
+                .setAction(oia.SaveAsOrbitFileCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Image.Save.SaveLinks.text"))
