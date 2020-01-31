@@ -190,7 +190,7 @@ public class OrbitMenu extends JRibbonFrame {
 
     public void updateMenuImageProviderEntries() {
         // TODO: This is useful, but feels like it should be handled by a listener...
-        if (DALConfig.getImageProvider() instanceof ImageProviderLocal) {
+        if (DALConfig.isLocalImageProvider()) {
             this.openImageCommand.setText(resourceBundle.getString("Image.OpenImage.Local.text"));
         } else {
             this.openImageCommand.setText(resourceBundle.getString("Image.OpenImage.Server.text"));
@@ -202,7 +202,6 @@ public class OrbitMenu extends JRibbonFrame {
         this.openImageCommand = Command.builder()
                 .setText(resourceBundle.getString("Image.OpenImage.text"))
                 .setIconFactory(document_open_5.factory())
-                //TODO: setAction
                 .setAction(oia.OpenImageCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
@@ -225,7 +224,6 @@ public class OrbitMenu extends JRibbonFrame {
         this.openForPrintingCommand = Command.builder()
                 .setText(resourceBundle.getString("Image.OpenSpecial.OpenForPrinting.text"))
                 .setIconFactory(document_open_5.factory())
-                //TODO: setAction
                 .setAction(oia.OpenForPrintingCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
@@ -318,6 +316,8 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("Model.OpenModel.OpenModelServer.text"))
                 .setIconFactory(document_open_5.factory())
                 .setAction(oia.OpenModelServerCommandAction)
+                // TODO: This works when the menu is created, but needs a listener to fix it if changed when running.
+                .setActionEnabled(!DALConfig.isLocalImageProvider())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Model.OpenModel.OpenModelServer.text"))
@@ -351,6 +351,8 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("Model.SaveModel.saveModelServer.text"))
                 .setIconFactory(document_save_3.factory())
                 .setAction(oia.SaveModelServerCommandAction)
+                // TODO: This works when the menu is created, but needs a listener to fix it if changed when running.
+                .setActionEnabled(!DALConfig.isLocalImageProvider())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Model.SaveModel.saveModelServer.text"))
