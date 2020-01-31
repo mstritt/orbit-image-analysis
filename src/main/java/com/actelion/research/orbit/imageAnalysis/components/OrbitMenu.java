@@ -442,6 +442,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("Model.Clustering.performClustering.text"))
                 .setIconFactory(clustering.factory())
                 .setAction(oia.PerformClusteringCommandAction)
+                .setToggleSelected(oia.isPerformClustering())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Model.Clustering.performClustering.text"))

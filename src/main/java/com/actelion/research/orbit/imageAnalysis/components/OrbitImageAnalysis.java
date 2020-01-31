@@ -1311,28 +1311,28 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
-    @Deprecated
-    private void oneClickCellCount() {
-        resetTrainingData();
-
-        FeatureDescription fd = new FeatureDescription(1);
-        fd.setMinSegmentationSize(model.getFeatureDescription().getMinSegmentationSize());
-        setClassShapes(OrbitUtils.buildCellCountClassShapes(), fd, false); // overwrites classShapes in all iFrames!
-        performClustering = true;
-        OrbitModel occcModel = new OrbitModel(null, null, OrbitUtils.buildCellCountClassShapes(), fd);
-        TrainWorker trainWorker = new TrainWorker(getIFrames(), true, true, occcModel);
-        ProgressPanel progressPanel = new ProgressPanel(getCurrentPicName(), "Training", trainWorker);
-        addAndExecuteTask(progressPanel, false);
-        waitForWorker(trainWorker);
-        if (trainWorker.isCancelled()) {
-            logger.info("oneClickCellCount canceled (training).");
-            return;
-        }
-        occcModel.getClassifier().setBinaryClassification(1); // 2
-        setModelAsSegmentationModel(occcModel, false);
-        objectSegmentation(true, true);
-        //updateFeatureDescription(fdOld);
-    }
+//    @Deprecated
+//    private void oneClickCellCount() {
+//        resetTrainingData();
+//
+//        FeatureDescription fd = new FeatureDescription(1);
+//        fd.setMinSegmentationSize(model.getFeatureDescription().getMinSegmentationSize());
+//        setClassShapes(OrbitUtils.buildCellCountClassShapes(), fd, false); // overwrites classShapes in all iFrames!
+//        performClustering = true;
+//        OrbitModel occcModel = new OrbitModel(null, null, OrbitUtils.buildCellCountClassShapes(), fd);
+//        TrainWorker trainWorker = new TrainWorker(getIFrames(), true, true, occcModel);
+//        ProgressPanel progressPanel = new ProgressPanel(getCurrentPicName(), "Training", trainWorker);
+//        addAndExecuteTask(progressPanel, false);
+//        waitForWorker(trainWorker);
+//        if (trainWorker.isCancelled()) {
+//            logger.info("oneClickCellCount canceled (training).");
+//            return;
+//        }
+//        occcModel.getClassifier().setBinaryClassification(1); // 2
+//        setModelAsSegmentationModel(occcModel, false);
+//        objectSegmentation(true, true);
+//        //updateFeatureDescription(fdOld);
+//    }
 
 
     /**
@@ -3387,9 +3387,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         frame.setVisible(true);
     };
     public final CommandAction PerformClusteringCommandAction = e -> {
-        OrbitImageAnalysis.this.performClustering = !OrbitImageAnalysis.this.performClustering;
-        if (OrbitImageAnalysis.this.performClusteringCheckbox != null)
-            OrbitImageAnalysis.this.performClusteringCheckbox.setSelected(OrbitImageAnalysis.this.performClustering);
+        this.performClustering = !this.performClustering;
+        e.getCommand().setToggleSelected(this.performClustering);
     };
     public final CommandAction ResetMainModelCommandAction = e -> {
         if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
@@ -5331,6 +5330,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     public SliderWithListener getScaleSlider() {
         return scaleSlider;
+    }
+
+    public boolean isPerformClustering() {
+        return performClustering;
     }
 
     public boolean isShowObjectHeatmap() {
