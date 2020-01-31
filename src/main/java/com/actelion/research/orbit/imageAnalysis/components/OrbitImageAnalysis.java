@@ -23,11 +23,13 @@ import com.actelion.research.orbit.beans.RawAnnotation;
 import com.actelion.research.orbit.beans.RawData;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.beans.RawMeta;
+import com.actelion.research.orbit.dal.IImageProvider;
 import com.actelion.research.orbit.dal.IModelAwareImageProvider;
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.gui.AbstractOrbitTree;
+import com.actelion.research.orbit.gui.RdfSearchBox;
 import com.actelion.research.orbit.imageAnalysis.TMA.TMASpotGUI;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame.Tools;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
@@ -342,10 +344,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
         // left panel
         // TODO: Find a solution to the problem that this component breaks Radiance.
-//        RdfSearchBox searchBox = new RdfSearchBoxExtended(false, false, false);
+        RdfSearchBox searchBox = new RdfSearchBoxExtended(false, false, false);
 //
 //
         imageList = new ImageList(new RdfThnCellRendererBig(DALConfig.getImageProvider()));
+        // TODO: Reenable the searchBox.
 //        searchBox.addPropertyChangeListener(imageList);
 
         imageList.addPropertyChangeListener(this);
@@ -395,7 +398,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         gbcIMGLIST.gridy = 2;
 
         // TODO: Reenable the searchBox.
-        //leftPanel.add(searchBox, gbcSB);
+        leftPanel.add(searchBox, gbcSB);
         leftPanel.add(imageListScrolPane, gbcIMGLIST);
 
         JSplitPane treeListSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, treePanel, leftPanel);
@@ -404,20 +407,14 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         treeListSplit.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0), "none");
 
         //Lay out the main panel.
-        final Color backgroundColor = new Color(42, 42, 42);
-        desktop = new JDesktopPane() {
-            //Image image = new ImageIcon(this.getClass().getResource("/resource/carbon-fiber-texture.jpg")).getImage();
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (OrbitUtils.DARKUI) {
-                    //g.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), this);
-                    g.setColor(backgroundColor);
-                    g.fillRect(0, 0, getWidth(), getHeight());
-                }
-            }
-        };
-
+        //final Color backgroundColor = new Color(42, 42, 42);
+//        desktop = new JDesktopPane() {
+//            @Override
+//            protected void paintComponent(Graphics g) {
+//                super.paintComponent(g);
+//            }
+//        };
+        desktop = new JDesktopPane();
         desktop.setLayout(null);
 
         desktop.setTransferHandler(desktopTransferHandler);
@@ -619,7 +616,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         });
 
-
+        // Set the correct text based on the image provider used.
         orbitMenu.updateMenuImageProviderEntries();
 
         // Display settings for the window.
@@ -1476,7 +1473,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         renderGrid.repaint();
 
         loupeWithScale.getLoupe().setImage(getIFrame().recognitionFrame.bimg);
-        //loupeWithScale.getLoupe().repaint();
+        loupeWithScale.getLoupe().repaint();
 
         updateClassShapes(model.getClassShapes());
 
@@ -3003,9 +3000,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     public void switchLocalRemoteImageProvider() {
         List<ImageFrame> openFrames = getIFrames();
         if (openFrames.size()==0 || JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
-                "Switch from local/remote image provider implies closing all open images.\nDo you want to proceed?",
-                "Close open images", JOptionPane.YES_NO_OPTION)
-                == JOptionPane.YES_OPTION) {
+                "Switch from local/remote image provider implies closing all open images.\n" +
+                        "Do you want to proceed?",
+                "Close open images",
+                JOptionPane.YES_NO_OPTION)
+                    == JOptionPane.YES_OPTION) {
 
             // close open images
             for (ImageFrame frame: openFrames) {
@@ -3021,8 +3020,16 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             DALConfig.switchLocalRemoteImageProvider();
             orbitMenu.updateMenuImageProviderEntries();
 
-            String s = isLocalImageProvider() ? "Image provider local is active." : "Image provider remote is active.";
-            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, s, "Image Provider Changed", JOptionPane.INFORMATION_MESSAGE);
+            // TODO: See below. Figure out where this should really live.
+            SwingUtilities.invokeLater(() -> {
+                imageList.setModel(new DefaultListModel()); // clear image list
+                rdTree.setEnabled(!isLocalImageProvider());
+                });
+
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                    isLocalImageProvider() ? "Image provider local is active." : "Image provider remote is active.",
+                    "Image Provider Changed",
+                    JOptionPane.INFORMATION_MESSAGE);
         }
     }
 

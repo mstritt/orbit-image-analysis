@@ -21,8 +21,8 @@ package com.actelion.research.orbit.imageAnalysis.components;
 
 import com.actelion.research.orbit.gui.RdfSearchBox;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
-import org.jdesktop.swingx.JXSearchField;
-import org.jdesktop.swingx.JXSearchField.SearchMode;
+//import org.jdesktop.swingx.JXSearchField;
+//import org.jdesktop.swingx.JXSearchField.SearchMode;
 
 import javax.swing.*;
 import java.awt.*;
@@ -51,24 +51,25 @@ public class RdfSearchBoxExtended extends RdfSearchBox {
     @Override
     protected JTextField getSearchField() {
         if (_searchField == null) {
-            _searchField = new JXSearchField("search files...");
-            ((JXSearchField) _searchField).setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield");
-            //((JXSearchField)_searchField).setInstantSearchDelay(1000);
-            ((JXSearchField) _searchField).setSearchMode(SearchMode.REGULAR);
-            ((JXSearchField) _searchField).getRecentSearches().setMaxRecents(40);
+            _searchField = new JTextField("search files...");
+            //_searchField = new JXSearchField("search files...");
+//            ((JTextField) _searchField).setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield");
+//            //((JXSearchField)_searchField).setInstantSearchDelay(1000);
+//            ((JTextField) _searchField).setSearchMode(SearchMode.REGULAR);
+//            ((JTextField) _searchField).getRecentSearches().setMaxRecents(40);
 
 
             if (OrbitUtils.DARKUI) {
                 _searchField.setDisabledTextColor(Color.lightGray);
-                ((JXSearchField) _searchField).setUseSeperatePopupButton(false);
-                ((JXSearchField) _searchField).setLayoutStyle(JXSearchField.LayoutStyle.MAC);
-                ((JXSearchField) _searchField).getPopupButton().setIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
-                ((JXSearchField) _searchField).getPopupButton().setPressedIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
-                ((JXSearchField) _searchField).getPopupButton().setRolloverIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
-
-                ((JXSearchField) _searchField).getCancelButton().setIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
-                ((JXSearchField) _searchField).getCancelButton().setPressedIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
-                ((JXSearchField) _searchField).getCancelButton().setRolloverIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
+//                ((JTextField) _searchField).setUseSeperatePopupButton(false);
+//                ((JTextField) _searchField).setLayoutStyle(JXSearchField.LayoutStyle.MAC);
+//                ((JTextField) _searchField).getPopupButton().setIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
+//                ((JTextField) _searchField).getPopupButton().setPressedIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
+//                ((JTextField) _searchField).getPopupButton().setRolloverIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
+//
+//                ((JTextField) _searchField).getCancelButton().setIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
+//                ((JTextField) _searchField).getCancelButton().setPressedIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
+//                ((JTextField) _searchField).getCancelButton().setRolloverIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
 
                 getOkButton().setIcon(new ImageIcon(this.getClass().getResource("/resource/view.png")));
                 getOkButton().setText("");
