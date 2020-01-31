@@ -3443,11 +3443,15 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     // Exclusion Model Tab/Task Command Actions
 
     //TODO: See also ExclusionModule.java, is this really one command for exclusion model and classification?
+    // This can be one command, but resetMainModel() needs to be refactored to handle creating the
+    // default classes for Exclusion Model, Classification or Object Detection.
     public final CommandAction SetupClassesCommandAction = e -> {
+
         if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
-                "This will reset all current training shapes.\nDo you want to continue?",
+                "This will reset all current training shapes.\n" +
+                        "Do you want to continue?",
                 "Reset current training data?", JOptionPane.YES_NO_OPTION)
-                == JOptionPane.YES_OPTION) {
+                    == JOptionPane.YES_OPTION) {
             resetMainModel();
         }
     };
