@@ -421,6 +421,7 @@ public class OrbitMenu extends JRibbonFrame {
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Model.ConfigureModel.fuzziness.text"))
                                 .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.fuzziness.tooltip.actionParagraph1"))
+                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.fuzziness.tooltip.actionParagraph2"))
                                 .build())
                 .build();
 
@@ -432,6 +433,8 @@ public class OrbitMenu extends JRibbonFrame {
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.text"))
                                 .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph1"))
+                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph2"))
+                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph3"))
                                 .build())
                 .build();
 
@@ -454,6 +457,7 @@ public class OrbitMenu extends JRibbonFrame {
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Model.Reset.resetMainModel.text"))
                                 .addDescriptionSection(resourceBundle.getString("Model.Reset.resetMainModel.tooltip.actionParagraph1"))
+                                .addDescriptionSection(resourceBundle.getString("Model.Reset.resetMainModel.tooltip.actionParagraph2"))
                                 .build())
                 .build();
 
