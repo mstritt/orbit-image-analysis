@@ -23,6 +23,8 @@ import org.pushingpixels.flamingo.api.ribbon.synapse.projection.RibbonComboBoxPr
 import org.pushingpixels.neon.NeonCortex;
 import org.pushingpixels.neon.icon.ResizableIcon;
 import org.pushingpixels.substance.api.SubstanceCortex;
+import org.pushingpixels.substance.api.renderer.SubstanceDefaultComboBoxRenderer;
+import org.pushingpixels.substance.api.renderer.SubstancePanelListCellRenderer;
 import org.pushingpixels.substance.api.skin.GraphiteAquaSkin;
 
 import com.actelion.research.orbit.imageAnalysis.components.icons.*;
@@ -30,6 +32,7 @@ import org.pushingpixels.substance.internal.utils.icon.SubstanceIconFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.awt.*;
@@ -174,7 +177,8 @@ public class OrbitMenu extends JRibbonFrame {
     private Command popupCommand3;
     private CommandMenuContentModel popupMenuContentModel;
     private Command classesTaskbarCommand;
-
+    private JComboBox<ClassShape> ccb;
+    private JComboBox colorCombo;
 
     public OrbitMenu() {
         super();
@@ -1221,6 +1225,9 @@ public class OrbitMenu extends JRibbonFrame {
                     .map(ClassShape::getName)
                     .toArray(String[]::new);
 
+            ClassShape[] classShapes = oia.getModel().getClassShapes().stream()
+                    .map(ClassShape.class::cast)
+                    .toArray(ClassShape[]::new);
 
             List<Command> popups = generateClassesPopup(oia.getModel().getClassShapes());
 
@@ -1232,6 +1239,65 @@ public class OrbitMenu extends JRibbonFrame {
                     .setSecondaryContentModel(popupMenuContentModel)
                     .setIconFactory(ColorResizableIcon.factory(new Color(0xFFEEEEEE)))
                     .build();
+
+            this.listClassesModel = RibbonDefaultComboBoxContentModel.<String>builder()
+                    .setItems(classNames)
+                    .setIconFactory(ColorResizableIcon.factory(new Color(0xFFEEEEEE)))
+                    .build();
+
+//            class ClassListModel extends AbstractListModel<ClassShape> {
+//                protected List<ClassShape> model;
+//
+//                public ClassListModel(ClassShape... infos) {
+//                    super();
+//                    model = new ArrayList<>();
+//                    for (int i = 0; i < infos.length; i++) {
+//                        model.add(infos[i]);
+//                    }
+//                }
+//
+//                @Override
+//                public int getSize() {
+//                    return model.size();
+//                }
+//
+//                @Override
+//                public ClassShape getElementAt(int index) {
+//                    return model.get(index);
+//                }
+//            }
+//
+//            class ClassComboBoxRenderer extends SubstancePanelListCellRenderer<ClassShape>  {
+//                private JLabel iconLabel;
+//                private JLabel titleLabel;
+//                private JLabel unreadLabel;
+//
+//                public ClassComboBoxRenderer() {
+//                    GridBagLayout gbl = new GridBagLayout();
+//                    GridBagConstraints gbc = new GridBagConstraints();
+//
+//
+//                    this.iconLabel = new JLabel();
+//                    this.titleLabel = new JLabel();
+//                    this.unreadLabel = new JLabel();
+//
+//
+//                    // Register the text labels so that they get the right colors on rollover,
+//                    // selection and other highight effects
+//                    this.registerThemeAwareLabelsWithText(this.iconLabel, this.titleLabel, this.unreadLabel);
+//
+//                    this.setLayout(new BorderLayout());
+//                    //this.add(builder.build(), BorderLayout.CENTER);
+//
+//                    this.setOpaque(false);                }
+//
+//                @Override
+//                protected void bindData(JList<? extends ClassShape> list, ClassShape value, int index) {
+//
+//                }
+//
+//            }
+
 
 //            this.listClassesModel = RibbonDefaultComboBoxContentModel.<String>builder()
 //                .setItems(classNames)
@@ -1545,8 +1611,8 @@ public class OrbitMenu extends JRibbonFrame {
         // Hand tool
         ribbon.addTaskbarCommand(this.handToolCommand);
         // Classes
-//        ribbon.addTaskbarComponent(new RibbonComboBoxProjection(this.listClassesModel,
-//                ComponentPresentationModel.withDefaults()));
+        ribbon.addTaskbarComponent(new RibbonComboBoxProjection(this.listClassesModel,
+                ComponentPresentationModel.withDefaults()));
         ribbon.addTaskbarCommand(this.classesTaskbarCommand);
         // Configure Classes
         ribbon.addTaskbarCommand(this.configureClassesCommand);
