@@ -3229,7 +3229,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
     public final CommandAction OverviewCommandAction = e -> loadSpecialImage(RawUtilsCommon.LEVEL_OVERVIEW);
     public final CommandAction OpenForPrintingCommandAction = e -> loadLowResImage(2);
-    public final CommandAction OpenSpecialResolutionCommandAction = e -> { };
+    public final CommandAction OpenSpecialResolutionCommandAction = e -> {
+        // TODO: See CommandMenuContentModel popupMenuContentModel in BasicCheckRibbon.
+    };
     public final CommandAction SaveAsOrbitFileCommandAction = e -> saveAsOrbitFile();
     public final CommandAction ImageProviderCommandAction = e -> {
         switchLocalRemoteImageProvider();

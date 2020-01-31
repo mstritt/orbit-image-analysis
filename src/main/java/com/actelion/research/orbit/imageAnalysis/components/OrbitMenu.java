@@ -2,11 +2,15 @@ package com.actelion.research.orbit.imageAnalysis.components;
 
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
+import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
 import org.pushingpixels.flamingo.api.common.CommandAction;
 import org.pushingpixels.flamingo.api.common.CommandActionEvent;
 import org.pushingpixels.flamingo.api.common.CommandButtonPresentationState;
 import org.pushingpixels.flamingo.api.common.RichTooltip;
+import org.pushingpixels.flamingo.api.common.icon.ColorResizableIcon;
 import org.pushingpixels.flamingo.api.common.model.*;
+import org.pushingpixels.flamingo.api.common.popup.JColorSelectorPopupMenu;
+import org.pushingpixels.flamingo.api.common.popup.model.ColorSelectorPopupMenuGroupModel;
 import org.pushingpixels.flamingo.api.common.projection.CommandButtonProjection;
 import org.pushingpixels.flamingo.api.ribbon.*;
 import org.pushingpixels.flamingo.api.ribbon.projection.RibbonApplicationMenuCommandButtonProjection;
@@ -22,11 +26,15 @@ import org.pushingpixels.substance.api.SubstanceCortex;
 import org.pushingpixels.substance.api.skin.GraphiteAquaSkin;
 
 import com.actelion.research.orbit.imageAnalysis.components.icons.*;
+import org.pushingpixels.substance.internal.utils.icon.SubstanceIconFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.List;
 
@@ -158,9 +166,15 @@ public class OrbitMenu extends JRibbonFrame {
 
     // Taskbar commands
     private Command handToolCommand;
-    private RibbonComboBoxContentModel<String> listClassesModelCommand;
     private Command configureClassesCommand;
     private Command configureFeaturesCommand;
+    private RibbonDefaultComboBoxContentModel<String> listClassesModel;
+    private Command popupCommand1;
+    private Command popupCommand2;
+    private Command popupCommand3;
+    private CommandMenuContentModel popupMenuContentModel;
+    private Command classesTaskbarCommand;
+
 
     public OrbitMenu() {
         super();
@@ -198,1019 +212,1054 @@ public class OrbitMenu extends JRibbonFrame {
     }
 
         private void createCommands() {
-        // Image Task Commands
-        this.openImageCommand = Command.builder()
-                .setText(resourceBundle.getString("Image.OpenImage.text"))
-                .setIconFactory(document_open_5.factory())
-                .setAction(oia.OpenImageCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Image.OpenImage.text"))
-                                .addDescriptionSection(resourceBundle.getString("Image.OpenImage.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.overviewCommand = Command.builder()
-                .setText(resourceBundle.getString("Image.OpenSpecial.View.text"))
-                .setIconFactory(slidepreview_no_loupe_6.factory())
-                .setAction(oia.OverviewCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Image.OpenSpecial.View.text"))
-                                .addDescriptionSection(resourceBundle.getString("Image.OpenSpecial.View.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.openForPrintingCommand = Command.builder()
-                .setText(resourceBundle.getString("Image.OpenSpecial.OpenForPrinting.text"))
-                .setIconFactory(document_open_5.factory())
-                .setAction(oia.OpenForPrintingCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Image.OpenSpecial.OpenForPrinting.text"))
-                                .addDescriptionSection(resourceBundle.getString("Image.OpenSpecial.OpenForPrinting.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.openSpecialResolutionCommand = Command.builder()
-                .setText(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.text"))
-                .setIconFactory(document_open_5.factory())
-                .setAction(oia.OpenSpecialResolutionCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.text"))
-                                //.addDescriptionSection(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.saveImageLinksCommand = Command.builder()
-                .setText(resourceBundle.getString("Image.Save.SaveLinks.text"))
-                .setIconFactory(document_save_as_3.factory())
-                .setAction(oia.SaveAsOrbitFileCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Image.Save.SaveLinks.text"))
-                                .addDescriptionSection(resourceBundle.getString("Image.Save.SaveLinks.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.imageProviderCommand = Command.builder()
-                .setText(resourceBundle.getString("Image.ImageProvider.SwitchImageProvider.text"))
-                .setIconFactory(system_run_3.factory())
-                .setAction(oia.ImageProviderCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Image.ImageProvider.SwitchImageProvider.text"))
-                                .addDescriptionSection(resourceBundle.getString("Image.ImageProvider.SwitchImageProvider.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        // Edit Task Commands
-        this.copyImageCommand = Command.builder()
-                .setText(resourceBundle.getString("Edit.Copy.CopyImage.text"))
-                .setIconFactory(edit_copy_4.factory())
-                .setAction(oia.CopyImageCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Edit.Copy.CopyImage.text"))
-                                .addDescriptionSection(resourceBundle.getString("Edit.Copy.CopyImage.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.copyImageLinkCommand = Command.builder()
-                .setText(resourceBundle.getString("Edit.Copy.CopyImageLink.text"))
-                .setIconFactory(edit_copy_4.factory())
-                .setAction(oia.CopyImageLinkCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Edit.Copy.CopyImageLink.text"))
-                                .addDescriptionSection(resourceBundle.getString("Edit.Copy.CopyImageLink.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.copyImageFullCommand = Command.builder()
-                .setText(resourceBundle.getString("Edit.Copy.CopyImageFull.text"))
-                .setIconFactory(edit_copy_4.factory())
-                .setAction(oia.CopyImageFullCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Edit.Copy.CopyImageFull.text"))
-                                .addDescriptionSection(resourceBundle.getString("Edit.Copy.CopyImageFull.tooltip.actionParagraph1"))
-                                .addDescriptionSection(resourceBundle.getString("Edit.Copy.CopyImageFull.tooltip.actionParagraph2"))
-                                .build())
-                .build();
-
-        this.pasteImageCommand = Command.builder()
-                .setText(resourceBundle.getString("Edit.Paste.Paste.text"))
-                .setIconFactory(edit_paste_4.factory())
-                .setAction(oia.PasteImageCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Edit.Paste.Paste.text"))
-                                .addDescriptionSection(resourceBundle.getString("Edit.Paste.Paste.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        // Model task commands
-        this.openModelServerCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.OpenModel.OpenModelServer.text"))
-                .setIconFactory(document_open_5.factory())
-                .setAction(oia.OpenModelServerCommandAction)
-                // TODO: This works when the menu is created, but needs a listener to fix it if changed when running.
-                .setActionEnabled(!DALConfig.isLocalImageProvider())
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.OpenModel.OpenModelServer.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.OpenModel.OpenModelServer.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.openModelCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.OpenModel.OpenModel.text"))
-                .setIconFactory(document_open_5.factory())
-                .setAction(oia.OpenModelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.OpenModel.OpenModel.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.OpenModel.OpenModel.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.restoreTrainingShapesCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.OpenModel.RestoreTrainingShapes.text"))
-                .setIconFactory(restoreShapes.factory())
-                .setAction(oia.RestoreTrainingShapesCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.OpenModel.RestoreTrainingShapes.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.OpenModel.RestoreTrainingShapes.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.saveModelServerCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.SaveModel.saveModelServer.text"))
-                .setIconFactory(document_save_3.factory())
-                .setAction(oia.SaveModelServerCommandAction)
-                // TODO: This works when the menu is created, but needs a listener to fix it if changed when running.
-                .setActionEnabled(!DALConfig.isLocalImageProvider())
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.SaveModel.saveModelServer.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.SaveModel.saveModelServer.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.saveModelAsCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.SaveModel.saveModelAs.text"))
-                .setIconFactory(document_save_as_3.factory())
-                .setAction(oia.SaveModelAsCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.SaveModel.saveModelAs.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.SaveModel.saveModelAs.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.saveNestedExclusionModelCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.SaveModel.saveNestedExclusionModel.text"))
-                .setIconFactory(document_save_as_3.factory())
-                .setAction(oia.SaveNestedExclusionModelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.SaveModel.saveNestedExclusionModel.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.SaveModel.saveNestedExclusionModel.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.saveNestedSegmentationModelCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.SaveModel.saveNestedSegmentationModel.text"))
-                .setIconFactory(document_save_as_3.factory())
-                .setAction(oia.SaveNestedSegmentationModelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.SaveModel.saveNestedSegmentationModel.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.SaveModel.saveNestedSegmentationModel.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.classesCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.ConfigureModel.classes.text"))
-                .setIconFactory(configure_4.factory())
-                .setAction(oia.ClassesCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.ConfigureModel.classes.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.classes.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.featuresCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.ConfigureModel.features.text"))
-                .setIconFactory(preferences_desktop_2.factory())
-                .setAction(oia.FeaturesCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.ConfigureModel.features.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.features.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.fuzzinessCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.ConfigureModel.fuzziness.text"))
-                .setIconFactory(configure_4.factory())
-                .setAction(oia.FuzzinessCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.ConfigureModel.fuzziness.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.fuzziness.tooltip.actionParagraph1"))
-                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.fuzziness.tooltip.actionParagraph2"))
-                                .build())
-                .build();
-
-        this.exclusionModelLevelCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.text"))
-                .setIconFactory(configure_4.factory())
-                .setAction(oia.ExclusionModelLevelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph1"))
-                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph2"))
-                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph3"))
-                                .build())
-                .build();
-
-        this.performClusteringCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.Clustering.performClustering.text"))
-                .setIconFactory(clustering.factory())
-                .setAction(oia.PerformClusteringCommandAction)
-                .setToggleSelected(oia.isPerformClustering())
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.Clustering.performClustering.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.Clustering.performClustering.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.resetMainModelCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.Reset.resetMainModel.text"))
-                .setIconFactory(edit_clear_3.factory())
-                .setAction(oia.ResetMainModelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.Reset.resetMainModel.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.Reset.resetMainModel.tooltip.actionParagraph1"))
-                                .addDescriptionSection(resourceBundle.getString("Model.Reset.resetMainModel.tooltip.actionParagraph2"))
-                                .build())
-                .build();
-
-        this.resetPrimarySegmentationModelCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.Reset.resetPrimarySegmentationModel.text"))
-                .setIconFactory(edit_delete_6.factory())
-                .setAction(oia.ResetPrimarySegmentationModelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.Reset.resetPrimarySegmentationModel.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.Reset.resetPrimarySegmentationModel.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.resetSecondarySegmentationModelCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.Reset.resetSecondarySegmentationModel.text"))
-                .setIconFactory(clearSecSegModel.factory())
-                .setAction(oia.ResetSecondarySegmentationModelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.Reset.resetSecondarySegmentationModel.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.Reset.resetSecondarySegmentationModel.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.resetEntireModelCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.Reset.resetEntireModel.text"))
-                .setIconFactory(edit_delete_3.factory())
-                .setAction(oia.ResetEntireModelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.Reset.resetEntireModel.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.Reset.resetEntireModel.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        // Exclusion Model Task commands
-        // TODO: Is this really one command for exclusion model and classification?
-        this.setupClassesCommand  = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Setup.setupClasses.text"))
-                .setIconFactory(system_run_5.factory())
-                .setAction(oia.SetupClassesCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Setup.setupClasses.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Setup.setupClasses.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.eraserCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Draw.eraser.text"))
-                .setIconFactory(draw_eraser_2.factory())
-                .setAction(oia.EraserCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Draw.eraser.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Draw.eraser.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.polygonCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Draw.polygon.text"))
-                .setIconFactory(draw_poly.factory())
-                .setAction(oia.PolygonCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Draw.polygon.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Draw.polygon.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.circleCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Draw.circle.text"))
-                .setIconFactory(draw_circle.factory())
-                .setAction(oia.CircleCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Draw.circle.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Draw.circle.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.rectangleCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Draw.rectangle.text"))
-                .setIconFactory(draw_rectangle.factory())
-                .setAction(oia.RectangleCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Draw.rectangle.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Draw.rectangle.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.trainSetClassifyCommand  = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.trainSetClassify.text"))
-                .setIconFactory(trainSetClassify.factory())
-                .setAction(oia.TrainSetClassifyCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.trainSetClassify.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.trainSetClassify.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.classifyTrainedExclusionModelCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.classifyExclusionModel.text"))
-                .setIconFactory(applications_graphics_2.factory())
-                .setAction(oia.ClassifyTrainedExclusionModelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.classifyExclusionModel.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.classifyExclusionModel.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.configureExclusionClassesCommand  = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.text"))
-                .setIconFactory(configure_4.factory())
-                .setAction(oia.ConfigureExclusionClassesCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.loadAndSetLocalCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.text"))
-                .setIconFactory(document_open_5.factory())
-                .setAction(oia.LoadAndSetLocalCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.loadAndSetServerCommand  = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.text"))
-                .setIconFactory(document_open_5.factory())
-                .setAction(oia.LoadAndSetServerCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.setFromModelExplorerCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.text"))
-                .setIconFactory(document_open_5.factory())
-                .setAction(oia.SetFromModelExplorerCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.resetExclusionModelCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.resetExclusionModel.text"))
-                .setIconFactory(edit_delete_6.factory())
-                .setAction(oia.ResetExclusionModelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.resetExclusionModel.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.resetExclusionModel.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.exclusionHelpCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.exclusionHelp.text"))
-                .setIconFactory(help_about_3.factory())
-                .setAction(oia.ExclusionHelpCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.exclusionHelp.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.exclusionHelp.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        // Classification Task Commands
-
-        this.trainCommand = Command.builder()
-                .setText(resourceBundle.getString("Classification.MachineLearning.train.text"))
-                .setIconFactory(training.factory())
-                .setAction(oia.TrainCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Classification.MachineLearning.train.text"))
-                                .addDescriptionSection(resourceBundle.getString("Classification.MachineLearning.train.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.defineRoiCommand = Command.builder()
-                .setText(resourceBundle.getString("Classification.MachineLearning.defineRoi.text"))
-                .setIconFactory(draw_roi.factory())
-                .setAction(oia.DefineRoiCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Classification.MachineLearning.defineRoi.text"))
-                                .addDescriptionSection(resourceBundle.getString("Classification.MachineLearning.defineRoi.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.classifyCommand = Command.builder()
-                .setText(resourceBundle.getString("Classification.MachineLearning.classify.text"))
-                .setIconFactory(applications_graphics_2.factory())
-                .setAction(oia.ClassifyCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Classification.MachineLearning.classify.text"))
-                                .addDescriptionSection(resourceBundle.getString("Classification.MachineLearning.classify.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        // Object Detection Task Commands
-
-        this.setPrimarySegmentationModelCommand = Command.builder()
-                .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setPrimarySegmentationModel.text"))
-                .setIconFactory(primarySeg.factory())
-                .setAction(oia.SetPrimarySegmentationModelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setPrimarySegmentationModel.text"))
-                                .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setPrimarySegmentationModel.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.setSecondarySegmentationModelCommand = Command.builder()
-                .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.text"))
-                .setIconFactory(secondarySeg.factory())
-                .setAction(oia.SetSecondarySegmentationModelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.text"))
-                                .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.objectSegmentationCommand = Command.builder()
-                .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.text"))
-                .setIconFactory(segmentation.factory())
-                .setAction(oia.ObjectSegmentationCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.text"))
-                                .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.showSegmentationHeatmapCommand = Command.builder()
-                .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.text"))
-                .setIconFactory(obj_heatmap.factory())
-                .setAction(oia.ShowSegmentationHeatmapCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.text"))
-                                .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.objectMarkerCommand = Command.builder()
-                .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectMarker.text"))
-                .setIconFactory(cellClassMarker.factory())
-                .setAction(oia.ObjectMarkerCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectMarker.text"))
-                                .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectMarker.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.trainObjectsCommand = Command.builder()
-                .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.text"))
-                .setIconFactory(object_training.factory())
-                .setAction(oia.TrainObjectsCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.text"))
-                                .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.objectClassificationCommand = Command.builder()
-                .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.text"))
-                .setIconFactory(obj_classification.factory())
-                .setAction(oia.ObjectClassificationCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.text"))
-                                .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        // ROI Task Commands
-
-        this.resetRoiCommand = Command.builder()
-                .setText(resourceBundle.getString("ROI.RegionOfInterest.resetRoi.text"))
-                .setIconFactory(edit_clear_3.factory())
-                .setAction(oia.ResetRoiCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ROI.RegionOfInterest.resetRoi.text"))
-                                .addDescriptionSection(resourceBundle.getString("ROI.RegionOfInterest.resetRoi.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.invertRoiCommand = Command.builder()
-                .setText(resourceBundle.getString("ROI.RegionOfInterest.invertRoi.text"))
-                .setIconFactory(draw_roi2_inverted.factory())
-                .setAction(oia.InvertRoiCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ROI.RegionOfInterest.invertRoi.text"))
-                                .addDescriptionSection(resourceBundle.getString("ROI.RegionOfInterest.invertRoi.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.measureAreaCommand = Command.builder()
-                .setText(resourceBundle.getString("ROI.RegionOfInterest.measureArea.text"))
-                .setIconFactory(lineal.factory())
-                .setAction(oia.MeasureAreaCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ROI.RegionOfInterest.measureArea.text"))
-                                .addDescriptionSection(resourceBundle.getString("ROI.RegionOfInterest.measureArea.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.segmentationAsRoiCommand = Command.builder()
-                .setText(resourceBundle.getString("ROI.SpecialROIs.segmentationAsRoi.text"))
-                .setIconFactory(segmentation.factory())
-                .setAction(oia.SegmentationAsRoiCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ROI.SpecialROIs.segmentationAsRoi.text"))
-                                .addDescriptionSection(resourceBundle.getString("ROI.SpecialROIs.segmentationAsRoi.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.tmaRoiCommand = Command.builder()
-                .setText(resourceBundle.getString("ROI.SpecialROIs.tmaGrid.text"))
-                .setIconFactory(grid.factory())
-                .setAction(oia.TmaRoiCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ROI.SpecialROIs.tmaGrid.text"))
-                                .addDescriptionSection(resourceBundle.getString("ROI.SpecialROIs.tmaGrid.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        // Mask Task Commands
-
-        this.setClassificationMaskCommand = Command.builder()
-                .setText(resourceBundle.getString("Mask.ModelBasedMasks.setClassificationMask.text"))
-                .setIconFactory(set_maski.factory())
-                .setAction(oia.SetClassificationMaskCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.setClassificationMask.text"))
-                                .addDescriptionSection(resourceBundle.getString("Mask.ModelBasedMasks.setClassificationMask.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.setSegmentationMaskCommand = Command.builder()
-                .setText(resourceBundle.getString("Mask.ModelBasedMasks.setSegmentationMask.text"))
-                .setIconFactory(set_segmask.factory())
-                .setAction(oia.SetSegmentationMaskCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.setSegmentationMask.text"))
-                                .addDescriptionSection(resourceBundle.getString("Mask.ModelBasedMasks.setSegmentationMask.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.unsetMaskCommand = Command.builder()
-                .setText(resourceBundle.getString("Mask.ModelBasedMasks.unsetMask.text"))
-                .setIconFactory(unset_mask.factory())
-                .setAction(oia.UnsetMaskCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.unsetMask.text"))
-                                .addDescriptionSection(resourceBundle.getString("Mask.ModelBasedMasks.unsetMask.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.configureMaskCommand = Command.builder()
-                .setText(resourceBundle.getString("Mask.ModelBasedMasks.configureMask.text"))
-                .setIconFactory(system_run_5.factory())
-                .setAction(oia.ConfigureMaskCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.configureMask.text"))
-                                .addDescriptionSection(resourceBundle.getString("Mask.ModelBasedMasks.configureMask.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.maskToExplorerCommand = Command.builder()
-                .setText(resourceBundle.getString("Mask.ModelBasedMasks.maskToExplorer.text"))
-                .setIconFactory(mask2browser.factory())
-                .setAction(oia.MaskToExplorerCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.maskToExplorer.text"))
-                                .addDescriptionSection(resourceBundle.getString("Mask.ModelBasedMasks.maskToExplorer.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        // Batch Task Commands
-
-        this.localExecutionCommand = Command.builder()
-                .setText(resourceBundle.getString("Batch.BatchExecute.localExecution.text"))
-                .setIconFactory(system_run_3.factory())
-                .setAction(oia.LocalExecutionCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Batch.BatchExecute.localExecution.text"))
-                                .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.localExecution.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.scaleOutExecutionCommand = Command.builder()
-                .setText(resourceBundle.getString("Batch.BatchExecute.scaleoutExecution.text"))
-                .setIconFactory(system_run_3.factory())
-                .setAction(oia.ScaleOutExecutionCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Batch.BatchExecute.scaleoutExecution.text"))
-                                .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.scaleoutExecution.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.roiAreaComputationCommand = Command.builder()
-                .setText(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.text"))
-                .setIconFactory(lineal.factory())
-                .setAction(oia.RoiAreaComputationCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.text"))
-                                .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.retrieveExistingResultsCommand = Command.builder()
-                .setText(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.text"))
-                .setIconFactory(go_down_search.factory())
-                .setAction(oia.RetrieveExistingResultsCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.text"))
-                                .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        // Tools Task Commands
-
-        this.orbitBrowserCommand = Command.builder()
-                .setText(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.text"))
-                .setIconFactory(browser_wipp_Address_Book.factory())
-                .setAction(oia.OrbitBrowserCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.text"))
-                                .addDescriptionSection(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.dbCleanupCommand = Command.builder()
-                .setText(resourceBundle.getString("Tools.ManageFiles.dbCleanup.text"))
-                .setIconFactory(system_run_5.factory())
-                .setAction(oia.DbCleanupCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Tools.ManageFiles.dbCleanup.text"))
-                                .addDescriptionSection(resourceBundle.getString("Tools.ManageFiles.dbCleanup.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.channelColorResetCommand = Command.builder()
-                .setText(resourceBundle.getString("Tools.ManageFiles.channelColorReset.text"))
-                .setIconFactory(system_run_5.factory())
-                .setAction(oia.ChannelColorResetCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Tools.ManageFiles.channelColorReset.text"))
-                                .addDescriptionSection(resourceBundle.getString("Tools.ManageFiles.channelColorReset.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.saveFullImageCommand = Command.builder()
-                .setText(resourceBundle.getString("Tools.SaveImage.saveFullImage.text"))
-                .setIconFactory(document_save_as_3.factory())
-                .setAction(oia.SaveFullImageCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Tools.SaveImage.saveFullImage.text"))
-                                .addDescriptionSection(resourceBundle.getString("Tools.SaveImage.saveFullImage.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.saveCurrentViewCommand = Command.builder()
-                .setText(resourceBundle.getString("Tools.SaveImage.saveCurrentView.text"))
-                .setIconFactory(document_save_as_3.factory())
-                .setAction(oia.SaveCurrentViewCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Tools.SaveImage.saveCurrentView.text"))
-                                .addDescriptionSection(resourceBundle.getString("Tools.SaveImage.saveCurrentView.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.saveClassificationImageCommand = Command.builder()
-                .setText(resourceBundle.getString("Tools.SaveImage.saveClassificationImage.text"))
-                .setIconFactory(document_save_as_3.factory())
-                .setAction(oia.SaveClassificationImageCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Tools.SaveImage.saveClassificationImage.text"))
-                                .addDescriptionSection(resourceBundle.getString("Tools.SaveImage.saveClassificationImage.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.scriptEditorCommand = Command.builder()
-                .setText(resourceBundle.getString("Tools.Script.retrieveExistingResults.text"))
-                .setIconFactory(Groovy_logo.factory())
-                .setAction(oia.ScriptEditorCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Tools.Script.retrieveExistingResults.text"))
-                                .addDescriptionSection(resourceBundle.getString("Tools.Script.retrieveExistingResults.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        // View Task Commands
-
-        this.tileWindowsCommand = Command.builder()
-                .setText(resourceBundle.getString("View.Arrange.tileWindows.text"))
-                .setIconFactory(tile_windows.factory())
-                .setAction(oia.TileWindowsCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("View.Arrange.tileWindows.text"))
-                                .addDescriptionSection(resourceBundle.getString("View.Arrange.tileWindows.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.cascadeWindowsCommand = Command.builder()
-                .setText(resourceBundle.getString("View.Arrange.cascadeWindows.text"))
-                .setIconFactory(cascade_windows.factory())
-                .setAction(oia.CascadeWindowsCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("View.Arrange.cascadeWindows.text"))
-                                .addDescriptionSection(resourceBundle.getString("View.Arrange.cascadeWindows.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.minimizeWindowsCommand = Command.builder()
-                .setText(resourceBundle.getString("View.Arrange.minimizeWindows.text"))
-                .setIconFactory(minimize_windows.factory())
-                .setAction(oia.MinimizeWindowsCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("View.Arrange.minimizeWindows.text"))
-                                .addDescriptionSection(resourceBundle.getString("View.Arrange.minimizeWindows.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.closeWindowsCommand = Command.builder()
-                .setText(resourceBundle.getString("View.Arrange.closeWindows.text"))
-                .setIconFactory(close_windows.factory())
-                .setAction(oia.CloseWindowsCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("View.Arrange.closeWindows.text"))
-                                .addDescriptionSection(resourceBundle.getString("View.Arrange.closeWindows.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.showToolbarCommand = Command.builder()
-                .setText(resourceBundle.getString("View.Show.showToolbar.text"))
-                .setIconFactory(ribbon_bar.factory())
-                .setAction(oia.ShowToolbarCommandAction)
-                // TODO: This needs to update when the ribbon is minimized or not...
-                .setToggleSelected(oia.isShowToolbar())
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("View.Show.showToolbar.text"))
-                                .addDescriptionSection(resourceBundle.getString("View.Show.showToolbar.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.showStatusBarCommand = Command.builder()
-                .setText(resourceBundle.getString("View.Show.showStatusBar.text"))
-                .setIconFactory(status_bar.factory())
-                .setAction(oia.ShowStatusBarCommandAction)
-                .setToggleSelected(oia.isShowStatusbar())
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("View.Show.showStatusBar.text"))
-                                .addDescriptionSection(resourceBundle.getString("View.Show.showStatusBar.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.showGaugeCommand = Command.builder()
-                .setText(resourceBundle.getString("View.Show.showGauge.text"))
-                .setIconFactory(gauge.factory())
-                .setAction(oia.ShowGaugeCommandAction)
-                .setToggleSelected(oia.isShowGauge())
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("View.Show.showGauge.text"))
-                                .addDescriptionSection(resourceBundle.getString("View.Show.showGauge.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.showLabelsCommand = Command.builder()
-                .setText(resourceBundle.getString("View.Show.showLabels.text"))
-                .setIconFactory(sHOW_LABEL.factory())
-                .setAction(oia.ShowLabelsCommandAction)
-                .setToggleSelected(oia.isShowAnnotationLabels())
-                .setToggleSelected(true)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("View.Show.showLabels.text"))
-                                .addDescriptionSection(resourceBundle.getString("View.Show.showLabels.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.showCenterCrossCommand = Command.builder()
-                .setText(resourceBundle.getString("View.Show.showCenterCross.text"))
-                .setIconFactory(cross.factory())
-                .setAction(oia.ShowCenterCrossCommandAction)
-                .setToggleSelected(oia.isShowCenterCross())
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("View.Show.showCenterCross.text"))
-                                .addDescriptionSection(resourceBundle.getString("View.Show.showCenterCross.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.showMarkupCommand = Command.builder()
-                .setText(resourceBundle.getString("View.Show.showMarkup.text"))
-                .setIconFactory(toggle_markup.factory())
-                .setAction(oia.ShowMarkupCommandAction)
-                .setToggleSelected(oia.isShowMarkup())
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("View.Show.showMarkup.text"))
-                                .addDescriptionSection(resourceBundle.getString("View.Show.showMarkup.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.showSyncFramesCommand = Command.builder()
-                .setText(resourceBundle.getString("View.Show.syncFrames.text"))
-                .setIconFactory(sync_images.factory())
-                .setAction(oia.ShowSyncFramesCommandAction)
-                .setToggleSelected(oia.isSyncFrames())
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("View.Show.syncFrames.text"))
-                                .addDescriptionSection(resourceBundle.getString("View.Show.syncFrames.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.showPopupResultsCommand = Command.builder()
-                .setText(resourceBundle.getString("View.Show.popupResults.text"))
-                .setIconFactory(showPopups.factory())
-                .setAction(oia.ShowPopupResultsCommandAction)
-                .setToggleSelected(oia.isShowPopupResults())
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("View.Show.popupResults.text"))
-                                .addDescriptionSection(resourceBundle.getString("View.Show.popupResults.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        // Help Task Commands
-
-        // TODO: fix this icon, seems to be missing from generated classes... HelpContents5()
-        this.orbitManualCommand = Command.builder()
-                .setText(resourceBundle.getString("Help.Documentation.orbitManual.text"))
-                .setIconFactory(system_help_3.factory())
-                .setAction(oia.OrbitManualCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Help.Documentation.orbitManual.text"))
-                                .addDescriptionSection(resourceBundle.getString("Help.Documentation.orbitManual.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.aboutCommand = Command.builder()
-                .setText(resourceBundle.getString("Help.Documentation.about.text"))
-                .setIconFactory(help_about_3.factory())
-                .setAction(oia.AboutCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Help.Documentation.about.text"))
-                                .addDescriptionSection(resourceBundle.getString("Help.Documentation.about.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        // TODO: LogFrameIcon() missing in generated classes. .mod instead of .svg in source directory...
-        this.showLogCommand = Command.builder()
-                .setText(resourceBundle.getString("Help.Logs.showLog.text"))
-                .setIconFactory(system_log_out_3.factory())
-                .setAction(oia.ShowLogCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Help.Logs.showLog.text"))
-                                .addDescriptionSection(resourceBundle.getString("Help.Logs.showLog.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.showLogModelCommand = Command.builder()
-                .setText(resourceBundle.getString("Help.Logs.logModel.text"))
-                .setIconFactory(writeModel.factory())
-                .setAction(oia.ShowLogModelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Help.Logs.logModel.text"))
-                                .addDescriptionSection(resourceBundle.getString("Help.Logs.logModel.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-
-        // Taskbar Commands.
-        this.handToolCommand = Command.builder()
-                .setText(resourceBundle.getString("Taskbar.HandTool.textTaskbarTitle"))
-                .setIconFactory(hand_cursor_icon.factory())
-                .setAction(oia.HandToolCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Taskbar.HandTool.textTaskbarTitle"))
-                                .addDescriptionSection(resourceBundle.getString("Taskbar.HandTool.textTaskbarTitle"))
-                                .build())
-                .build();
-
-        // TODO: Needs actions figuring out...
-        this.listClassesModelCommand = RibbonDefaultComboBoxContentModel.<String>builder()
-                .setItems(new String[] {
-                        "Background      ",
-                        "Tissue Class 1  ",
-                        "Tissue Class 2  ",
-                        "Tissue Class 3  " })
-                .setRichTooltip(RichTooltip.builder()
-                        .setTitle(resourceBundle.getString("Taskbar.ListClasses.tooltip.title"))
-                        .build())
-                .build();
+            // Image Task Commands
+            this.openImageCommand = Command.builder()
+                    .setText(resourceBundle.getString("Image.OpenImage.text"))
+                    .setIconFactory(document_open_5.factory())
+                    .setAction(oia.OpenImageCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Image.OpenImage.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Image.OpenImage.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.overviewCommand = Command.builder()
+                    .setText(resourceBundle.getString("Image.OpenSpecial.View.text"))
+                    .setIconFactory(slidepreview_no_loupe_6.factory())
+                    .setAction(oia.OverviewCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Image.OpenSpecial.View.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Image.OpenSpecial.View.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.openForPrintingCommand = Command.builder()
+                    .setText(resourceBundle.getString("Image.OpenSpecial.OpenForPrinting.text"))
+                    .setIconFactory(document_open_5.factory())
+                    .setAction(oia.OpenForPrintingCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Image.OpenSpecial.OpenForPrinting.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Image.OpenSpecial.OpenForPrinting.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.openSpecialResolutionCommand = Command.builder()
+                    .setText(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.text"))
+                    .setIconFactory(document_open_5.factory())
+                    .setAction(oia.OpenSpecialResolutionCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.text"))
+                                    //.addDescriptionSection(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.saveImageLinksCommand = Command.builder()
+                    .setText(resourceBundle.getString("Image.Save.SaveLinks.text"))
+                    .setIconFactory(document_save_as_3.factory())
+                    .setAction(oia.SaveAsOrbitFileCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Image.Save.SaveLinks.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Image.Save.SaveLinks.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.imageProviderCommand = Command.builder()
+                    .setText(resourceBundle.getString("Image.ImageProvider.SwitchImageProvider.text"))
+                    .setIconFactory(system_run_3.factory())
+                    .setAction(oia.ImageProviderCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Image.ImageProvider.SwitchImageProvider.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Image.ImageProvider.SwitchImageProvider.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            // Edit Task Commands
+            this.copyImageCommand = Command.builder()
+                    .setText(resourceBundle.getString("Edit.Copy.CopyImage.text"))
+                    .setIconFactory(edit_copy_4.factory())
+                    .setAction(oia.CopyImageCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Edit.Copy.CopyImage.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Edit.Copy.CopyImage.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.copyImageLinkCommand = Command.builder()
+                    .setText(resourceBundle.getString("Edit.Copy.CopyImageLink.text"))
+                    .setIconFactory(edit_copy_4.factory())
+                    .setAction(oia.CopyImageLinkCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Edit.Copy.CopyImageLink.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Edit.Copy.CopyImageLink.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.copyImageFullCommand = Command.builder()
+                    .setText(resourceBundle.getString("Edit.Copy.CopyImageFull.text"))
+                    .setIconFactory(edit_copy_4.factory())
+                    .setAction(oia.CopyImageFullCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Edit.Copy.CopyImageFull.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Edit.Copy.CopyImageFull.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Edit.Copy.CopyImageFull.tooltip.actionParagraph2"))
+                                    .build())
+                    .build();
+
+            this.pasteImageCommand = Command.builder()
+                    .setText(resourceBundle.getString("Edit.Paste.Paste.text"))
+                    .setIconFactory(edit_paste_4.factory())
+                    .setAction(oia.PasteImageCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Edit.Paste.Paste.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Edit.Paste.Paste.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            // Model task commands
+            this.openModelServerCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.OpenModel.OpenModelServer.text"))
+                    .setIconFactory(document_open_5.factory())
+                    .setAction(oia.OpenModelServerCommandAction)
+                    // TODO: This works when the menu is created, but needs a listener to fix it if changed when running.
+                    .setActionEnabled(!DALConfig.isLocalImageProvider())
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.OpenModel.OpenModelServer.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.OpenModel.OpenModelServer.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.openModelCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.OpenModel.OpenModel.text"))
+                    .setIconFactory(document_open_5.factory())
+                    .setAction(oia.OpenModelCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.OpenModel.OpenModel.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.OpenModel.OpenModel.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.restoreTrainingShapesCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.OpenModel.RestoreTrainingShapes.text"))
+                    .setIconFactory(restoreShapes.factory())
+                    .setAction(oia.RestoreTrainingShapesCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.OpenModel.RestoreTrainingShapes.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.OpenModel.RestoreTrainingShapes.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.saveModelServerCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.SaveModel.saveModelServer.text"))
+                    .setIconFactory(document_save_3.factory())
+                    .setAction(oia.SaveModelServerCommandAction)
+                    // TODO: This works when the menu is created, but needs a listener to fix it if changed when running.
+                    .setActionEnabled(!DALConfig.isLocalImageProvider())
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.SaveModel.saveModelServer.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.SaveModel.saveModelServer.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.saveModelAsCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.SaveModel.saveModelAs.text"))
+                    .setIconFactory(document_save_as_3.factory())
+                    .setAction(oia.SaveModelAsCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.SaveModel.saveModelAs.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.SaveModel.saveModelAs.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.saveNestedExclusionModelCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.SaveModel.saveNestedExclusionModel.text"))
+                    .setIconFactory(document_save_as_3.factory())
+                    .setAction(oia.SaveNestedExclusionModelCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.SaveModel.saveNestedExclusionModel.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.SaveModel.saveNestedExclusionModel.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.saveNestedSegmentationModelCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.SaveModel.saveNestedSegmentationModel.text"))
+                    .setIconFactory(document_save_as_3.factory())
+                    .setAction(oia.SaveNestedSegmentationModelCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.SaveModel.saveNestedSegmentationModel.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.SaveModel.saveNestedSegmentationModel.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.classesCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.ConfigureModel.classes.text"))
+                    .setIconFactory(configure_4.factory())
+                    .setAction(oia.ClassesCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.ConfigureModel.classes.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.classes.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.featuresCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.ConfigureModel.features.text"))
+                    .setIconFactory(preferences_desktop_2.factory())
+                    .setAction(oia.FeaturesCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.ConfigureModel.features.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.features.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.fuzzinessCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.ConfigureModel.fuzziness.text"))
+                    .setIconFactory(configure_4.factory())
+                    .setAction(oia.FuzzinessCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.ConfigureModel.fuzziness.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.fuzziness.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.fuzziness.tooltip.actionParagraph2"))
+                                    .build())
+                    .build();
+
+            this.exclusionModelLevelCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.text"))
+                    .setIconFactory(configure_4.factory())
+                    .setAction(oia.ExclusionModelLevelCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph2"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph3"))
+                                    .build())
+                    .build();
+
+            this.performClusteringCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.Clustering.performClustering.text"))
+                    .setIconFactory(clustering.factory())
+                    .setAction(oia.PerformClusteringCommandAction)
+                    .setToggleSelected(oia.isPerformClustering())
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.Clustering.performClustering.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.Clustering.performClustering.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.resetMainModelCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.Reset.resetMainModel.text"))
+                    .setIconFactory(edit_clear_3.factory())
+                    .setAction(oia.ResetMainModelCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.Reset.resetMainModel.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.Reset.resetMainModel.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.Reset.resetMainModel.tooltip.actionParagraph2"))
+                                    .build())
+                    .build();
+
+            this.resetPrimarySegmentationModelCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.Reset.resetPrimarySegmentationModel.text"))
+                    .setIconFactory(edit_delete_6.factory())
+                    .setAction(oia.ResetPrimarySegmentationModelCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.Reset.resetPrimarySegmentationModel.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.Reset.resetPrimarySegmentationModel.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.resetSecondarySegmentationModelCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.Reset.resetSecondarySegmentationModel.text"))
+                    .setIconFactory(clearSecSegModel.factory())
+                    .setAction(oia.ResetSecondarySegmentationModelCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.Reset.resetSecondarySegmentationModel.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.Reset.resetSecondarySegmentationModel.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.resetEntireModelCommand = Command.builder()
+                    .setText(resourceBundle.getString("Model.Reset.resetEntireModel.text"))
+                    .setIconFactory(edit_delete_3.factory())
+                    .setAction(oia.ResetEntireModelCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Model.Reset.resetEntireModel.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Model.Reset.resetEntireModel.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            // Exclusion Model Task commands
+            // TODO: Is this really one command for exclusion model and classification?
+            this.setupClassesCommand = Command.builder()
+                    .setText(resourceBundle.getString("ExclusionModel.Setup.setupClasses.text"))
+                    .setIconFactory(system_run_5.factory())
+                    .setAction(oia.SetupClassesCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Setup.setupClasses.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Setup.setupClasses.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.eraserCommand = Command.builder()
+                    .setText(resourceBundle.getString("ExclusionModel.Draw.eraser.text"))
+                    .setIconFactory(draw_eraser_2.factory())
+                    .setAction(oia.EraserCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Draw.eraser.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Draw.eraser.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.polygonCommand = Command.builder()
+                    .setText(resourceBundle.getString("ExclusionModel.Draw.polygon.text"))
+                    .setIconFactory(draw_poly.factory())
+                    .setAction(oia.PolygonCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Draw.polygon.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Draw.polygon.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.circleCommand = Command.builder()
+                    .setText(resourceBundle.getString("ExclusionModel.Draw.circle.text"))
+                    .setIconFactory(draw_circle.factory())
+                    .setAction(oia.CircleCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Draw.circle.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Draw.circle.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.rectangleCommand = Command.builder()
+                    .setText(resourceBundle.getString("ExclusionModel.Draw.rectangle.text"))
+                    .setIconFactory(draw_rectangle.factory())
+                    .setAction(oia.RectangleCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Draw.rectangle.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Draw.rectangle.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.trainSetClassifyCommand = Command.builder()
+                    .setText(resourceBundle.getString("ExclusionModel.Exclusion.trainSetClassify.text"))
+                    .setIconFactory(trainSetClassify.factory())
+                    .setAction(oia.TrainSetClassifyCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.trainSetClassify.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.trainSetClassify.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.classifyTrainedExclusionModelCommand = Command.builder()
+                    .setText(resourceBundle.getString("ExclusionModel.Exclusion.classifyExclusionModel.text"))
+                    .setIconFactory(applications_graphics_2.factory())
+                    .setAction(oia.ClassifyTrainedExclusionModelCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.classifyExclusionModel.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.classifyExclusionModel.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.configureExclusionClassesCommand = Command.builder()
+                    .setText(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.text"))
+                    .setIconFactory(configure_4.factory())
+                    .setAction(oia.ConfigureExclusionClassesCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.loadAndSetLocalCommand = Command.builder()
+                    .setText(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.text"))
+                    .setIconFactory(document_open_5.factory())
+                    .setAction(oia.LoadAndSetLocalCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.loadAndSetServerCommand = Command.builder()
+                    .setText(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.text"))
+                    .setIconFactory(document_open_5.factory())
+                    .setAction(oia.LoadAndSetServerCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.setFromModelExplorerCommand = Command.builder()
+                    .setText(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.text"))
+                    .setIconFactory(document_open_5.factory())
+                    .setAction(oia.SetFromModelExplorerCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.resetExclusionModelCommand = Command.builder()
+                    .setText(resourceBundle.getString("ExclusionModel.Exclusion.resetExclusionModel.text"))
+                    .setIconFactory(edit_delete_6.factory())
+                    .setAction(oia.ResetExclusionModelCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.resetExclusionModel.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.resetExclusionModel.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.exclusionHelpCommand = Command.builder()
+                    .setText(resourceBundle.getString("ExclusionModel.Exclusion.exclusionHelp.text"))
+                    .setIconFactory(help_about_3.factory())
+                    .setAction(oia.ExclusionHelpCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.exclusionHelp.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.exclusionHelp.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            // Classification Task Commands
+
+            this.trainCommand = Command.builder()
+                    .setText(resourceBundle.getString("Classification.MachineLearning.train.text"))
+                    .setIconFactory(training.factory())
+                    .setAction(oia.TrainCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Classification.MachineLearning.train.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Classification.MachineLearning.train.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.defineRoiCommand = Command.builder()
+                    .setText(resourceBundle.getString("Classification.MachineLearning.defineRoi.text"))
+                    .setIconFactory(draw_roi.factory())
+                    .setAction(oia.DefineRoiCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Classification.MachineLearning.defineRoi.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Classification.MachineLearning.defineRoi.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.classifyCommand = Command.builder()
+                    .setText(resourceBundle.getString("Classification.MachineLearning.classify.text"))
+                    .setIconFactory(applications_graphics_2.factory())
+                    .setAction(oia.ClassifyCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Classification.MachineLearning.classify.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Classification.MachineLearning.classify.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            // Object Detection Task Commands
+
+            this.setPrimarySegmentationModelCommand = Command.builder()
+                    .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setPrimarySegmentationModel.text"))
+                    .setIconFactory(primarySeg.factory())
+                    .setAction(oia.SetPrimarySegmentationModelCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setPrimarySegmentationModel.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setPrimarySegmentationModel.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.setSecondarySegmentationModelCommand = Command.builder()
+                    .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.text"))
+                    .setIconFactory(secondarySeg.factory())
+                    .setAction(oia.SetSecondarySegmentationModelCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.objectSegmentationCommand = Command.builder()
+                    .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.text"))
+                    .setIconFactory(segmentation.factory())
+                    .setAction(oia.ObjectSegmentationCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.showSegmentationHeatmapCommand = Command.builder()
+                    .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.text"))
+                    .setIconFactory(obj_heatmap.factory())
+                    .setAction(oia.ShowSegmentationHeatmapCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.objectMarkerCommand = Command.builder()
+                    .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectMarker.text"))
+                    .setIconFactory(cellClassMarker.factory())
+                    .setAction(oia.ObjectMarkerCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectMarker.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectMarker.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.trainObjectsCommand = Command.builder()
+                    .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.text"))
+                    .setIconFactory(object_training.factory())
+                    .setAction(oia.TrainObjectsCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.objectClassificationCommand = Command.builder()
+                    .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.text"))
+                    .setIconFactory(obj_classification.factory())
+                    .setAction(oia.ObjectClassificationCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            // ROI Task Commands
+
+            this.resetRoiCommand = Command.builder()
+                    .setText(resourceBundle.getString("ROI.RegionOfInterest.resetRoi.text"))
+                    .setIconFactory(edit_clear_3.factory())
+                    .setAction(oia.ResetRoiCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ROI.RegionOfInterest.resetRoi.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ROI.RegionOfInterest.resetRoi.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.invertRoiCommand = Command.builder()
+                    .setText(resourceBundle.getString("ROI.RegionOfInterest.invertRoi.text"))
+                    .setIconFactory(draw_roi2_inverted.factory())
+                    .setAction(oia.InvertRoiCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ROI.RegionOfInterest.invertRoi.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ROI.RegionOfInterest.invertRoi.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.measureAreaCommand = Command.builder()
+                    .setText(resourceBundle.getString("ROI.RegionOfInterest.measureArea.text"))
+                    .setIconFactory(lineal.factory())
+                    .setAction(oia.MeasureAreaCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ROI.RegionOfInterest.measureArea.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ROI.RegionOfInterest.measureArea.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.segmentationAsRoiCommand = Command.builder()
+                    .setText(resourceBundle.getString("ROI.SpecialROIs.segmentationAsRoi.text"))
+                    .setIconFactory(segmentation.factory())
+                    .setAction(oia.SegmentationAsRoiCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ROI.SpecialROIs.segmentationAsRoi.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ROI.SpecialROIs.segmentationAsRoi.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.tmaRoiCommand = Command.builder()
+                    .setText(resourceBundle.getString("ROI.SpecialROIs.tmaGrid.text"))
+                    .setIconFactory(grid.factory())
+                    .setAction(oia.TmaRoiCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("ROI.SpecialROIs.tmaGrid.text"))
+                                    .addDescriptionSection(resourceBundle.getString("ROI.SpecialROIs.tmaGrid.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            // Mask Task Commands
+
+            this.setClassificationMaskCommand = Command.builder()
+                    .setText(resourceBundle.getString("Mask.ModelBasedMasks.setClassificationMask.text"))
+                    .setIconFactory(set_maski.factory())
+                    .setAction(oia.SetClassificationMaskCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.setClassificationMask.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Mask.ModelBasedMasks.setClassificationMask.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.setSegmentationMaskCommand = Command.builder()
+                    .setText(resourceBundle.getString("Mask.ModelBasedMasks.setSegmentationMask.text"))
+                    .setIconFactory(set_segmask.factory())
+                    .setAction(oia.SetSegmentationMaskCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.setSegmentationMask.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Mask.ModelBasedMasks.setSegmentationMask.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.unsetMaskCommand = Command.builder()
+                    .setText(resourceBundle.getString("Mask.ModelBasedMasks.unsetMask.text"))
+                    .setIconFactory(unset_mask.factory())
+                    .setAction(oia.UnsetMaskCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.unsetMask.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Mask.ModelBasedMasks.unsetMask.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.configureMaskCommand = Command.builder()
+                    .setText(resourceBundle.getString("Mask.ModelBasedMasks.configureMask.text"))
+                    .setIconFactory(system_run_5.factory())
+                    .setAction(oia.ConfigureMaskCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.configureMask.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Mask.ModelBasedMasks.configureMask.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.maskToExplorerCommand = Command.builder()
+                    .setText(resourceBundle.getString("Mask.ModelBasedMasks.maskToExplorer.text"))
+                    .setIconFactory(mask2browser.factory())
+                    .setAction(oia.MaskToExplorerCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Mask.ModelBasedMasks.maskToExplorer.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Mask.ModelBasedMasks.maskToExplorer.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            // Batch Task Commands
+
+            this.localExecutionCommand = Command.builder()
+                    .setText(resourceBundle.getString("Batch.BatchExecute.localExecution.text"))
+                    .setIconFactory(system_run_3.factory())
+                    .setAction(oia.LocalExecutionCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Batch.BatchExecute.localExecution.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.localExecution.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.scaleOutExecutionCommand = Command.builder()
+                    .setText(resourceBundle.getString("Batch.BatchExecute.scaleoutExecution.text"))
+                    .setIconFactory(system_run_3.factory())
+                    .setAction(oia.ScaleOutExecutionCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Batch.BatchExecute.scaleoutExecution.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.scaleoutExecution.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.roiAreaComputationCommand = Command.builder()
+                    .setText(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.text"))
+                    .setIconFactory(lineal.factory())
+                    .setAction(oia.RoiAreaComputationCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.retrieveExistingResultsCommand = Command.builder()
+                    .setText(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.text"))
+                    .setIconFactory(go_down_search.factory())
+                    .setAction(oia.RetrieveExistingResultsCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            // Tools Task Commands
+
+            this.orbitBrowserCommand = Command.builder()
+                    .setText(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.text"))
+                    .setIconFactory(browser_wipp_Address_Book.factory())
+                    .setAction(oia.OrbitBrowserCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.dbCleanupCommand = Command.builder()
+                    .setText(resourceBundle.getString("Tools.ManageFiles.dbCleanup.text"))
+                    .setIconFactory(system_run_5.factory())
+                    .setAction(oia.DbCleanupCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Tools.ManageFiles.dbCleanup.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Tools.ManageFiles.dbCleanup.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.channelColorResetCommand = Command.builder()
+                    .setText(resourceBundle.getString("Tools.ManageFiles.channelColorReset.text"))
+                    .setIconFactory(system_run_5.factory())
+                    .setAction(oia.ChannelColorResetCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Tools.ManageFiles.channelColorReset.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Tools.ManageFiles.channelColorReset.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.saveFullImageCommand = Command.builder()
+                    .setText(resourceBundle.getString("Tools.SaveImage.saveFullImage.text"))
+                    .setIconFactory(document_save_as_3.factory())
+                    .setAction(oia.SaveFullImageCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Tools.SaveImage.saveFullImage.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Tools.SaveImage.saveFullImage.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.saveCurrentViewCommand = Command.builder()
+                    .setText(resourceBundle.getString("Tools.SaveImage.saveCurrentView.text"))
+                    .setIconFactory(document_save_as_3.factory())
+                    .setAction(oia.SaveCurrentViewCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Tools.SaveImage.saveCurrentView.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Tools.SaveImage.saveCurrentView.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.saveClassificationImageCommand = Command.builder()
+                    .setText(resourceBundle.getString("Tools.SaveImage.saveClassificationImage.text"))
+                    .setIconFactory(document_save_as_3.factory())
+                    .setAction(oia.SaveClassificationImageCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Tools.SaveImage.saveClassificationImage.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Tools.SaveImage.saveClassificationImage.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.scriptEditorCommand = Command.builder()
+                    .setText(resourceBundle.getString("Tools.Script.retrieveExistingResults.text"))
+                    .setIconFactory(Groovy_logo.factory())
+                    .setAction(oia.ScriptEditorCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Tools.Script.retrieveExistingResults.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Tools.Script.retrieveExistingResults.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            // View Task Commands
+
+            this.tileWindowsCommand = Command.builder()
+                    .setText(resourceBundle.getString("View.Arrange.tileWindows.text"))
+                    .setIconFactory(tile_windows.factory())
+                    .setAction(oia.TileWindowsCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("View.Arrange.tileWindows.text"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Arrange.tileWindows.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.cascadeWindowsCommand = Command.builder()
+                    .setText(resourceBundle.getString("View.Arrange.cascadeWindows.text"))
+                    .setIconFactory(cascade_windows.factory())
+                    .setAction(oia.CascadeWindowsCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("View.Arrange.cascadeWindows.text"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Arrange.cascadeWindows.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.minimizeWindowsCommand = Command.builder()
+                    .setText(resourceBundle.getString("View.Arrange.minimizeWindows.text"))
+                    .setIconFactory(minimize_windows.factory())
+                    .setAction(oia.MinimizeWindowsCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("View.Arrange.minimizeWindows.text"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Arrange.minimizeWindows.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.closeWindowsCommand = Command.builder()
+                    .setText(resourceBundle.getString("View.Arrange.closeWindows.text"))
+                    .setIconFactory(close_windows.factory())
+                    .setAction(oia.CloseWindowsCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("View.Arrange.closeWindows.text"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Arrange.closeWindows.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.showToolbarCommand = Command.builder()
+                    .setText(resourceBundle.getString("View.Show.showToolbar.text"))
+                    .setIconFactory(ribbon_bar.factory())
+                    .setAction(oia.ShowToolbarCommandAction)
+                    // TODO: This needs to update when the ribbon is minimized or not...
+                    .setToggleSelected(oia.isShowToolbar())
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("View.Show.showToolbar.text"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Show.showToolbar.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.showStatusBarCommand = Command.builder()
+                    .setText(resourceBundle.getString("View.Show.showStatusBar.text"))
+                    .setIconFactory(status_bar.factory())
+                    .setAction(oia.ShowStatusBarCommandAction)
+                    .setToggleSelected(oia.isShowStatusbar())
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("View.Show.showStatusBar.text"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Show.showStatusBar.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.showGaugeCommand = Command.builder()
+                    .setText(resourceBundle.getString("View.Show.showGauge.text"))
+                    .setIconFactory(gauge.factory())
+                    .setAction(oia.ShowGaugeCommandAction)
+                    .setToggleSelected(oia.isShowGauge())
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("View.Show.showGauge.text"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Show.showGauge.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.showLabelsCommand = Command.builder()
+                    .setText(resourceBundle.getString("View.Show.showLabels.text"))
+                    .setIconFactory(sHOW_LABEL.factory())
+                    .setAction(oia.ShowLabelsCommandAction)
+                    .setToggleSelected(oia.isShowAnnotationLabels())
+                    .setToggleSelected(true)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("View.Show.showLabels.text"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Show.showLabels.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.showCenterCrossCommand = Command.builder()
+                    .setText(resourceBundle.getString("View.Show.showCenterCross.text"))
+                    .setIconFactory(cross.factory())
+                    .setAction(oia.ShowCenterCrossCommandAction)
+                    .setToggleSelected(oia.isShowCenterCross())
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("View.Show.showCenterCross.text"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Show.showCenterCross.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.showMarkupCommand = Command.builder()
+                    .setText(resourceBundle.getString("View.Show.showMarkup.text"))
+                    .setIconFactory(toggle_markup.factory())
+                    .setAction(oia.ShowMarkupCommandAction)
+                    .setToggleSelected(oia.isShowMarkup())
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("View.Show.showMarkup.text"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Show.showMarkup.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.showSyncFramesCommand = Command.builder()
+                    .setText(resourceBundle.getString("View.Show.syncFrames.text"))
+                    .setIconFactory(sync_images.factory())
+                    .setAction(oia.ShowSyncFramesCommandAction)
+                    .setToggleSelected(oia.isSyncFrames())
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("View.Show.syncFrames.text"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Show.syncFrames.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.showPopupResultsCommand = Command.builder()
+                    .setText(resourceBundle.getString("View.Show.popupResults.text"))
+                    .setIconFactory(showPopups.factory())
+                    .setAction(oia.ShowPopupResultsCommandAction)
+                    .setToggleSelected(oia.isShowPopupResults())
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("View.Show.popupResults.text"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Show.popupResults.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            // Help Task Commands
+
+            // TODO: fix this icon, seems to be missing from generated classes... HelpContents5()
+            this.orbitManualCommand = Command.builder()
+                    .setText(resourceBundle.getString("Help.Documentation.orbitManual.text"))
+                    .setIconFactory(system_help_3.factory())
+                    .setAction(oia.OrbitManualCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Help.Documentation.orbitManual.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Help.Documentation.orbitManual.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.aboutCommand = Command.builder()
+                    .setText(resourceBundle.getString("Help.Documentation.about.text"))
+                    .setIconFactory(help_about_3.factory())
+                    .setAction(oia.AboutCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Help.Documentation.about.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Help.Documentation.about.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            // TODO: LogFrameIcon() missing in generated classes. .mod instead of .svg in source directory...
+            this.showLogCommand = Command.builder()
+                    .setText(resourceBundle.getString("Help.Logs.showLog.text"))
+                    .setIconFactory(system_log_out_3.factory())
+                    .setAction(oia.ShowLogCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Help.Logs.showLog.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Help.Logs.showLog.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+            this.showLogModelCommand = Command.builder()
+                    .setText(resourceBundle.getString("Help.Logs.logModel.text"))
+                    .setIconFactory(writeModel.factory())
+                    .setAction(oia.ShowLogModelCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Help.Logs.logModel.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Help.Logs.logModel.tooltip.actionParagraph1"))
+                                    .build())
+                    .build();
+
+
+            // Taskbar Commands.
+            this.handToolCommand = Command.builder()
+                    .setText(resourceBundle.getString("Taskbar.HandTool.textTaskbarTitle"))
+                    .setIconFactory(hand_cursor_icon.factory())
+                    .setAction(oia.HandToolCommandAction)
+                    .setActionRichTooltip(
+                            RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Taskbar.HandTool.textTaskbarTitle"))
+                                    .addDescriptionSection(resourceBundle.getString("Taskbar.HandTool.textTaskbarTitle"))
+                                    .build())
+                    .build();
+
+
+            // TODO: Move to OrbitModel...
+            // Create a String[] with the class lists.
+            String[] classNames = oia.getModel().getClassShapes().stream()
+                    .map(ClassShape::getName)
+                    .toArray(String[]::new);
+
+
+            List<Command> popups = generateClassesPopup(oia.getModel().getClassShapes());
+
+            this.popupMenuContentModel = new CommandMenuContentModel(
+                    Arrays.asList(new CommandGroup(popups)));
+
+            this.classesTaskbarCommand = Command.builder()
+                    .setText("Classes")
+                    .setSecondaryContentModel(popupMenuContentModel)
+                    .setIconFactory(ColorResizableIcon.factory(new Color(0xFFEEEEEE)))
+                    .build();
+
+//            this.listClassesModel = RibbonDefaultComboBoxContentModel.<String>builder()
+//                .setItems(classNames)
+//                .setRichTooltip(RichTooltip.builder()
+//                        .setTitle(resourceBundle.getString("Taskbar.ListClasses.tooltip.title"))
+//                        .build())
+//                .build();
+//
+//            this.listClassesModel.addListDataListener(new ListDataListener() {
+//                Object selected = listClassesModel.getSelectedItem();
+//
+//                @Override
+//                public void intervalAdded(ListDataEvent e) {
+//                }
+//
+//                @Override
+//                public void intervalRemoved(ListDataEvent e) {
+//                }
+//
+//                @Override
+//                public void contentsChanged(ListDataEvent e) {
+//                    Object newSelection = listClassesModel.getSelectedItem();
+//                    if (this.selected != newSelection) {
+//                        System.out.println("New class is -> " + newSelection);
+//                        this.selected = newSelection;
+//                    }
+//                }
+//            });
 
         this.configureClassesCommand = Command.builder()
                 .setText(resourceBundle.getString("Taskbar.ConfigureClasses.textTaskbarTitle"))
@@ -1233,6 +1282,27 @@ public class OrbitMenu extends JRibbonFrame {
                                 .addDescriptionSection(resourceBundle.getString("Taskbar.ConfigureFeatures.textTaskbarTitle"))
                                 .build())
                 .build();
+    }
+
+
+    private ArrayList<Command> generateClassesPopup(List<ClassShape> classShapes) {
+        ArrayList<Command> classesPopupCommandArrayList = new ArrayList<>();
+
+        MessageFormat mf = new MessageFormat("test...");
+        //mf.setLocale(currLocale);
+
+        for(ClassShape classShape : classShapes) {
+            Command popupCommand = Command.builder()
+                    .setText(classShape.getName())
+                    .setIconFactory(ColorResizableIcon.factory(classShape.getColor()))
+                    .setAction((CommandActionEvent e) ->
+                            System.out.println(String.format("Test menu item %s activated", classShape.getName())))
+                    .build();
+            classesPopupCommandArrayList.add(popupCommand);
+        }
+
+        //Command[] array = (Command[]) classesPopupCommandArrayList.toArray();
+        return classesPopupCommandArrayList;
     }
 
     private void createStyleGalleryModel() {
@@ -1475,12 +1545,14 @@ public class OrbitMenu extends JRibbonFrame {
         // Hand tool
         ribbon.addTaskbarCommand(this.handToolCommand);
         // Classes
-        ribbon.addTaskbarComponent(new RibbonComboBoxProjection(this.listClassesModelCommand,
-                ComponentPresentationModel.withDefaults()));
+//        ribbon.addTaskbarComponent(new RibbonComboBoxProjection(this.listClassesModel,
+//                ComponentPresentationModel.withDefaults()));
+        ribbon.addTaskbarCommand(this.classesTaskbarCommand);
         // Configure Classes
         ribbon.addTaskbarCommand(this.configureClassesCommand);
         // Configure Features
         ribbon.addTaskbarCommand(this.configureFeaturesCommand);
+
     }
 
     private JRibbonBand getImageBand() {
@@ -1606,8 +1678,8 @@ public class OrbitMenu extends JRibbonFrame {
                 CommandButtonPresentationModel.builder().build());
 
         copyBand.addRibbonCommand(copyImageProjection, JRibbonBand.PresentationPriority.TOP);
-        copyBand.addRibbonCommand(copyImageLinkProjection, JRibbonBand.PresentationPriority.TOP);
-        copyBand.addRibbonCommand(copyImageFullProjection, JRibbonBand.PresentationPriority.TOP);
+        copyBand.addRibbonCommand(copyImageLinkProjection, JRibbonBand.PresentationPriority.MEDIUM);
+        copyBand.addRibbonCommand(copyImageFullProjection, JRibbonBand.PresentationPriority.MEDIUM);
 
         List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
         resizePolicies.add(new CoreRibbonResizePolicies.Mirror(copyBand));
@@ -1693,8 +1765,8 @@ public class OrbitMenu extends JRibbonFrame {
 
         saveModelBand.addRibbonCommand(saveModelServerProjection, JRibbonBand.PresentationPriority.TOP);
         saveModelBand.addRibbonCommand(saveModelAsProjection, JRibbonBand.PresentationPriority.TOP);
-        saveModelBand.addRibbonCommand(saveNestedExclusionModelProjection, JRibbonBand.PresentationPriority.TOP);
-        saveModelBand.addRibbonCommand(saveNestedSegmentationModelProjection, JRibbonBand.PresentationPriority.TOP);
+        saveModelBand.addRibbonCommand(saveNestedExclusionModelProjection, JRibbonBand.PresentationPriority.MEDIUM);
+        saveModelBand.addRibbonCommand(saveNestedSegmentationModelProjection, JRibbonBand.PresentationPriority.MEDIUM);
 
         List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
         resizePolicies.add(new CoreRibbonResizePolicies.Mirror(saveModelBand));
@@ -1781,10 +1853,10 @@ public class OrbitMenu extends JRibbonFrame {
         CommandButtonProjection<Command> resetEntireModelProjection = this.resetEntireModelCommand.project(
                 CommandButtonPresentationModel.builder().build());
 
-        configureModelBand.addRibbonCommand(resetMainModelProjection, JRibbonBand.PresentationPriority.TOP);
-        configureModelBand.addRibbonCommand(resetPrimarySegmentationModelProjection, JRibbonBand.PresentationPriority.TOP);
-        configureModelBand.addRibbonCommand(resetSecondarySegmentationModelProjection, JRibbonBand.PresentationPriority.TOP);
-        configureModelBand.addRibbonCommand(resetEntireModelProjection, JRibbonBand.PresentationPriority.TOP);
+        configureModelBand.addRibbonCommand(resetMainModelProjection, JRibbonBand.PresentationPriority.LOW);
+        configureModelBand.addRibbonCommand(resetPrimarySegmentationModelProjection, JRibbonBand.PresentationPriority.LOW);
+        configureModelBand.addRibbonCommand(resetSecondarySegmentationModelProjection, JRibbonBand.PresentationPriority.LOW);
+        configureModelBand.addRibbonCommand(resetEntireModelProjection, JRibbonBand.PresentationPriority.LOW);
 
         List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
         resizePolicies.add(new CoreRibbonResizePolicies.Mirror(configureModelBand));
