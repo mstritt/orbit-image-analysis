@@ -269,7 +269,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
 
         System.out.println(getInfoString() + "\n");
-        System.out.println("Optional parameters: [.orbit|image file(.jpg,.tif,.bmp,.png,.gif,.svs)|url|rdf id]");
+        System.out.println("Optional parameters: [.orbit|image file(.jpg,.tif,.bmp,.png,.gif,.svs)|url|rdf id  ]");
         System.out.println("use -noErrorPopups to get rid of error popups (can be useful if you have no network connection)\n");
         System.out.println("use --hideQuickSearch to hide the left search bar (can be useful if you have no network connection)\n");
 //		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -349,7 +349,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //
         imageList = new ImageList(new RdfThnCellRendererBig(DALConfig.getImageProvider()));
         // TODO: Reenable the searchBox.
-//        searchBox.addPropertyChangeListener(imageList);
+        searchBox.addPropertyChangeListener(imageList);
 
         imageList.addPropertyChangeListener(this);
         JScrollPane imageListScrolPane = new JScrollPane(imageList);
