@@ -2094,7 +2094,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 loadedModel = file.getName();
             } catch (Exception ex) {
                 logger.error("cannot load model", ex);
-                JOptionPane.showMessageDialog(this, "Error loading model (see Info->Show Log for details).", "Error loading model", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        String.format("Error loading model (see Help->Show Log for details)."),
+                        "Error loading model",
+                        JOptionPane.ERROR_MESSAGE);
             }
             loadModel(model, file.getName(), withUI, isOldModel, isTissueClassification);
             updateStatusBar();
@@ -3225,8 +3228,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     };
     public final CommandAction OverviewCommandAction = e -> loadSpecialImage(RawUtilsCommon.LEVEL_OVERVIEW);
-//    public final CommandAction OpenForPrintingCommandAction = e -> null;
-//    public final CommandAction OpenSpecialResolutionCommandAction = e -> null;
+    public final CommandAction OpenForPrintingCommandAction = e -> loadLowResImage(2);
+    public final CommandAction OpenSpecialResolutionCommandAction = e -> { };
     public final CommandAction SaveAsOrbitFileCommandAction = e -> saveAsOrbitFile();
     public final CommandAction ImageProviderCommandAction = e -> {
         switchLocalRemoteImageProvider();

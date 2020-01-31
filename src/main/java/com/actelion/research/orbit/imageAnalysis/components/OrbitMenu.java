@@ -226,7 +226,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("Image.OpenSpecial.OpenForPrinting.text"))
                 .setIconFactory(document_open_5.factory())
                 //TODO: setAction
-                .setAction((CommandActionEvent e) -> System.out.println("Opened an image"))
+                .setAction(oia.OpenForPrintingCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Image.OpenSpecial.OpenForPrinting.text"))
@@ -237,8 +237,7 @@ public class OrbitMenu extends JRibbonFrame {
         this.openSpecialResolutionCommand = Command.builder()
                 .setText(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.text"))
                 .setIconFactory(document_open_5.factory())
-                //TODO: setAction
-                .setAction((CommandActionEvent e) -> System.out.println("Opened an image"))
+                .setAction(oia.OpenSpecialResolutionCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.text"))
@@ -260,7 +259,6 @@ public class OrbitMenu extends JRibbonFrame {
         this.imageProviderCommand = Command.builder()
                 .setText(resourceBundle.getString("Image.ImageProvider.SwitchImageProvider.text"))
                 .setIconFactory(system_run_3.factory())
-                //TODO: setAction
                 .setAction(oia.ImageProviderCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
