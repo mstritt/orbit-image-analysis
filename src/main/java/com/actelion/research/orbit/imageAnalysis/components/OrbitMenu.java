@@ -33,6 +33,7 @@ import org.pushingpixels.substance.internal.utils.icon.SubstanceIconFactory;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.awt.*;
@@ -172,13 +173,20 @@ public class OrbitMenu extends JRibbonFrame {
     private Command configureClassesCommand;
     private Command configureFeaturesCommand;
     private RibbonDefaultComboBoxContentModel<String> listClassesModel;
-    private Command popupCommand1;
-    private Command popupCommand2;
-    private Command popupCommand3;
     private CommandMenuContentModel popupMenuContentModel;
     private Command classesTaskbarCommand;
-    private JComboBox<ClassShape> ccb;
-    private JComboBox colorCombo;
+    private CommandButtonPresentationModel button;
+
+    private RibbonTask exclusionModelTask;
+
+    protected Command getClassesTaskbarCommand() {
+        return classesTaskbarCommand;
+    }
+
+    protected void setPopupMenuContentModel(CommandMenuContentModel contentModel) {
+        this.popupMenuContentModel = contentModel;
+    }
+
 
     public OrbitMenu() {
         super();
@@ -1221,111 +1229,28 @@ public class OrbitMenu extends JRibbonFrame {
 
             // TODO: Move to OrbitModel...
             // Create a String[] with the class lists.
-            String[] classNames = oia.getModel().getClassShapes().stream()
-                    .map(ClassShape::getName)
-                    .toArray(String[]::new);
+//            String[] classNames = oia.getModel().getClassShapes().stream()
+//                    .map(ClassShape::getName)
+//                    .toArray(String[]::new);
+//
+//            ClassShape[] classShapes = oia.getModel().getClassShapes().stream()
+//                    .map(ClassShape.class::cast)
+//                    .toArray(ClassShape[]::new);
 
-            ClassShape[] classShapes = oia.getModel().getClassShapes().stream()
-                    .map(ClassShape.class::cast)
-                    .toArray(ClassShape[]::new);
+            //List<Command> popups = generateClassesPopup(oia.getModel().getClassShapes());
 
-            List<Command> popups = generateClassesPopup(oia.getModel().getClassShapes());
+            this.popupMenuContentModel = updateClassesPopup(oia.getModel().getClassShapes());
 
-            this.popupMenuContentModel = new CommandMenuContentModel(
-                    Arrays.asList(new CommandGroup(popups)));
+            this.button = CommandButtonPresentationModel.builder()
+                    .setTextClickAction()
+                    .build();
 
             this.classesTaskbarCommand = Command.builder()
-                    .setText("Classes")
+                    .setText("Setup Classes")
+                    .setAction(oia.SetupClassesTaskbarPrimary)
                     .setSecondaryContentModel(popupMenuContentModel)
-                    .setIconFactory(ColorResizableIcon.factory(new Color(0xFFEEEEEE)))
+                    .setIconFactory(ColorResizableIcon.factory(oia.getModel().getClassShapes().get(0).getColor()))
                     .build();
-
-            this.listClassesModel = RibbonDefaultComboBoxContentModel.<String>builder()
-                    .setItems(classNames)
-                    .setIconFactory(ColorResizableIcon.factory(new Color(0xFFEEEEEE)))
-                    .build();
-
-//            class ClassListModel extends AbstractListModel<ClassShape> {
-//                protected List<ClassShape> model;
-//
-//                public ClassListModel(ClassShape... infos) {
-//                    super();
-//                    model = new ArrayList<>();
-//                    for (int i = 0; i < infos.length; i++) {
-//                        model.add(infos[i]);
-//                    }
-//                }
-//
-//                @Override
-//                public int getSize() {
-//                    return model.size();
-//                }
-//
-//                @Override
-//                public ClassShape getElementAt(int index) {
-//                    return model.get(index);
-//                }
-//            }
-//
-//            class ClassComboBoxRenderer extends SubstancePanelListCellRenderer<ClassShape>  {
-//                private JLabel iconLabel;
-//                private JLabel titleLabel;
-//                private JLabel unreadLabel;
-//
-//                public ClassComboBoxRenderer() {
-//                    GridBagLayout gbl = new GridBagLayout();
-//                    GridBagConstraints gbc = new GridBagConstraints();
-//
-//
-//                    this.iconLabel = new JLabel();
-//                    this.titleLabel = new JLabel();
-//                    this.unreadLabel = new JLabel();
-//
-//
-//                    // Register the text labels so that they get the right colors on rollover,
-//                    // selection and other highight effects
-//                    this.registerThemeAwareLabelsWithText(this.iconLabel, this.titleLabel, this.unreadLabel);
-//
-//                    this.setLayout(new BorderLayout());
-//                    //this.add(builder.build(), BorderLayout.CENTER);
-//
-//                    this.setOpaque(false);                }
-//
-//                @Override
-//                protected void bindData(JList<? extends ClassShape> list, ClassShape value, int index) {
-//
-//                }
-//
-//            }
-
-
-//            this.listClassesModel = RibbonDefaultComboBoxContentModel.<String>builder()
-//                .setItems(classNames)
-//                .setRichTooltip(RichTooltip.builder()
-//                        .setTitle(resourceBundle.getString("Taskbar.ListClasses.tooltip.title"))
-//                        .build())
-//                .build();
-//
-//            this.listClassesModel.addListDataListener(new ListDataListener() {
-//                Object selected = listClassesModel.getSelectedItem();
-//
-//                @Override
-//                public void intervalAdded(ListDataEvent e) {
-//                }
-//
-//                @Override
-//                public void intervalRemoved(ListDataEvent e) {
-//                }
-//
-//                @Override
-//                public void contentsChanged(ListDataEvent e) {
-//                    Object newSelection = listClassesModel.getSelectedItem();
-//                    if (this.selected != newSelection) {
-//                        System.out.println("New class is -> " + newSelection);
-//                        this.selected = newSelection;
-//                    }
-//                }
-//            });
 
         this.configureClassesCommand = Command.builder()
                 .setText(resourceBundle.getString("Taskbar.ConfigureClasses.textTaskbarTitle"))
@@ -1350,25 +1275,48 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
     }
 
-
-    private ArrayList<Command> generateClassesPopup(List<ClassShape> classShapes) {
+    protected CommandMenuContentModel updateClassesPopup(List<ClassShape> classShapes) {
         ArrayList<Command> classesPopupCommandArrayList = new ArrayList<>();
-
-        MessageFormat mf = new MessageFormat("test...");
-        //mf.setLocale(currLocale);
 
         for(ClassShape classShape : classShapes) {
             Command popupCommand = Command.builder()
                     .setText(classShape.getName())
                     .setIconFactory(ColorResizableIcon.factory(classShape.getColor()))
-                    .setAction((CommandActionEvent e) ->
-                            System.out.println(String.format("Test menu item %s activated", classShape.getName())))
+                    .setAction(oia.SetupClassesTaskbarSecondary)
                     .build();
             classesPopupCommandArrayList.add(popupCommand);
         }
 
-        //Command[] array = (Command[]) classesPopupCommandArrayList.toArray();
-        return classesPopupCommandArrayList;
+        this.classesTaskbarCommand = Command.builder()
+                .setText("Setup Classes")
+                .setAction(oia.SetupClassesTaskbarPrimary)
+                .setSecondaryContentModel(popupMenuContentModel)
+                .setIconFactory(ColorResizableIcon.factory(oia.getModel().getClassShapes().get(0).getColor()))
+                .build();
+
+        return new CommandMenuContentModel(
+                Arrays.asList(new CommandGroup(classesPopupCommandArrayList)));
+    }
+
+    protected void updateClassesBand() {
+        //classesTaskbarCommand
+        this.classesTaskbarCommand = Command.builder()
+                .setText("Setup Classes")
+                .setAction(oia.SetupClassesTaskbarPrimary)
+                .setSecondaryContentModel(popupMenuContentModel)
+                .setIconFactory(ColorResizableIcon.factory(oia.getModel().getClassShapes().get(0).getColor()))
+                .build();
+        this.getSetupClassesBand();
+
+        JRibbonBand setupClassesBand = this.getSetupClassesBand();
+        JRibbonBand drawBand = this.getDrawBand();
+        JRibbonBand exclusionBand = this.getExclusionModelBand();
+        RibbonTask exclusionModelTask = new RibbonTask(resourceBundle.getString("ExclusionModel.textTaskTitle"),
+                setupClassesBand,
+                drawBand,
+                exclusionBand);
+
+        this.exclusionModelTask = exclusionModelTask;
     }
 
     private void createStyleGalleryModel() {
@@ -1413,7 +1361,7 @@ public class OrbitMenu extends JRibbonFrame {
         JRibbonBand setupClassesBand = this.getSetupClassesBand();
         JRibbonBand drawBand = this.getDrawBand();
         JRibbonBand exclusionBand = this.getExclusionModelBand();
-        RibbonTask exclusionModelTask = new RibbonTask(resourceBundle.getString("ExclusionModel.textTaskTitle"),
+        this.exclusionModelTask = new RibbonTask(resourceBundle.getString("ExclusionModel.textTaskTitle"),
                 setupClassesBand,
                 drawBand,
                 exclusionBand);
@@ -1479,7 +1427,7 @@ public class OrbitMenu extends JRibbonFrame {
         ribbon.addTask(imageTask);
         ribbon.addTask(editTask);
         ribbon.addTask(modelTask);
-        ribbon.addTask(exclusionModelTask);
+        ribbon.addTask(this.exclusionModelTask);
         ribbon.addTask(classificationTask);
         ribbon.addTask(objectDetectionTask);
         ribbon.addTask(roiTask);
@@ -1611,9 +1559,19 @@ public class OrbitMenu extends JRibbonFrame {
         // Hand tool
         ribbon.addTaskbarCommand(this.handToolCommand);
         // Classes
-        ribbon.addTaskbarComponent(new RibbonComboBoxProjection(this.listClassesModel,
-                ComponentPresentationModel.withDefaults()));
+//        ribbon.addTaskbarComponent(new RibbonComboBoxProjection(this.listClassesModel,
+//                ComponentPresentationModel.withDefaults()));
         ribbon.addTaskbarCommand(this.classesTaskbarCommand);
+//        RibbonDefaultComboBoxContentModel<Object> fontComboBoxModel = RibbonDefaultComboBoxContentModel.builder()
+//                .setItems(oia.classComboBox.getSelectedObjects())
+//                .build();
+
+//        ClassComboBox2 classComboBox2 = oia.classComboBox;//.setRenderer(new ClassListCellRenderer2());
+//        classComboBox2.setRenderer(new ClassListCellRenderer2());
+//        RibbonDefaultComboBoxContentModel<Object> classComboBoxModel = RibbonDefaultComboBoxContentModel.builder()
+//                .setItems(classComboBox2.getSelectedObjects())
+//                .build();
+        //ribbon.addTaskbarComponent(new RibbonComboBoxProjection(classComboBoxModel, ComponentPresentationModel.withDefaults()));
         // Configure Classes
         ribbon.addTaskbarCommand(this.configureClassesCommand);
         // Configure Features
@@ -1633,7 +1591,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .build());
 
         CommandButtonProjection<Command> openImageProjection = this.openImageCommand.project(
-                CommandButtonPresentationModel.builder().build());
+                CommandButtonPresentationModel.builder().setFlat(true).build());
 
         openImageBand.addRibbonCommand(openImageProjection, JRibbonBand.PresentationPriority.TOP);
 
@@ -1943,8 +1901,8 @@ public class OrbitMenu extends JRibbonFrame {
                 .addDescriptionSection(resourceBundle.getString("ExclusionModel.Setup.textBandTooltipParagraph1"))
                 .build());
 
-        CommandButtonProjection<Command> setupClassesProjection = this.setupClassesCommand.project(
-                CommandButtonPresentationModel.builder().build());
+        CommandButtonProjection<Command> setupClassesProjection = this.classesTaskbarCommand.project(
+                CommandButtonPresentationModel.builder().setTextClickAction().build());
 
         setupClassesBand.addRibbonCommand(setupClassesProjection, JRibbonBand.PresentationPriority.TOP);
 

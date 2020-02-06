@@ -58,6 +58,7 @@ import org.jaitools.tilecache.DiskCachedTile;
 import org.jaitools.tiledimage.DiskMemImageOrbit;
 import org.jdesktop.swingx.JXLoginPane.Status;
 import org.pushingpixels.flamingo.api.common.CommandAction;
+import org.pushingpixels.flamingo.api.common.icon.ColorResizableIcon;
 import org.pushingpixels.flamingo.api.ribbon.JRibbonFrame;
 import org.pushingpixels.substance.api.SubstanceCortex;
 import org.pushingpixels.substance.api.skin.GraphiteAquaSkin;
@@ -214,6 +215,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private ModelExplorer modelExplorer = null;
     final TransferHandler desktopTransferHandler = new DesktopTransferHandler();
 
+    private ClassShape class1 = new ClassShape("test", Color.BLACK, 0);
+    private ClassShape class2 = new ClassShape("test2", Color.BLUE, 0);
+    private ArrayList<ClassShape> classes = new ArrayList<ClassShape>(Arrays.asList(new ClassShape[]{class1, class2}));
+    protected ClassComboBox2 classComboBox = new ClassComboBox2(classes);
 
     public static boolean popupErrors = true;
     protected Preferences prefs = Preferences.userNodeForPackage(this.getClass());
@@ -942,9 +947,24 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     }
 
+//    private synchronized void updateSelectedClassShape() {
+//        ClassShape classShape = (ClassShape) classBox.getSelectedItem();
+//        int classNum = classBox.getSelectedIndex();
+//        for (ImageFrame iFrame : getIFrames()) {
+//            iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
+//            //classNum should be in synch! (-> bug in segmentation with more than two classes?)
+//            if (classNum < iFrame.recognitionFrame.getClassShapes().size())
+//                iFrame.recognitionFrame.getMyListener().setShapeList(iFrame.recognitionFrame.getClassShapes().get(classNum).getShapeList(), classShape.getShapeType(), classShape.getName());
+//            else {
+//                logger.debug("classes are not in sync (updateSelectedClassShape) " + classNum);
+//            }
+//        }
+//
+//    }
+
     private synchronized void updateSelectedClassShape() {
-        ClassShape classShape = (ClassShape) classBox.getSelectedItem();
-        int classNum = classBox.getSelectedIndex();
+        ClassShape classShape = this.getModel().getClassShapeByName((String) this.classComboBox.getSelectedItem());
+        int classNum = this.classComboBox.getSelectedIndex();
         for (ImageFrame iFrame : getIFrames()) {
             iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
             //classNum should be in synch! (-> bug in segmentation with more than two classes?)
@@ -956,7 +976,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
 
     }
-
 
 //    protected void addButtons(JToolBar toolBar) {
 //        JButton button = null;
@@ -2751,28 +2770,28 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         return true;
     }
 
-    @Deprecated
-    private boolean resetModelOld() {
-        if (model != null && model.getClassShapes() != null) {
-            for (ClassShape cs : model.getClassShapes()) {
-                cs.setShapeList(new ArrayList<Shape>());
-            }
-        }
-        if (getIFrames() != null && getIFrames().size() > 0) {
-            for (ImageFrame iFrame : getIFrames()) {
-                for (ClassShape cs : iFrame.recognitionFrame.getClassShapes()) {
-                    cs.setShapeList(new ArrayList<Shape>());
-                }
-                iFrame.repaint();
-            }
-        }
-        model.setClassifier(null);
-        model = new OrbitModel(); // complete reset if model
-        makeClassCombobox();
-        loadedModel = "none";
-        updateStatusBar();
-        return true;
-    }
+//    @Deprecated
+//    private boolean resetModelOld() {
+//        if (model != null && model.getClassShapes() != null) {
+//            for (ClassShape cs : model.getClassShapes()) {
+//                cs.setShapeList(new ArrayList<Shape>());
+//            }
+//        }
+//        if (getIFrames() != null && getIFrames().size() > 0) {
+//            for (ImageFrame iFrame : getIFrames()) {
+//                for (ClassShape cs : iFrame.recognitionFrame.getClassShapes()) {
+//                    cs.setShapeList(new ArrayList<Shape>());
+//                }
+//                iFrame.repaint();
+//            }
+//        }
+//        model.setClassifier(null);
+//        model = new OrbitModel(); // complete reset if model
+//        makeClassCombobox();
+//        loadedModel = "none";
+//        updateStatusBar();
+//        return true;
+//    }
 
     private boolean resetModel() {
         model = new OrbitModel(); // complete reset of model
@@ -4821,6 +4840,39 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //        }
 //    };
 
+    public final CommandAction SetupClassesTaskbarPrimary = e -> {
+        if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+                "This will reset all current training shapes.\n" +
+                        "Do you want to continue?",
+                "Reset current training data?",
+                JOptionPane.YES_NO_OPTION)
+                    == JOptionPane.YES_OPTION) {
+            List<ClassShape> classShapes = new ArrayList<ClassShape>(3);
+            classShapes.add(new ClassShape("Stained Objects", Color.green, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+            classShapes.add(new ClassShape("Normal Objects", Color.blue, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+            classShapes.add(new ClassShape("Other Objects", Color.orange, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+            for (ImageFrame iFrame : getIFrames()) {
+                iFrame.recognitionFrame.setClassShapes(OrbitUtils.cloneClassShapes(classShapes));
+                iFrame.recognitionFrame.setWindowSize(getModel().getFeatureDescription().getWindowSize());
+                iFrame.recognitionFrame.setBoundaryClass(getModel().getBoundaryClass());
+            }
+            this.getModel().setClassShapes(classShapes);
+            this.orbitMenu.setPopupMenuContentModel(this.orbitMenu.updateClassesPopup(classShapes));
+            //this.orbitMenu.getClassesTaskbarCommand().setSecondaryContentModel()
+            //this.orbitMenu.updateClassesPopupCommand(classShapes);
+            // this is nearly the right thing, just needs to be more targeted.
+            //this.orbitMenu.configureRibbon(this.getRibbon());
+            this.orbitMenu.updateClassesBand();
+        }
+    };
+
+    public final CommandAction SetupClassesTaskbarSecondary = e -> {
+        //updateSelectedClassShape();
+        String selectedClass = e.getCommand().getText();
+        ClassShape selectedShape = this.getModel().getClassShapeByName(selectedClass);
+        orbitMenu.getClassesTaskbarCommand().setIconFactory(ColorResizableIcon.factory(selectedShape.getColor()));
+        //this.getModel().
+    };
 
     public final ActionListener setupClassesForObjectClassification = new ActionListener() {
         @Override

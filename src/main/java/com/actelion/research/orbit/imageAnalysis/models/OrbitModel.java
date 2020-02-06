@@ -363,6 +363,14 @@ public class OrbitModel implements Serializable, Cloneable {
         return modelList;
     }
 
+    public ClassShape getClassShapeByName(String testClassName) {
+        for (ClassShape classShape : classShapes) {
+            if (classShape.getName().equals(testClassName)) {
+                return classShape;
+            }
+        }
+        return null;
+    }
 
     public byte[] getAsByteArray() {
         XStream xstream = new XStream();
