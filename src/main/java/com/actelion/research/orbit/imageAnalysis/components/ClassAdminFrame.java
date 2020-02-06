@@ -31,6 +31,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 
 public class ClassAdminFrame extends JDialog {
@@ -38,6 +40,9 @@ public class ClassAdminFrame extends JDialog {
     private static final Logger log = LoggerFactory.getLogger(ClassAdminFrame.class);
     private static final long serialVersionUID = 264449917842683627L;
     public static final String CLASSADMIN_DONE = "classAdminFrame_classAdminDone";
+
+    private ResourceBundle resourceBundle;
+
     private JPanel panelClassAttributes = null;
     private JScrollPane classScrollPane = null;
     private JList classList = null;
@@ -60,6 +65,9 @@ public class ClassAdminFrame extends JDialog {
 
 
     public ClassAdminFrame(final List<ClassShape> classShapes, final ListCellRenderer renderer, final int boundaryClass, boolean firePropertyChangeEvent) {
+        Locale currLocale = Locale.getDefault();
+        resourceBundle = ResourceBundle.getBundle("Resources", currLocale);
+
         this.firePropertyChangeEvent = firePropertyChangeEvent;
         this.boundaryClass = boundaryClass;
         initialize();
@@ -87,7 +95,7 @@ public class ClassAdminFrame extends JDialog {
 
 
     private void initialize() {
-        this.setTitle("Class Configuration (F4)");
+        this.setTitle(resourceBundle.getString("Model.ConfigureModel.classes.text"));
         java.net.URL imgURL = this.getClass().getResource(OrbitImageAnalysis.LOGO_NAME);
         if (imgURL != null) {
             ImageIcon icon = new ImageIcon(imgURL);
