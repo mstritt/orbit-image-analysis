@@ -4840,39 +4840,39 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //        }
 //    };
 
-    public final CommandAction SetupClassesTaskbarPrimary = e -> {
-        if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
-                "This will reset all current training shapes.\n" +
-                        "Do you want to continue?",
-                "Reset current training data?",
-                JOptionPane.YES_NO_OPTION)
-                    == JOptionPane.YES_OPTION) {
-            List<ClassShape> classShapes = new ArrayList<ClassShape>(3);
-            classShapes.add(new ClassShape("Stained Objects", Color.green, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
-            classShapes.add(new ClassShape("Normal Objects", Color.blue, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
-            classShapes.add(new ClassShape("Other Objects", Color.orange, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
-            for (ImageFrame iFrame : getIFrames()) {
-                iFrame.recognitionFrame.setClassShapes(OrbitUtils.cloneClassShapes(classShapes));
-                iFrame.recognitionFrame.setWindowSize(getModel().getFeatureDescription().getWindowSize());
-                iFrame.recognitionFrame.setBoundaryClass(getModel().getBoundaryClass());
-            }
-            this.getModel().setClassShapes(classShapes);
-            this.orbitMenu.setPopupMenuContentModel(this.orbitMenu.updateClassesPopup(classShapes));
-            //this.orbitMenu.getClassesTaskbarCommand().setSecondaryContentModel()
-            //this.orbitMenu.updateClassesPopupCommand(classShapes);
-            // this is nearly the right thing, just needs to be more targeted.
-            //this.orbitMenu.configureRibbon(this.getRibbon());
-            this.orbitMenu.updateClassesBand();
-        }
-    };
+//    public final CommandAction SetupClassesTaskbarPrimary = e -> {
+//        if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+//                "This will reset all current training shapes.\n" +
+//                        "Do you want to continue?",
+//                "Reset current training data?",
+//                JOptionPane.YES_NO_OPTION)
+//                    == JOptionPane.YES_OPTION) {
+//            List<ClassShape> classShapes = new ArrayList<ClassShape>(3);
+//            classShapes.add(new ClassShape("Stained Objects", Color.green, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+//            classShapes.add(new ClassShape("Normal Objects", Color.blue, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+//            classShapes.add(new ClassShape("Other Objects", Color.orange, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+//            for (ImageFrame iFrame : getIFrames()) {
+//                iFrame.recognitionFrame.setClassShapes(OrbitUtils.cloneClassShapes(classShapes));
+//                iFrame.recognitionFrame.setWindowSize(getModel().getFeatureDescription().getWindowSize());
+//                iFrame.recognitionFrame.setBoundaryClass(getModel().getBoundaryClass());
+//            }
+//            this.getModel().setClassShapes(classShapes);
+//            this.orbitMenu.setPopupMenuContentModel(this.orbitMenu.updateClassesPopup(classShapes));
+//            //this.orbitMenu.getClassesTaskbarCommand().setSecondaryContentModel()
+//            //this.orbitMenu.updateClassesPopupCommand(classShapes);
+//            // this is nearly the right thing, just needs to be more targeted.
+//            //this.orbitMenu.configureRibbon(this.getRibbon());
+//            this.orbitMenu.updateClassesBand();
+//        }
+//    };
 
-    public final CommandAction SetupClassesTaskbarSecondary = e -> {
-        //updateSelectedClassShape();
-        String selectedClass = e.getCommand().getText();
-        ClassShape selectedShape = this.getModel().getClassShapeByName(selectedClass);
-        orbitMenu.getClassesTaskbarCommand().setIconFactory(ColorResizableIcon.factory(selectedShape.getColor()));
-        //this.getModel().
-    };
+//    public final CommandAction SetupClassesTaskbarSecondary = e -> {
+//        //updateSelectedClassShape();
+//        String selectedClass = e.getCommand().getText();
+//        ClassShape selectedShape = this.getModel().getClassShapeByName(selectedClass);
+//        orbitMenu.getClassesTaskbarCommand().setIconFactory(ColorResizableIcon.factory(selectedShape.getColor()));
+//        //this.getModel().
+//    };
 
     public final ActionListener setupClassesForObjectClassification = new ActionListener() {
         @Override
