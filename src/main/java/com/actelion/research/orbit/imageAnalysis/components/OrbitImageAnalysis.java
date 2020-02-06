@@ -60,6 +60,7 @@ import org.jdesktop.swingx.JXLoginPane.Status;
 import org.pushingpixels.flamingo.api.common.CommandAction;
 import org.pushingpixels.flamingo.api.common.icon.ColorResizableIcon;
 import org.pushingpixels.flamingo.api.ribbon.JRibbonFrame;
+import org.pushingpixels.flamingo.api.ribbon.synapse.model.RibbonDefaultComboBoxContentModel;
 import org.pushingpixels.substance.api.SubstanceCortex;
 import org.pushingpixels.substance.api.skin.GraphiteAquaSkin;
 import org.slf4j.LoggerFactory;
@@ -70,6 +71,8 @@ import javax.media.jai.TiledImage;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.datatransfer.Transferable;
@@ -148,6 +151,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private JComboBox sizeBox = null;
     private JComboBox classBox = null;
 
+    protected RibbonDefaultComboBoxContentModel<ClassShape> ccbModel;
+
     private JDesktopPane desktop = null;
 
 
@@ -214,11 +219,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private MihcModule mihcModule = null;
     private ModelExplorer modelExplorer = null;
     final TransferHandler desktopTransferHandler = new DesktopTransferHandler();
-
-    private ClassShape class1 = new ClassShape("test", Color.BLACK, 0);
-    private ClassShape class2 = new ClassShape("test2", Color.BLUE, 0);
-    private ArrayList<ClassShape> classes = new ArrayList<ClassShape>(Arrays.asList(new ClassShape[]{class1, class2}));
-    protected ClassComboBox2 classComboBox = new ClassComboBox2(classes);
 
     public static boolean popupErrors = true;
     protected Preferences prefs = Preferences.userNodeForPackage(this.getClass());
@@ -299,7 +299,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         JAI.getDefaultInstance().getTileCache().setMemoryCapacity(OrbitUtils.PLANAR_IMAGE_CACHE);
 
 
-//        makeClassCombobox();
+        makeClassCombobox();
 //        final JComboBox ccb = classBox;
 
         //OrbitMenu orbitMenu = new OrbitMenu(this);
@@ -931,40 +931,41 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     public synchronized void makeClassCombobox() {
         // Class Combobox
         if (classBox == null) {
-            classBox = new ClassCombobox(model.getClassShapes());
-            classBox.setMaximumSize(new Dimension(160, TOOLBAR_HEIGHT));
-            classBox.setToolTipText("select class name");
-            classBox.setBackground(Color.white);
-            ActionListener actionListener = new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    updateSelectedClassShape();
+            // Define the model that backs the selection.
+            this.ccbModel = RibbonDefaultComboBoxContentModel.<ClassShape>builder()
+                    .setItems(model.getClassShapes().toArray(new ClassShape[0]))
+                    .build();
+
+            this.ccbModel.addListDataListener(new ListDataListener() {
+                Object selected = ccbModel.getSelectedItem();
+
+                @Override
+                public void intervalAdded(ListDataEvent e) {
                 }
-            };
-            classBox.addActionListener(actionListener);
-        } else { // just renew the model of the existing classBox
-            ClassCombobox ccb = new ClassCombobox(model.getClassShapes());
-            classBox.setModel(ccb.getModel());
+
+                @Override
+                public void intervalRemoved(ListDataEvent e) {
+                }
+
+                @Override
+                public void contentsChanged(ListDataEvent e) {
+                    Object newSelection = ccbModel.getSelectedItem();
+                    // TODO: Why does this need to be outside the if statement?
+                    if (this.selected != newSelection) {
+                        logger.info("New class selection -> " + newSelection);
+                        updateSelectedClassShape();
+                        this.selected = newSelection;
+                    }
+                }
+            });
+
+            classBox = new ClassComboBox(ccbModel);
         }
     }
 
-//    private synchronized void updateSelectedClassShape() {
-//        ClassShape classShape = (ClassShape) classBox.getSelectedItem();
-//        int classNum = classBox.getSelectedIndex();
-//        for (ImageFrame iFrame : getIFrames()) {
-//            iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
-//            //classNum should be in synch! (-> bug in segmentation with more than two classes?)
-//            if (classNum < iFrame.recognitionFrame.getClassShapes().size())
-//                iFrame.recognitionFrame.getMyListener().setShapeList(iFrame.recognitionFrame.getClassShapes().get(classNum).getShapeList(), classShape.getShapeType(), classShape.getName());
-//            else {
-//                logger.debug("classes are not in sync (updateSelectedClassShape) " + classNum);
-//            }
-//        }
-//
-//    }
-
     private synchronized void updateSelectedClassShape() {
-        ClassShape classShape = this.getModel().getClassShapeByName((String) this.classComboBox.getSelectedItem());
-        int classNum = this.classComboBox.getSelectedIndex();
+        ClassShape classShape = (ClassShape) classBox.getSelectedItem();
+        int classNum = classBox.getSelectedIndex();
         for (ImageFrame iFrame : getIFrames()) {
             iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
             //classNum should be in synch! (-> bug in segmentation with more than two classes?)
@@ -974,7 +975,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 logger.debug("classes are not in sync (updateSelectedClassShape) " + classNum);
             }
         }
-
     }
 
 //    protected void addButtons(JToolBar toolBar) {

@@ -1299,7 +1299,6 @@ public class OrbitMenu extends JRibbonFrame {
     }
 
     protected void updateClassesBand() {
-        //classesTaskbarCommand
         this.classesTaskbarCommand = Command.builder()
                 .setText("Setup Classes")
                 .setAction(oia.SetupClassesTaskbarPrimary)
@@ -1559,24 +1558,12 @@ public class OrbitMenu extends JRibbonFrame {
         // Hand tool
         ribbon.addTaskbarCommand(this.handToolCommand);
         // Classes
-//        ribbon.addTaskbarComponent(new RibbonComboBoxProjection(this.listClassesModel,
-//                ComponentPresentationModel.withDefaults()));
-        ribbon.addTaskbarCommand(this.classesTaskbarCommand);
-//        RibbonDefaultComboBoxContentModel<Object> fontComboBoxModel = RibbonDefaultComboBoxContentModel.builder()
-//                .setItems(oia.classComboBox.getSelectedObjects())
-//                .build();
-
-//        ClassComboBox2 classComboBox2 = oia.classComboBox;//.setRenderer(new ClassListCellRenderer2());
-//        classComboBox2.setRenderer(new ClassListCellRenderer2());
-//        RibbonDefaultComboBoxContentModel<Object> classComboBoxModel = RibbonDefaultComboBoxContentModel.builder()
-//                .setItems(classComboBox2.getSelectedObjects())
-//                .build();
-        //ribbon.addTaskbarComponent(new RibbonComboBoxProjection(classComboBoxModel, ComponentPresentationModel.withDefaults()));
+        ribbon.addTaskbarComponent(new RibbonClassComboBoxProjection(oia.ccbModel,
+                ComponentPresentationModel.builder().build()));
         // Configure Classes
         ribbon.addTaskbarCommand(this.configureClassesCommand);
         // Configure Features
         ribbon.addTaskbarCommand(this.configureFeaturesCommand);
-
     }
 
     private JRibbonBand getImageBand() {
@@ -1901,10 +1888,12 @@ public class OrbitMenu extends JRibbonFrame {
                 .addDescriptionSection(resourceBundle.getString("ExclusionModel.Setup.textBandTooltipParagraph1"))
                 .build());
 
+
         CommandButtonProjection<Command> setupClassesProjection = this.classesTaskbarCommand.project(
                 CommandButtonPresentationModel.builder().setTextClickAction().build());
 
-        setupClassesBand.addRibbonCommand(setupClassesProjection, JRibbonBand.PresentationPriority.TOP);
+        setupClassesBand.addRibbonComponent(new RibbonClassComboBoxProjection(oia.ccbModel,
+                ComponentPresentationModel.builder().build()));
 
         List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
         resizePolicies.add(new CoreRibbonResizePolicies.Mirror(setupClassesBand));
