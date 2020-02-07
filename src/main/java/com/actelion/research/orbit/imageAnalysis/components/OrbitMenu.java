@@ -701,8 +701,11 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.DefineRoiCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Classification.MachineLearning.defineRoi.text"))
+                                    .setTitle(resourceBundle.getString("Classification.MachineLearning.defineRoi.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Classification.MachineLearning.defineRoi.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Classification.MachineLearning.defineRoi.tooltip.actionParagraph2"))
+                                    .addDescriptionSection(resourceBundle.getString("Classification.MachineLearning.defineRoi.tooltip.actionParagraph3"))
+
                                     .build())
                     .build();
 
@@ -712,8 +715,10 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.ClassifyCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Classification.MachineLearning.classify.text"))
+                                    .setTitle(resourceBundle.getString("Classification.MachineLearning.classify.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Classification.MachineLearning.classify.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Classification.MachineLearning.classify.tooltip.actionParagraph2"))
+                                    .addDescriptionSection(resourceBundle.getString("Classification.MachineLearning.classify.tooltip.actionParagraph3"))
                                     .build())
                     .build();
 
@@ -725,8 +730,10 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.SetPrimarySegmentationModelCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setPrimarySegmentationModel.text"))
+                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setPrimarySegmentationModel.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setPrimarySegmentationModel.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setPrimarySegmentationModel.tooltip.actionParagraph2"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setPrimarySegmentationModel.tooltip.actionParagraph3"))
                                     .build())
                     .build();
 
@@ -736,8 +743,10 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.SetSecondarySegmentationModelCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.text"))
+                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.tooltip.actionParagraph2"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.tooltip.actionParagraph3"))
                                     .build())
                     .build();
 
@@ -747,8 +756,11 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.ObjectSegmentationCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.text"))
+                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.tooltip.actionParagraph2"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.tooltip.actionParagraph3"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.tooltip.actionParagraph4"))
                                     .build())
                     .build();
 
@@ -758,8 +770,9 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.ShowSegmentationHeatmapCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.text"))
+                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -771,6 +784,8 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectMarker.text"))
                                     .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectMarker.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectMarker.tooltip.actionParagraph2"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectMarker.tooltip.actionParagraph3"))
                                     .build())
                     .build();
 
@@ -780,8 +795,14 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.TrainObjectsCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.text"))
+                                    .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.tooltip.actionParagraph2"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.tooltip.actionParagraph3"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.tooltip.actionParagraph4"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.tooltip.actionParagraph5"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.tooltip.actionParagraph6"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.trainObjects.tooltip.actionParagraph7"))
                                     .build())
                     .build();
 
@@ -793,6 +814,9 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.text"))
                                     .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.tooltip.actionParagraph2"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.tooltip.actionParagraph3"))
+                                    .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.tooltip.actionParagraph4"))
                                     .build())
                     .build();
 

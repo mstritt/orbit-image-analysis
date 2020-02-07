@@ -3519,9 +3519,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     public final CommandAction ClassifyTrainedExclusionModelCommandAction = e -> {};
     public final CommandAction ConfigureExclusionClassesCommandAction = e -> {};
     public final CommandAction LoadAndSetLocalCommandAction = e -> {};
-    public final CommandAction LoadAndSetServerCommandAction = e -> {
-        // TODO: This
-    };
+    public final CommandAction LoadAndSetServerCommandAction = e -> {};
     public final CommandAction SetFromModelExplorerCommandAction = e -> {};
     public final CommandAction ResetExclusionModelCommandAction = e -> {};
     public final CommandAction ExclusionHelpCommandAction = e -> {};
