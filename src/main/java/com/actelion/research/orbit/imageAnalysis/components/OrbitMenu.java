@@ -1,44 +1,26 @@
 package com.actelion.research.orbit.imageAnalysis.components;
 
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
-import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
-import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
-import org.pushingpixels.flamingo.api.common.CommandAction;
-import org.pushingpixels.flamingo.api.common.CommandActionEvent;
 import org.pushingpixels.flamingo.api.common.CommandButtonPresentationState;
 import org.pushingpixels.flamingo.api.common.RichTooltip;
-import org.pushingpixels.flamingo.api.common.icon.ColorResizableIcon;
 import org.pushingpixels.flamingo.api.common.model.*;
-import org.pushingpixels.flamingo.api.common.popup.JColorSelectorPopupMenu;
-import org.pushingpixels.flamingo.api.common.popup.model.ColorSelectorPopupMenuGroupModel;
 import org.pushingpixels.flamingo.api.common.projection.CommandButtonProjection;
 import org.pushingpixels.flamingo.api.ribbon.*;
 import org.pushingpixels.flamingo.api.ribbon.projection.RibbonApplicationMenuCommandButtonProjection;
 import org.pushingpixels.flamingo.api.ribbon.resize.CoreRibbonResizePolicies;
 import org.pushingpixels.flamingo.api.ribbon.resize.RibbonBandResizePolicy;
 import org.pushingpixels.flamingo.api.ribbon.synapse.model.ComponentPresentationModel;
-import org.pushingpixels.flamingo.api.ribbon.synapse.model.RibbonComboBoxContentModel;
-import org.pushingpixels.flamingo.api.ribbon.synapse.model.RibbonDefaultComboBoxContentModel;
-import org.pushingpixels.flamingo.api.ribbon.synapse.projection.RibbonComboBoxProjection;
 import org.pushingpixels.neon.NeonCortex;
 import org.pushingpixels.neon.icon.ResizableIcon;
 import org.pushingpixels.substance.api.SubstanceCortex;
-import org.pushingpixels.substance.api.renderer.SubstanceDefaultComboBoxRenderer;
-import org.pushingpixels.substance.api.renderer.SubstancePanelListCellRenderer;
 import org.pushingpixels.substance.api.skin.GraphiteAquaSkin;
 
 import com.actelion.research.orbit.imageAnalysis.components.icons.*;
-import org.pushingpixels.substance.internal.utils.icon.SubstanceIconFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.List;
 
@@ -81,7 +63,7 @@ public class OrbitMenu extends JRibbonFrame {
     private Command resetEntireModelCommand;
 
     // Commands for Exclusion Model Tasks
-    private Command setupClassesCommand;
+    private Command setupClassesExclusionCommand;
     private Command eraserCommand;
     private Command polygonCommand;
     private Command circleCommand;
@@ -98,20 +80,22 @@ public class OrbitMenu extends JRibbonFrame {
     private Command exclusionHelpCommand;
 
     // Commands for classification Tasks
-    // Commands for Setup Classes and Draw Tasks are defined in Exclusion Model
+    private Command setupClassesClassificationCommand;
+    // Commands for Draw Tasks are defined in Exclusion Model
     private Command trainCommand;
     private Command defineRoiCommand;
     private Command classifyCommand;
     // Commands for Reset are already defined...
 
     // Commands for Object Detection Tasks
+    private Command setupClassesObjectSegmentationCommand;
     private Command setPrimarySegmentationModelCommand;
     private Command setSecondarySegmentationModelCommand;
     // Commands for Features and Define ROI are defined in Exclusion Model and Classification
     private Command objectSegmentationCommand;
     private Command showSegmentationHeatmapCommand;
     // Commands for Reset Primary and Secondary Model are defined in Exclusion Model
-    // Setup Classes defined in exclusion model
+    private Command setupClassesObjectClassificationCommand;
     private Command objectMarkerCommand;
     private Command trainObjectsCommand;
     // Define ROI defined in Classification
@@ -170,22 +154,8 @@ public class OrbitMenu extends JRibbonFrame {
 
     // Taskbar commands
     private Command handToolCommand;
-    private Command configureClassesCommand;
-    private Command configureFeaturesCommand;
-    private RibbonDefaultComboBoxContentModel<String> listClassesModel;
-    private CommandMenuContentModel popupMenuContentModel;
-    private Command classesTaskbarCommand;
-    private CommandButtonPresentationModel button;
 
     private RibbonTask exclusionModelTask;
-
-    protected Command getClassesTaskbarCommand() {
-        return classesTaskbarCommand;
-    }
-
-    protected void setPopupMenuContentModel(CommandMenuContentModel contentModel) {
-        this.popupMenuContentModel = contentModel;
-    }
 
 
     public OrbitMenu() {
@@ -205,13 +175,6 @@ public class OrbitMenu extends JRibbonFrame {
         this.oia = oia;
         this.configureRibbon(oia.getRibbon());
         updateMenuImageProviderEntries();
-    }
-
-    private class ExpandActionListener implements CommandAction {
-        @Override
-        public void commandActivated(CommandActionEvent e) {
-            JOptionPane.showMessageDialog(OrbitMenu.this, "Expand button clicked");
-        }
     }
 
     public void updateMenuImageProviderEntries() {
@@ -526,11 +489,10 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         // Exclusion Model Task commands
-        // TODO: Is this really one command for exclusion model and classification?
-        this.setupClassesCommand = Command.builder()
+        this.setupClassesExclusionCommand = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Setup.setupClasses.text"))
                 .setIconFactory(system_run_5.factory())
-                .setAction(oia.SetupClassesCommandAction)
+                .setAction(oia.SetupClassesExclusionCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Setup.setupClasses.text"))
@@ -682,6 +644,17 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         // Classification Task Commands
+        this.setupClassesClassificationCommand = Command.builder()
+                .setText(resourceBundle.getString("Classification.Setup.setupClasses.text"))
+                .setIconFactory(system_run_5.factory())
+                .setAction(oia.SetupClassesClassificationCommandAction)
+                .setActionRichTooltip(
+                        RichTooltip.builder()
+                                .setTitle(resourceBundle.getString("Classification.Setup.setupClasses.text"))
+                                .addDescriptionSection(resourceBundle.getString("Classification.Setup.setupClasses.tooltip.actionParagraph1"))
+                                .addDescriptionSection(resourceBundle.getString("Classification.Setup.setupClasses.tooltip.actionParagraph2"))
+                                .build())
+                .build();
 
         this.trainCommand = Command.builder()
                 .setText(resourceBundle.getString("Classification.MachineLearning.train.text"))
@@ -723,6 +696,17 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         // Object Detection Task Commands
+        this.setupClassesObjectSegmentationCommand = Command.builder()
+                .setText(resourceBundle.getString("ObjectDetection.Setup.setupClasses.text"))
+                .setIconFactory(system_run_5.factory())
+                .setAction(oia.SetupClassesObjectSegmentationCommandAction)
+                .setActionRichTooltip(
+                        RichTooltip.builder()
+                                .setTitle(resourceBundle.getString("ObjectDetection.Setup.setupClasses.text"))
+                                .addDescriptionSection(resourceBundle.getString("ObjectDetection.Setup.setupClasses.tooltip.actionParagraph1"))
+                                .addDescriptionSection(resourceBundle.getString("ObjectDetection.Setup.setupClasses.tooltip.actionParagraph2"))
+                                .build())
+                .build();
 
         this.setPrimarySegmentationModelCommand = Command.builder()
                 .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setPrimarySegmentationModel.text"))
@@ -768,11 +752,24 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.text"))
                 .setIconFactory(obj_heatmap.factory())
                 .setAction(oia.ShowSegmentationHeatmapCommandAction)
+                .setToggleSelected(false)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.tooltip.text"))
                                 .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.tooltip.actionParagraph1"))
                                 .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.tooltip.actionParagraph2"))
+                                .build())
+                .build();
+
+        this.setupClassesObjectClassificationCommand = Command.builder()
+                .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.setupClasses.text"))
+                .setIconFactory(system_run_5.factory())
+                .setAction(oia.SetupClassesObjectClassificationCommandAction)
+                .setActionRichTooltip(
+                        RichTooltip.builder()
+                                .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.setupClasses.text"))
+                                .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.setupClasses.tooltip.actionParagraph1"))
+                                .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectClassification.setupClasses.tooltip.actionParagraph2"))
                                 .build())
                 .build();
 
@@ -1280,6 +1277,7 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
+    }
 
         // TODO: Move to OrbitModel...
         // Create a String[] with the class lists.
@@ -1290,66 +1288,6 @@ public class OrbitMenu extends JRibbonFrame {
 //            ClassShape[] classShapes = oia.getModel().getClassShapes().stream()
 //                    .map(ClassShape.class::cast)
 //                    .toArray(ClassShape[]::new);
-
-        //List<Command> popups = generateClassesPopup(oia.getModel().getClassShapes());
-
-//            this.popupMenuContentModel = updateClassesPopup(oia.getModel().getClassShapes());
-//
-//            this.button = CommandButtonPresentationModel.builder()
-//                    .setTextClickAction()
-//                    .build();
-//
-//            this.classesTaskbarCommand = Command.builder()
-//                    .setText("Setup Classes")
-//                    .setAction(oia.SetupClassesTaskbarPrimary)
-//                    .setSecondaryContentModel(popupMenuContentModel)
-//                    .setIconFactory(ColorResizableIcon.factory(oia.getModel().getClassShapes().get(0).getColor()))
-//                    .build();
-
-    }
-
-//    protected CommandMenuContentModel updateClassesPopup(List<ClassShape> classShapes) {
-//        ArrayList<Command> classesPopupCommandArrayList = new ArrayList<>();
-//
-//        for(ClassShape classShape : classShapes) {
-//            Command popupCommand = Command.builder()
-//                    .setText(classShape.getName())
-//                    .setIconFactory(ColorResizableIcon.factory(classShape.getColor()))
-//                    .setAction(oia.SetupClassesTaskbarSecondary)
-//                    .build();
-//            classesPopupCommandArrayList.add(popupCommand);
-//        }
-//
-//        this.classesTaskbarCommand = Command.builder()
-//                .setText("Setup Classes")
-//                .setAction(oia.SetupClassesTaskbarPrimary)
-//                .setSecondaryContentModel(popupMenuContentModel)
-//                .setIconFactory(ColorResizableIcon.factory(oia.getModel().getClassShapes().get(0).getColor()))
-//                .build();
-//
-//        return new CommandMenuContentModel(
-//                Arrays.asList(new CommandGroup(classesPopupCommandArrayList)));
-//    }
-
-//    protected void updateClassesBand() {
-//        this.classesTaskbarCommand = Command.builder()
-//                .setText("Setup Classes")
-//                .setAction(oia.SetupClassesTaskbarPrimary)
-//                .setSecondaryContentModel(popupMenuContentModel)
-//                .setIconFactory(ColorResizableIcon.factory(oia.getModel().getClassShapes().get(0).getColor()))
-//                .build();
-//        this.getSetupClassesBand();
-//
-//        JRibbonBand setupClassesBand = this.getSetupClassesBand();
-//        JRibbonBand drawBand = this.getDrawBand();
-//        JRibbonBand exclusionBand = this.getExclusionModelBand();
-//        RibbonTask exclusionModelTask = new RibbonTask(resourceBundle.getString("ExclusionModel.textTaskTitle"),
-//                setupClassesBand,
-//                drawBand,
-//                exclusionBand);
-//
-//        this.exclusionModelTask = exclusionModelTask;
-//    }
 
     private void createStyleGalleryModel() {
 
@@ -1380,7 +1318,6 @@ public class OrbitMenu extends JRibbonFrame {
         JRibbonBand openModelBand = this.getOpenModelBand();
         JRibbonBand saveModelBand = this.getSaveModelBand();
         JRibbonBand configureModelBand = this.getConfigureModelBand();
-//        JRibbonBand clusteringModelBand = this.getClusteringModelBand();
         JRibbonBand resetModelBand = this.getResetModelBand();
 
         RibbonTask modelTask = new RibbonTask(resourceBundle.getString("Model.textTaskTitle"),
@@ -1390,7 +1327,7 @@ public class OrbitMenu extends JRibbonFrame {
 //                clusteringModelBand,
                 resetModelBand);
 
-        JRibbonBand setupClassesBand = this.getSetupClassesBand();
+        JRibbonBand setupClassesBand = this.getSetupExclusionClassesBand();
         JRibbonBand drawBand = this.getDrawBand();
         JRibbonBand exclusionBand = this.getExclusionModelBand();
         this.exclusionModelTask = new RibbonTask(resourceBundle.getString("ExclusionModel.textTaskTitle"),
@@ -1398,7 +1335,7 @@ public class OrbitMenu extends JRibbonFrame {
                 drawBand,
                 exclusionBand);
 
-        JRibbonBand setupClassesClassificationBand = this.getSetupClassesBand();
+        JRibbonBand setupClassesClassificationBand = this.getSetupClassificationClassesBand();
         JRibbonBand drawClassificationBand = this.getDrawBand();
         JRibbonBand machineLearningBand = this.getMachineLearningBand();
         JRibbonBand resetModelClassificationBand = this.getResetModelBand();
@@ -1409,7 +1346,7 @@ public class OrbitMenu extends JRibbonFrame {
                 machineLearningBand,
                 resetModelClassificationBand);
 
-        JRibbonBand setupClassesObjectDetectionBand = this.getSetupClassesBand();
+        JRibbonBand setupClassesObjectDetectionBand = this.getSetupObjectSegmentationClassesBand();
         JRibbonBand drawObjectDetectionBand = this.getDrawBand();
         JRibbonBand machineLearningObjectDetectionBand = this.getMachineLearningBand();
         JRibbonBand objectSegmentationBand = this.getObjectSegmentationBand();
@@ -1909,7 +1846,7 @@ public class OrbitMenu extends JRibbonFrame {
         return resetModelBand;
     }
 
-    private JRibbonBand getSetupClassesBand() {
+    private JRibbonBand getSetupExclusionClassesBand() {
         JRibbonBand setupClassesBand = new JRibbonBand(
                 resourceBundle.getString("ExclusionModel.Setup.textBandTitle"),
                 null,
@@ -1920,7 +1857,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .addDescriptionSection(resourceBundle.getString("ExclusionModel.Setup.textBandTooltipParagraph1"))
                 .build());
 
-        CommandButtonProjection<Command> setupClassesProjection = this.setupClassesCommand.project(
+        CommandButtonProjection<Command> setupClassesProjection = this.setupClassesExclusionCommand.project(
                 CommandButtonPresentationModel.builder().setTextClickAction().build());
 
         setupClassesBand.addRibbonCommand(setupClassesProjection,
@@ -2012,6 +1949,30 @@ public class OrbitMenu extends JRibbonFrame {
         return exclusionModelBand;
     }
 
+    private JRibbonBand getSetupClassificationClassesBand() {
+        JRibbonBand setupClassesBand = new JRibbonBand(
+                resourceBundle.getString("Classification.Setup.textBandTitle"),
+                null,
+                null);
+
+        setupClassesBand.setExpandButtonRichTooltip(RichTooltip.builder()
+                .setTitle(resourceBundle.getString("Classification.Setup.textBandTitle"))
+                .addDescriptionSection(resourceBundle.getString("Classification.Setup.textBandTooltipParagraph1"))
+                .build());
+
+        CommandButtonProjection<Command> setupClassesProjection = this.setupClassesClassificationCommand.project(
+                CommandButtonPresentationModel.builder().setTextClickAction().build());
+
+        setupClassesBand.addRibbonCommand(setupClassesProjection,
+                JRibbonBand.PresentationPriority.TOP);
+
+        List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
+        resizePolicies.add(new CoreRibbonResizePolicies.Mirror(setupClassesBand));
+        setupClassesBand.setResizePolicies(resizePolicies);
+
+        return setupClassesBand;
+    }
+
     private JRibbonBand getMachineLearningBand() {
         JRibbonBand machineLearningBand = new JRibbonBand(
                 resourceBundle.getString("Classification.MachineLearning.textBandTitle"),
@@ -2038,6 +1999,30 @@ public class OrbitMenu extends JRibbonFrame {
         machineLearningBand.setResizePolicies(resizePolicies);
 
         return machineLearningBand;
+    }
+
+    private JRibbonBand getSetupObjectSegmentationClassesBand() {
+        JRibbonBand setupClassesBand = new JRibbonBand(
+                resourceBundle.getString("ObjectDetection.Setup.textBandTitle"),
+                null,
+                null);
+
+        setupClassesBand.setExpandButtonRichTooltip(RichTooltip.builder()
+                .setTitle(resourceBundle.getString("ObjectDetection.Setup.textBandTitle"))
+                .addDescriptionSection(resourceBundle.getString("ObjectDetection.Setup.textBandTooltipParagraph1"))
+                .build());
+
+        CommandButtonProjection<Command> setupClassesProjection = this.setupClassesObjectSegmentationCommand.project(
+                CommandButtonPresentationModel.builder().setTextClickAction().build());
+
+        setupClassesBand.addRibbonCommand(setupClassesProjection,
+                JRibbonBand.PresentationPriority.TOP);
+
+        List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
+        resizePolicies.add(new CoreRibbonResizePolicies.Mirror(setupClassesBand));
+        setupClassesBand.setResizePolicies(resizePolicies);
+
+        return setupClassesBand;
     }
 
     private JRibbonBand getObjectSegmentationBand() {
@@ -2094,7 +2079,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectClassification.textBandTooltipParagraph1"))
                 .build());
 
-        CommandButtonProjection<Command> setupClassesProjection = this.setupClassesCommand.project(
+        CommandButtonProjection<Command> setupClassesProjection = this.setupClassesObjectClassificationCommand.project(
                 CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> objectMarkerProjection = this.objectMarkerCommand.project(
                 CommandButtonPresentationModel.builder().build());

@@ -59,7 +59,9 @@ import org.jaitools.tiledimage.DiskMemImageOrbit;
 import org.jdesktop.swingx.JXLoginPane.Status;
 import org.pushingpixels.flamingo.api.common.CommandAction;
 import org.pushingpixels.flamingo.api.common.icon.ColorResizableIcon;
+import org.pushingpixels.flamingo.api.common.model.Command;
 import org.pushingpixels.flamingo.api.ribbon.JRibbonFrame;
+import org.pushingpixels.flamingo.api.ribbon.RibbonTask;
 import org.pushingpixels.flamingo.api.ribbon.synapse.model.RibbonDefaultComboBoxContentModel;
 import org.pushingpixels.substance.api.SubstanceCortex;
 import org.pushingpixels.substance.api.skin.GraphiteAquaSkin;
@@ -908,34 +910,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
         return infoStr;
     }
-
-
-//    protected void addButtonsFile(JToolBar toolBar) {
-//        JButton button = null;
-//
-//        //button = makeNavigationButton(null, LOADFILE, "open image file", "Open File");
-//        button = new JButton("Open File (Orbit)");
-//        button.setToolTipText("open image file from Orbit");
-//        if (OrbitUtils.DARKUI)
-//            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_folder_document.png"), "open file"));
-//        else button.setIcon(UIManager.getIcon("Tree.openIcon"));
-//        button.addActionListener(openFileOrbitActionListener);
-//        toolBar.add(button);
-//        button = new JButton("Open Model");
-//        if (OrbitUtils.DARKUI)
-//            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_folder_document.png"), "open model"));
-//        else button.setIcon(UIManager.getIcon("Tree.openIcon"));
-//        button.setToolTipText("open recognition model");
-//        button.addActionListener(openModelActionListener);
-//        toolBar.add(button);
-//        button = new JButton("Save Model");
-//        button.setToolTipText("save recognition model");
-//        if (OrbitUtils.DARKUI)
-//            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_floppy_disk.png"), "save model"));
-//        else button.setIcon(UIManager.getIcon("FileView.floppyDriveIcon"));
-//        button.addActionListener(saveModelAsActionListener);
-//        toolBar.add(button);
-//    }
 
     public synchronized void makeClassCombobox() {
         // Class Combobox
@@ -2743,24 +2717,24 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
-    @Deprecated
-    private boolean resetTrainingData() {
-        for (ClassShape cs : model.getClassShapes()) {
-            cs.setShapeList(new ArrayList<Shape>());
-        }
-        if (getIFrames() != null && getIFrames().size() > 0) {
-            for (ImageFrame iFrame : getIFrames()) {
-                for (ClassShape cs : iFrame.recognitionFrame.getClassShapes()) {
-                    cs.setShapeList(new ArrayList<Shape>());
-                }
-                iFrame.repaint();
-            }
-        }
-        model.setClassifier(null);
-        makeClassCombobox();
-        updateStatusBar();
-        return true;
-    }
+//    @Deprecated
+//    private boolean resetTrainingData() {
+//        for (ClassShape cs : model.getClassShapes()) {
+//            cs.setShapeList(new ArrayList<Shape>());
+//        }
+//        if (getIFrames() != null && getIFrames().size() > 0) {
+//            for (ImageFrame iFrame : getIFrames()) {
+//                for (ClassShape cs : iFrame.recognitionFrame.getClassShapes()) {
+//                    cs.setShapeList(new ArrayList<Shape>());
+//                }
+//                iFrame.repaint();
+//            }
+//        }
+//        model.setClassifier(null);
+//        makeClassCombobox();
+//        updateStatusBar();
+//        return true;
+//    }
 
     private boolean resetMainModel() {
         OrbitModel newModel = new OrbitModel();
@@ -2778,6 +2752,81 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         updateStatusBar();
         return true;
     }
+
+    public boolean setupClassesForClassification() {
+
+        List<ClassShape> classShapes = new ArrayList<ClassShape>(2);
+        classShapes.add(new ClassShape("Background", Color.blue, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+        classShapes.add(new ClassShape("Foreground", Color.green, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+        for (ImageFrame iFrame : getIFrames()) {
+            iFrame.recognitionFrame.setClassShapes(OrbitUtils.cloneClassShapes(classShapes));
+            iFrame.recognitionFrame.setWindowSize(getModel().getFeatureDescription().getWindowSize());
+            iFrame.recognitionFrame.setBoundaryClass(getModel().getBoundaryClass());
+            iFrame.recognitionFrame.setObjectSegmentationList(null);
+        }
+        getModel().setClassShapes(classShapes);
+        makeClassCombobox();
+        updateStatusBar();
+        return true;
+    }
+
+    public boolean setupClassesForObjectSegmentation() {
+
+        List<ClassShape> classShapes = new ArrayList<ClassShape>(2);
+        classShapes.add(new ClassShape("Background", Color.blue, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+        classShapes.add(new ClassShape("Foreground", Color.green, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+        for (ImageFrame iFrame : getIFrames()) {
+            iFrame.recognitionFrame.setClassShapes(OrbitUtils.cloneClassShapes(classShapes));
+            iFrame.recognitionFrame.setWindowSize(getModel().getFeatureDescription().getWindowSize());
+            iFrame.recognitionFrame.setBoundaryClass(getModel().getBoundaryClass());
+            iFrame.recognitionFrame.setObjectSegmentationList(null);
+        }
+        getModel().setClassShapes(classShapes);
+        makeClassCombobox();
+        updateStatusBar();
+        return true;
+    }
+
+    private boolean setupClassesForObjectClassification() {
+        List<ClassShape> classShapes = new ArrayList<ClassShape>(3);
+        classShapes.add(new ClassShape("Stained Objects", Color.green, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+        classShapes.add(new ClassShape("Normal Objects", Color.blue, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+        classShapes.add(new ClassShape("Other Objects", Color.orange, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+        for (ImageFrame iFrame : getIFrames()) {
+            iFrame.recognitionFrame.setClassShapes(OrbitUtils.cloneClassShapes(classShapes));
+            iFrame.recognitionFrame.setWindowSize(this.model.getFeatureDescription().getWindowSize());
+            iFrame.recognitionFrame.setBoundaryClass(this.model.getBoundaryClass());
+        }
+        this.model.setClassShapes(classShapes);
+        makeClassCombobox();
+        updateStatusBar();
+
+        return true;
+    }
+
+
+
+    public final ActionListener setupClassesForObjectSegmentation = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+                    "This will reset all current training shapes.\nDo you want to continue?",
+                    "Reset current training data?", JOptionPane.YES_NO_OPTION)
+                    == JOptionPane.YES_OPTION) {
+                List<ClassShape> classShapes = new ArrayList<ClassShape>(2);
+                classShapes.add(new ClassShape("Background", Color.blue, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+                classShapes.add(new ClassShape("Foreground", Color.green, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+                for (ImageFrame iFrame : getIFrames()) {
+                    iFrame.recognitionFrame.setClassShapes(OrbitUtils.cloneClassShapes(classShapes));
+                    iFrame.recognitionFrame.setWindowSize(getModel().getFeatureDescription().getWindowSize());
+                    iFrame.recognitionFrame.setBoundaryClass(getModel().getBoundaryClass());
+                    iFrame.recognitionFrame.setObjectSegmentationList(null);
+                }
+                getModel().setClassShapes(classShapes);
+                makeClassCombobox();
+            }
+        }
+    };
 
 //    @Deprecated
 //    private boolean resetModelOld() {
@@ -3472,19 +3521,21 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     // Exclusion Model Tab/Task Command Actions
 
-    //TODO: See also ExclusionModule.java, is this really one command for exclusion model and classification?
-    // This can be one command, but resetMainModel() needs to be refactored to handle creating the
-    // default classes for Exclusion Model, Classification or Object Detection.
-    public final CommandAction SetupClassesCommandAction = e -> {
-
-        if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+    private boolean classesAreYouSurePopup() {
+        return JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
                 "This will reset all current training shapes.\n" +
                         "Do you want to continue?",
                 "Reset current training data?", JOptionPane.YES_NO_OPTION)
-                    == JOptionPane.YES_OPTION) {
-            resetMainModel();
-        }
-    };
+                == JOptionPane.YES_OPTION;
+    }
+
+    //TODO: See also ExclusionModule.java, is this really one command for exclusion model and classification?
+        public final CommandAction SetupClassesExclusionCommandAction = e -> { if (classesAreYouSurePopup()) resetMainModel(); };
+    public final CommandAction SetupClassesClassificationCommandAction = e -> { if (classesAreYouSurePopup()) resetMainModel(); };
+    public final CommandAction SetupClassesObjectSegmentationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForObjectSegmentation(); };
+    public final CommandAction SetupClassesObjectClassificationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForObjectClassification(); };
+
+
     public final CommandAction EraserCommandAction = e -> {
         logger.debug("select polygon to delete");
         if (getIFrame() != null) {
@@ -4883,49 +4934,49 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //        //this.getModel().
 //    };
 
-    public final ActionListener setupClassesForObjectClassification = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
-                    "This will reset all current training shapes.\nDo you want to continue?",
-                    "Reset current training data?", JOptionPane.YES_NO_OPTION)
-                    == JOptionPane.YES_OPTION) {
-                List<ClassShape> classShapes = new ArrayList<ClassShape>(3);
-                classShapes.add(new ClassShape("Stained Objects", Color.green, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
-                classShapes.add(new ClassShape("Normal Objects", Color.blue, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
-                classShapes.add(new ClassShape("Other Objects", Color.orange, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
-                for (ImageFrame iFrame : getIFrames()) {
-                    iFrame.recognitionFrame.setClassShapes(OrbitUtils.cloneClassShapes(classShapes));
-                    iFrame.recognitionFrame.setWindowSize(getModel().getFeatureDescription().getWindowSize());
-                    iFrame.recognitionFrame.setBoundaryClass(getModel().getBoundaryClass());
-                }
-                getModel().setClassShapes(classShapes);
-                makeClassCombobox();
-            }
-        }
-    };
-
-    public final ActionListener setupClassesForObjectSegmentation = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
-                    "This will reset all current training shapes.\nDo you want to continue?",
-                    "Reset current training data?", JOptionPane.YES_NO_OPTION)
-                    == JOptionPane.YES_OPTION) {
-                List<ClassShape> classShapes = new ArrayList<ClassShape>(2);
-                classShapes.add(new ClassShape("Background", Color.blue, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
-                classShapes.add(new ClassShape("Foreground", Color.green, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
-                for (ImageFrame iFrame : getIFrames()) {
-                    iFrame.recognitionFrame.setClassShapes(OrbitUtils.cloneClassShapes(classShapes));
-                    iFrame.recognitionFrame.setWindowSize(getModel().getFeatureDescription().getWindowSize());
-                    iFrame.recognitionFrame.setBoundaryClass(getModel().getBoundaryClass());
-                    iFrame.recognitionFrame.setObjectSegmentationList(null);
-                }
-                getModel().setClassShapes(classShapes);
-                makeClassCombobox();
-            }
-        }
-    };
+//    public final ActionListener setupClassesForObjectClassification = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+//                    "This will reset all current training shapes.\nDo you want to continue?",
+//                    "Reset current training data?", JOptionPane.YES_NO_OPTION)
+//                    == JOptionPane.YES_OPTION) {
+//                List<ClassShape> classShapes = new ArrayList<ClassShape>(3);
+//                classShapes.add(new ClassShape("Stained Objects", Color.green, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+//                classShapes.add(new ClassShape("Normal Objects", Color.blue, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+//                classShapes.add(new ClassShape("Other Objects", Color.orange, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+//                for (ImageFrame iFrame : getIFrames()) {
+//                    iFrame.recognitionFrame.setClassShapes(OrbitUtils.cloneClassShapes(classShapes));
+//                    iFrame.recognitionFrame.setWindowSize(getModel().getFeatureDescription().getWindowSize());
+//                    iFrame.recognitionFrame.setBoundaryClass(getModel().getBoundaryClass());
+//                }
+//                getModel().setClassShapes(classShapes);
+//                makeClassCombobox();
+//            }
+//        }
+//    };
+//
+//    public final ActionListener setupClassesForObjectSegmentation = new ActionListener() {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
+//                    "This will reset all current training shapes.\nDo you want to continue?",
+//                    "Reset current training data?", JOptionPane.YES_NO_OPTION)
+//                    == JOptionPane.YES_OPTION) {
+//                List<ClassShape> classShapes = new ArrayList<ClassShape>(2);
+//                classShapes.add(new ClassShape("Background", Color.blue, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+//                classShapes.add(new ClassShape("Foreground", Color.green, ClassShape.SHAPETYPE_POLYGONEXT, ClassShape.UNDEFINED));
+//                for (ImageFrame iFrame : getIFrames()) {
+//                    iFrame.recognitionFrame.setClassShapes(OrbitUtils.cloneClassShapes(classShapes));
+//                    iFrame.recognitionFrame.setWindowSize(getModel().getFeatureDescription().getWindowSize());
+//                    iFrame.recognitionFrame.setBoundaryClass(getModel().getBoundaryClass());
+//                    iFrame.recognitionFrame.setObjectSegmentationList(null);
+//                }
+//                getModel().setClassShapes(classShapes);
+//                makeClassCombobox();
+//            }
+//        }
+//    };
 
 
 //    public final ActionListener setupClassesMainModelActionListener = new ActionListener() {
@@ -5524,6 +5575,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     public JSplitPane getSplitPanePropLoupe() {
         return splitPanePropLoupe;
     }
+
+
 
 
     //</editor-fold>
