@@ -264,9 +264,11 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.OpenSpecialResolutionCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.text"))
-                                    //.addDescriptionSection(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.tooltip.actionParagraph1"))
+                                    .setTitle(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.tooltip.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.tooltip.actionParagraph1"))
                                     .build())
+//                    TODO: Figure out the secondary content model
+//                    .setSecondaryContentModel()
                     .build();
 
             this.saveImageLinksCommand = Command.builder()
@@ -309,7 +311,7 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.CopyImageLinkCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Edit.Copy.CopyImageLink.text"))
+                                    .setTitle(resourceBundle.getString("Edit.Copy.CopyImageLink.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Edit.Copy.CopyImageLink.tooltip.actionParagraph1"))
                                     .build())
                     .build();
@@ -320,7 +322,7 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.CopyImageFullCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Edit.Copy.CopyImageFull.text"))
+                                    .setTitle(resourceBundle.getString("Edit.Copy.CopyImageFull.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Edit.Copy.CopyImageFull.tooltip.actionParagraph1"))
                                     .addDescriptionSection(resourceBundle.getString("Edit.Copy.CopyImageFull.tooltip.actionParagraph2"))
                                     .build())
@@ -403,7 +405,7 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.SaveNestedExclusionModelCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Model.SaveModel.saveNestedExclusionModel.text"))
+                                    .setTitle(resourceBundle.getString("Model.SaveModel.saveNestedExclusionModel.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Model.SaveModel.saveNestedExclusionModel.tooltip.actionParagraph1"))
                                     .build())
                     .build();
@@ -414,7 +416,7 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.SaveNestedSegmentationModelCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Model.SaveModel.saveNestedSegmentationModel.text"))
+                                    .setTitle(resourceBundle.getString("Model.SaveModel.saveNestedSegmentationModel.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Model.SaveModel.saveNestedSegmentationModel.tooltip.actionParagraph1"))
                                     .build())
                     .build();
@@ -484,7 +486,7 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.ResetMainModelCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Model.Reset.resetMainModel.text"))
+                                    .setTitle(resourceBundle.getString("Model.Reset.resetMainModel.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Model.Reset.resetMainModel.tooltip.actionParagraph1"))
                                     .addDescriptionSection(resourceBundle.getString("Model.Reset.resetMainModel.tooltip.actionParagraph2"))
                                     .build())
@@ -496,7 +498,7 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.ResetPrimarySegmentationModelCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Model.Reset.resetPrimarySegmentationModel.text"))
+                                    .setTitle(resourceBundle.getString("Model.Reset.resetPrimarySegmentationModel.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Model.Reset.resetPrimarySegmentationModel.tooltip.actionParagraph1"))
                                     .build())
                     .build();
@@ -507,7 +509,7 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.ResetSecondarySegmentationModelCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Model.Reset.resetSecondarySegmentationModel.text"))
+                                    .setTitle(resourceBundle.getString("Model.Reset.resetSecondarySegmentationModel.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Model.Reset.resetSecondarySegmentationModel.tooltip.actionParagraph1"))
                                     .build())
                     .build();
@@ -518,7 +520,7 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.ResetEntireModelCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Model.Reset.resetEntireModel.text"))
+                                    .setTitle(resourceBundle.getString("Model.Reset.resetEntireModel.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Model.Reset.resetEntireModel.tooltip.actionParagraph1"))
                                     .build())
                     .build();
@@ -533,6 +535,7 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("ExclusionModel.Setup.setupClasses.text"))
                                     .addDescriptionSection(resourceBundle.getString("ExclusionModel.Setup.setupClasses.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Setup.setupClasses.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -555,6 +558,7 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("ExclusionModel.Draw.polygon.text"))
                                     .addDescriptionSection(resourceBundle.getString("ExclusionModel.Draw.polygon.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Draw.polygon.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -566,6 +570,7 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("ExclusionModel.Draw.circle.text"))
                                     .addDescriptionSection(resourceBundle.getString("ExclusionModel.Draw.circle.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Draw.circle.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -587,7 +592,10 @@ public class OrbitMenu extends JRibbonFrame {
                     .setActionRichTooltip(
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.trainSetClassify.text"))
-                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.trainSetClassify.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle
+                                            .getString("ExclusionModel.Exclusion.trainSetClassify.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle
+                                            .getString("ExclusionModel.Exclusion.trainSetClassify.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -597,8 +605,12 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.ClassifyTrainedExclusionModelCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.classifyExclusionModel.text"))
-                                    .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.classifyExclusionModel.actionParagraph1"))
+                                    .setTitle(resourceBundle
+                                            .getString("ExclusionModel.Exclusion.classifyExclusionModel.tooltip.text"))
+                                    .addDescriptionSection(resourceBundle
+                                            .getString("ExclusionModel.Exclusion.classifyExclusionModel.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle
+                                            .getString("ExclusionModel.Exclusion.classifyExclusionModel.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -619,7 +631,7 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.LoadAndSetLocalCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.text"))
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.tooltip.actionParagraph1"))
                                     .build())
                     .build();
@@ -628,9 +640,10 @@ public class OrbitMenu extends JRibbonFrame {
                     .setText(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.text"))
                     .setIconFactory(document_open_5.factory())
                     .setAction(oia.LoadAndSetServerCommandAction)
+                    .setActionEnabled(!DALConfig.isLocalImageProvider())
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.text"))
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.actionParagraph1"))
                                     .build())
                     .build();
@@ -641,7 +654,7 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.SetFromModelExplorerCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.text"))
+                                    .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.tooltip.actionParagraph1"))
                                     .build())
                     .build();
@@ -676,8 +689,9 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.TrainCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Classification.MachineLearning.train.text"))
+                                    .setTitle(resourceBundle.getString("Classification.MachineLearning.train.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Classification.MachineLearning.train.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Classification.MachineLearning.train.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -1326,14 +1340,14 @@ public class OrbitMenu extends JRibbonFrame {
         JRibbonBand openModelBand = this.getOpenModelBand();
         JRibbonBand saveModelBand = this.getSaveModelBand();
         JRibbonBand configureModelBand = this.getConfigureModelBand();
-        JRibbonBand clusteringModelBand = this.getClusteringModelBand();
+//        JRibbonBand clusteringModelBand = this.getClusteringModelBand();
         JRibbonBand resetModelBand = this.getResetModelBand();
 
         RibbonTask modelTask = new RibbonTask(resourceBundle.getString("Model.textTaskTitle"),
                 openModelBand,
                 saveModelBand,
                 configureModelBand,
-                clusteringModelBand,
+//                clusteringModelBand,
                 resetModelBand);
 
         JRibbonBand setupClassesBand = this.getSetupClassesBand();
@@ -1754,9 +1768,9 @@ public class OrbitMenu extends JRibbonFrame {
                 CommandButtonPresentationModel.builder().build());
 
         saveModelBand.addRibbonCommand(saveModelServerProjection, JRibbonBand.PresentationPriority.TOP);
-        saveModelBand.addRibbonCommand(saveModelAsProjection, JRibbonBand.PresentationPriority.TOP);
-        saveModelBand.addRibbonCommand(saveNestedExclusionModelProjection, JRibbonBand.PresentationPriority.MEDIUM);
-        saveModelBand.addRibbonCommand(saveNestedSegmentationModelProjection, JRibbonBand.PresentationPriority.MEDIUM);
+        saveModelBand.addRibbonCommand(saveModelAsProjection, JRibbonBand.PresentationPriority.LOW);
+        saveModelBand.addRibbonCommand(saveNestedExclusionModelProjection, JRibbonBand.PresentationPriority.LOW);
+        saveModelBand.addRibbonCommand(saveNestedSegmentationModelProjection, JRibbonBand.PresentationPriority.LOW);
 
         List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
         resizePolicies.add(new CoreRibbonResizePolicies.Mirror(saveModelBand));
@@ -1770,7 +1784,7 @@ public class OrbitMenu extends JRibbonFrame {
         JRibbonBand configureModelBand = new JRibbonBand(
                 resourceBundle.getString("Model.ConfigureModel.textBandTitle"),
                 null,
-                new ExpandActionListener());
+                null);
 
         configureModelBand.setExpandButtonRichTooltip(RichTooltip.builder()
                 .setTitle(resourceBundle.getString("Model.ConfigureModel.textBandTitle"))
@@ -1785,11 +1799,14 @@ public class OrbitMenu extends JRibbonFrame {
                 CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> exclusionModelLevelProjection = this.exclusionModelLevelCommand.project(
                 CommandButtonPresentationModel.builder().build());
+        CommandButtonProjection<Command> performClusteringProjection = this.performClusteringCommand.project(
+                CommandButtonPresentationModel.builder().build());
 
         configureModelBand.addRibbonCommand(classesProjection, JRibbonBand.PresentationPriority.TOP);
         configureModelBand.addRibbonCommand(featuresProjection, JRibbonBand.PresentationPriority.TOP);
         configureModelBand.addRibbonCommand(fuzzynessProjection, JRibbonBand.PresentationPriority.TOP);
         configureModelBand.addRibbonCommand(exclusionModelLevelProjection, JRibbonBand.PresentationPriority.TOP);
+        configureModelBand.addRibbonCommand(performClusteringProjection, JRibbonBand.PresentationPriority.TOP);
 
         List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
         resizePolicies.add(new CoreRibbonResizePolicies.Mirror(configureModelBand));
@@ -1799,35 +1816,35 @@ public class OrbitMenu extends JRibbonFrame {
         return configureModelBand;
     }
 
-    private JRibbonBand getClusteringModelBand() {
-        JRibbonBand clusteringBand = new JRibbonBand(
-                resourceBundle.getString("Model.Clustering.textBandTitle"),
-                null,
-                new ExpandActionListener());
-
-        clusteringBand.setExpandButtonRichTooltip(RichTooltip.builder()
-                .setTitle(resourceBundle.getString("Model.Clustering.textBandTitle"))
-                .addDescriptionSection(resourceBundle.getString("Model.Clustering.textBandTooltipParagraph1"))
-                .build());
-
-        CommandButtonProjection<Command> performClusteringProjection = this.performClusteringCommand.project(
-                CommandButtonPresentationModel.builder().build());
-
-        clusteringBand.addRibbonCommand(performClusteringProjection, JRibbonBand.PresentationPriority.TOP);
-
-        List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
-        resizePolicies.add(new CoreRibbonResizePolicies.Mirror(clusteringBand));
-        resizePolicies.add(new CoreRibbonResizePolicies.Mid2Low(clusteringBand));
-        clusteringBand.setResizePolicies(resizePolicies);
-
-        return clusteringBand;
-    }
+//    private JRibbonBand getClusteringModelBand() {
+//        JRibbonBand clusteringBand = new JRibbonBand(
+//                resourceBundle.getString("Model.Clustering.textBandTitle"),
+//                null,
+//                new ExpandActionListener());
+//
+//        clusteringBand.setExpandButtonRichTooltip(RichTooltip.builder()
+//                .setTitle(resourceBundle.getString("Model.Clustering.textBandTitle"))
+//                .addDescriptionSection(resourceBundle.getString("Model.Clustering.textBandTooltipParagraph1"))
+//                .build());
+//
+//        CommandButtonProjection<Command> performClusteringProjection = this.performClusteringCommand.project(
+//                CommandButtonPresentationModel.builder().build());
+//
+//        clusteringBand.addRibbonCommand(performClusteringProjection, JRibbonBand.PresentationPriority.TOP);
+//
+//        List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
+//        resizePolicies.add(new CoreRibbonResizePolicies.Mirror(clusteringBand));
+//        resizePolicies.add(new CoreRibbonResizePolicies.Mid2Low(clusteringBand));
+//        clusteringBand.setResizePolicies(resizePolicies);
+//
+//        return clusteringBand;
+//    }
 
     private JRibbonBand getResetModelBand() {
         JRibbonBand configureModelBand = new JRibbonBand(
                 resourceBundle.getString("Model.Reset.textBandTitle"),
                 null,
-                new ExpandActionListener());
+                null);
 
         configureModelBand.setExpandButtonRichTooltip(RichTooltip.builder()
                 .setTitle(resourceBundle.getString("Model.Reset.textBandTitle"))
@@ -1843,10 +1860,22 @@ public class OrbitMenu extends JRibbonFrame {
         CommandButtonProjection<Command> resetEntireModelProjection = this.resetEntireModelCommand.project(
                 CommandButtonPresentationModel.builder().build());
 
-        configureModelBand.addRibbonCommand(resetMainModelProjection, JRibbonBand.PresentationPriority.LOW);
-        configureModelBand.addRibbonCommand(resetPrimarySegmentationModelProjection, JRibbonBand.PresentationPriority.LOW);
-        configureModelBand.addRibbonCommand(resetSecondarySegmentationModelProjection, JRibbonBand.PresentationPriority.LOW);
-        configureModelBand.addRibbonCommand(resetEntireModelProjection, JRibbonBand.PresentationPriority.LOW);
+        configureModelBand.addRibbonCommand(resetMainModelProjection, JRibbonBand.PresentationPriority.MEDIUM);
+        configureModelBand.addRibbonCommand(resetPrimarySegmentationModelProjection, JRibbonBand.PresentationPriority.MEDIUM);
+        configureModelBand.addRibbonCommand(resetSecondarySegmentationModelProjection, JRibbonBand.PresentationPriority.MEDIUM);
+        configureModelBand.addRibbonCommand(resetEntireModelProjection, JRibbonBand.PresentationPriority.MEDIUM);
+
+//        Map<JRibbonBand.PresentationPriority, Integer> stylesGalleryVisibleCommandCounts =
+//                new HashMap<>();
+//        stylesGalleryVisibleCommandCounts.put(JRibbonBand.PresentationPriority.LOW, 1);
+//        stylesGalleryVisibleCommandCounts.put(JRibbonBand.PresentationPriority.MEDIUM, 2);
+//        stylesGalleryVisibleCommandCounts.put(JRibbonBand.PresentationPriority.TOP, 2);
+//
+//        RibbonGalleryProjection quickStylesGalleryProjection =
+//                new RibbonGalleryProjection(this.styleGalleryContentModel,
+//                        RibbonGalleryPresentationModel.builder()...);
+//        quickStylesBand.addRibbonGallery(quickStylesGalleryProjection,
+//                JRibbonBand.PresentationPriority.TOP);
 
         List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
         resizePolicies.add(new CoreRibbonResizePolicies.Mirror(configureModelBand));
@@ -1866,7 +1895,6 @@ public class OrbitMenu extends JRibbonFrame {
                 .setTitle(resourceBundle.getString("ExclusionModel.Setup.textBandTitle"))
                 .addDescriptionSection(resourceBundle.getString("ExclusionModel.Setup.textBandTooltipParagraph1"))
                 .build());
-
 
         CommandButtonProjection<Command> setupClassesProjection = this.setupClassesCommand.project(
                 CommandButtonPresentationModel.builder().setTextClickAction().build());
