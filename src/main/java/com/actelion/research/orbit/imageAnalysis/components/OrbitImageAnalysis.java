@@ -960,99 +960,25 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     }
 
-//    protected void addButtons(JToolBar toolBar) {
-//        JButton button = null;
-//
-//        makeClassCombobox();
-//
-//        toolBar.add(classBox);
-//
-//
-//        // configure class
-//        button = new JButton(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Edit24.gif"), "configure classes"));
-//        if (OrbitUtils.DARKUI)
-//            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_gear_edit.png"), "configure classes"));
-//        button.setToolTipText("edit classes");
-//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-//        button.addActionListener(configClassActionListener);
-//        toolBar.add(button);
-//
-//        toolBar.addSeparator();
-//        toolBar.add(getSizeBox());
-//        toolBar.addSeparator();
-//
-//
-//        button = makeNavigationButton(deleteActionListener, "remove shape", null);
-//        //button.setIcon(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Remove24.gif"), "remove"));
-//        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/gomme_2.png"), "remove"));
-//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-//        toolBar.add(button);
-//
-//        button = makeNavigationButton(brushActionListener, "brush tool", null);
-//        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/brush.png"), "brush"));
-//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-//        toolBar.add(button);
-//
-//        button = makeNavigationButton(circleActionListener, "circle tool", null);
-//        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/circle.png"), "circle"));
-//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-//        toolBar.add(button);
-//
-//        button = makeNavigationButton(rectangleActionListener, "rectangle tool", null);
-//        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/rectangle.png"), "rectangle"));
-//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-//        toolBar.add(button);
-//
-//        button = makeNavigationButton(cellMarkerActionListener, "mark cells", null);
-//        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/nucleid.png"), "cell"));
-//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-//        toolBar.add(button);
-//
-//
-//        toolBar.addSeparator();
-//
-//        button = makeNavigationButton(fingerActionListener, "finger tool for dragging the image", null);
-//        button.setIcon(new ImageIcon(this.getClass().getResource("/resource/smallhand.png"), "finger tool"));
-//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-//        toolBar.add(button);
-//
-//        button = makeNavigationButton(selectROIActionListener, "define region of interest (ROI)", null);
-//        if (OrbitUtils.DARKUI)
-//            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/roi_substance.png"), "region of interest"));
-//        else button.setIcon(new ImageIcon(this.getClass().getResource("/resource/roi.png"), "roi tool"));
-//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-//        toolBar.add(button);
-//
-//        toggleMarkupButton = makeNavigationButton(toggleMarkupActionListener, "switch markup on and off", null);
-//        if (OrbitUtils.DARKUI)
-//            toggleMarkupButton.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_switch2_on.png"), "toggel markup"));
-//        else
-//            toggleMarkupButton.setIcon(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/AlignCenter24.gif"), "toggel markup"));
-//        if (!OrbitUtils.DARKUI) toggleMarkupButton.setMaximumSize(new Dimension(24, TOOLBAR_HEIGHT));
-//        toolBar.add(toggleMarkupButton);
-//
-//        toolBar.addSeparator();
-//
-//        button = makeNavigationButton(trainActionListener, "train", "train");
-//        if (OrbitUtils.DARKUI)
-//            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/icon_v_dumbbell.png"), "(re)train"));
-//        else
-//            button.setIcon(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Play24.gif"), "(re)train"));
-//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(80, TOOLBAR_HEIGHT)); // 124?
-//        toolBar.add(button);
-//
-//        button = makeNavigationButton(classifyActionListener, "classify", "classify");
-//        if (OrbitUtils.DARKUI)
-//            button.setIcon(new ImageIcon(this.getClass().getResource("/resource/gear_run.png"), "toggel markup"));
-//        else
-//            button.setIcon(new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/media/Play24.gif"), "classify"));
-//        if (!OrbitUtils.DARKUI) button.setMaximumSize(new Dimension(80, TOOLBAR_HEIGHT)); // 124?
-//        toolBar.add(button);
-//
-//        syncFramesCheckbox.addActionListener(setupClassesForObjectClassification);
-//        toolBar.add(syncFramesCheckbox);
-//
-//    }
+    /**
+     * @param shapes the list of ClassShape items to add to the ClassComboBox model
+     */
+    private synchronized void updateCcbModel(List<ClassShape> shapes) {
+        /*  It's not possible to remove all old and add all new since
+            this will cause Radiance to NPE as it tries to refresh
+            an empty combobox. So we first add the new items and then
+            remove the old. It is probably also possible to detach and
+            reattach the listener as an alternative method.
+         */
+        int ccbModelLength = ccbModel.getSize();
+        RibbonDefaultComboBoxContentModel oldCcbModel = ccbModel;
+        ccbModel.addAll(shapes);
+
+        for( int i=0; i<ccbModelLength; i++ ) {
+            Object elem = oldCcbModel.getElementAt(0);
+            ccbModel.removeElement(elem);
+        }
+    }
 
     protected JButton makeNavigationButton(final ActionListener actionListener, String toolTipText, String altText) {
         JButton button = new JButton();
@@ -2748,7 +2674,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         }
         model.setClassifier(null);
-        makeClassCombobox();
+        updateCcbModel(newModel.getClassShapes());
         updateStatusBar();
         return true;
     }
@@ -2765,7 +2691,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             iFrame.recognitionFrame.setObjectSegmentationList(null);
         }
         getModel().setClassShapes(classShapes);
-        makeClassCombobox();
+        updateCcbModel(classShapes);
         updateStatusBar();
         return true;
     }
@@ -2782,7 +2708,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             iFrame.recognitionFrame.setObjectSegmentationList(null);
         }
         getModel().setClassShapes(classShapes);
-        makeClassCombobox();
+        updateCcbModel(classShapes);
         updateStatusBar();
         return true;
     }
@@ -2798,7 +2724,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             iFrame.recognitionFrame.setBoundaryClass(this.model.getBoundaryClass());
         }
         this.model.setClassShapes(classShapes);
-        makeClassCombobox();
+        updateCcbModel(classShapes);
         updateStatusBar();
 
         return true;
