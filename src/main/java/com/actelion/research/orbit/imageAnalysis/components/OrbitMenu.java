@@ -1177,6 +1177,7 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("View.Show.showCenterCross.text"))
                                     .addDescriptionSection(resourceBundle.getString("View.Show.showCenterCross.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Show.showCenterCross.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -1201,6 +1202,7 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("View.Show.syncFrames.text"))
                                     .addDescriptionSection(resourceBundle.getString("View.Show.syncFrames.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Show.syncFrames.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -1213,6 +1215,7 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("View.Show.popupResults.text"))
                                     .addDescriptionSection(resourceBundle.getString("View.Show.popupResults.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("View.Show.popupResults.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -1248,7 +1251,7 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.ShowLogCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Help.Logs.showLog.text"))
+                                    .setTitle(resourceBundle.getString("Help.Logs.showLog.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Help.Logs.showLog.tooltip.actionParagraph1"))
                                     .build())
                     .build();
@@ -1259,7 +1262,7 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.ShowLogModelCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Help.Logs.logModel.text"))
+                                    .setTitle(resourceBundle.getString("Help.Logs.logModel.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Help.Logs.logModel.tooltip.actionParagraph1"))
                                     .build())
                     .build();
