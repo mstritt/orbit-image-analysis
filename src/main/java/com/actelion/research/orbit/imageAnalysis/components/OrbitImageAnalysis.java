@@ -1239,30 +1239,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
-//    @Deprecated
-//    private void oneClickCellCount() {
-//        resetTrainingData();
-//
-//        FeatureDescription fd = new FeatureDescription(1);
-//        fd.setMinSegmentationSize(model.getFeatureDescription().getMinSegmentationSize());
-//        setClassShapes(OrbitUtils.buildCellCountClassShapes(), fd, false); // overwrites classShapes in all iFrames!
-//        performClustering = true;
-//        OrbitModel occcModel = new OrbitModel(null, null, OrbitUtils.buildCellCountClassShapes(), fd);
-//        TrainWorker trainWorker = new TrainWorker(getIFrames(), true, true, occcModel);
-//        ProgressPanel progressPanel = new ProgressPanel(getCurrentPicName(), "Training", trainWorker);
-//        addAndExecuteTask(progressPanel, false);
-//        waitForWorker(trainWorker);
-//        if (trainWorker.isCancelled()) {
-//            logger.info("oneClickCellCount canceled (training).");
-//            return;
-//        }
-//        occcModel.getClassifier().setBinaryClassification(1); // 2
-//        setModelAsSegmentationModel(occcModel, false);
-//        objectSegmentation(true, true);
-//        //updateFeatureDescription(fdOld);
-//    }
-
-
     /**
      * sets the classShape list as reference class shapes and in all iFrames
      *
@@ -2643,25 +2619,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
-//    @Deprecated
-//    private boolean resetTrainingData() {
-//        for (ClassShape cs : model.getClassShapes()) {
-//            cs.setShapeList(new ArrayList<Shape>());
-//        }
-//        if (getIFrames() != null && getIFrames().size() > 0) {
-//            for (ImageFrame iFrame : getIFrames()) {
-//                for (ClassShape cs : iFrame.recognitionFrame.getClassShapes()) {
-//                    cs.setShapeList(new ArrayList<Shape>());
-//                }
-//                iFrame.repaint();
-//            }
-//        }
-//        model.setClassifier(null);
-//        makeClassCombobox();
-//        updateStatusBar();
-//        return true;
-//    }
-
     private boolean resetMainModel() {
         OrbitModel newModel = new OrbitModel();
         model.setClassShapes(OrbitUtils.cloneClassShapes(newModel.getClassShapes()));
@@ -2753,29 +2710,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         }
     };
-
-//    @Deprecated
-//    private boolean resetModelOld() {
-//        if (model != null && model.getClassShapes() != null) {
-//            for (ClassShape cs : model.getClassShapes()) {
-//                cs.setShapeList(new ArrayList<Shape>());
-//            }
-//        }
-//        if (getIFrames() != null && getIFrames().size() > 0) {
-//            for (ImageFrame iFrame : getIFrames()) {
-//                for (ClassShape cs : iFrame.recognitionFrame.getClassShapes()) {
-//                    cs.setShapeList(new ArrayList<Shape>());
-//                }
-//                iFrame.repaint();
-//            }
-//        }
-//        model.setClassifier(null);
-//        model = new OrbitModel(); // complete reset if model
-//        makeClassCombobox();
-//        loadedModel = "none";
-//        updateStatusBar();
-//        return true;
-//    }
 
     private boolean resetModel() {
         model = new OrbitModel(); // complete reset of model
