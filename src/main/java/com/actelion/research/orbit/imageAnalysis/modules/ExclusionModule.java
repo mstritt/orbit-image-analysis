@@ -146,7 +146,7 @@ public class ExclusionModule extends AbstractOrbitModule {
                 iFrame.recognitionFrame.setBoundaryClass(OIA.getModel().getBoundaryClass());
             }
             OIA.getModel().setClassShapes(classShapes);
-            OIA.makeClassCombobox();
+            OIA.makeClassComboBox();
         }
     }
 
