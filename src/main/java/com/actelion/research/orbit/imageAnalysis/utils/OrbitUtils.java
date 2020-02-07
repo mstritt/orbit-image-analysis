@@ -99,9 +99,9 @@ public class OrbitUtils {
 
     public static final String MODEL_ENDING = ".omo"; // filename ending of orbit models
     public static final String remoteNameSpace = "orbit/temp";
-    public static final String orbitHelpURL = "http://www.orbit.bio/help";
-    public static final String orbitTutorialsURL = "http://www.orbit.bio/tutorials";
-    public static final String orbitImageProviderURL = "http://www.orbit.bio/setup";
+    public static final String orbitHelpURL = "https://www.orbit.bio/help";
+    public static final String orbitTutorialsURL = "https://www.orbit.bio/tutorials";
+    public static final String orbitImageProviderURL = "https://www.orbit.bio/setup";
 
     public static final String CHANNEL_NAME_ALL = "<ALL CHANNELS>";
 

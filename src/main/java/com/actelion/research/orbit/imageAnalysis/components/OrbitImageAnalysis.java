@@ -113,7 +113,9 @@ import static com.actelion.research.orbit.imageAnalysis.dal.DALConfig.isLocalIma
  */
 public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeListener {
 
-    private String title = "Orbit Image Analysis";
+    private ResourceBundle resourceBundle;
+
+    private String title;
     private static final long serialVersionUID = 1L;
     public static final int TOOLBAR_HEIGHT = 26;
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(OrbitImageAnalysis.class);
@@ -256,6 +258,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
 
     private OrbitImageAnalysis() {
+        Locale currLocale = Locale.getDefault();
+        resourceBundle = ResourceBundle.getBundle("Resources", currLocale);
+
+        title = resourceBundle.getString("Frame.title");
 
         if (!ScaleoutMode.SCALEOUTMODE.get()) {
 
@@ -855,9 +861,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
 
     protected String getInfoString() {
-        String infoStr = "Orbit Image Analysis Version " + OrbitUtils.VERSION_STR + "\n" +
-                "Copyright (c) 2009-2019, Idorsia Pharmaceuticals Ltd. under GPLv3 license.\n" +
-                "Developed by Manuel Stritt.";
+        String infoStr = String.format("%s %s\n%s\n%s",
+                resourceBundle.getString("Orbit.About.Version"),
+                OrbitUtils.VERSION_STR,
+                resourceBundle.getString("Orbit.About.License"),
+                resourceBundle.getString("Orbit.About.Developer"));
 
         infoStr += "\n\nLogin User: " + loginUser;
 
@@ -883,9 +891,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         infoStr += "\nTile temp directory: " + tempDir;
 
         //infoStr += "\n JAI version: "+JAI.getBuildVersion();
-        infoStr += "\nVM Memory used/total: " + Runtime.getRuntime().totalMemory() / (1024L * 1024L) + " / " + Runtime.getRuntime().maxMemory() / (1024L * 1024L) + " MB";
+        infoStr += "\nJVM Memory used/total: " + Runtime.getRuntime().totalMemory() / (1024L * 1024L) + " / " + Runtime.getRuntime().maxMemory() / (1024L * 1024L) + " MB";
         infoStr += "\nAvailable Cores: " + Runtime.getRuntime().availableProcessors();
-        infoStr += "\nJVM version: " + Runtime.class.getPackage().getImplementationVersion();
+        infoStr += "\nJVM version: " + Runtime.version();//Runtime.class.getPackage().getImplementationVersion();
+
         String libDir = "unknown";
         try {
             libDir = DALConfig.getLibDir();
