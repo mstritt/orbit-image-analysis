@@ -828,7 +828,7 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.ResetRoiCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("ROI.RegionOfInterest.resetRoi.text"))
+                                    .setTitle(resourceBundle.getString("ROI.RegionOfInterest.resetRoi.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("ROI.RegionOfInterest.resetRoi.tooltip.actionParagraph1"))
                                     .build())
                     .build();
@@ -839,8 +839,9 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.InvertRoiCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("ROI.RegionOfInterest.invertRoi.text"))
+                                    .setTitle(resourceBundle.getString("ROI.RegionOfInterest.invertRoi.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("ROI.RegionOfInterest.invertRoi.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("ROI.RegionOfInterest.invertRoi.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -850,8 +851,9 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.MeasureAreaCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("ROI.RegionOfInterest.measureArea.text"))
+                                    .setTitle(resourceBundle.getString("ROI.RegionOfInterest.measureArea.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("ROI.RegionOfInterest.measureArea.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("ROI.RegionOfInterest.measureArea.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -942,7 +944,7 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.LocalExecutionCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Batch.BatchExecute.localExecution.text"))
+                                    .setTitle(resourceBundle.getString("Batch.BatchExecute.localExecution.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.localExecution.tooltip.actionParagraph1"))
                                     .build())
                     .build();
@@ -953,8 +955,10 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.ScaleOutExecutionCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Batch.BatchExecute.scaleoutExecution.text"))
+                                    .setTitle(resourceBundle.getString("Batch.BatchExecute.scaleoutExecution.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.scaleoutExecution.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.scaleoutExecution.tooltip.actionParagraph2"))
+                                    .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.scaleoutExecution.tooltip.actionParagraph3"))
                                     .build())
                     .build();
 
@@ -964,8 +968,9 @@ public class OrbitMenu extends JRibbonFrame {
                     .setAction(oia.RoiAreaComputationCommandAction)
                     .setActionRichTooltip(
                             RichTooltip.builder()
-                                    .setTitle(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.text"))
+                                    .setTitle(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.tooltip.text"))
                                     .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -977,6 +982,7 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.text"))
                                     .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -990,6 +996,7 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.text"))
                                     .addDescriptionSection(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -1001,6 +1008,8 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("Tools.ManageFiles.dbCleanup.text"))
                                     .addDescriptionSection(resourceBundle.getString("Tools.ManageFiles.dbCleanup.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Tools.ManageFiles.dbCleanup.tooltip.actionParagraph2"))
+                                    .addDescriptionSection(resourceBundle.getString("Tools.ManageFiles.dbCleanup.tooltip.actionParagraph3"))
                                     .build())
                     .build();
 
@@ -1012,6 +1021,7 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("Tools.ManageFiles.channelColorReset.text"))
                                     .addDescriptionSection(resourceBundle.getString("Tools.ManageFiles.channelColorReset.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Tools.ManageFiles.channelColorReset.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -1023,6 +1033,7 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("Tools.SaveImage.saveFullImage.text"))
                                     .addDescriptionSection(resourceBundle.getString("Tools.SaveImage.saveFullImage.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Tools.SaveImage.saveFullImage.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -1034,6 +1045,7 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("Tools.SaveImage.saveCurrentView.text"))
                                     .addDescriptionSection(resourceBundle.getString("Tools.SaveImage.saveCurrentView.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Tools.SaveImage.saveCurrentView.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
@@ -1045,6 +1057,7 @@ public class OrbitMenu extends JRibbonFrame {
                             RichTooltip.builder()
                                     .setTitle(resourceBundle.getString("Tools.SaveImage.saveClassificationImage.text"))
                                     .addDescriptionSection(resourceBundle.getString("Tools.SaveImage.saveClassificationImage.tooltip.actionParagraph1"))
+                                    .addDescriptionSection(resourceBundle.getString("Tools.SaveImage.saveClassificationImage.tooltip.actionParagraph2"))
                                     .build())
                     .build();
 
