@@ -56,10 +56,15 @@ public class ClassAdminFrame extends JDialog {
     private JComboBox cbIncExclMode = new JComboBox(new String[]{ClassShape.STR_UNDEFINED, ClassShape.STR_Inclusion, ClassShape.STR_Exclusion});
     private JButton btnOK = null;
 
-    //private JComboBox boxToUpdate = null;
-    private int frameWidth = 800;  // 647
-    private int frameHeight = 555;
-    private int btnHeight = 30;
+    private GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    private GraphicsDevice[] gds = ge.getScreenDevices();
+    private GraphicsConfiguration gc = gds[0].getDefaultConfiguration();
+    private double scaleX = gc.getDefaultTransform().getScaleX();
+    private double scaleY = gc.getDefaultTransform().getScaleY();
+
+    private int frameWidth = (int)(800 / scaleX);  // 647
+    private int frameHeight = (int)(555/scaleY);
+    private int btnHeight = (int)(30/scaleY);
     private int boundaryClass = -1;
     private boolean firePropertyChangeEvent = true;
 

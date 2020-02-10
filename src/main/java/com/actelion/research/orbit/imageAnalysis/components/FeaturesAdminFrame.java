@@ -98,10 +98,16 @@ public class FeaturesAdminFrame extends JDialog {
     private DoubleTextField tfGraphCut = null;
     private JCheckBox cbUseImageAdjustments = null;
 
+    private GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    private GraphicsDevice[] gds = ge.getScreenDevices();
+    private GraphicsConfiguration gc = gds[0].getDefaultConfiguration();
+    private double scaleX = gc.getDefaultTransform().getScaleX();
+    private double scaleY = gc.getDefaultTransform().getScaleY();
 
-    private int frameWidth = 800;   // 630
-    private int frameHeight = 950;
-    private int btnHeight = 35;
+    private int frameWidth = (int)(800/scaleX);
+    private int frameHeight = (int)(Math.min(ge.getMaximumWindowBounds().height,900)/scaleY); // 1100
+    private int btnHeight = (int)(35/scaleY);
+
     public static int selectedTab = 0;
     private FeatureDescription featureDescription = null;
     protected Preferences prefs = Preferences.userNodeForPackage(OrbitImageAnalysis.class);
@@ -268,7 +274,7 @@ public class FeaturesAdminFrame extends JDialog {
 
 
         JPanel panelSegmentation = new JPanel();
-        panelSegmentation.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
+        panelSegmentation.setLayout(new GridLayout(-1,1));
 
         final OrbitModel modelFin = model;
         cbForSecondarySegmentationModel = new JCheckBox("Set Features for Secondary Segmentation", featureDescription.isForSecondarySegmentationModel());
@@ -466,7 +472,8 @@ public class FeaturesAdminFrame extends JDialog {
         panelSegmentation.add(cbNerveDetectionMode);
 
 
-        tabs.add("Segmentation", panelSegmentation);
+        JScrollPane segScrollPane = new JScrollPane(panelSegmentation,ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        tabs.add("Segmentation", segScrollPane);
 
         // deep learning
 

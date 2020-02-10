@@ -41,6 +41,13 @@ import java.net.URL;
  */
 final class SplashScreen extends Frame {
 
+    private GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    private GraphicsDevice[] gds = ge.getScreenDevices();
+    private GraphicsConfiguration gc = gds[0].getDefaultConfiguration();
+    private double scaleX = gc.getDefaultTransform().getScaleX();
+    private double scaleY = gc.getDefaultTransform().getScaleY();
+
+
     /**
      * Construct using an image for the splash screen.
      *
@@ -69,15 +76,9 @@ final class SplashScreen extends Frame {
      */
     void splash() {
         initImageAndTracker();
-        //setSize(fImage.getWidth(NO_OBSERVER), fImage.getHeight(NO_OBSERVER));
-        Dimension dimImageSize = new Dimension(800, 533);
-        //setLocation((getToolkit().getScreenSize().width - dimImageSize.width) / 2,
-        //        (getToolkit().getScreenSize().height - dimImageSize.height) / 2);
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice[] gds = ge.getScreenDevices();
-        GraphicsConfiguration gc = gds[0].getDefaultConfiguration();
         Rectangle rect = gc.getBounds();
         setLocation((int) rect.getCenterX(), (int) rect.getCenterY());
+        Dimension dimImageSize = new Dimension((int)(800d/scaleX), (int)(533d/scaleY));
         setSize(dimImageSize);
 
 
@@ -111,14 +112,8 @@ final class SplashScreen extends Frame {
         SplashWindow(Frame aParent, Image aImage) {
             super(aParent);
             this.fImage = aImage;
-            setSize(fImage.getWidth(NO_OBSERVER), fImage.getHeight(NO_OBSERVER));
-            //Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+            setSize((int)(fImage.getWidth(NO_OBSERVER)/scaleX), (int)(fImage.getHeight(NO_OBSERVER)/scaleY));
             Rectangle window = getBounds();
-            //setLocation((screen.width - window.width) / 2, (screen.height - window.height) / 2);
-
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            GraphicsDevice[] gds = ge.getScreenDevices();
-            GraphicsConfiguration gc = gds[0].getDefaultConfiguration();
             Rectangle rect = gc.getBounds();
             setLocation((int) rect.getCenterX() - (window.width / 2), ((int) rect.getCenterY() - (window.height / 2)));
             setVisible(true);
@@ -127,14 +122,13 @@ final class SplashScreen extends Frame {
         @Override
         public void paint(Graphics graphics) {
             if (fImage != null) {
-                //graphics.drawImage(fImage,0,0,this);
-                Image imgTemp = createImage(fImage.getWidth(this), fImage.getHeight(this));
-                Graphics gfxTemp = imgTemp.getGraphics();
-                gfxTemp.drawImage(fImage, 0, 0, fImage.getWidth(this), fImage.getHeight(this), this);
+                Image imgTemp = createImage((int)(fImage.getWidth(this)/scaleX), (int)(fImage.getHeight(this)/scaleY));
+                Graphics2D gfxTemp = (Graphics2D) imgTemp.getGraphics();
+                gfxTemp.setRenderingHint(RenderingHints.KEY_INTERPOLATION, gfxTemp.getRenderingHints().VALUE_INTERPOLATION_BILINEAR);
+                gfxTemp.drawImage(fImage, 0, 0, (int)(fImage.getWidth(this)/scaleX), (int)(fImage.getHeight(this)/scaleY), this);
                 graphics.drawImage(imgTemp, 0, 0, imgTemp.getWidth(this), imgTemp.getHeight(this), this);
             }
         }
-
         private Image fImage;
     }
 
@@ -153,5 +147,3 @@ final class SplashScreen extends Frame {
         System.exit(0);
     }
 }
-
-
