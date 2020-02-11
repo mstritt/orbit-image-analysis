@@ -525,7 +525,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
         // status bar
         add(statusBar, BorderLayout.SOUTH);
-        Runnable statusBarUpdate = () -> updateStatusBar();
+        Runnable statusBarUpdate = this::updateStatusBar;
 
         statusBarUpdater.scheduleAtFixedRate(statusBarUpdate, 0, 120, TimeUnit.SECONDS);
 
