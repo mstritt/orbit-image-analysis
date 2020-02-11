@@ -29,6 +29,7 @@ import com.actelion.research.orbit.imageAnalysis.tasks.OrbitWorker;
 import com.actelion.research.orbit.imageAnalysis.tasks.TrainWorker;
 import com.actelion.research.orbit.imageAnalysis.utils.ClassListCellRenderer;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
+import com.actelion.research.orbit.utils.RawUtilsCommon;
 import org.pushingpixels.flamingo.api.common.CommandAction;
 import org.pushingpixels.flamingo.api.common.RichTooltip;
 import org.pushingpixels.flamingo.api.common.model.Command;
@@ -78,6 +79,8 @@ public class ExclusionModule extends AbstractOrbitModule {
     private Command trainSetClassifyCommand;
     private Command classifyTrainedExclusionModelCommand;
     private Command configureExclusionClassesCommand;
+    public Command exclusionModelLevelCommand;
+
     // Exclusion Model Level, see section Models.
     private Command loadAndSetLocalCommand;
     private Command loadAndSetServerCommand;
@@ -154,15 +157,16 @@ public class ExclusionModule extends AbstractOrbitModule {
     }
 
     // TODO: Something different happening here... Need to figure out how best to tie in with ExclusionModule.java
-    public final CommandAction SetupClassesExclusionCommandAction = e -> this.setupClasses();
-    public final CommandAction TrainSetClassifyCommandAction = e -> this.trainSetAndClassifyExcl();
-    public final CommandAction ClassifyTrainedExclusionModelCommandAction = e -> this.classifyExcl();
-    public final CommandAction ConfigureExclusionClassesCommandAction = e -> this.configureClasses();
-    public final CommandAction LoadAndSetLocalCommandAction = e -> this.loadModel();
-    public final CommandAction LoadAndSetServerCommandAction = e -> this.loadModelServer();
-    public final CommandAction SetFromModelExplorerCommandAction = e -> this.loadModelExplorer();
-    public final CommandAction ResetExclusionModelCommandAction = e -> this.resetModel();
-    public final CommandAction ExclusionHelpCommandAction = e -> this.showHelp();
+    final CommandAction SetupClassesExclusionCommandAction = e -> this.setupClasses();
+    final CommandAction TrainSetClassifyCommandAction = e -> this.trainSetAndClassifyExcl();
+    final CommandAction ClassifyTrainedExclusionModelCommandAction = e -> this.classifyExcl();
+    final CommandAction ConfigureExclusionClassesCommandAction = e -> this.configureClasses();
+    final CommandAction ExclusionModelLevelCommandAction = e -> this.configureExclusionModelLevel();
+    final CommandAction LoadAndSetLocalCommandAction = e -> this.loadModel();
+    final CommandAction LoadAndSetServerCommandAction = e -> this.loadModelServer();
+    final CommandAction SetFromModelExplorerCommandAction = e -> this.loadModelExplorer();
+    final CommandAction ResetExclusionModelCommandAction = e -> this.resetModel();
+    final CommandAction ExclusionHelpCommandAction = e -> this.showHelp();
 
     private void createCommands() {
         this.setupClassesExclusionCommand = Command.builder()
@@ -214,6 +218,19 @@ public class ExclusionModule extends AbstractOrbitModule {
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.text"))
                                 .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.tooltip.actionParagraph1"))
+                                .build())
+                .build();
+
+        this.exclusionModelLevelCommand = Command.builder()
+                .setText(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.text"))
+                .setIconFactory(configure_4.factory())
+                .setAction(this.ExclusionModelLevelCommandAction)
+                .setActionRichTooltip(
+                        RichTooltip.builder()
+                                .setTitle(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.text"))
+                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph1"))
+                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph2"))
+                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph3"))
                                 .build())
                 .build();
 
@@ -315,8 +332,8 @@ public class ExclusionModule extends AbstractOrbitModule {
                 CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> configureClassesProjection = this.configureExclusionClassesCommand.project(
                 CommandButtonPresentationModel.builder().build());
-//        CommandButtonProjection<Command> exclusionModelLevelProjection = this.exclusionModelLevelCommand.project(
-//                CommandButtonPresentationModel.builder().build());
+        CommandButtonProjection<Command> exclusionModelLevelProjection = this.exclusionModelLevelCommand.project(
+                CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> loadAndSetLocalProjection = this.loadAndSetLocalCommand.project(
                 CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> loadAndSetServerProjection = this.loadAndSetServerCommand.project(
@@ -331,15 +348,15 @@ public class ExclusionModule extends AbstractOrbitModule {
         exclusionModelBand.addRibbonCommand(trainSetClassifyProjection, JRibbonBand.PresentationPriority.TOP);
         exclusionModelBand.addRibbonCommand(classifyTrainedExclusionModelProjection, JRibbonBand.PresentationPriority.TOP);
         exclusionModelBand.addRibbonCommand(configureClassesProjection, JRibbonBand.PresentationPriority.MEDIUM);
-//        exclusionModelBand.addRibbonCommand(exclusionModelLevelProjection, JRibbonBand.PresentationPriority.MEDIUM);
+        exclusionModelBand.addRibbonCommand(exclusionModelLevelProjection, JRibbonBand.PresentationPriority.MEDIUM);
         exclusionModelBand.addRibbonCommand(loadAndSetLocalProjection, JRibbonBand.PresentationPriority.MEDIUM);
         exclusionModelBand.addRibbonCommand(loadAndSetServerProjection, JRibbonBand.PresentationPriority.MEDIUM);
         exclusionModelBand.addRibbonCommand(setFromModelExplorerProjection, JRibbonBand.PresentationPriority.MEDIUM);
         exclusionModelBand.addRibbonCommand(resetExclusionModelProjection, JRibbonBand.PresentationPriority.MEDIUM);
         exclusionModelBand.addRibbonCommand(exclusionHelpProjection, JRibbonBand.PresentationPriority.MEDIUM);
 
-//        List<RibbonBandResizePolicy> resizePolicies = getGenericResizePolicy(exclusionModelBand);
-//        exclusionModelBand.setResizePolicies(resizePolicies);
+        List<RibbonBandResizePolicy> resizePolicies = OrbitMenu.getGenericResizePolicy(exclusionModelBand);
+        exclusionModelBand.setResizePolicies(resizePolicies);
 
         return exclusionModelBand;
     }
@@ -441,6 +458,12 @@ public class ExclusionModule extends AbstractOrbitModule {
         final OrbitImageAnalysis OIA = OrbitImageAnalysis.getInstance();
         OIA.getModel().setExclusionModel(null);
         OIA.updateStatusBar();
+    }
+
+    private void configureExclusionModelLevel() {
+        ExclusionAdminFrame frame = new ExclusionAdminFrame(OrbitImageAnalysis.getInstance().getModel());
+        RawUtilsCommon.centerComponent(frame);
+        frame.setVisible(true);
     }
 
     private void loadModel() {

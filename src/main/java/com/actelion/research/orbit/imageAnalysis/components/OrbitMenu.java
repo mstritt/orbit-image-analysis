@@ -424,18 +424,18 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
-        this.exclusionModelLevelCommand = Command.builder()
-                .setText(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.text"))
-                .setIconFactory(configure_4.factory())
-                .setAction(oia.ExclusionModelLevelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.text"))
-                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph1"))
-                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph2"))
-                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph3"))
-                                .build())
-                .build();
+//        this.exclusionModelLevelCommand = Command.builder()
+//                .setText(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.text"))
+//                .setIconFactory(configure_4.factory())
+//                .setAction(oia.ExclusionModelLevelCommandAction)
+//                .setActionRichTooltip(
+//                        RichTooltip.builder()
+//                                .setTitle(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.text"))
+//                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph1"))
+//                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph2"))
+//                                .addDescriptionSection(resourceBundle.getString("Model.ConfigureModel.exclusionModelLevel.tooltip.actionParagraph3"))
+//                                .build())
+//                .build();
 
         this.performClusteringCommand = Command.builder()
                 .setText(resourceBundle.getString("Model.Clustering.performClustering.text"))
@@ -1825,7 +1825,7 @@ public class OrbitMenu extends JRibbonFrame {
                 CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> fuzzinessProjection = this.fuzzinessCommand.project(
                 CommandButtonPresentationModel.builder().build());
-        CommandButtonProjection<Command> exclusionModelLevelProjection = this.exclusionModelLevelCommand.project(
+        CommandButtonProjection<Command> exclusionModelLevelProjection = oia.getExclusionModule().exclusionModelLevelCommand.project(
                 CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> performClusteringProjection = this.performClusteringCommand.project(
                 CommandButtonPresentationModel.builder().build());

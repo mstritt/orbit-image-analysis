@@ -3061,11 +3061,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         fFrame.setVisible(true);
     }
 
-    final CommandAction ExclusionModelLevelCommandAction = e -> {
-        ExclusionAdminFrame frame = new ExclusionAdminFrame(model);
-        RawUtilsCommon.centerComponent(frame);
-        frame.setVisible(true);
-    };
+
     final CommandAction PerformClusteringCommandAction = e -> {
         this.performClustering = !this.performClustering;
         e.getCommand().setToggleSelected(this.performClustering);
