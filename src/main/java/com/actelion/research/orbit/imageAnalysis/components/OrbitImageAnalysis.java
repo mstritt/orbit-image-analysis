@@ -868,7 +868,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     /**
      * @param shapes the list of ClassShape items to add to the ClassComboBox model
      */
-    private synchronized void updateCcbModel(List<ClassShape> shapes) {
+    public synchronized void updateCcbModel(List<ClassShape> shapes) {
         /*  It's not possible to remove all old and add all new since
             this will cause Radiance to NPE as it tries to refresh
             an empty combobox. So we first add the new items and then
@@ -3132,7 +3132,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
     //TODO: See also ExclusionModule.java, is this really one command for exclusion model and classification?
-    final CommandAction SetupClassesExclusionCommandAction = e -> { if (classesAreYouSurePopup()) resetMainModel(); };
     final CommandAction SetupClassesClassificationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForClassification(); };
     final CommandAction SetupClassesObjectSegmentationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForObjectSegmentation(); };
     final CommandAction SetupClassesObjectClassificationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForObjectClassification(); };
@@ -3176,16 +3175,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         }
     };
-
-    // TODO: Something different happening here... Need to figure out how best to tie in with ExclusionModule.java
-    final CommandAction TrainSetClassifyCommandAction = e -> {};
-    final CommandAction ClassifyTrainedExclusionModelCommandAction = e -> {};
-    final CommandAction ConfigureExclusionClassesCommandAction = e -> {};
-    final CommandAction LoadAndSetLocalCommandAction = e -> {};
-    final CommandAction LoadAndSetServerCommandAction = e -> {};
-    final CommandAction SetFromModelExplorerCommandAction = e -> {};
-    final CommandAction ResetExclusionModelCommandAction = e -> {};
-    final CommandAction ExclusionHelpCommandAction = e -> {};
 
     private void trainModel() {
         logger.debug("train");

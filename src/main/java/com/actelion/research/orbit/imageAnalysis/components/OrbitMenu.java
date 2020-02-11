@@ -495,17 +495,17 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         // Exclusion Model Task commands
-        this.setupClassesExclusionCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Setup.setupClasses.text"))
-                .setIconFactory(system_run_5.factory())
-                .setAction(oia.SetupClassesExclusionCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Setup.setupClasses.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Setup.setupClasses.tooltip.actionParagraph1"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Setup.setupClasses.tooltip.actionParagraph2"))
-                                .build())
-                .build();
+//        this.setupClassesExclusionCommand = Command.builder()
+//                .setText(resourceBundle.getString("ExclusionModel.Setup.setupClasses.text"))
+//                .setIconFactory(system_run_5.factory())
+//                .setAction(oia.getExclusionModule().SetupClassesExclusionCommandAction)
+//                .setActionRichTooltip(
+//                        RichTooltip.builder()
+//                                .setTitle(resourceBundle.getString("ExclusionModel.Setup.setupClasses.text"))
+//                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Setup.setupClasses.tooltip.actionParagraph1"))
+//                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Setup.setupClasses.tooltip.actionParagraph2"))
+//                                .build())
+//                .build();
 
         this.eraserCommand = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Draw.eraser.text"))
@@ -553,101 +553,101 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
-        this.trainSetClassifyCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.trainSetClassify.text"))
-                .setIconFactory(trainSetClassify.factory())
-                .setAction(oia.TrainSetClassifyCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.trainSetClassify.text"))
-                                .addDescriptionSection(resourceBundle
-                                        .getString("ExclusionModel.Exclusion.trainSetClassify.tooltip.actionParagraph1"))
-                                .addDescriptionSection(resourceBundle
-                                        .getString("ExclusionModel.Exclusion.trainSetClassify.tooltip.actionParagraph2"))
-                                .build())
-                .build();
-
-        this.classifyTrainedExclusionModelCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.classifyExclusionModel.text"))
-                .setIconFactory(applications_graphics_2.factory())
-                .setAction(oia.ClassifyTrainedExclusionModelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle
-                                        .getString("ExclusionModel.Exclusion.classifyExclusionModel.tooltip.text"))
-                                .addDescriptionSection(resourceBundle
-                                        .getString("ExclusionModel.Exclusion.classifyExclusionModel.tooltip.actionParagraph1"))
-                                .addDescriptionSection(resourceBundle
-                                        .getString("ExclusionModel.Exclusion.classifyExclusionModel.tooltip.actionParagraph2"))
-                                .build())
-                .build();
-
-        this.configureExclusionClassesCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.text"))
-                .setIconFactory(configure_4.factory())
-                .setAction(oia.ConfigureExclusionClassesCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.loadAndSetLocalCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.text"))
-                .setIconFactory(document_open_5.factory())
-                .setAction(oia.LoadAndSetLocalCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.tooltip.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.loadAndSetServerCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.text"))
-                .setIconFactory(document_open_5.factory())
-                .setAction(oia.LoadAndSetServerCommandAction)
-                .setActionEnabled(!DALConfig.isLocalImageProvider())
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.tooltip.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.setFromModelExplorerCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.text"))
-                .setIconFactory(document_open_5.factory())
-                .setAction(oia.SetFromModelExplorerCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.tooltip.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.resetExclusionModelCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.resetExclusionModel.text"))
-                .setIconFactory(edit_delete_6.factory())
-                .setAction(oia.ResetExclusionModelCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.resetExclusionModel.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.resetExclusionModel.tooltip.actionParagraph1"))
-                                .build())
-                .build();
-
-        this.exclusionHelpCommand = Command.builder()
-                .setText(resourceBundle.getString("ExclusionModel.Exclusion.exclusionHelp.text"))
-                .setIconFactory(help_about_3.factory())
-                .setAction(oia.ExclusionHelpCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.exclusionHelp.text"))
-                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.exclusionHelp.tooltip.actionParagraph1"))
-                                .build())
-                .build();
+//        this.trainSetClassifyCommand = Command.builder()
+//                .setText(resourceBundle.getString("ExclusionModel.Exclusion.trainSetClassify.text"))
+//                .setIconFactory(trainSetClassify.factory())
+//                .setAction(oia.getExclusionModule().TrainSetClassifyCommandAction)
+//                .setActionRichTooltip(
+//                        RichTooltip.builder()
+//                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.trainSetClassify.text"))
+//                                .addDescriptionSection(resourceBundle
+//                                        .getString("ExclusionModel.Exclusion.trainSetClassify.tooltip.actionParagraph1"))
+//                                .addDescriptionSection(resourceBundle
+//                                        .getString("ExclusionModel.Exclusion.trainSetClassify.tooltip.actionParagraph2"))
+//                                .build())
+//                .build();
+//
+//        this.classifyTrainedExclusionModelCommand = Command.builder()
+//                .setText(resourceBundle.getString("ExclusionModel.Exclusion.classifyExclusionModel.text"))
+//                .setIconFactory(applications_graphics_2.factory())
+//                .setAction(oia.getExclusionModule().ClassifyTrainedExclusionModelCommandAction)
+//                .setActionRichTooltip(
+//                        RichTooltip.builder()
+//                                .setTitle(resourceBundle
+//                                        .getString("ExclusionModel.Exclusion.classifyExclusionModel.tooltip.text"))
+//                                .addDescriptionSection(resourceBundle
+//                                        .getString("ExclusionModel.Exclusion.classifyExclusionModel.tooltip.actionParagraph1"))
+//                                .addDescriptionSection(resourceBundle
+//                                        .getString("ExclusionModel.Exclusion.classifyExclusionModel.tooltip.actionParagraph2"))
+//                                .build())
+//                .build();
+//
+//        this.configureExclusionClassesCommand = Command.builder()
+//                .setText(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.text"))
+//                .setIconFactory(configure_4.factory())
+//                .setAction(oia.getExclusionModule().ConfigureExclusionClassesCommandAction)
+//                .setActionRichTooltip(
+//                        RichTooltip.builder()
+//                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.text"))
+//                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.configureExclusionClasses.tooltip.actionParagraph1"))
+//                                .build())
+//                .build();
+//
+//        this.loadAndSetLocalCommand = Command.builder()
+//                .setText(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.text"))
+//                .setIconFactory(document_open_5.factory())
+//                .setAction(oia.getExclusionModule().LoadAndSetLocalCommandAction)
+//                .setActionRichTooltip(
+//                        RichTooltip.builder()
+//                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.tooltip.text"))
+//                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetLocal.tooltip.actionParagraph1"))
+//                                .build())
+//                .build();
+//
+//        this.loadAndSetServerCommand = Command.builder()
+//                .setText(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.text"))
+//                .setIconFactory(document_open_5.factory())
+//                .setAction(oia.getExclusionModule().LoadAndSetServerCommandAction)
+//                .setActionEnabled(!DALConfig.isLocalImageProvider())
+//                .setActionRichTooltip(
+//                        RichTooltip.builder()
+//                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.tooltip.text"))
+//                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.loadAndSetServer.actionParagraph1"))
+//                                .build())
+//                .build();
+//
+//        this.setFromModelExplorerCommand = Command.builder()
+//                .setText(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.text"))
+//                .setIconFactory(document_open_5.factory())
+//                .setAction(oia.getExclusionModule().SetFromModelExplorerCommandAction)
+//                .setActionRichTooltip(
+//                        RichTooltip.builder()
+//                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.tooltip.text"))
+//                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.setModelExplorer.tooltip.actionParagraph1"))
+//                                .build())
+//                .build();
+//
+//        this.resetExclusionModelCommand = Command.builder()
+//                .setText(resourceBundle.getString("ExclusionModel.Exclusion.resetExclusionModel.text"))
+//                .setIconFactory(edit_delete_6.factory())
+//                .setAction(oia.getExclusionModule().ResetExclusionModelCommandAction)
+//                .setActionRichTooltip(
+//                        RichTooltip.builder()
+//                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.resetExclusionModel.text"))
+//                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.resetExclusionModel.tooltip.actionParagraph1"))
+//                                .build())
+//                .build();
+//
+//        this.exclusionHelpCommand = Command.builder()
+//                .setText(resourceBundle.getString("ExclusionModel.Exclusion.exclusionHelp.text"))
+//                .setIconFactory(help_about_3.factory())
+//                .setAction(oia.getExclusionModule().ExclusionHelpCommandAction)
+//                .setActionRichTooltip(
+//                        RichTooltip.builder()
+//                                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.exclusionHelp.text"))
+//                                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.exclusionHelp.tooltip.actionParagraph1"))
+//                                .build())
+//                .build();
 
         // Classification Task Commands
         this.setupClassesClassificationCommand = Command.builder()
@@ -1333,9 +1333,9 @@ public class OrbitMenu extends JRibbonFrame {
 //                clusteringModelBand,
                 resetModelBand);
 
-        JRibbonBand setupClassesBand = this.getSetupExclusionClassesBand();
+        JRibbonBand setupClassesBand = oia.getExclusionModule().getSetupExclusionClassesBand();
         JRibbonBand drawBand = this.getDrawBand();
-        JRibbonBand exclusionBand = this.getExclusionModelBand();
+        JRibbonBand exclusionBand = oia.getExclusionModule().getExclusionModelBand();
         this.exclusionModelTask = new RibbonTask(resourceBundle.getString("ExclusionModel.textTaskTitle"),
                 setupClassesBand,
                 drawBand,
@@ -1897,30 +1897,6 @@ public class OrbitMenu extends JRibbonFrame {
         return resetModelBand;
     }
 
-    private JRibbonBand getSetupExclusionClassesBand() {
-        JRibbonBand setupClassesBand = new JRibbonBand(
-                resourceBundle.getString("ExclusionModel.Setup.textBandTitle"),
-                null,
-                null);
-
-        setupClassesBand.setExpandButtonRichTooltip(RichTooltip.builder()
-                .setTitle(resourceBundle.getString("ExclusionModel.Setup.textBandTitle"))
-                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Setup.textBandTooltipParagraph1"))
-                .build());
-
-        CommandButtonProjection<Command> setupClassesProjection = this.setupClassesExclusionCommand.project(
-                CommandButtonPresentationModel.builder().setTextClickAction().build());
-
-        setupClassesBand.addRibbonCommand(setupClassesProjection,
-                JRibbonBand.PresentationPriority.TOP);
-
-        List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
-        resizePolicies.add(new CoreRibbonResizePolicies.Mirror(setupClassesBand));
-        setupClassesBand.setResizePolicies(resizePolicies);
-
-        return setupClassesBand;
-    }
-
     private JRibbonBand getDrawBand() {
         JRibbonBand drawBand = new JRibbonBand(
                 resourceBundle.getString("ExclusionModel.Draw.textBandTitle"),
@@ -1952,52 +1928,6 @@ public class OrbitMenu extends JRibbonFrame {
         drawBand.setResizePolicies(resizePolicies);
 
         return drawBand;
-    }
-
-    private JRibbonBand getExclusionModelBand() {
-        JRibbonBand exclusionModelBand = new JRibbonBand(
-                resourceBundle.getString("ExclusionModel.Exclusion.textBandTitle"),
-                null,
-                null);
-
-        exclusionModelBand.setExpandButtonRichTooltip(RichTooltip.builder()
-                .setTitle(resourceBundle.getString("ExclusionModel.Exclusion.textBandTitle"))
-                .addDescriptionSection(resourceBundle.getString("ExclusionModel.Exclusion.textBandTooltipParagraph1"))
-                .build());
-
-        CommandButtonProjection<Command> trainSetClassifyProjection = this.trainSetClassifyCommand.project(
-                CommandButtonPresentationModel.builder().build());
-        CommandButtonProjection<Command> classifyTrainedExclusionModelProjection = this.classifyTrainedExclusionModelCommand.project(
-                CommandButtonPresentationModel.builder().build());
-        CommandButtonProjection<Command> configureClassesProjection = this.classesCommand.project(
-                CommandButtonPresentationModel.builder().build());
-        CommandButtonProjection<Command> exclusionModelLevelProjection = this.exclusionModelLevelCommand.project(
-                CommandButtonPresentationModel.builder().build());
-        CommandButtonProjection<Command> loadAndSetLocalProjection = this.loadAndSetLocalCommand.project(
-                CommandButtonPresentationModel.builder().build());
-        CommandButtonProjection<Command> loadAndSetServerProjection = this.loadAndSetServerCommand.project(
-                CommandButtonPresentationModel.builder().build());
-        CommandButtonProjection<Command> setFromModelExplorerProjection = this.setFromModelExplorerCommand.project(
-                CommandButtonPresentationModel.builder().build());
-        CommandButtonProjection<Command> resetExclusionModelProjection = this.resetExclusionModelCommand.project(
-                CommandButtonPresentationModel.builder().build());
-        CommandButtonProjection<Command> exclusionHelpProjection = this.exclusionHelpCommand.project(
-                CommandButtonPresentationModel.builder().build());
-
-        exclusionModelBand.addRibbonCommand(trainSetClassifyProjection, JRibbonBand.PresentationPriority.TOP);
-        exclusionModelBand.addRibbonCommand(classifyTrainedExclusionModelProjection, JRibbonBand.PresentationPriority.TOP);
-        exclusionModelBand.addRibbonCommand(configureClassesProjection, JRibbonBand.PresentationPriority.MEDIUM);
-        exclusionModelBand.addRibbonCommand(exclusionModelLevelProjection, JRibbonBand.PresentationPriority.MEDIUM);
-        exclusionModelBand.addRibbonCommand(loadAndSetLocalProjection, JRibbonBand.PresentationPriority.MEDIUM);
-        exclusionModelBand.addRibbonCommand(loadAndSetServerProjection, JRibbonBand.PresentationPriority.MEDIUM);
-        exclusionModelBand.addRibbonCommand(setFromModelExplorerProjection, JRibbonBand.PresentationPriority.MEDIUM);
-        exclusionModelBand.addRibbonCommand(resetExclusionModelProjection, JRibbonBand.PresentationPriority.MEDIUM);
-        exclusionModelBand.addRibbonCommand(exclusionHelpProjection, JRibbonBand.PresentationPriority.MEDIUM);
-
-        List<RibbonBandResizePolicy> resizePolicies = getGenericResizePolicy(exclusionModelBand);
-        exclusionModelBand.setResizePolicies(resizePolicies);
-
-        return exclusionModelBand;
     }
 
     private JRibbonBand getSetupClassificationClassesBand() {
