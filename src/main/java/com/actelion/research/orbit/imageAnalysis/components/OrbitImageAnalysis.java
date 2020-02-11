@@ -3701,27 +3701,27 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
 
-//    public String askForDir() {
-//        logger.trace("ask for dir");
-//        JFileChooser fileChooser = new JFileChooser();
-//        fileChooser.setMultiSelectionEnabled(false);
-//        fileChooser.setDialogTitle("Select Download Directory");
-//        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-//        String dir = prefs.get("OrbitImageAnalysis.DownloadToDir", null);
-//        if (dir != null) {
-//            File cd = new File(dir);
-//            fileChooser.setCurrentDirectory(cd);
-//        }
-//        int returnVal = fileChooser.showOpenDialog(OrbitImageAnalysis.this);
-//        if (returnVal == JFileChooser.APPROVE_OPTION) {
-//            prefs.put("OrbitImageAnalysis.DownloadToDir", fileChooser.getCurrentDirectory().getAbsolutePath());
-//            File file = fileChooser.getSelectedFile();
-//            return file.getAbsolutePath();
-//        } else {
-//            logger.trace("ask dir canceled.");
-//            return null;
-//        }
-//    }
+    public String askForDir() {
+        logger.trace("ask for dir");
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setMultiSelectionEnabled(false);
+        fileChooser.setDialogTitle("Select Download Directory");
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        String dir = prefs.get("OrbitImageAnalysis.DownloadToDir", null);
+        if (dir != null) {
+            File cd = new File(dir);
+            fileChooser.setCurrentDirectory(cd);
+        }
+        int returnVal = fileChooser.showOpenDialog(OrbitImageAnalysis.this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            prefs.put("OrbitImageAnalysis.DownloadToDir", fileChooser.getCurrentDirectory().getAbsolutePath());
+            File file = fileChooser.getSelectedFile();
+            return file.getAbsolutePath();
+        } else {
+            logger.trace("ask dir canceled.");
+            return null;
+        }
+    }
 
 
     public final ActionListener showExclusionModuleActionListener = new ActionListener() {
