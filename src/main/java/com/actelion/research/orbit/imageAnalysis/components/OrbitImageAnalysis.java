@@ -2860,17 +2860,26 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
      */
 
 
-    public final ChangeListener scaleChangeListener = new ChangeListener() {
-        public void stateChanged(ChangeEvent arg0) {
-            double v = scaleSlider.getValueAdjusted();
-            firePropertyChange(ImageFrame.SCALE_SET_EVENT, null, v);
-        }
+    public final ChangeListener scaleChangeListener = arg0 -> {
+        double v = scaleSlider.getValueAdjusted();
+        firePropertyChange(ImageFrame.SCALE_SET_EVENT, null, v);
     };
 
     // CommandActions for OrbitMenu
+    private void activateHandTool() {
+        if (getIFrame() != null) {
+            getIFrame().recognitionFrame.setSelectedTool(Tools.finger);
+            getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        }
+    }
+    final ActionListener handAction = e -> activateHandTool();
+
+    // Taskbar Commands
+    final CommandAction HandToolCommandAction = e -> activateHandTool();
+
     // Open Tab/Task
     // TODO: OpenImage needs looking at due to multiple image provider support.
-    public final CommandAction OpenImageCommandAction = e -> {
+    final CommandAction OpenImageCommandAction = e -> {
         boolean isLocal = DALConfig.getImageProvider() instanceof ImageProviderLocal;
         if(isLocal) {
             for (ImageFrame iFrame : getIFrames())
@@ -2878,53 +2887,58 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             loadFileOrbit();
         }
     };
-    public final CommandAction OverviewCommandAction = e -> loadSpecialImage(RawUtilsCommon.LEVEL_OVERVIEW);
-    public final CommandAction OpenForPrintingCommandAction = e -> loadLowResImage(2);
-    public final CommandAction OpenSpecialResolutionCommandAction = e -> {
+    final CommandAction OverviewCommandAction = e -> loadSpecialImage(RawUtilsCommon.LEVEL_OVERVIEW);
+    final ActionListener overviewAction = e -> loadSpecialImage(RawUtilsCommon.LEVEL_OVERVIEW);
+
+    final CommandAction OpenForPrintingCommandAction = e -> loadLowResImage(2);
+    final CommandAction OpenSpecialResolutionCommandAction = e -> {
         // TODO: See CommandMenuContentModel popupMenuContentModel in BasicCheckRibbon.
     };
-    public final CommandAction SaveAsOrbitFileCommandAction = e -> saveAsOrbitFile();
-    public final CommandAction ImageProviderCommandAction = e -> {
-        switchLocalRemoteImageProvider();
-    };
+    final CommandAction SaveAsOrbitFileCommandAction = e -> saveAsOrbitFile();
+    final CommandAction ImageProviderCommandAction = e -> switchLocalRemoteImageProvider();
 
 
     // Edit Tab/Task
-    public final CommandAction CopyImageCommandAction = e -> {
-        if (getIFrame() != null) {
-            Transferable t = ((DesktopTransferHandler) desktopTransferHandler).createImageTransferable(getIFrame(), false);
-            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(t, null);
-        }
-    };
-    public final CommandAction CopyImageLinkCommandAction = e -> {
-        Transferable t = ((DesktopTransferHandler) desktopTransferHandler).createTransferable(desktop);
-        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(t, null);
-    };
-    public final CommandAction CopyImageFullCommandAction = e -> {
+    private void copyImageToClipboard(boolean copyFullImage) {
         if (getIFrame() != null) {
             if (OrbitUtils.isSmallImage(getIFrame().recognitionFrame.bimg.getImage())) {
-                Transferable t = ((DesktopTransferHandler) desktopTransferHandler).createImageTransferable(getIFrame(), true);
+                Transferable t = ((DesktopTransferHandler) desktopTransferHandler).createImageTransferable(getIFrame(), copyFullImage);
                 Toolkit.getDefaultToolkit().getSystemClipboard().setContents(t, null);
             } else {
                 JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
                         "The image is too large to be copied into the clipboard. " +
-                        "\nYou can use ALT-C to copy the currently visible region.",
+                                "\nYou can use ALT-C to copy the currently visible region.",
                         "Image too large", JOptionPane.WARNING_MESSAGE);
             }
         }
-    };
-    public final CommandAction PasteImageCommandAction = e -> {
-            String action = (String) TransferHandler.getPasteAction().getValue(Action.NAME);
-            Action a = desktop.getActionMap().get(action);
-            if (a != null) {
-                a.actionPerformed(new ActionEvent(desktop,
-                        ActionEvent.ACTION_PERFORMED,
-                        null));
-            }
+    }
+
+    final CommandAction CopyImageCommandAction = e -> copyImageToClipboard(false);
+    final ActionListener copyImageAction = e -> copyImageToClipboard(false);
+
+    final CommandAction CopyImageLinkCommandAction = e -> {
+        Transferable t = ((DesktopTransferHandler) desktopTransferHandler).createTransferable(desktop);
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(t, null);
     };
 
+    final CommandAction CopyImageFullCommandAction = e -> copyImageToClipboard(true);
+    final ActionListener copyImageFullAction = e -> copyImageToClipboard(true);
+
+    private void pasteImageFromClipboard() {
+        String action = (String) TransferHandler.getPasteAction().getValue(Action.NAME);
+        Action a = desktop.getActionMap().get(action);
+        if (a != null) {
+            a.actionPerformed(new ActionEvent(desktop,
+                    ActionEvent.ACTION_PERFORMED,
+                    null));
+        }
+    }
+
+    final CommandAction PasteImageCommandAction = e -> pasteImageFromClipboard();
+    final ActionListener PasteImageAction = e -> pasteImageFromClipboard();
+
     // Model Tab/Task
-    public final CommandAction OpenModelServerCommandAction = e -> {
+    final CommandAction OpenModelServerCommandAction = e -> {
         ModelBrowser modelBrowser = new ModelBrowser();
         try {
             forceLogin();
@@ -2936,8 +2950,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             e1.printStackTrace();
         }
     };
-    public final CommandAction OpenModelCommandAction = e -> loadModel();
-    public final CommandAction RestoreTrainingShapesCommandAction = e -> {
+    final CommandAction OpenModelCommandAction = e -> loadModel();
+    final CommandAction RestoreTrainingShapesCommandAction = e -> {
         try {
             restoreClassShapes();
         } catch (Exception e1) {
@@ -2945,7 +2959,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The training data could not be restored (see log for details).", "Error restoring training data", JOptionPane.ERROR_MESSAGE);
         }
     };
-    public final CommandAction SaveModelServerCommandAction = e -> {
+    final CommandAction SaveModelServerCommandAction = e -> {
         if (!checkModelConsistancy(model)) return;
         forceLogin();
         if (loginOk) {
@@ -2995,8 +3009,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
         }
     };
-    public final CommandAction SaveModelAsCommandAction = e ->  saveModel(model, loadedModel);;
-    public final CommandAction SaveNestedExclusionModelCommandAction = e -> {
+    final CommandAction SaveModelAsCommandAction = e ->  saveModel(model, loadedModel);;
+    final CommandAction SaveNestedExclusionModelCommandAction = e -> {
         if (model.getExclusionModel() != null) {
             model.cleanModel();
             saveModel(model.getExclusionModel(), "");
@@ -3004,7 +3018,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "This model contains no exclusion model.", "No exclusion model available.", JOptionPane.ERROR_MESSAGE);
         }
     };
-    public final CommandAction SaveNestedSegmentationModelCommandAction = e -> {
+    final CommandAction SaveNestedSegmentationModelCommandAction = e -> {
         if (model.getSegmentationModel() != null) {
             model.cleanModel();
             saveModel(model.getSegmentationModel(), "");
@@ -3012,7 +3026,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "This model contains no segmentation model.", "No segmentation model available.", JOptionPane.ERROR_MESSAGE);
         }
     };
-    public final CommandAction ClassesCommandAction = e -> {
+
+    private void OpenClassAdminFrame() {
         int boundaryClass = -1;
         if (getIFrame() != null) {
             boundaryClass = getIFrame().getRecognitionFrame().getBoundaryClass();
@@ -3022,28 +3037,40 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         configFrame.addPropertyChangeListener(OrbitImageAnalysis.this);
         configFrame.setAlwaysOnTop(true);
         configFrame.setVisible(true);
-    };
-    public final CommandAction FeaturesCommandAction = e -> {
+    }
+
+    final CommandAction ClassesCommandAction = e -> OpenClassAdminFrame();
+    final ActionListener classesAction = e -> OpenClassAdminFrame();
+
+    final CommandAction FeaturesCommandAction = e -> OpenFeaturesAdminFrame();
+    final ActionListener featuresAction = e -> OpenFeaturesAdminFrame();
+
+    private void OpenFeaturesAdminFrame() {
         FeaturesAdminFrame fFrame = new FeaturesAdminFrame(model.getFeatureDescription()); // check
         fFrame.addPropertyChangeListener(OrbitImageAnalysis.this);
         fFrame.setAlwaysOnTop(true);
         fFrame.setVisible(true);
-    };
-    public final CommandAction FuzzinessCommandAction = e -> {
+    }
+
+    final CommandAction FuzzinessCommandAction = e -> OpenFuzzinessAdminFrame();
+    final ActionListener fuzzinessAction = e -> OpenFuzzinessAdminFrame();
+
+    private void OpenFuzzinessAdminFrame() {
         FuzzynessAdminFrame fFrame = new FuzzynessAdminFrame();
         fFrame.setAlwaysOnTop(true);
         fFrame.setVisible(true);
-    };
-    public final CommandAction ExclusionModelLevelCommandAction = e -> {
+    }
+
+    final CommandAction ExclusionModelLevelCommandAction = e -> {
         ExclusionAdminFrame frame = new ExclusionAdminFrame(model);
         RawUtilsCommon.centerComponent(frame);
         frame.setVisible(true);
     };
-    public final CommandAction PerformClusteringCommandAction = e -> {
+    final CommandAction PerformClusteringCommandAction = e -> {
         this.performClustering = !this.performClustering;
         e.getCommand().setToggleSelected(this.performClustering);
     };
-    public final CommandAction ResetMainModelCommandAction = e -> {
+    final CommandAction ResetMainModelCommandAction = e -> {
         if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
                 "This will reset all current training shapes.\nDo you want to continue?",
                 "Reset current training data?", JOptionPane.YES_NO_OPTION)
@@ -3060,23 +3087,24 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                         JOptionPane.ERROR_MESSAGE);
         }
     };
-    public final CommandAction ResetPrimarySegmentationModelCommandAction = e -> {
+    final CommandAction ResetPrimarySegmentationModelCommandAction = e -> {
         model.setSegmentationModel(null);
         JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
                 "Segmentation model successfully reset.",
                 "Segmentation model reset",
                 JOptionPane.INFORMATION_MESSAGE);
     };
-    public final CommandAction ResetSecondarySegmentationModelCommandAction = e -> {
+    final CommandAction ResetSecondarySegmentationModelCommandAction = e -> {
         model.setSecondarySegmentationModel(null);
         JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
                 "Secondary segmentation model successfully reset.",
                 "Secondary segmentation model reset",
                 JOptionPane.INFORMATION_MESSAGE);
     };
-    public final CommandAction ResetEntireModelCommandAction = e -> {
+    final CommandAction ResetEntireModelCommandAction = e -> {
         if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
-                "This will reset all current training shapes.\nDo you want to continue?",
+                "This will reset all current training shapes.\n" +
+                        "Do you want to continue?",
                 "Reset current training data?",
                 JOptionPane.YES_NO_OPTION)
                     == JOptionPane.YES_OPTION) {
@@ -3104,13 +3132,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
     //TODO: See also ExclusionModule.java, is this really one command for exclusion model and classification?
-        public final CommandAction SetupClassesExclusionCommandAction = e -> { if (classesAreYouSurePopup()) resetMainModel(); };
-    public final CommandAction SetupClassesClassificationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForClassification(); };
-    public final CommandAction SetupClassesObjectSegmentationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForObjectSegmentation(); };
-    public final CommandAction SetupClassesObjectClassificationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForObjectClassification(); };
+    final CommandAction SetupClassesExclusionCommandAction = e -> { if (classesAreYouSurePopup()) resetMainModel(); };
+    final CommandAction SetupClassesClassificationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForClassification(); };
+    final CommandAction SetupClassesObjectSegmentationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForObjectSegmentation(); };
+    final CommandAction SetupClassesObjectClassificationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForObjectClassification(); };
 
 
-    public final CommandAction EraserCommandAction = e -> {
+    final CommandAction EraserCommandAction = e -> {
         logger.debug("select polygon to delete");
         if (getIFrame() != null) {
             getIFrame().recognitionFrame.setSelectedTool(Tools.delete);
@@ -3119,7 +3147,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             getIFrame().recognitionFrame.repaint();
         }
     };
-    public final CommandAction PolygonCommandAction = e -> {
+    final CommandAction PolygonCommandAction = e -> {
         logger.debug("brush selected");
         updateSelectedClassShape();
         if (getIFrame() != null) {
@@ -3129,7 +3157,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         }
     };
-    public final CommandAction CircleCommandAction = e -> {
+    final CommandAction CircleCommandAction = e -> {
         logger.debug("circle selected");
         updateSelectedClassShape();
         if (getIFrame() != null) {
@@ -3138,7 +3166,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_ARC);
             getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         }};
-    public final CommandAction RectangleCommandAction = e -> {
+    final CommandAction RectangleCommandAction = e -> {
         logger.debug("rectangle selected");
         updateSelectedClassShape();
         if (getIFrame() != null) {
@@ -3150,26 +3178,29 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
 
     // TODO: Something different happening here... Need to figure out how best to tie in with ExclusionModule.java
-    public final CommandAction TrainSetClassifyCommandAction = e -> {};
-    public final CommandAction ClassifyTrainedExclusionModelCommandAction = e -> {};
-    public final CommandAction ConfigureExclusionClassesCommandAction = e -> {};
-    public final CommandAction LoadAndSetLocalCommandAction = e -> {};
-    public final CommandAction LoadAndSetServerCommandAction = e -> {};
-    public final CommandAction SetFromModelExplorerCommandAction = e -> {};
-    public final CommandAction ResetExclusionModelCommandAction = e -> {};
-    public final CommandAction ExclusionHelpCommandAction = e -> {};
+    final CommandAction TrainSetClassifyCommandAction = e -> {};
+    final CommandAction ClassifyTrainedExclusionModelCommandAction = e -> {};
+    final CommandAction ConfigureExclusionClassesCommandAction = e -> {};
+    final CommandAction LoadAndSetLocalCommandAction = e -> {};
+    final CommandAction LoadAndSetServerCommandAction = e -> {};
+    final CommandAction SetFromModelExplorerCommandAction = e -> {};
+    final CommandAction ResetExclusionModelCommandAction = e -> {};
+    final CommandAction ExclusionHelpCommandAction = e -> {};
 
-    // Classification Tab/Task Command Actions
-    public final CommandAction TrainCommandAction = e -> {
+    private void trainModel() {
         logger.debug("train");
         if (getIFrame() != null) {
             getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
             train();
-            // TODO: This is broken with the switch to Command Actions. Temporarily commented...
-            //fingerActionListener.actionPerformed(null);
+            handAction.actionPerformed(null);
         }
-    };
-    public final CommandAction DefineRoiCommandAction = e -> {
+    }
+
+    // Classification Tab/Task Command Actions
+    final CommandAction TrainCommandAction = e -> trainModel();
+    final ActionListener trainAction = e-> trainModel();
+
+    final CommandAction DefineRoiCommandAction = e -> {
         logger.debug("select ROI selected");
         if (getIFrame() != null) {
             getIFrame().recognitionFrame.setSelectedTool(Tools.roi);
@@ -3178,21 +3209,22 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         }
     };
-    public final CommandAction ClassifyCommandAction = e -> {
-        logger.debug("classify");
+
+    private void classifyModel() {
         if (getIFrame() != null) {
             getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
             classify();
-            // TODO: This is broken with the switch to Command Actions. Temporarily commented...
-            //fingerActionListener.actionPerformed(null);
+            handAction.actionPerformed(null);
         }
-    };
+    }
+    final CommandAction ClassifyCommandAction = e -> classifyModel();
+    final ActionListener classifyAction = e -> classifyModel();
 
     // Object Detection Tab/Task Command Actions
-    public final CommandAction SetPrimarySegmentationModelCommandAction = e -> setModelAsSegmentationModel(model, true);
-    public final CommandAction SetSecondarySegmentationModelCommandAction = e -> setModelAsSecondarySegmentationModel(model, true);
-    public final CommandAction ObjectSegmentationCommandAction = e -> objectSegmentation(true, false);
-    public final CommandAction ShowSegmentationHeatmapCommandAction = e -> {
+    final CommandAction SetPrimarySegmentationModelCommandAction = e -> setModelAsSegmentationModel(model, true);
+    final CommandAction SetSecondarySegmentationModelCommandAction = e -> setModelAsSecondarySegmentationModel(model, true);
+    final CommandAction ObjectSegmentationCommandAction = e -> objectSegmentation(true, false);
+    final CommandAction ShowSegmentationHeatmapCommandAction = e -> {
         this.setShowObjectHeatmap(!this.isShowObjectHeatmap());
         OrbitModel model = this.getModel();
         if (model == null || model.getFeatureDescription().getFeatureClasses() == null || model.getFeatureDescription().getFeatureClasses().length == 0) {
@@ -3204,7 +3236,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                     JOptionPane.WARNING_MESSAGE);
         }
     };
-    public final CommandAction ObjectMarkerCommandAction = e -> {
+    final CommandAction ObjectMarkerCommandAction = e -> {
         logger.debug("cell tool selected");
         updateSelectedClassShape();
         if (getIFrame() != null) {
@@ -3214,15 +3246,14 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.HAND_CURSOR));
         }
     };
-    public final CommandAction TrainObjectsCommandAction = e -> {
+    final CommandAction TrainObjectsCommandAction = e -> {
         trainClassifyNucleid();
-        // TODO: temporarily disabled...
-//        fingerActionListener.actionPerformed(null);
+        handAction.actionPerformed(null);
     };
-    public final CommandAction ObjectClassificationCommandAction = e -> classifyNucleid();
+    final CommandAction ObjectClassificationCommandAction = e -> classifyNucleid();
 
     // ROI Tab/Task Command Actions
-    public final CommandAction ResetRoiCommandAction = e -> {
+    final CommandAction ResetRoiCommandAction = e -> {
         if (resetROI()) {
             repaint();
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
@@ -3236,15 +3267,15 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                     JOptionPane.ERROR_MESSAGE);
         }
     };
-    public final CommandAction InvertRoiCommandAction = e -> invertROI();
-    public final CommandAction MeasureAreaCommandAction = e -> {
+    final CommandAction InvertRoiCommandAction = e -> invertROI();
+    final CommandAction MeasureAreaCommandAction = e -> {
         try {
             showRoiArea();
         } catch (OrbitImageServletException e1) {
             logger.error("Cannot compute ROI area", e1);
         }
     };
-    public final CommandAction SegmentationAsRoiCommandAction = e -> {
+    final CommandAction SegmentationAsRoiCommandAction = e -> {
         RecognitionFrame rf = getIFrame().recognitionFrame;
         if (rf.getObjectSegmentationList() == null || rf.getObjectSegmentationList().size() == 0) {
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
@@ -3263,10 +3294,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 "ROI successfully set",
                 JOptionPane.INFORMATION_MESSAGE);
     };
-    public final CommandAction TmaRoiCommandAction = e -> this.tmaSpotGUI = new TMASpotGUI(true);
+    final CommandAction TmaRoiCommandAction = e -> this.tmaSpotGUI = new TMASpotGUI(true);
 
     // Mask Tab/Task Command Actions
-    public final CommandAction SetClassificationMaskCommandAction = e -> {
+    final CommandAction SetClassificationMaskCommandAction = e -> {
         if (maskSet()) {
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
                     "Classification mask successfully set.",
@@ -3279,7 +3310,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                     JOptionPane.ERROR_MESSAGE);
         }
     };
-    public final CommandAction SetSegmentationMaskCommandAction = e -> {
+    final CommandAction SetSegmentationMaskCommandAction = e -> {
         if (maskSegmentationSet()) {
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
                     "Segmentation mask successfully set.",
@@ -3292,7 +3323,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                     JOptionPane.ERROR_MESSAGE);
         }
     };
-    public final CommandAction UnsetMaskCommandAction = e -> {
+    final CommandAction UnsetMaskCommandAction = e -> {
         if (model.getMask()!=null) {
             model.setMask(null);
             updateStatusBar();
@@ -3307,7 +3338,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                     JOptionPane.WARNING_MESSAGE);
         }
     };
-    public final CommandAction ConfigureMaskCommandAction = e -> {
+    final CommandAction ConfigureMaskCommandAction = e -> {
         if (model.getMask()!=null && model.getMask() instanceof IOrbitMaskModelBased) {
             OrbitModel maskModel = ((IOrbitMaskModelBased) model.getMask()).getModel();
             ClassAdminFrame configFrame = new ClassAdminFrame(maskModel.getClassShapes(), new ClassListCellRenderer(), -1, false);
@@ -3329,7 +3360,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         }
     };
-    public final CommandAction MaskToExplorerCommandAction = e -> {
+    final CommandAction MaskToExplorerCommandAction = e -> {
         if (model.getMask()!=null && model.getMask() instanceof IOrbitMaskModelBased) {
             getModelExplorer().addModel(((IOrbitMaskModelBased) model.getMask()).getModel().clone(),null,false);
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
@@ -3352,10 +3383,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
 
     // Batch Tab/Task Command Actions
-    public final CommandAction LocalExecutionCommandAction = e -> batchExportMapReduce(false);
-    public final CommandAction ScaleOutExecutionCommandAction = e -> batchExportMapReduce(true);
-    public final CommandAction RoiAreaComputationCommandAction = e -> batchExportROIAreasMR();
-    public final CommandAction RetrieveExistingResultsCommandAction = e -> {
+    final CommandAction LocalExecutionCommandAction = e -> batchExportMapReduce(false);
+    final CommandAction ScaleOutExecutionCommandAction = e -> batchExportMapReduce(true);
+    final CommandAction RoiAreaComputationCommandAction = e -> batchExportROIAreasMR();
+    final CommandAction RetrieveExistingResultsCommandAction = e -> {
         // TODO: Does this still need Thread and invokeLater? See old code without lambdas...
         new Thread(() -> SwingUtilities.invokeLater(() -> {
             try {
@@ -3368,13 +3399,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
 
     // Tools Tab/Task Command Actions
-    public final CommandAction OrbitBrowserCommandAction = e -> {
+    final CommandAction OrbitBrowserCommandAction = e -> {
         forceLogin();
         if (loginOk) {
             DALConfig.getImageProvider().openBrowser(loginUser, loginPassword);
         }
     };
-    public final CommandAction DbCleanupCommandAction = e -> {
+    final CommandAction DbCleanupCommandAction = e -> {
         forceLogin();
         if (loginOk) {
             if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
@@ -3397,7 +3428,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         }
     };
-    public final CommandAction ChannelColorResetCommandAction = e -> {
+    final CommandAction ChannelColorResetCommandAction = e -> {
         forceLogin();
         if (loginOk) {
             if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
@@ -3420,10 +3451,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         }
     };
-    public final CommandAction SaveFullImageCommandAction = e -> getIFrame().getRecognitionFrame().makeImageSnapshot();
-    public final CommandAction SaveCurrentViewCommandAction = e -> getIFrame().saveCurrentView();
-    public final CommandAction SaveClassificationImageCommandAction = e -> saveClassImage();
-    public final CommandAction ScriptEditorCommandAction = e -> {
+    final CommandAction SaveFullImageCommandAction = e -> getIFrame().getRecognitionFrame().makeImageSnapshot();
+    final CommandAction SaveCurrentViewCommandAction = e -> getIFrame().saveCurrentView();
+    final CommandAction SaveClassificationImageCommandAction = e -> saveClassImage();
+    final CommandAction ScriptEditorCommandAction = e -> {
         boolean found = false;
         for (JInternalFrame frame : desktop.getAllFrames()) {
             if (frame instanceof ScriptEditor) {
@@ -3444,8 +3475,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     };
 
-    // View Tab/Task Command Actions
-    public final CommandAction TileWindowsCommandAction = e -> {
+    private void tileWindows() {
         if (desktop.getAllFrames() == null) return;
         if (desktop.getAllFrames().length < 1) return;
         int numFrames = desktop.getAllFrames().length;
@@ -3473,8 +3503,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 y++;
             }
         }
-    };
-    public final CommandAction CascadeWindowsCommandAction = e -> {
+    }
+
+    // View Tab/Task Command Actions
+    final CommandAction TileWindowsCommandAction = e -> tileWindows();
+    final ActionListener tileWindowsAction = e -> tileWindows();
+
+    private void cascadeWindows() {
         Dimension dim = defaultWindowDimension;
         int xoffs = 25;
         int yoffs = 25;
@@ -3489,8 +3524,12 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 e1.printStackTrace();
             }
         }
-    };
-    public final CommandAction MinimizeWindowsCommandAction = e -> {
+    }
+
+    final CommandAction CascadeWindowsCommandAction = e -> cascadeWindows();
+    final ActionListener cascadeWindowsAction = e -> cascadeWindows();
+
+    private void minimizeWindows() {
         final JInternalFrame[] frames = desktop.getAllFrames();
         for (JInternalFrame frame : frames) {
             try {
@@ -3499,12 +3538,16 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 e1.printStackTrace();
             }
         }
-    };
-    public final CommandAction CloseWindowsCommandAction = e -> {
+    }
+
+    final CommandAction MinimizeWindowsCommandAction = e -> minimizeWindows();
+    final ActionListener minimizeWindowsAction = e -> minimizeWindows();
+
+    private void closeWindows() {
         if (JOptionPane.showConfirmDialog(OrbitImageAnalysis.this,
                 "Do you really want to close all windows?",
                 "Close Windows", JOptionPane.YES_NO_OPTION)
-                    == JOptionPane.YES_OPTION) {
+                == JOptionPane.YES_OPTION) {
             final JInternalFrame[] frames = desktop.getAllFrames();
             for (JInternalFrame frame : frames) {
                 try {
@@ -3515,9 +3558,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 frame.dispose();
             }
         }
-    };
-    public final CommandAction ShowToolbarCommandAction = e -> getRibbon().setMinimized(!getRibbon().isMinimized());
-    public final CommandAction ShowStatusBarCommandAction = e -> {
+    }
+
+    final CommandAction CloseWindowsCommandAction = e -> closeWindows();
+    final ActionListener closeWindowsAction = e -> closeWindows();
+
+    final CommandAction ShowToolbarCommandAction = e -> getRibbon().setMinimized(!getRibbon().isMinimized());
+    final CommandAction ShowStatusBarCommandAction = e -> {
         showStatusbar = !showStatusbar;
         if (showStatusbar) {
             statusBar.setVisible(true);
@@ -3527,11 +3574,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             e.getCommand().setToggleSelected(false);
         }
     };
-    public final CommandAction ShowGaugeCommandAction = e -> {
+    final CommandAction ShowGaugeCommandAction = e -> {
         showGauge = !showGauge;
         desktop.repaint();
     };
-    public final CommandAction ShowLabelsCommandAction = e -> {
+    final CommandAction ShowLabelsCommandAction = e -> {
         showAnnotationLabels = !showAnnotationLabels;
         if (getIFrames() != null) {
             for (ImageFrame iFrame : getIFrames()) {
@@ -3540,21 +3587,22 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         }
     };
-    public final CommandAction ShowCenterCrossCommandAction = e -> {
+    final CommandAction ShowCenterCrossCommandAction = e -> {
         showCenterCross = !showCenterCross;
         renderGrid.setShowCross(showCenterCross);
         renderGrid.repaint();
     };
-    public final CommandAction ShowMarkupCommandAction = e -> {
-        logger.debug("toggle markup");
-        toggleMarkup();
-    };
-    public final CommandAction ShowSyncFramesCommandAction = e -> syncFrames = !syncFrames;
-    public final CommandAction ShowPopupResultsCommandAction = e -> showPopupResults = !showPopupResults;
+    final CommandAction ShowMarkupCommandAction = e -> toggleMarkup();
+    final ActionListener showMarkupAction = e -> toggleMarkup();
+
+    final CommandAction ShowSyncFramesCommandAction = e -> syncFrames = !syncFrames;
+    final CommandAction ShowPopupResultsCommandAction = e -> showPopupResults = !showPopupResults;
 
     // Help Tab/Task Command Actions
-    public final CommandAction OrbitManualCommandAction = e -> OrbitUtils.openPdfUrl(OrbitUtils.orbitHelpURL);
-    public final CommandAction AboutCommandAction = e -> {
+    final CommandAction OrbitManualCommandAction = e -> OrbitUtils.openPdfUrl(OrbitUtils.orbitHelpURL);
+    final ActionListener orbitManualAction = e -> OrbitUtils.openPdfUrl(OrbitUtils.orbitHelpURL);
+
+    final CommandAction AboutCommandAction = e -> {
         if (logger.isTraceEnabled()) {
             logger.trace("Open Frames:");
             for (JInternalFrame frame : desktop.getAllFrames()) {
@@ -3569,33 +3617,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 getInfoString(),
                 "About Orbit Image Analysis", JOptionPane.INFORMATION_MESSAGE);
     };
-    public final CommandAction ShowLogCommandAction = e -> showLog();
-    public final CommandAction ShowLogModelCommandAction = e -> {
+    final CommandAction ShowLogCommandAction = e -> showLog();
+    final CommandAction ShowLogModelCommandAction = e -> {
         logger.info("Model Information:\n" + model);
         if (!ScaleoutMode.SCALEOUTMODE.get()) {
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model information written to log. Please open the log window to see the information.", "Model written to log", JOptionPane.INFORMATION_MESSAGE);
-        }
-    };
-
-    // Taskbar Commands
-    public final CommandAction HandToolCommandAction = e -> {
-        logger.debug("finger tool");
-        if (getIFrame() != null) {
-            getIFrame().recognitionFrame.setSelectedTool(Tools.finger);
-            getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        }
-    };
-
-    public final ActionListener pasteActionHandler = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            //String action = e.getActionCommand();
-            String action = (String) TransferHandler.getPasteAction().getValue(Action.NAME);
-            Action a = desktop.getActionMap().get(action);
-            if (a != null) {
-                a.actionPerformed(new ActionEvent(desktop,
-                        ActionEvent.ACTION_PERFORMED,
-                        null));
-            }
         }
     };
 
@@ -3615,18 +3641,17 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                     JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The image is too large to be copied into the clipboard. " +
                             "\nYou can use ALT-C to copy the currently visible region.", "Image too large", JOptionPane.WARNING_MESSAGE);
                 }
+            } if (getIFrame() != null) {
+                if (OrbitUtils.isSmallImage(getIFrame().recognitionFrame.bimg.getImage())) {
+                    Transferable t = ((DesktopTransferHandler) desktopTransferHandler).createImageTransferable(getIFrame(), true);
+                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(t, null);
+                } else {
+                    JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "The image is too large to be copied into the clipboard. " +
+                            "\nYou can use ALT-C to copy the currently visible region.", "Image too large", JOptionPane.WARNING_MESSAGE);
+                }
             }
         }
     };
-    public final ActionListener copyImageCurrentViewActionHandler = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (getIFrame() != null) {
-                Transferable t = ((DesktopTransferHandler) desktopTransferHandler).createImageTransferable(getIFrame(), false);
-                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(t, null);
-            }
-        }
-    };
-
 
     public final ActionListener configureFeaturesSegmentationActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -3675,16 +3700,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
 
 
-//    public final ActionListener fingerActionListener = new ActionListener() {
-//        @Override
-//        public void actionPerformed(ActionEvent e) {
-//            logger.debug("finger tool");
-//            if (getIFrame() != null) {
-//                getIFrame().recognitionFrame.setSelectedTool(Tools.finger);
-//                getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.HAND_CURSOR));
-//            }
-//        }
-//    };
+
 
     private void resetChannelColorAssignmentsPreferences() throws BackingStoreException {
         Preferences channelPrefs = Preferences.userNodeForPackage(ChannelToHue.class);

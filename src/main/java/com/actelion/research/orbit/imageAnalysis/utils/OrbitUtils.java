@@ -161,6 +161,7 @@ public class OrbitUtils {
 
     /**
      * See also: https://github.com/kirill-grouchnikov/radiance/blob/master/docs/neon/neon.md#working-with-high-resolution--high-dpi-displays
+     * Should not be used outside GUI code, since headless it won't work.
      *
      * @return double[]{scaleX, scaleY} the respective X and Y scale factors for the highest resolution display.
      */

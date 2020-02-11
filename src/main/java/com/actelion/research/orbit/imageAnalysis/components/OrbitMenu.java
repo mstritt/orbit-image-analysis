@@ -1,6 +1,8 @@
 package com.actelion.research.orbit.imageAnalysis.components;
 
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
+import org.pushingpixels.flamingo.api.common.CommandAction;
+import org.pushingpixels.flamingo.api.common.CommandActionEvent;
 import org.pushingpixels.flamingo.api.common.CommandButtonPresentationState;
 import org.pushingpixels.flamingo.api.common.RichTooltip;
 import org.pushingpixels.flamingo.api.common.model.*;
@@ -20,6 +22,10 @@ import com.actelion.research.orbit.imageAnalysis.components.icons.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
@@ -1409,6 +1415,51 @@ public class OrbitMenu extends JRibbonFrame {
         configureApplicationMenu(ribbon);
         configureTaskBar(ribbon);
 
+        configureKeyboardShortcuts(ribbon);
+
+    }
+
+    /**
+     * Configure OrbitMenu shortcuts.
+     *
+     * @param ribbon The radiance JRibbon component.
+     */
+    private void configureKeyboardShortcuts(JRibbon ribbon) {
+        KeyStroke f1KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0);
+        KeyStroke f2KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0);
+        KeyStroke f3KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0);
+        KeyStroke f4KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0);
+        KeyStroke f5KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0);
+        KeyStroke f6KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0);
+        KeyStroke f7KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0);
+        KeyStroke f8KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0);
+        KeyStroke f9KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0);
+        KeyStroke f10KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F10, 0);
+        KeyStroke f11KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0);
+        KeyStroke f12KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0);
+
+        KeyStroke copyImageKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK);
+        KeyStroke copyImageFullKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK);
+        KeyStroke pasteKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK);
+        KeyStroke loadOverviewKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK);
+
+        ribbon.registerKeyboardAction(oia.orbitManualAction, f1KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.classesAction, f2KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.featuresAction, f3KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.fuzzinessAction, f4KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.showMarkupAction, f5KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.handAction, f6KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.trainAction, f7KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.classifyAction, f8KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.tileWindowsAction, f9KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.cascadeWindowsAction, f10KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.minimizeWindowsAction, f11KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.closeWindowsAction, f12KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        ribbon.registerKeyboardAction(oia.copyImageAction, copyImageKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.copyImageFullAction, copyImageFullKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.PasteImageAction, pasteKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.overviewAction, loadOverviewKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
     /**
@@ -1772,7 +1823,7 @@ public class OrbitMenu extends JRibbonFrame {
                 CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> featuresProjection = this.featuresCommand.project(
                 CommandButtonPresentationModel.builder().build());
-        CommandButtonProjection<Command> fuzzynessProjection = this.fuzzinessCommand.project(
+        CommandButtonProjection<Command> fuzzinessProjection = this.fuzzinessCommand.project(
                 CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> exclusionModelLevelProjection = this.exclusionModelLevelCommand.project(
                 CommandButtonPresentationModel.builder().build());
@@ -1781,7 +1832,7 @@ public class OrbitMenu extends JRibbonFrame {
 
         configureModelBand.addRibbonCommand(classesProjection, JRibbonBand.PresentationPriority.TOP);
         configureModelBand.addRibbonCommand(featuresProjection, JRibbonBand.PresentationPriority.TOP);
-        configureModelBand.addRibbonCommand(fuzzynessProjection, JRibbonBand.PresentationPriority.MEDIUM);
+        configureModelBand.addRibbonCommand(fuzzinessProjection, JRibbonBand.PresentationPriority.MEDIUM);
         configureModelBand.addRibbonCommand(exclusionModelLevelProjection, JRibbonBand.PresentationPriority.MEDIUM);
         configureModelBand.addRibbonCommand(performClusteringProjection, JRibbonBand.PresentationPriority.MEDIUM);
 
