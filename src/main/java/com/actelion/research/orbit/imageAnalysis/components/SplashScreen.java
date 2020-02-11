@@ -19,6 +19,8 @@
 
 package com.actelion.research.orbit.imageAnalysis.components;
 
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
+
 import java.awt.*;
 import java.awt.image.ImageObserver;
 import java.net.URL;
@@ -44,9 +46,8 @@ final class SplashScreen extends Frame {
     private GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
     private GraphicsDevice[] gds = ge.getScreenDevices();
     private GraphicsConfiguration gc = gds[0].getDefaultConfiguration();
-    private double scaleX = gc.getDefaultTransform().getScaleX();
-    private double scaleY = gc.getDefaultTransform().getScaleY();
-
+    private final double scaleX = OrbitUtils.getScaleFactor()[0];
+    private final double scaleY = OrbitUtils.getScaleFactor()[1];
 
     /**
      * Construct using an image for the splash screen.
@@ -90,7 +91,7 @@ final class SplashScreen extends Frame {
             System.out.println("Cannot track image load.");
         }
 
-        SplashWindow splashWindow = new SplashWindow(this, fImage);
+        new SplashWindow(this, fImage);
     }
 
     // PRIVATE
@@ -99,7 +100,6 @@ final class SplashScreen extends Frame {
 
     private Image fImage;
     private static final ImageObserver NO_OBSERVER = null;
-    private static final int IMAGE_ID = 0;
 
     private void initImageAndTracker() {
         fMediaTracker = new MediaTracker(this);
@@ -129,7 +129,7 @@ final class SplashScreen extends Frame {
                 graphics.drawImage(imgTemp, 0, 0, imgTemp.getWidth(this), imgTemp.getHeight(this), this);
             }
         }
-        private Image fImage;
+        private final Image fImage;
     }
 
     /**
@@ -142,7 +142,7 @@ final class SplashScreen extends Frame {
         try {
             Thread.sleep(2000);
         } catch (InterruptedException ex) {
-            System.out.println(ex);
+            ex.printStackTrace();
         }
         System.exit(0);
     }

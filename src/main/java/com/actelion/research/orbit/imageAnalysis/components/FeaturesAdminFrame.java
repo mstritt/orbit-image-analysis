@@ -36,8 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -98,15 +96,11 @@ public class FeaturesAdminFrame extends JDialog {
     private DoubleTextField tfGraphCut = null;
     private JCheckBox cbUseImageAdjustments = null;
 
-    private GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-    private GraphicsDevice[] gds = ge.getScreenDevices();
-    private GraphicsConfiguration gc = gds[0].getDefaultConfiguration();
-    private double scaleX = gc.getDefaultTransform().getScaleX();
-    private double scaleY = gc.getDefaultTransform().getScaleY();
+    private final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
-    private int frameWidth = (int)(800/scaleX);
-    private int frameHeight = (int)(Math.min(ge.getMaximumWindowBounds().height,900)/scaleY); // 1100
-    private int btnHeight = (int)(35/scaleY);
+    private final int frameWidth = (int)(800/OrbitUtils.getScaleFactor()[0]);
+    private final int frameHeight = (int)(Math.min(ge.getMaximumWindowBounds().height,900)/OrbitUtils.getScaleFactor()[1]); // 1100
+    private final int btnHeight = (int)(35/OrbitUtils.getScaleFactor()[1]);
 
     public static int selectedTab = 0;
     private FeatureDescription featureDescription = null;
@@ -149,7 +143,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfWindowSize.setText(Integer.toString(featureDescription.getWindowSize()));
         tfWindowSize.setInputVerifier(new IntInputVerifier(2));
         panel.add(tfWindowSize);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelClassification.add(panel);
 
         panel = new JPanel(new GridLayout(1, 2));
@@ -159,7 +153,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfNumBlur.setText(Integer.toString(featureDescription.getNumBlur()));
         tfNumBlur.setInputVerifier(new IntInputVerifier(0, 0, 5));
         panel.add(tfNumBlur);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelClassification.add(panel);
 
         panel = new JPanel(new GridLayout(1, 2));
@@ -173,7 +167,7 @@ public class FeaturesAdminFrame extends JDialog {
         colPanel.add(cbGreen);
         colPanel.add(cbBlue);
         panel.add(colPanel);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelClassification.add(panel);
 
 
@@ -186,7 +180,7 @@ public class FeaturesAdminFrame extends JDialog {
         lab = new JLabel("Color Deconvolution Setup:");
         panel.add(lab);
         panel.add(cbDeconvName);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelClassification.add(panel);
 
         deconvChannel0.setToolTipText("disable color deconvolution");
@@ -209,7 +203,7 @@ public class FeaturesAdminFrame extends JDialog {
         setDeconvChannel(featureDescription.getDeconvChannel());
 
         panel.add(radioBtnPanel);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelClassification.add(panel);
 
 
@@ -241,7 +235,7 @@ public class FeaturesAdminFrame extends JDialog {
         lab = new JLabel("Classes for retrieving features/histograms:");
         panel.add(lab);
         panel.add(cbFeatureClasses);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelClassification.add(panel);
 
 
@@ -262,7 +256,7 @@ public class FeaturesAdminFrame extends JDialog {
         lab = new JLabel("Active fluorescence channels:");
         panel.add(lab);
         panel.add(cbFluoChannels);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelClassification.add(panel);
 
 
@@ -279,25 +273,22 @@ public class FeaturesAdminFrame extends JDialog {
         final OrbitModel modelFin = model;
         cbForSecondarySegmentationModel = new JCheckBox("Set Features for Secondary Segmentation", featureDescription.isForSecondarySegmentationModel());
         cbForSecondarySegmentationModel.setToolTipText("set the segmentation features for the secondary segmentation model");
-        cbForSecondarySegmentationModel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // attention: we use always the segmentation model for feature description!!! (this might go wrong...)
-                if (modelFin.getSegmentationModel() != null) {
-                    FeatureDescription fd = modelFin.getSegmentationModel().getFeatureDescription();
-                    if (cbForSecondarySegmentationModel.isSelected() && modelFin.getSecondarySegmentationModel() != null) {
-                        fd = modelFin.getSecondarySegmentationModel().getFeatureDescription();
-                    }
-                    updateValues(fd);
+        cbForSecondarySegmentationModel.addActionListener(e -> {
+            // attention: we use always the segmentation model for feature description!!! (this might go wrong...)
+            if (modelFin.getSegmentationModel() != null) {
+                FeatureDescription fd = modelFin.getSegmentationModel().getFeatureDescription();
+                if (cbForSecondarySegmentationModel.isSelected() && modelFin.getSecondarySegmentationModel() != null) {
+                    fd = modelFin.getSecondarySegmentationModel().getFeatureDescription();
                 }
+                updateValues(fd);
             }
         });
-        setCompBounds(cbForSecondarySegmentationModel, frameWidth, 0);
+        setCompBounds(cbForSecondarySegmentationModel, frameWidth);
         panelSegmentation.add(cbForSecondarySegmentationModel);
 
         cbCytoplasmaSegmentation = new JCheckBox("Cytoplasma Segmentation", featureDescription.isCytoplasmaSegmentation());
         cbCytoplasmaSegmentation.setToolTipText("performs a cytoplasma segmentation based on a nuclei staining");
-        setCompBounds(cbCytoplasmaSegmentation, frameWidth, 0);
+        setCompBounds(cbCytoplasmaSegmentation, frameWidth);
         panelSegmentation.add(cbCytoplasmaSegmentation);
 
 
@@ -310,7 +301,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfMinSegmentationSize.setToolTipText("the minimum area (in pixel) a segmented object must have");
         tfMinSegmentationSize.setColumns(4);
         panel.add(tfMinSegmentationSize);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelSegmentation.add(panel);
 
         panel = new JPanel(new GridLayout(1, 2));
@@ -322,7 +313,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfMaxSegmentationLength.setHorizontalAlignment(JTextField.LEFT);
         tfMaxSegmentationLength.setColumns(4);
         panel.add(tfMaxSegmentationLength);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelSegmentation.add(panel);
 
         panel = new JPanel(new GridLayout(1, 2));
@@ -334,7 +325,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfMaxOpenDistance.setHorizontalAlignment(JTextField.LEFT);
         tfMaxOpenDistance.setColumns(4);
         panel.add(tfMaxOpenDistance);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelSegmentation.add(panel);
 
 
@@ -346,23 +337,23 @@ public class FeaturesAdminFrame extends JDialog {
         tfSegmentationScale.setText(featureDescription.getSegmentationScale() + "");
         tfSegmentationScale.setColumns(4);
         panel.add(tfSegmentationScale);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelSegmentation.add(panel);
 
 
         cbDisableWatershed = new JCheckBox("Disable object splitting", featureDescription.isDisableWatershed());
         cbDisableWatershed.setToolTipText("disable splitting of overlapping objects (do not apply watershed algorithm)");
-        setCompBounds(cbDisableWatershed, frameWidth, 0);
+        setCompBounds(cbDisableWatershed, frameWidth);
         panelSegmentation.add(cbDisableWatershed);
 
         cbDoCombineCrossTiles = new JCheckBox("Combine cross tile objects (slow)", featureDescription.isCombineObjectsCrossTiles());
         cbDoCombineCrossTiles.setToolTipText("combine objects across tiles");
-        setCompBounds(cbDoCombineCrossTiles, frameWidth, 0);
+        setCompBounds(cbDoCombineCrossTiles, frameWidth);
         panelSegmentation.add(cbDoCombineCrossTiles);
 
         cbFilterTileEdgeShapes = new JCheckBox("Discard tile border objects", featureDescription.isFilterTileEdgeShapes());
         cbFilterTileEdgeShapes.setToolTipText("discards objects at tile borders, e.g. objects which are divided by tiles");
-        setCompBounds(cbFilterTileEdgeShapes, frameWidth, 0);
+        setCompBounds(cbFilterTileEdgeShapes, frameWidth);
         panelSegmentation.add(cbFilterTileEdgeShapes);
 
 
@@ -374,7 +365,11 @@ public class FeaturesAdminFrame extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 if (cbMFS.isSelected() && !cbDisableWatershed.isSelected()) {
                     cbDisableWatershed.setSelected(true);
-                    JOptionPane.showMessageDialog(FeaturesAdminFrame.this,"Mumford-Shah segmentation has its own object splitting algorithm, thus the additional object splitting has been disabled.\nHowever, you can enable it again in addition and try if the additional splitting (watershed algorithm) gives better results.","Additional object splitting has been disabled",JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(FeaturesAdminFrame.this,
+                            "Mumford-Shah segmentation has its own object splitting algorithm, thus the additional object splitting has been disabled.\n" +
+                                    "However, you can enable it again in addition and try if the additional splitting (watershed algorithm) gives better results.",
+                            "Additional object splitting has been disabled",
+                            JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         });
@@ -395,8 +390,10 @@ public class FeaturesAdminFrame extends JDialog {
         JPanel mfsAlphaPanel = new JPanel();
         mfsAlphaPanel.setBorder(BorderFactory.createEmptyBorder());
         JLabel mfsAlphaLabel = new JLabel("Intens split [1-50]");
-        mfsAlphaLabel.setToolTipText("Object splitting based on intensity. Smaller values will split objects more frequently.\nRecommended range: [1,50], allowed range: [1,255].\n"+
-                "This value corresponds to the alpha value of the mumford-shah functional which is responsible for the smoothing of the image.\nHigher values will smooth the image more and thus split objects less.");
+        mfsAlphaLabel.setToolTipText("Object splitting based on intensity. Smaller values will split objects more frequently.\n" +
+                "Recommended range: [1,50], allowed range: [1,255].\n"+
+                "This value corresponds to the alpha value of the mumford-shah functional which is responsible for the smoothing of the image.\n" +
+                "Higher values will smooth the image more and thus split objects less.");
         tfMFSAlpha = new IntegerTextField(5, 5, 1, 255);
         tfMFSAlpha.setHorizontalAlignment(JTextField.LEFT);
         tfMFSAlpha.setInt(featureDescription.getMumfordShahAlpha());
@@ -405,7 +402,7 @@ public class FeaturesAdminFrame extends JDialog {
         mfsAlphaPanel.add(tfMFSAlpha);
         mfsParamPanel.add(mfsAlphaPanel);
         panel.add(mfsParamPanel);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panel.setPreferredSize(new Dimension((int)panel.getPreferredSize().getWidth(),(int)mfsAlphaPanel.getPreferredSize().getHeight()));
         panelSegmentation.add(panel);
 
@@ -420,7 +417,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfNumDilate.setHorizontalAlignment(JTextField.LEFT);
         tfNumDilate.setColumns(4);
         panel.add(tfNumDilate);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelSegmentation.add(panel);
 
         panel = new JPanel(new GridLayout(1, 2));
@@ -432,12 +429,12 @@ public class FeaturesAdminFrame extends JDialog {
         tfNumErode.setHorizontalAlignment(JTextField.LEFT);
         tfNumErode.setColumns(4);
         panel.add(tfNumErode);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelSegmentation.add(panel);
 
         cbDilateBeforeErode = new JCheckBox("Dilate before erode", featureDescription.isDilateBeforeErode());
         cbDilateBeforeErode.setToolTipText("otherwise erode before dilate");
-        setCompBounds(cbDilateBeforeErode, frameWidth, 0);
+        setCompBounds(cbDilateBeforeErode, frameWidth);
         panelSegmentation.add(cbDilateBeforeErode);
 
         panel = new JPanel(new GridLayout(1, 2));
@@ -449,7 +446,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfRemoveOutliers.setHorizontalAlignment(JTextField.LEFT);
         tfRemoveOutliers.setColumns(4);
         panel.add(tfRemoveOutliers);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelSegmentation.add(panel);
 
 
@@ -462,13 +459,13 @@ public class FeaturesAdminFrame extends JDialog {
         tfGraphCut.setHorizontalAlignment(JTextField.LEFT);
         tfGraphCut.setColumns(4);
         panel.add(tfGraphCut);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelSegmentation.add(panel);
 
 
         cbNerveDetectionMode = new JCheckBox("Nerve Detection Mode", featureDescription.isDeactivateWatershed());  // large object detection
         cbNerveDetectionMode.setToolTipText("activate for nerve detection (large object detection)");
-        setCompBounds(cbNerveDetectionMode, frameWidth, 0);
+        setCompBounds(cbNerveDetectionMode, frameWidth);
         panelSegmentation.add(cbNerveDetectionMode);
 
 
@@ -482,7 +479,7 @@ public class FeaturesAdminFrame extends JDialog {
 
         cbDeepLearning = new JCheckBox("Deep Learning Segmentation", featureDescription.isDeepLearningSegmentation());  // large object detection
         cbDeepLearning.setToolTipText("Enable deep learning instance segmentation. Select a segmentation model before using it.");
-        setCompBounds(cbDeepLearning, frameWidth, 0);
+        setCompBounds(cbDeepLearning, frameWidth);
         panelDeepLearning.add(cbDeepLearning);
 
         panel = new JPanel(new GridLayout(1, 2));
@@ -524,7 +521,7 @@ public class FeaturesAdminFrame extends JDialog {
         pathPanel.add(fileSelectBtn);
 
         panel.add(pathPanel);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelDeepLearning.add(panel);
 
         tabs.add("Deep Learning", panelDeepLearning);
@@ -550,7 +547,7 @@ public class FeaturesAdminFrame extends JDialog {
         lab = new JLabel("Use annotations as ROI:");
         panel.add(lab);
         panel.add(cbAnnotationROI);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelROI.add(panel);
 
 
@@ -561,7 +558,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfFixedROI.setText(Integer.toString(OrbitImageAnalysis.getInstance().getModel().getFixedCircularROI()));
         tfFixedROI.setInputVerifier(new IntInputVerifier(0));
         panel.add(tfFixedROI);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelROI.add(panel);
 
         panel = new JPanel(new GridLayout(1, 2));
@@ -571,7 +568,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfROIX.setText(Integer.toString(OrbitImageAnalysis.getInstance().getModel().getFixedROIOffsetX()));
         tfROIX.setInputVerifier(new IntInputVerifier(0));
         panel.add(tfROIX);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelROI.add(panel);
 
         panel = new JPanel(new GridLayout(1, 2));
@@ -581,7 +578,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfROIY.setText(Integer.toString(OrbitImageAnalysis.getInstance().getModel().getFixedROIOffsetY()));
         tfROIY.setInputVerifier(new IntInputVerifier(0));
         panel.add(tfROIY);
-        setCompBounds(panel, frameWidth - 50, 0);
+        setCompBounds(panel, frameWidth - 50);
         panelROI.add(panel);
 
         tabs.add("ROI", panelROI);
@@ -594,11 +591,13 @@ public class FeaturesAdminFrame extends JDialog {
 
         cbUseImageAdjustments = new JCheckBox("Use image adjustments *", featureDescription.isUseImageAdjustments());
         cbUseImageAdjustments.setToolTipText("load image adjustments from database before classification (brightness, contrast, gamma) - use with care!");
-        setCompBounds(cbUseImageAdjustments, frameWidth, 0);
+        setCompBounds(cbUseImageAdjustments, frameWidth);
         panelImageAdjustments.add(cbUseImageAdjustments);
 
-        JLabel imageAdjustmentWarning = new JLabel("<html><body>* If activated, image adjustments like gamma, brightness and contrast from the image<br/>adjustment panel are taken into account." +
-                "<br/>Please use it with care, because it will influence the quantification results,<br/>thus you might get an unwanted bias." +
+        JLabel imageAdjustmentWarning = new JLabel("<html><body>* If activated, image adjustments like gamma, brightness " +
+                "and contrast from the image<br/>adjustment panel are taken into account." +
+                "<br/>Please use it with care, because it will influence the quantification results,<br/>" +
+                "thus you might get an unwanted bias." +
                 "<br/>If you really want to use it, please double-check that the image adjustments are saved.</body></html>");
         panelImageAdjustments.add(imageAdjustmentWarning);
 
@@ -616,12 +615,9 @@ public class FeaturesAdminFrame extends JDialog {
 
         tabs.setSelectedIndex(FeaturesAdminFrame.selectedTab);
 
-        tabs.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                logger.trace("selected tab: "+ tabs.getSelectedIndex());
-                FeaturesAdminFrame.selectedTab = tabs.getSelectedIndex();
-            }
+        tabs.addChangeListener(e -> {
+            logger.trace("selected tab: "+ tabs.getSelectedIndex());
+            FeaturesAdminFrame.selectedTab = tabs.getSelectedIndex();
         });
 
         addActionListeners();
@@ -641,13 +637,10 @@ public class FeaturesAdminFrame extends JDialog {
             if (img instanceof OrbitTiledImageIOrbitImage) {
                 IOrbitImage oi = ((OrbitTiledImageIOrbitImage) img).getOrbitImage();
                 if (oi instanceof IOrbitImageMultiChannel) {
-                    final IOrbitImageMultiChannel oim = (IOrbitImageMultiChannel) oi;
-                    return oim;
+                    return (IOrbitImageMultiChannel) oi;
                 }
             }
         }
-
-
         return null;
     }
 
@@ -668,7 +661,7 @@ public class FeaturesAdminFrame extends JDialog {
 
         List<String> classList = new ArrayList<String>();
         //classList.add("<ALL>");
-        String selected = "";
+        StringBuilder selected = new StringBuilder();
         OrbitModel model = OrbitImageAnalysis.getInstance().getModel();
         if (model != null) {
             OrbitModel classModel = model;
@@ -682,7 +675,7 @@ public class FeaturesAdminFrame extends JDialog {
                 if (featureDescription.getFeatureClasses() != null) {
                     for (int fc : featureDescription.getFeatureClasses()) {
                         if (i == fc) {
-                            selected += cleanCS + "; ";
+                            selected.append(cleanCS).append("; ");
                         }
                     }
                 }
@@ -691,7 +684,7 @@ public class FeaturesAdminFrame extends JDialog {
         }
 
         cbFeatureClasses.setChoices(classList);
-        cbFeatureClasses.setText(selected);
+        cbFeatureClasses.setText(selected.toString());
 
         cbUseImageAdjustments.setSelected(featureDescription.isUseImageAdjustments());
 
@@ -737,12 +730,12 @@ public class FeaturesAdminFrame extends JDialog {
 
     private void setCbActiveFluoChannels(final String[] activeFluoChannels) {
         List<String> fluoChannels = new ArrayList<>();
-        String selectedChannels = "";
+        StringBuilder selectedChannels = new StringBuilder();
         if (activeFluoChannels!=null &&activeFluoChannels.length>0) {
             for (int i=0;i<activeFluoChannels.length; i++) {
                 String channel = OrbitUtils.cleanChannelName(activeFluoChannels[i]);
-                selectedChannels += channel;
-                if (i<activeFluoChannels.length-1) selectedChannels += "; ";
+                selectedChannels.append(channel);
+                if (i<activeFluoChannels.length-1) selectedChannels.append("; ");
                 fluoChannels.add(channel);
             }
         }
@@ -759,7 +752,7 @@ public class FeaturesAdminFrame extends JDialog {
             Collections.sort(fluoChannels);
         }
         else {
-            selectedChannels = OrbitUtils.CHANNEL_NAME_ALL;
+            selectedChannels = new StringBuilder(OrbitUtils.CHANNEL_NAME_ALL);
             fluoChannels.add(OrbitUtils.CHANNEL_NAME_ALL);
         }
         
@@ -768,23 +761,18 @@ public class FeaturesAdminFrame extends JDialog {
         } else {
             cbFluoChannels.setChoices(fluoChannels);
         }
-        cbFluoChannels.setText(selectedChannels);
+        cbFluoChannels.setText(selectedChannels.toString());
     }
 
-    private void setCompBounds(Component comp, int width, int y) {
+    private void setCompBounds(Component comp, int width) {
         comp.setMaximumSize(new Dimension(width, btnHeight));
         comp.setPreferredSize(new Dimension(width, btnHeight));
         comp.setMinimumSize(new Dimension(width, btnHeight));
-        //comp.setBounds((frameWidth/3) + 200, y, comp.getWidth(), comp.getHeight());
     }
 
 
     private void addActionListeners() {
-        ActionListener okAction = new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                exitProcedure();
-            }
-        };
+        ActionListener okAction = arg0 -> exitProcedure();
         btnOK.addActionListener(okAction);
 
     }
@@ -836,15 +824,13 @@ public class FeaturesAdminFrame extends JDialog {
 
     public void exitProcedure() {
         if (cbForSecondarySegmentationModel.isSelected() && cbCytoplasmaSegmentation.isSelected()) {
-            JOptionPane.showMessageDialog(FeaturesAdminFrame.this, "Cytoplasma segmentation cannot be activated for secondary segmentation model.\nPlease select either cytoplasma segmentation or 'for secondary segmentation model', but not both.", "Secondary Segmentation model and cytoplasma segmentation cannot be used together.", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(FeaturesAdminFrame.this,
+                    "Cytoplasma segmentation cannot be activated for secondary segmentation model.\n" +
+                            "Please select either cytoplasma segmentation or 'for secondary segmentation model', but not both.",
+                    "Secondary Segmentation model and cytoplasma segmentation cannot be used together.",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
-
-//        if (cbDoCombineCrossTiles.isSelected() && cbCytoplasmaSegmentation.isSelected()) {
-//            JOptionPane.showMessageDialog(FeaturesAdminFrame.this, "'Combine large connecting objects' and Cytoplasma Segmentation cannot be used together.\n(It would result in exactly one large object because all cytoplasma borders are connecting.)", "Cytoplasma Segmentation and Combine Objects active.", JOptionPane.ERROR_MESSAGE);
-//            return;
-//        }
-
 
         OrbitImageAnalysis.getInstance().getModel().setFixedCircularROI(OrbitUtils.parseInt(tfFixedROI.getText(), 0));
         OrbitImageAnalysis.getInstance().getModel().setFixedROIOffsetX(OrbitUtils.parseInt(tfROIX.getText(), 0));
@@ -931,7 +917,7 @@ public class FeaturesAdminFrame extends JDialog {
         this.dispose();
     }
 
-    public class AnnotationGroupLabel implements Serializable {
+    public static class AnnotationGroupLabel implements Serializable {
         private static final long serialVersionUID = 1L;
         private int num;
         private String name;
