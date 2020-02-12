@@ -2161,8 +2161,8 @@ public class OrbitMenu extends JRibbonFrame {
                 CommandButtonPresentationModel.builder().build());
 
         batchBand.addRibbonCommand(localExecutionProjection, JRibbonBand.PresentationPriority.TOP);
-        batchBand.addRibbonCommand(scaleOutExecutionProjection, JRibbonBand.PresentationPriority.TOP);
         batchBand.addRibbonCommand(roiAreaComputationProjection, JRibbonBand.PresentationPriority.TOP);
+        batchBand.addRibbonCommand(scaleOutExecutionProjection, JRibbonBand.PresentationPriority.TOP);
         batchBand.addRibbonCommand(retrieveExistingResultsProjection, JRibbonBand.PresentationPriority.TOP);
 
         List<RibbonBandResizePolicy> resizePolicies = getGenericResizePolicy(batchBand);
