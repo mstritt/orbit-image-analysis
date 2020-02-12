@@ -1,8 +1,6 @@
 package com.actelion.research.orbit.imageAnalysis.components;
 
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
-import org.pushingpixels.flamingo.api.common.CommandAction;
-import org.pushingpixels.flamingo.api.common.CommandActionEvent;
 import org.pushingpixels.flamingo.api.common.CommandButtonPresentationState;
 import org.pushingpixels.flamingo.api.common.RichTooltip;
 import org.pushingpixels.flamingo.api.common.model.*;
@@ -22,8 +20,6 @@ import com.actelion.research.orbit.imageAnalysis.components.icons.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -34,13 +30,14 @@ public class OrbitMenu extends JRibbonFrame {
 
     private OrbitImageAnalysis oia = null;
 
-    private ResourceBundle resourceBundle;
+    private final ResourceBundle resourceBundle;
 
     // Commands for Image tasks
     private Command openImageCommand;
     private Command overviewCommand;
     private Command openForPrintingCommand;
     private Command openSpecialResolutionCommand;
+    private final CommandMenuContentModel openSpecialResolutionContentModel = new CommandMenuContentModel();
     private Command saveImageLinksCommand;
     private Command imageProviderCommand;
 
@@ -68,21 +65,11 @@ public class OrbitMenu extends JRibbonFrame {
     private Command resetEntireModelCommand;
 
     // Commands for Exclusion Model Tasks
-    private Command setupClassesExclusionCommand;
+    // See also Exclusion module.
     private Command eraserCommand;
     private Command polygonCommand;
     private Command circleCommand;
     private Command rectangleCommand;
-    private Command trainSetClassifyCommand;
-    private Command classifyTrainedExclusionModelCommand;
-    // TODO: Should this command be used?
-    private Command configureExclusionClassesCommand;
-    // Exclusion Model Level, see section Models.
-    private Command loadAndSetLocalCommand;
-    private Command loadAndSetServerCommand;
-    private Command setFromModelExplorerCommand;
-    private Command resetExclusionModelCommand;
-    private Command exclusionHelpCommand;
 
     // Commands for classification Tasks
     private Command setupClassesClassificationCommand;
@@ -229,14 +216,8 @@ public class OrbitMenu extends JRibbonFrame {
         this.openSpecialResolutionCommand = Command.builder()
                 .setText(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.text"))
                 .setIconFactory(document_open_5.factory())
-                .setAction(oia.OpenSpecialResolutionCommandAction)
-                .setActionRichTooltip(
-                        RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.tooltip.text"))
-                                .addDescriptionSection(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.tooltip.actionParagraph1"))
-                                .build())
-//                    TODO: Figure out the secondary content model
-//                    .setSecondaryContentModel()
+                .setSecondaryContentModel(this.getOpenSpecialResolutionContentModel())
+                .setSecondaryEnabled(false)
                 .build();
 
         this.saveImageLinksCommand = Command.builder()
@@ -1164,7 +1145,8 @@ public class OrbitMenu extends JRibbonFrame {
 
     }
 
-        // TODO: Move to OrbitModel...
+
+    // TODO: Move to OrbitModel...
         // Create a String[] with the class lists.
 //            String[] classNames = oia.getModel().getClassShapes().stream()
 //                    .map(ClassShape::getName)
@@ -1507,12 +1489,14 @@ public class OrbitMenu extends JRibbonFrame {
         CommandButtonProjection<Command> openForPrintingProjection = this.openForPrintingCommand.project(
                 CommandButtonPresentationModel.builder().build());
 
-        CommandButtonProjection<Command> openSpecialResolutionProjection = this.openSpecialResolutionCommand.project(
-                CommandButtonPresentationModel.builder().build());
+        CommandButtonProjection<Command> openSpecialResolutionProjection = this.getOpenSpecialResolutionCommand().project(
+                CommandButtonPresentationModel.builder()
+                        .setTextClickPopup()
+                        .build());
 
         openSpecialBand.addRibbonCommand(overviewProjection, JRibbonBand.PresentationPriority.TOP);
-        openSpecialBand.addRibbonCommand(openForPrintingProjection, JRibbonBand.PresentationPriority.MEDIUM);
-        openSpecialBand.addRibbonCommand(openSpecialResolutionProjection, JRibbonBand.PresentationPriority.MEDIUM);
+        openSpecialBand.addRibbonCommand(openForPrintingProjection, JRibbonBand.PresentationPriority.TOP);
+        openSpecialBand.addRibbonCommand(openSpecialResolutionProjection, JRibbonBand.PresentationPriority.TOP);
 
         List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
         resizePolicies.add(new CoreRibbonResizePolicies.Mirror(openSpecialBand));
@@ -2336,5 +2320,13 @@ public class OrbitMenu extends JRibbonFrame {
         });
 
 
+    }
+
+    CommandMenuContentModel getOpenSpecialResolutionContentModel() {
+        return openSpecialResolutionContentModel;
+    }
+
+    Command getOpenSpecialResolutionCommand() {
+        return openSpecialResolutionCommand;
     }
 }

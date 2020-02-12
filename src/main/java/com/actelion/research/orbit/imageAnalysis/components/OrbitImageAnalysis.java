@@ -31,6 +31,7 @@ import com.actelion.research.orbit.gui.AbstractOrbitTree;
 import com.actelion.research.orbit.gui.RdfSearchBox;
 import com.actelion.research.orbit.imageAnalysis.TMA.TMASpotGUI;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame.Tools;
+import com.actelion.research.orbit.imageAnalysis.components.icons.document_open_5;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.LocalFileFilter;
@@ -57,6 +58,10 @@ import org.jaitools.tilecache.DiskCachedTile;
 import org.jaitools.tiledimage.DiskMemImageOrbit;
 import org.jdesktop.swingx.JXLoginPane.Status;
 import org.pushingpixels.flamingo.api.common.CommandAction;
+import org.pushingpixels.flamingo.api.common.CommandActionEvent;
+import org.pushingpixels.flamingo.api.common.RichTooltip;
+import org.pushingpixels.flamingo.api.common.model.Command;
+import org.pushingpixels.flamingo.api.common.model.CommandGroup;
 import org.pushingpixels.flamingo.api.ribbon.JRibbonFrame;
 import org.pushingpixels.flamingo.api.ribbon.synapse.model.RibbonDefaultComboBoxContentModel;
 import org.pushingpixels.substance.api.SubstanceCortex;
@@ -120,7 +125,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private static final Logger orbitLogger = Logger.getLogger(OrbitImageAnalysis.class);
     private static volatile OrbitImageAnalysis instance = null;
     final public String START_PIC = null; //"/image_small.jpg";
-    final public String startModel = null; // = "D:\\orbitModels\\simple-segmentation_v5.omo";
+//    final public String startModel = null; // = "D:\\orbitModels\\simple-segmentation_v5.omo";
 
     public static final String LOGO_NAME = "/resource/Orbital_bones32.png";
     public static final String GUEST_USER = "guest";
@@ -140,9 +145,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private final JMenu loadSpecialLayerItem = null;
     protected final JMenuItem menuLogOff = new JMenuItem("Log off ");
     protected final JMenuItem menuLogIn = new JMenuItem("Login");
-    protected final JCheckBox syncFramesCheckbox = new JCheckBox("Sync Frames", false);
-    protected final JCheckBoxMenuItem showGaugeCheckbox = new JCheckBoxMenuItem("Show Gauge", true);
-    protected final JCheckBoxMenuItem showMarkupCheckbox = new JCheckBoxMenuItem("Show Markup");
+//    protected final JCheckBox syncFramesCheckbox = new JCheckBox("Sync Frames", false);
+//    protected final JCheckBoxMenuItem showGaugeCheckbox = new JCheckBoxMenuItem("Show Gauge", true);
+//    protected final JCheckBoxMenuItem showMarkupCheckbox = new JCheckBoxMenuItem("Show Markup");
 
     private JComboBox sizeBox = null;
     private JComboBox<ClassShape> classBox = null;
@@ -709,66 +714,38 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         ;
     }
 
-    private void setLowResImagesItemsEnabled(boolean enabled) {
-        if (loadlowResImageItem != null) {
-            // old nimbus/toolbar UI
-            loadlowResImageItem.setEnabled(enabled);
-            loadmediumResImageItem.setEnabled(enabled);
-            // TODO check if svs file
-            loadSVSLabelItem.setEnabled(enabled);
-            loadSVSOverviewItem.setEnabled(enabled);
-
-            loadSpecialLayerItem.setEnabled(enabled);
-            loadSpecialLayerItem.removeAll();
-            if (loadSpecialLayerItem.isEnabled()) {
-                ImageFrame iFrame = getIFrame();
-                if (iFrame != null) {
-                    int numImg = iFrame.recognitionFrame.bimg.getMipMaps() == null ? 0 : iFrame.recognitionFrame.bimg.getMipMaps().length;
-                    if (numImg > 0) {
-                        for (int i = 0; i < numImg; i++) {
-                            final int mipNum = i + 1;
-                            JMenuItem item = new JMenuItem("Open layer " + mipNum);
-                            item.addActionListener(e -> loadLowResImage(mipNum));
-                            loadSpecialLayerItem.add(item);
-                        }
-                    }
-                }
-            }
-        } else {
-            // new ribbon UI
-            specialResImagesAvailable = enabled;
-            // menu entries will be defined by popupmenu
-        }
-
-    }
-
-    // TODO: What does this do, is it still needed?
-//    class SpecialResMenu extends JPopupPanel {
-//        public SpecialResMenu() {
-//            if (specialResImagesAvailable) {
+//    private void setLowResImagesItemsEnabled(boolean enabled) {
+//        if (loadlowResImageItem != null) {
+//            // old nimbus/toolbar UI
+//            loadlowResImageItem.setEnabled(enabled);
+//            loadmediumResImageItem.setEnabled(enabled);
+//            // TODO check if svs file
+//            loadSVSLabelItem.setEnabled(enabled);
+//            loadSVSOverviewItem.setEnabled(enabled);
+//
+//            loadSpecialLayerItem.setEnabled(enabled);
+//            loadSpecialLayerItem.removeAll();
+//            if (loadSpecialLayerItem.isEnabled()) {
 //                ImageFrame iFrame = getIFrame();
 //                if (iFrame != null) {
 //                    int numImg = iFrame.recognitionFrame.bimg.getMipMaps() == null ? 0 : iFrame.recognitionFrame.bimg.getMipMaps().length;
 //                    if (numImg > 0) {
 //                        for (int i = 0; i < numImg; i++) {
 //                            final int mipNum = i + 1;
-//                            JCommandButton btn = new JCommandButton("Open layer " + mipNum + " [" + iFrame.recognitionFrame.bimg.getMipMaps()[numImg - i - 1].getWidth() + " x " + iFrame.recognitionFrame.bimg.getMipMaps()[numImg - i - 1].getHeight() + "]");
-//                            btn.addActionListener(new ActionListener() {
-//                                @Override
-//                                public void actionPerformed(ActionEvent e) {
-//                                    loadLowResImage(mipNum);
-//                                }
-//                            });
-//
-//                            add(btn);
+//                            JMenuItem item = new JMenuItem("Open layer " + mipNum);
+//                            item.addActionListener(e -> loadLowResImage(mipNum));
+//                            loadSpecialLayerItem.add(item);
 //                        }
 //                    }
 //                }
-//            } else {
-//                add(new JLabel("No layers available"));
 //            }
-//
+//        } else {
+//            // new ribbon UI
+//            // TODO: Can be updated...
+//            specialResImagesAvailable = enabled;
+//            // menu entries will be defined by popupmenu
 //        }
+//
 //    }
 
     protected String getInfoString() {
@@ -1606,7 +1583,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             newFrame.revalidate();
             newFrame.repaint();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Cannot load special image. Please open a virtual slide image first.", "Cannot load special image", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Cannot load special image. Please open a virtual slide image first.",
+                    "Cannot load special image",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -1614,11 +1594,17 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         logger.info("loadThumbnailImage called [method call]");
         ImageFrame iFrame = getIFrame();
         if (iFrame == null) {
-            JOptionPane.showMessageDialog(this, "Cannot load an overview image. Please open an overview image first.", "Cannot load overview image", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Cannot load an overview image. Please open an overview image first.",
+                    "Cannot load overview image",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         if (iFrame.getRdf() == null) {
-            JOptionPane.showMessageDialog(this, "Cannot load an overview image. The image has to be loaded from Orbit.", "Cannot load overview image", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Cannot load an overview image. The image has to be loaded from Orbit.",
+                    "Cannot load overview image",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -2199,9 +2185,12 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
             ((ImageFrame) evt.getSource()).recognitionFrame.addMouseListeners();
             if (((ImageFrame) evt.getSource()).recognitionFrame.bimg.getMipMaps() != null && ((ImageFrame) evt.getSource()).recognitionFrame.bimg.getMipMaps().length > 0) {
-                setLowResImagesItemsEnabled(true);
+                // TODO: Enable/disable menu item
+                setupOpenSpecialResMenu();
+                //setLowResImagesItemsEnabled(true);
             } else {
-                setLowResImagesItemsEnabled(false);
+                setupOpenSpecialResMenu();
+                //setLowResImagesItemsEnabled(false);
             }
             metaBar.clearMetasAndAnnotations();
             loadAnnotations(((ImageFrame) evt.getSource()), true);       // TODO
@@ -2231,18 +2220,16 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
 
             // iframe closing, so reset loupe, rendergrid and metaBar
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    ImageFrame iFrame = getIFrame();
-                    if (iFrame != null) {
-                        firePropertyChange("selected", null, iFrame);
-                    } else {
-                        renderGrid.setImage(null);
-                        loupeWithScale.getLoupe().setImage(null);
-                        metaBar.clearMetasAndAnnotations();
-                        propertyPanel.revalidate();
-                        propertyPanel.repaint();
-                    }
+            SwingUtilities.invokeLater(() -> {
+                ImageFrame iFrame = getIFrame();
+                if (iFrame != null) {
+                    firePropertyChange("selected", null, iFrame);
+                } else {
+                    renderGrid.setImage(null);
+                    loupeWithScale.getLoupe().setImage(null);
+                    metaBar.clearMetasAndAnnotations();
+                    propertyPanel.revalidate();
+                    propertyPanel.repaint();
                 }
             });
 
@@ -2258,7 +2245,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
         // propagate segmentation features
 
-        OrbitModel segModel = null;
+        OrbitModel segModel;
         if (featureDescription.isForSecondarySegmentationModel()) segModel = model.getSecondarySegmentationModel();
         else segModel = model.getSegmentationModel();
 
@@ -2891,9 +2878,41 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     final ActionListener overviewAction = e -> loadSpecialImage(RawUtilsCommon.LEVEL_OVERVIEW);
 
     final CommandAction OpenForPrintingCommandAction = e -> loadLowResImage(2);
-    final CommandAction OpenSpecialResolutionCommandAction = e -> {
-        // TODO: See CommandMenuContentModel popupMenuContentModel in BasicCheckRibbon.
-    };
+
+    private void setupOpenSpecialResMenu() {
+        ImageFrame iFrame = getIFrame();
+        if (iFrame != null) {
+            ArrayList<Command> popupCommandArrayList = new ArrayList<>();
+
+            int numImg = iFrame.recognitionFrame.bimg.getMipMaps() == null ? 0 : iFrame.recognitionFrame.bimg.getMipMaps().length;
+            if (numImg > 0) {
+                for (int i = 0; i < numImg; i++) {
+                    final int mipNum = i + 1;
+                    final int xwidth = iFrame.recognitionFrame.bimg.getMipMaps()[numImg - i - 1].getWidth();
+                    final int ywidth = iFrame.recognitionFrame.bimg.getMipMaps()[numImg - i - 1].getHeight();
+                    Command cmd = Command.builder()
+                            .setText(String.format("Open Layer %d [%d x %d]", mipNum, xwidth, ywidth))
+                            .setAction((CommandActionEvent e) -> loadLowResImage(mipNum))
+                            .setIconFactory(document_open_5.factory())
+                            .setActionRichTooltip(
+                                RichTooltip.builder()
+                                    .setTitle(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.tooltip.text"))
+                                    .addDescriptionSection(resourceBundle.getString("Image.OpenSpecial.OpenSpecialResolution.tooltip.actionParagraph1"))
+                                    .build())
+                            .build();
+
+                    popupCommandArrayList.add(cmd);
+                }
+                this.orbitMenu.getOpenSpecialResolutionCommand().setSecondaryEnabled(true);
+                this.orbitMenu.getOpenSpecialResolutionContentModel().removeAllCommandGroups();
+                this.orbitMenu.getOpenSpecialResolutionContentModel().addCommandGroup(new CommandGroup(popupCommandArrayList));
+            } else {
+                this.orbitMenu.getOpenSpecialResolutionCommand().setSecondaryEnabled(false);
+                this.orbitMenu.getOpenSpecialResolutionContentModel().removeAllCommandGroups();
+            }
+        }
+}
+
     final CommandAction SaveAsOrbitFileCommandAction = e -> saveAsOrbitFile();
     final CommandAction ImageProviderCommandAction = e -> switchLocalRemoteImageProvider();
 
@@ -4282,9 +4301,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         return showCenterCross;
     }
 
-    public JCheckBoxMenuItem getShowGaugeCheckbox() {
-        return showGaugeCheckbox;
-    }
+//    public JCheckBoxMenuItem getShowGaugeCheckbox() {
+//        return showGaugeCheckbox;
+//    }
 
     public boolean isShowStatusbar() {
         return showStatusbar;
