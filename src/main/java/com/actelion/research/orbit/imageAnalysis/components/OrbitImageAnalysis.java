@@ -1647,7 +1647,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private void batchExportMapReduce(final boolean useScaleout)   // mapreduce
     {
         if (!checkClassNames()) {
-            JOptionPane.showMessageDialog(this, "Class names of main model and class names of exclusion model must be different.\nPlease open class setup and change the class names.", "Class names must be unique", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Class names of main model and class names of exclusion model must be different.\n" +
+                    "Please open class setup and change the class names.",
+                    "Class names must be unique",
+                    JOptionPane.ERROR_MESSAGE);
 
         }
         logger.info("batchExportMapReduce called [method call]; useScaleout: " + useScaleout);
@@ -2985,8 +2989,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 modelBrowser.showModelBrowser(OrbitImageAnalysis.this, loginUser);
             }
         } catch (Exception e1) {
-            //TODO: To logger?
-            e1.printStackTrace();
+            logger.debug(Arrays.toString(e1.getStackTrace()));
         }
     };
     final CommandAction OpenModelCommandAction = e -> loadModel();
@@ -3054,7 +3057,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             model.cleanModel();
             saveModel(model.getExclusionModel(), "");
         } else {
-            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "This model contains no exclusion model.", "No exclusion model available.", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                    "This model contains no exclusion model.",
+                    "No exclusion model available.",
+                    JOptionPane.ERROR_MESSAGE);
         }
     };
     final CommandAction SaveNestedSegmentationModelCommandAction = e -> {
@@ -3062,7 +3068,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             model.cleanModel();
             saveModel(model.getSegmentationModel(), "");
         } else {
-            JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "This model contains no segmentation model.", "No segmentation model available.", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
+                    "This model contains no segmentation model.",
+                    "No segmentation model available.",
+                    JOptionPane.ERROR_MESSAGE);
         }
     };
 

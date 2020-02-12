@@ -837,6 +837,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.text"))
                 .setIconFactory(lineal.factory())
                 .setAction(oia.RoiAreaComputationCommandAction)
+                .setActionEnabled(!DALConfig.isLocalImageProvider())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.tooltip.text"))
@@ -849,6 +850,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.text"))
                 .setIconFactory(go_down_search.factory())
                 .setAction(oia.RetrieveExistingResultsCommandAction)
+                .setActionEnabled(!DALConfig.isLocalImageProvider())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.text"))
@@ -863,6 +865,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.text"))
                 .setIconFactory(browser_wipp_Address_Book.factory())
                 .setAction(oia.OrbitBrowserCommandAction)
+                .setActionEnabled(!DALConfig.isLocalImageProvider())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.text"))
@@ -2139,9 +2142,9 @@ public class OrbitMenu extends JRibbonFrame {
 
         CommandButtonProjection<Command> localExecutionProjection = this.localExecutionCommand.project(
                 CommandButtonPresentationModel.builder().build());
-        CommandButtonProjection<Command> scaleOutExecutionProjection = this.scaleOutExecutionCommand.project(
-                CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> roiAreaComputationProjection = this.roiAreaComputationCommand.project(
+                CommandButtonPresentationModel.builder().build());
+        CommandButtonProjection<Command> scaleOutExecutionProjection = this.scaleOutExecutionCommand.project(
                 CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> retrieveExistingResultsProjection = this.retrieveExistingResultsCommand.project(
                 CommandButtonPresentationModel.builder().build());
