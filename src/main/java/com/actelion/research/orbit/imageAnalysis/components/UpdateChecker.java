@@ -29,25 +29,31 @@ import java.awt.*;
 import java.net.URI;
 import java.net.URL;
 import java.util.Date;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UpdateChecker {
     private static final Logger logger = LoggerFactory.getLogger(UpdateChecker.class);
-    private Preferences prefs = Preferences.userNodeForPackage(this.getClass());
-    private String instTimeKey = "com.actelion.research.orbit.imageAnalysis.instTime";
-    private String checkUpdateKey = "com.actelion.research.orbit.imageAnalysis.checkUpdate";
-    private String downloadUrl = "http://www.orbit.bio/download";
+    private final ResourceBundle resourceBundle;
+
+    private final Preferences preferences = Preferences.userNodeForPackage(this.getClass());
+    private final String checkUpdateKey = "com.actelion.research.orbit.imageAnalysis.checkUpdate";
+
+    UpdateChecker() {
+        Locale currLocale = Locale.getDefault();
+        resourceBundle = ResourceBundle.getBundle("Resources", currLocale);
+    }
 
     public void checkUpdate() {
-        boolean doCheck = prefs.getBoolean(checkUpdateKey, true);
+        boolean doCheck = preferences.getBoolean(checkUpdateKey, true);
         if (!doCheck) return;
 
         try {
-            URL checkURL = new URL("http://www.orbit.bio/currentversion/" + getProps());
+            URL checkURL = new URL(resourceBundle.getString("Orbit.Update.CurrentVersionURL") + getProps());
             String content = RawUtilsCommon.getContentStr(checkURL);
-            // String content = "<p>###orbitversion=2.26###</p>";
             Pattern p = Pattern.compile("###orbitversion=\\d+.\\d+.\\d*###");
             Matcher m = p.matcher(content);
             if (m.find()) {
@@ -71,15 +77,20 @@ public class UpdateChecker {
     }
 
     public boolean isChecksEnabled() {
-        return prefs.getBoolean(checkUpdateKey, true);
+        return preferences.getBoolean(checkUpdateKey, true);
     }
 
     public void setChecksEnabled(boolean enabled) {
-        prefs.putBoolean(checkUpdateKey, enabled);
+        preferences.putBoolean(checkUpdateKey, enabled);
     }
 
     private void showUpdateNotification() throws Exception {
-        if (JOptionPane.showConfirmDialog(null, "A new Orbit version is available.\nDo you want to download and install the new verison?", "Update available", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+        if (JOptionPane.showConfirmDialog(null,
+                "A new Orbit version is available.\n" +
+                "Do you want to download and install the new version?",
+                "Update available",
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            String downloadUrl = resourceBundle.getString("Orbit.Update.DownloadURL");
             if (Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().browse(new URI(downloadUrl));
             } else {
@@ -89,11 +100,12 @@ public class UpdateChecker {
     }
 
     private long getInstTime() {
-        long val = prefs.getLong(instTimeKey, 0);
+        String instTimeKey = "com.actelion.research.orbit.imageAnalysis.instTime";
+        long val = preferences.getLong(instTimeKey, 0);
         if (val == 0) {
-            prefs.putLong(instTimeKey, new Date().getTime());
+            preferences.putLong(instTimeKey, new Date().getTime());
         }
-        val = prefs.getLong(instTimeKey, 0);
+        val = preferences.getLong(instTimeKey, 0);
         return val;
     }
 
