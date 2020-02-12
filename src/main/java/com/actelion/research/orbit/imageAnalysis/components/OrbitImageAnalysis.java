@@ -72,7 +72,6 @@ import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.TiledImage;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -138,11 +137,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private boolean cellCountEnabled = false;
     public final JCheckBoxMenuItem loadAllLayersMultiChannel = new JCheckBoxMenuItem("Load Full Pyramid", true);
 
-    private final JMenuItem loadlowResImageItem = null;
-    private final JMenuItem loadmediumResImageItem = null;
-    private final JMenuItem loadSVSLabelItem = null;
-    private final JMenuItem loadSVSOverviewItem = null;
-    private final JMenu loadSpecialLayerItem = null;
+//    private final JMenuItem loadlowResImageItem = null;
+//    private final JMenuItem loadmediumResImageItem = null;
+//    private final JMenuItem loadSVSLabelItem = null;
+//    private final JMenuItem loadSVSOverviewItem = null;
+//    private final JMenu loadSpecialLayerItem = null;
     protected final JMenuItem menuLogOff = new JMenuItem("Log off ");
     protected final JMenuItem menuLogIn = new JMenuItem("Login");
 //    protected final JCheckBox syncFramesCheckbox = new JCheckBox("Sync Frames", false);
