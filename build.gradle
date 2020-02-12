@@ -24,6 +24,7 @@ buildscript {
         classpath "com.smokejumperit.gradle.license:Gradle-License-Report:0.0.2"
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
         classpath 'org.pushing-pixels:radiance-ignite:2.5.1'
+
     }
 }
 
@@ -51,11 +52,10 @@ ext.description = "OrbitImageAnalysis"
 // Works with JDK 11...
 sourceCompatibility = JavaVersion.VERSION_11
 
-ext.orbitVersion = new File(projectDir,"src/main/resources/version.txt").text;
+ext.orbitVersion = new File(projectDir,"src/main/resources/version.txt").text
 ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
 
 repositories {
-    //mavenLocal()
     mavenCentral()
     maven {
         url 'http://artifacts.openmicroscopy.org/artifactory/maven/'
@@ -81,6 +81,10 @@ if (JavaVersion.current().isJava8Compatible()) {
         }
     }
 }
+test {
+    useJUnit()
+}
+
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
 }
@@ -249,8 +253,8 @@ dependencies {
     implementation 'org.tensorflow:tensorflow:1.14.0'  // 1.4.0 1.10.0 implementationOnly
     // implementation 'org.tensorflow:libtensorflow_jni_gpu:1.10.0'
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
-    testCompile 'junit:junit:[4.0,)'
-
+    //testCompile 'junit:junit:[4.0,)'
+    testImplementation 'junit:junit:4.13'
 }
 
 /*
