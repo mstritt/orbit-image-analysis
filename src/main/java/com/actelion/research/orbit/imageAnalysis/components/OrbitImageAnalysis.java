@@ -683,7 +683,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             updateStatusBar();
         } else {
             updateStatusBar();
-            JOptionPane.showMessageDialog(this, "You have successfully logged off. You act as a guest user with read-only access now.", "Log off successfull", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "You have successfully logged off.\n" +
+                    "You act as a guest user with read-only access now.",
+                    "Log off successful",
+                    JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -1895,8 +1899,14 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             updateStatusBar();
         } catch (Exception e) {
             logger.error("error loading model", e);
-            logger.info("It seams that you tried to load an old model version which is incompatible with the current version.\nIf you easily can recreate a similar model, please do so. If you really need your old model please contact support - maybe it is possible to convert your model.");
-            JOptionPane.showMessageDialog(this, "Error loading model. It seams that you tried to load an old model version (see Info->Show Log for details).", "Error loading model (old version?)", JOptionPane.ERROR_MESSAGE);
+            logger.info("It seems that you tried to load an old model version which is incompatible with the current version.\n" +
+                    "If you easily can recreate a similar model, please do so. If you really need your old model " +
+                    "please contact support - maybe it is possible to convert your model.");
+            JOptionPane.showMessageDialog(this,
+                    "Error loading model. It seams that you tried to load an old model version " +
+                            "(see Info->Show Log for details).",
+                    "Error loading model (old version?)",
+                    JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
     }
@@ -1946,8 +1956,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         if (withUI) {
             this.repaint();
             if (isOldModel)
-                JOptionPane.showMessageDialog(this, "Old version model loaded. You still can use it, but to be conform to future model versions please save it as a new model.",
-                        "Model loaded (old version)", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Old version model loaded. You still can use it, but to be conform to future " +
+                                "model versions please save it as a new model.",
+                        "Model loaded (old version)",
+                        JOptionPane.WARNING_MESSAGE);
             else {
                 String cc = "";
                 if (model.isCellClassification())
@@ -2407,7 +2420,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         OrbitModel maskModel = getModelExplorer().getSelectedModel();
         if (maskModel!=null) {
             if (maskModel.getMipLayer()!=model.getMipLayer()) {
-                JOptionPane.showMessageDialog(this,"In the current version the mask model and the main model must be trained on the same image resolution","Mask cannot be applied",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "In the current version the mask model and the main model must be trained on " +
+                                "the same image resolution",
+                        "Mask cannot be applied",
+                        JOptionPane.ERROR_MESSAGE);
                 return false;
             }
             IOrbitMask mask = new OrbitMaskClassificationModel(maskModel.clone());
@@ -2423,7 +2440,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         OrbitModel maskModel = getModelExplorer().getSelectedModel();
         if (maskModel!=null && maskModel.getSegmentationModel()!=null) {
             if (maskModel.getSegmentationModel().getMipLayer()!=model.getMipLayer()) {
-                JOptionPane.showMessageDialog(this,"In the current version the mask model and the main model must be trained on the same image resolution","Mask cannot be applied",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "In the current version the mask model and the main model must be trained on " +
+                                "the same image resolution",
+                        "Mask cannot be applied",
+                        JOptionPane.ERROR_MESSAGE);
                 return false;
             }
             IOrbitMask mask = new OrbitMaskSegmentationModel(maskModel.clone());
@@ -3605,6 +3626,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     // Help Tab/Task Command Actions
     final CommandAction OrbitManualCommandAction = e -> OrbitUtils.openPdfUrl(OrbitUtils.orbitHelpURL);
     final ActionListener orbitManualAction = e -> OrbitUtils.openPdfUrl(OrbitUtils.orbitHelpURL);
+    final CommandAction OrbitTutorialsCommandAction = e -> OrbitUtils.openPdfUrl(OrbitUtils.orbitTutorialsURL);
 
     final CommandAction AboutCommandAction = e -> {
         if (logger.isTraceEnabled()) {
@@ -3628,6 +3650,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model information written to log. Please open the log window to see the information.", "Model written to log", JOptionPane.INFORMATION_MESSAGE);
         }
     };
+
+    final CommandAction LogOffCommand = e -> logoff();
+
+    final CommandAction LogInCommand = e -> login();
 
     public final ActionListener copyOrbitListActionHandler = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -3669,16 +3695,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     public final ActionListener exitProgramActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             exitProcedure();
-        }
-    };
-    public final ActionListener logoffActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            logoff();
-        }
-    };
-    public final ActionListener loginActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            login();
         }
     };
 
@@ -3823,13 +3839,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         }
     };
-
-    public final ActionListener tutorialsBrowserActionListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            OrbitUtils.openPdfUrl(OrbitUtils.orbitTutorialsURL);
-        }
-    };
-
 
     public final ActionListener activateAllChannelsActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {

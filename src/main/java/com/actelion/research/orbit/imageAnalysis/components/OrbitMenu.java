@@ -147,7 +147,15 @@ public class OrbitMenu extends JRibbonFrame {
     // Taskbar commands
     private Command handToolCommand;
 
-    private RibbonTask exclusionModelTask;
+    // Application menu commands
+    private Command orbitTutorialsCommand;
+
+    private Command openImageMenuCommand;
+    private Command openModelMenuCommand;
+    private Command saveModelAsMenuCommand;
+    private Command helpMenuCommand;
+    private Command loginMenuCommand;
+    private Command logoutMenuCommand;
 
 
     public OrbitMenu() {
@@ -1096,6 +1104,17 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
+        this.orbitTutorialsCommand = Command.builder()
+                .setText(resourceBundle.getString("Help.Documentation.orbitManual.text"))
+                .setIconFactory(system_help_3.factory())
+                .setAction(oia.OrbitTutorialsCommandAction)
+                .setActionRichTooltip(
+                        RichTooltip.builder()
+                                .setTitle(resourceBundle.getString("Help.Documentation.orbitManual.text"))
+                                .addDescriptionSection(resourceBundle.getString("Help.Documentation.orbitManual.tooltip.actionParagraph1"))
+                                .build())
+                .build();
+
         this.aboutCommand = Command.builder()
                 .setText(resourceBundle.getString("Help.Documentation.about.text"))
                 .setIconFactory(help_about_3.factory())
@@ -1197,7 +1216,7 @@ public class OrbitMenu extends JRibbonFrame {
         JRibbonBand setupClassesBand = oia.getExclusionModule().getSetupExclusionClassesBand();
         JRibbonBand drawBand = this.getDrawBand();
         JRibbonBand exclusionBand = oia.getExclusionModule().getExclusionModelBand();
-        this.exclusionModelTask = new RibbonTask(resourceBundle.getString("ExclusionModel.textTaskTitle"),
+        RibbonTask exclusionModelTask = new RibbonTask(resourceBundle.getString("ExclusionModel.textTaskTitle"),
                 setupClassesBand,
                 drawBand,
                 exclusionBand);
@@ -1263,7 +1282,7 @@ public class OrbitMenu extends JRibbonFrame {
         ribbon.addTask(imageTask);
         ribbon.addTask(editTask);
         ribbon.addTask(modelTask);
-        ribbon.addTask(this.exclusionModelTask);
+        ribbon.addTask(exclusionModelTask);
         ribbon.addTask(classificationTask);
         ribbon.addTask(objectDetectionTask);
         ribbon.addTask(roiTask);
@@ -1333,29 +1352,97 @@ public class OrbitMenu extends JRibbonFrame {
         Map<Command, CommandButtonPresentationState> applicationMenuSecondaryStates =
                 new HashMap<>();
 
-        // Open a new document....
-        /*
-        Command amEntryOpen = Command.builder()
-                .setText(resourceBundle.getString("AppMenuOpen.text"))
-                .setIconFactory(document_open_5.factory())
-                .setAction((CommandActionEvent ae) ->
-                        System.out.println("Invoked creating new document"))
-                //.setSecondaryContentModel(newMenu)
-                .build();
-        applicationMenuSecondaryStates.put(amEntryOpen, CommandButtonPresentationState.MEDIUM);
-        applicationMenuOverlays.put(amEntryOpen,
-                CommandButtonPresentationModel.overlay()
-                        .setTextClickAction()
-                        .setActionKeyTip("N"));
-        */
-
         // Is this required?
-        applicationMenuSecondaryStates.put(saveImageLinksCommand, CommandButtonPresentationState.MEDIUM);
+        //applicationMenuSecondaryStates.put(saveImageLinksCommand, CommandButtonPresentationState.MEDIUM);
+
+        CommandMenuContentModel openImageMenu = new CommandMenuContentModel(
+                new CommandGroup(
+                        "Open Image",
+                        // open image from server...
+                        openImageCommand
+                )
+        );
+
+        CommandMenuContentModel openModelMenu = new CommandMenuContentModel(
+                new CommandGroup(
+                        "Open Image",
+                        openModelServerCommand,
+                        openModelCommand
+                )
+        );
+
+        CommandMenuContentModel saveModelMenu = new CommandMenuContentModel(
+                new CommandGroup(
+                        "Save Model",
+                        saveModelAsCommand,
+                        saveModelServerCommand,
+                        saveNestedExclusionModelCommand,
+                        saveNestedSegmentationModelCommand
+                )
+        );
+
+        CommandMenuContentModel helpMenu = new CommandMenuContentModel(
+                new CommandGroup(
+                        "Help",
+                        orbitManualCommand,
+                        orbitTutorialsCommand,
+                        //version check
+                        aboutCommand
+                )
+        );
+
+        this.openImageMenuCommand = Command.builder()
+                .setText("Open Image")
+                .setIconFactory(document_open_5.factory())
+                .setSecondaryContentModel(openImageMenu)
+                .build();
+
+        this.openModelMenuCommand = Command.builder()
+                .setText("Open Model")
+                .setIconFactory(document_open_5.factory())
+                .setSecondaryContentModel(openModelMenu)
+                .build();
+
+        this.saveModelAsMenuCommand = Command.builder()
+                .setText("Save Model")
+                .setIconFactory(document_save_3.factory())
+                .setSecondaryContentModel(saveModelMenu)
+                .build();
+
+        this.helpMenuCommand = Command.builder()
+                .setText("Help")
+                .setIconFactory(help_about_3.factory())
+                .setSecondaryContentModel(helpMenu)
+                .build();
+
+        this.loginMenuCommand = Command.builder()
+                .setText("Login")
+                .setIconFactory(document_save_3.factory())
+                .setAction(oia.LogInCommand)
+                .build();
+
+        this.logoutMenuCommand = Command.builder()
+                .setText("Logout")
+                .setIconFactory(system_log_out_3.factory())
+                .setAction(oia.LogOffCommand)
+                .build();
 
         // Add the options to the menu
         RibbonApplicationMenu applicationMenu = new RibbonApplicationMenu(
-                new CommandGroup(openImageCommand),
-                new CommandGroup(saveImageLinksCommand));
+                new CommandGroup(openImageMenuCommand),
+                new CommandGroup(saveImageLinksCommand),
+                new CommandGroup(openModelMenuCommand),
+                new CommandGroup(saveModelAsMenuCommand),
+                new CommandGroup(helpMenuCommand),
+                new CommandGroup(loginMenuCommand),
+                new CommandGroup(logoutMenuCommand)
+                );
+
+                //Open Model
+                // Save Model
+                // Help
+                // Login
+                // Logout
 
 
         try {
