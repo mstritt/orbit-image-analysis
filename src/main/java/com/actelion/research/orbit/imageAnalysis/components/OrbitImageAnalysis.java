@@ -1043,14 +1043,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
         reloadROI(iFrame);
         iFrame.getOpacitySlider().setEnabled(true);
-        IScaleableShape fixedROI = null;
+        Arc2DExt fixedROI = null;
         if (localModel.getFixedCircularROI() > 0) {
             fixedROI = new Arc2DExt();
-            ((Arc2DExt) fixedROI).setArcByCenter((iFrame.recognitionFrame.bimg.getWidth() / 2d) + localModel.getFixedROIOffsetX(), (iFrame.recognitionFrame.bimg.getHeight() / 2d) + localModel.getFixedROIOffsetY(), localModel.getFixedCircularROI(), 0, 360, Arc2DExt.CHORD);
+            fixedROI.setArcByCenter((iFrame.recognitionFrame.bimg.getWidth() / 2d) + localModel.getFixedROIOffsetX(), (iFrame.recognitionFrame.bimg.getHeight() / 2d) + localModel.getFixedROIOffsetY(), localModel.getFixedCircularROI(), 0, 360, Arc2DExt.CHORD);
         }
 
-        List<Point> tiles = new ArrayList<Point>();
-        tiles = null;
+        List<Point> tiles = null;
 
         IScaleableShape segROI = fixedROI;
         if (iFrame.recognitionFrame.getROI() == null) {

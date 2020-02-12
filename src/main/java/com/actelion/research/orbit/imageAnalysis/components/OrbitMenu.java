@@ -140,6 +140,7 @@ public class OrbitMenu extends JRibbonFrame {
 
     // Commands for Help Tasks
     private Command orbitManualCommand;
+    private Command orbitTutorialsCommand;
     private Command aboutCommand;
     private Command showLogCommand;
     private Command showLogModelCommand;
@@ -148,8 +149,6 @@ public class OrbitMenu extends JRibbonFrame {
     private Command handToolCommand;
 
     // Application menu commands
-    private Command orbitTutorialsCommand;
-
     private Command openImageMenuCommand;
     private Command openModelMenuCommand;
     private Command saveModelAsMenuCommand;
@@ -1119,13 +1118,13 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         this.orbitTutorialsCommand = Command.builder()
-                .setText(resourceBundle.getString("Help.Documentation.orbitManual.text"))
+                .setText(resourceBundle.getString("Help.Documentation.orbitTutorials.text"))
                 .setIconFactory(system_help_3.factory())
                 .setAction(oia.OrbitTutorialsCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Help.Documentation.orbitManual.text"))
-                                .addDescriptionSection(resourceBundle.getString("Help.Documentation.orbitManual.tooltip.actionParagraph1"))
+                                .setTitle(resourceBundle.getString("Help.Documentation.orbitTutorials.text"))
+                                .addDescriptionSection(resourceBundle.getString("Help.Documentation.orbitTutorials.tooltip.actionParagraph1"))
                                 .build())
                 .build();
 
@@ -1464,7 +1463,7 @@ public class OrbitMenu extends JRibbonFrame {
             final BufferedImage appMenuButtonTooltipImage = ImageIO
                     .read(OrbitMenu.class.getResource(
                             "/ribbon/" +
-                                    "appmenubutton-tooltip-main.png"));
+                                    "application-menu-overview-image.png"));
             final int appMenuButtonTooltipImageWidth = appMenuButtonTooltipImage.getWidth();
             final int appMenuButtonTooltipImageHeight = appMenuButtonTooltipImage.getHeight();
             final float appMenuButtonTooltipImageRatio = (float) appMenuButtonTooltipImageWidth
@@ -1522,7 +1521,6 @@ public class OrbitMenu extends JRibbonFrame {
                                     .setSecondaryContentModel(applicationMenu)
                                     .build(),
                             CommandButtonPresentationModel.builder().build());
-            //CommandButtonPresentationModel.builder().setPopupKeyTip("F").build());
             ribbonMenuCommandProjection.setCommandOverlays(applicationMenuOverlays);
             ribbonMenuCommandProjection.setSecondaryLevelCommandPresentationState(
                     applicationMenuSecondaryStates);
@@ -2338,10 +2336,13 @@ public class OrbitMenu extends JRibbonFrame {
 
         CommandButtonProjection<Command> orbitManualProjection = this.orbitManualCommand.project(
                 CommandButtonPresentationModel.builder().build());
+        CommandButtonProjection<Command> orbitTutorialsProjection = this.orbitTutorialsCommand.project(
+                CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> aboutProjection = this.aboutCommand.project(
                 CommandButtonPresentationModel.builder().build());
 
         documentationBand.addRibbonCommand(orbitManualProjection, JRibbonBand.PresentationPriority.TOP);
+        documentationBand.addRibbonCommand(orbitTutorialsProjection, JRibbonBand.PresentationPriority.TOP);
         documentationBand.addRibbonCommand(aboutProjection, JRibbonBand.PresentationPriority.TOP);
 
         List<RibbonBandResizePolicy> resizePolicies = getGenericResizePolicy(documentationBand);
