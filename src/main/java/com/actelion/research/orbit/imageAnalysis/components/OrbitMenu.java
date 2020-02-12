@@ -181,8 +181,20 @@ public class OrbitMenu extends JRibbonFrame {
         // TODO: This is useful, but feels like it should be handled by a listener...
         if (DALConfig.isLocalImageProvider()) {
             this.openImageCommand.setText(resourceBundle.getString("Image.OpenImage.Local.text"));
+            this.openModelServerCommand.setActionEnabled(false);
+            this.saveModelServerCommand.setActionEnabled(false);
+            oia.getExclusionModule().getLoadAndSetServerCommand().setActionEnabled(false);
+            this.scaleOutExecutionCommand.setActionEnabled(false);
+            this.retrieveExistingResultsCommand.setActionEnabled(false);
+            this.orbitBrowserCommand.setActionEnabled(false);
         } else {
             this.openImageCommand.setText(resourceBundle.getString("Image.OpenImage.Server.text"));
+            this.openModelServerCommand.setActionEnabled(true);
+            this.saveModelServerCommand.setActionEnabled(true);
+            oia.getExclusionModule().getLoadAndSetServerCommand().setActionEnabled(true);
+            this.scaleOutExecutionCommand.setActionEnabled(true);
+            this.retrieveExistingResultsCommand.setActionEnabled(true);
+            this.orbitBrowserCommand.setActionEnabled(true);
         }
     }
 
@@ -837,7 +849,6 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.text"))
                 .setIconFactory(lineal.factory())
                 .setAction(oia.RoiAreaComputationCommandAction)
-                .setActionEnabled(!DALConfig.isLocalImageProvider())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Batch.BatchExecute.roiAreaComputation.tooltip.text"))

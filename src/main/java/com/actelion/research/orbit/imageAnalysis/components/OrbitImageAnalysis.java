@@ -306,6 +306,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         // from local file button (otherwise the classification task will be shown)
         if (DALConfig.isLocalImageProvider()) {
             getRibbon().setSelectedTask(getRibbon().getTask(0));
+        } else {
+            getRibbon().setSelectedTask(getRibbon().getTask(4));
         }
 
         ImagePreview preview = new ImagePreview(fileChooser);
