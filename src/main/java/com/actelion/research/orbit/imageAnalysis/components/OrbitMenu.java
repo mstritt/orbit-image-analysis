@@ -10,10 +10,7 @@ import org.pushingpixels.flamingo.api.ribbon.projection.RibbonApplicationMenuCom
 import org.pushingpixels.flamingo.api.ribbon.resize.CoreRibbonResizePolicies;
 import org.pushingpixels.flamingo.api.ribbon.resize.RibbonBandResizePolicy;
 import org.pushingpixels.flamingo.api.ribbon.synapse.model.ComponentPresentationModel;
-import org.pushingpixels.neon.NeonCortex;
 import org.pushingpixels.neon.icon.ResizableIcon;
-import org.pushingpixels.substance.api.SubstanceCortex;
-import org.pushingpixels.substance.api.skin.GraphiteAquaSkin;
 
 import com.actelion.research.orbit.imageAnalysis.components.icons.*;
 
