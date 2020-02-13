@@ -200,6 +200,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("Image.OpenImage.text"))
                 .setIconFactory(document_open_5.factory())
                 .setAction(oia.OpenImageCommandAction)
+                .setAction(null)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Image.OpenImage.text"))
@@ -2435,35 +2436,33 @@ public class OrbitMenu extends JRibbonFrame {
         return resizePolicies;
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame.setDefaultLookAndFeelDecorated(true);
-
-            SubstanceCortex.GlobalScope.setSkin(new GraphiteAquaSkin());
-
-            final OrbitMenu orbitmenu = new OrbitMenu();
-            orbitmenu.configureRibbon(orbitmenu.getRibbon());
-
-            orbitmenu.applyComponentOrientation(ComponentOrientation.getOrientation(Locale.getDefault()));
-            Rectangle r = GraphicsEnvironment.getLocalGraphicsEnvironment()
-                    .getMaximumWindowBounds();
-            orbitmenu.setPreferredSize(new Dimension(r.width, r.height / 2));
-            orbitmenu.setMinimumSize(new Dimension(r.width / 10, r.height / 4));
-            orbitmenu.pack();
-            orbitmenu.setLocation(r.x, r.y);
-            orbitmenu.setVisible(true);
-            orbitmenu.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-            KeyStroke keyStroke = (NeonCortex.getPlatform() == NeonCortex
-                    .Platform.MACOS) ? KeyStroke.getKeyStroke("meta alt E") :
-                    KeyStroke.getKeyStroke("alt shift E");
-
-            orbitmenu.getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
-                    .put(keyStroke, "installTracingRepaintManager");
-        });
-
-
-    }
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> {
+//            JFrame.setDefaultLookAndFeelDecorated(true);
+//
+//            SubstanceCortex.GlobalScope.setSkin(new GraphiteAquaSkin());
+//
+//            final OrbitMenu orbitmenu = new OrbitMenu();
+//            orbitmenu.configureRibbon(orbitmenu.getRibbon());
+//
+//            orbitmenu.applyComponentOrientation(ComponentOrientation.getOrientation(Locale.getDefault()));
+//            Rectangle r = GraphicsEnvironment.getLocalGraphicsEnvironment()
+//                    .getMaximumWindowBounds();
+//            orbitmenu.setPreferredSize(new Dimension(r.width, r.height / 2));
+//            orbitmenu.setMinimumSize(new Dimension(r.width / 10, r.height / 4));
+//            orbitmenu.pack();
+//            orbitmenu.setLocation(r.x, r.y);
+//            orbitmenu.setVisible(true);
+//            orbitmenu.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+//
+//            KeyStroke keyStroke = (NeonCortex.getPlatform() == NeonCortex
+//                    .Platform.MACOS) ? KeyStroke.getKeyStroke("meta alt E") :
+//                    KeyStroke.getKeyStroke("alt shift E");
+//
+//            orbitmenu.getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+//                    .put(keyStroke, "installTracingRepaintManager");
+//        });
+//    }
 
     /**
      * Getter for the openSpecialResolutionContentModel - used to add items to the
