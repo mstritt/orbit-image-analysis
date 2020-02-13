@@ -1094,7 +1094,6 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         // Help Task Commands
-        // TODO: fix this icon, seems to be missing from generated classes... HelpContents5()
         this.orbitManualCommand = Command.builder()
                 .setText(resourceBundle.getString("Help.Documentation.orbitManual.text"))
                 .setIconFactory(system_help_3.factory())
@@ -1128,8 +1127,7 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
-        // TODO: LogFrameIcon() missing in generated classes. .mod instead of .svg in source directory...
-        this.showLogCommand = Command.builder()
+       this.showLogCommand = Command.builder()
                 .setText(resourceBundle.getString("Help.Logs.showLog.text"))
                 .setIconFactory(system_log_out_3.factory())
                 .setAction(oia.ShowLogCommandAction)
