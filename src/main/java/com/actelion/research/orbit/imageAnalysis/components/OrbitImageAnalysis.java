@@ -148,7 +148,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //    protected final JCheckBoxMenuItem showGaugeCheckbox = new JCheckBoxMenuItem("Show Gauge", true);
 //    protected final JCheckBoxMenuItem showMarkupCheckbox = new JCheckBoxMenuItem("Show Markup");
 
-    private JComboBox sizeBox = null;
+    private JComboBox<Integer> sizeBox = null;
     private JComboBox<ClassShape> classBox = null;
 
     protected RibbonDefaultComboBoxContentModel<ClassShape> ccbModel;
@@ -4059,9 +4059,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         return showGauge;
     }
 
-    public JComboBox getSizeBox() {
+    public JComboBox<Integer> getSizeBox() {
         if (sizeBox == null) {
-            sizeBox = new JComboBox(new Integer[]{2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70});
+            sizeBox = new JComboBox<>(new Integer[]{2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70});
             sizeBox.setEditable(true);
             sizeBox.setToolTipText("size for drawing arcs and fixed size rectangles");
             sizeBox.setMaximumSize(new Dimension(50, TOOLBAR_HEIGHT));
@@ -4069,11 +4069,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 @Override
                 public boolean verify(JComponent input) {
                     try {
-                        Integer.parseInt(Objects.requireNonNull(((JComboBox) input).getSelectedItem()).toString());
+                        JComboBox<?> box = (JComboBox<?>) input;
+                        box.getSelectedItem();
+                        Integer.parseInt(Objects.requireNonNull(box.toString()));
                         return true;
                     } catch (Exception e) {
-                        ((JComboBox) input).setSelectedItem(4);
-                        input.repaint();
+                        JComboBox<?> box = (JComboBox<?>) input;
+                        box.setSelectedItem(4);
                         return false;
                     }
                 }
@@ -4081,7 +4083,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             final ActionListener sizeAction = e -> {
                 int size = 0;
                 try {
-                    size = (Integer) ((JComboBox) e.getSource()).getSelectedItem();
+                    JComboBox<?> box = (JComboBox<?>) e.getSource(); 
+                    size = (int) box.getSelectedItem();
                     getIFrame().recognitionFrame.setTargetRadius(size);
                 } catch (Exception ignored) {
                 }
