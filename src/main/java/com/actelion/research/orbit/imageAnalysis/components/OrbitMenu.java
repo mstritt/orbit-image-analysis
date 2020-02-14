@@ -10,10 +10,7 @@ import org.pushingpixels.flamingo.api.ribbon.projection.RibbonApplicationMenuCom
 import org.pushingpixels.flamingo.api.ribbon.resize.CoreRibbonResizePolicies;
 import org.pushingpixels.flamingo.api.ribbon.resize.RibbonBandResizePolicy;
 import org.pushingpixels.flamingo.api.ribbon.synapse.model.ComponentPresentationModel;
-import org.pushingpixels.neon.NeonCortex;
 import org.pushingpixels.neon.icon.ResizableIcon;
-import org.pushingpixels.substance.api.SubstanceCortex;
-import org.pushingpixels.substance.api.skin.GraphiteAquaSkin;
 
 import com.actelion.research.orbit.imageAnalysis.components.icons.*;
 
@@ -121,7 +118,6 @@ public class OrbitMenu extends JRibbonFrame {
     private Command saveFullImageCommand;
     private Command saveCurrentViewCommand;
     private Command saveClassificationImageCommand;
-    // TODO: Check how extensions are added...
     private Command scriptEditorCommand;
 
     // Commands for View Tasks
@@ -140,23 +136,13 @@ public class OrbitMenu extends JRibbonFrame {
 
     // Commands for Help Tasks
     private Command orbitManualCommand;
+    private Command orbitTutorialsCommand;
     private Command aboutCommand;
     private Command showLogCommand;
     private Command showLogModelCommand;
 
     // Taskbar commands
     private Command handToolCommand;
-
-    // Application menu commands
-    private Command orbitTutorialsCommand;
-
-    private Command openImageMenuCommand;
-    private Command openModelMenuCommand;
-    private Command saveModelAsMenuCommand;
-    private Command helpMenuCommand;
-    private Command loginMenuCommand;
-    private Command logoutMenuCommand;
-
 
     public OrbitMenu() {
         super();
@@ -177,21 +163,41 @@ public class OrbitMenu extends JRibbonFrame {
         updateMenuImageProviderEntries();
     }
 
+    /**
+     * Set enabled/disabled state (and text label) depending on image provider used.
+     */
     public void updateMenuImageProviderEntries() {
         // TODO: This is useful, but feels like it should be handled by a listener...
         if (DALConfig.isLocalImageProvider()) {
             this.openImageCommand.setText(resourceBundle.getString("Image.OpenImage.Local.text"));
+            this.openModelServerCommand.setActionEnabled(false);
+            this.saveModelServerCommand.setActionEnabled(false);
+            oia.getExclusionModule().getLoadAndSetServerCommand().setActionEnabled(false);
+            this.scaleOutExecutionCommand.setActionEnabled(false);
+            this.retrieveExistingResultsCommand.setActionEnabled(false);
+            this.orbitBrowserCommand.setActionEnabled(false);
         } else {
             this.openImageCommand.setText(resourceBundle.getString("Image.OpenImage.Server.text"));
+            this.openModelServerCommand.setActionEnabled(true);
+            this.saveModelServerCommand.setActionEnabled(true);
+            oia.getExclusionModule().getLoadAndSetServerCommand().setActionEnabled(true);
+            this.scaleOutExecutionCommand.setActionEnabled(true);
+            this.retrieveExistingResultsCommand.setActionEnabled(true);
+            this.orbitBrowserCommand.setActionEnabled(true);
         }
     }
 
+    /**
+     * Create all commands used by the orbit menu.
+     * Note that Modules are responsible for creating their own commands.
+     */
     private void createCommands() {
         // Image Task Commands
         this.openImageCommand = Command.builder()
                 .setText(resourceBundle.getString("Image.OpenImage.text"))
                 .setIconFactory(document_open_5.factory())
                 .setAction(oia.OpenImageCommandAction)
+                .setAction(null)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Image.OpenImage.text"))
@@ -301,7 +307,6 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("Model.OpenModel.OpenModelServer.text"))
                 .setIconFactory(document_open_5.factory())
                 .setAction(oia.OpenModelServerCommandAction)
-                // TODO: This works when the menu is created, but needs a listener to fix it if changed when running.
                 .setActionEnabled(!DALConfig.isLocalImageProvider())
                 .setActionRichTooltip(
                         RichTooltip.builder()
@@ -336,7 +341,6 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("Model.SaveModel.saveModelServer.text"))
                 .setIconFactory(document_save_3.factory())
                 .setAction(oia.SaveModelServerCommandAction)
-                // TODO: This works when the menu is created, but needs a listener to fix it if changed when running.
                 .setActionEnabled(!DALConfig.isLocalImageProvider())
                 .setActionRichTooltip(
                         RichTooltip.builder()
@@ -470,7 +474,6 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         // Exclusion Model Task commands
-
         this.eraserCommand = Command.builder()
                 .setText(resourceBundle.getString("ExclusionModel.Draw.eraser.text"))
                 .setIconFactory(draw_eraser_2.factory())
@@ -692,7 +695,6 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         // ROI Task Commands
-
         this.resetRoiCommand = Command.builder()
                 .setText(resourceBundle.getString("ROI.RegionOfInterest.resetRoi.text"))
                 .setIconFactory(edit_clear_3.factory())
@@ -751,7 +753,6 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         // Mask Task Commands
-
         this.setClassificationMaskCommand = Command.builder()
                 .setText(resourceBundle.getString("Mask.ModelBasedMasks.setClassificationMask.text"))
                 .setIconFactory(set_maski.factory())
@@ -808,7 +809,6 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         // Batch Task Commands
-
         this.localExecutionCommand = Command.builder()
                 .setText(resourceBundle.getString("Batch.BatchExecute.localExecution.text"))
                 .setIconFactory(system_run_3.factory())
@@ -849,6 +849,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.text"))
                 .setIconFactory(go_down_search.factory())
                 .setAction(oia.RetrieveExistingResultsCommandAction)
+                .setActionEnabled(!DALConfig.isLocalImageProvider())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Batch.BatchExecute.retrieveExistingResults.text"))
@@ -858,11 +859,11 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         // Tools Task Commands
-
         this.orbitBrowserCommand = Command.builder()
                 .setText(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.text"))
                 .setIconFactory(browser_wipp_Address_Book.factory())
                 .setAction(oia.OrbitBrowserCommandAction)
+                .setActionEnabled(!DALConfig.isLocalImageProvider())
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Tools.ManageFiles.orbitBrowser.text"))
@@ -944,7 +945,6 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         // View Task Commands
-
         this.tileWindowsCommand = Command.builder()
                 .setText(resourceBundle.getString("View.Arrange.tileWindows.text"))
                 .setIconFactory(tile_windows.factory())
@@ -1091,8 +1091,6 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         // Help Task Commands
-
-        // TODO: fix this icon, seems to be missing from generated classes... HelpContents5()
         this.orbitManualCommand = Command.builder()
                 .setText(resourceBundle.getString("Help.Documentation.orbitManual.text"))
                 .setIconFactory(system_help_3.factory())
@@ -1105,13 +1103,13 @@ public class OrbitMenu extends JRibbonFrame {
                 .build();
 
         this.orbitTutorialsCommand = Command.builder()
-                .setText(resourceBundle.getString("Help.Documentation.orbitManual.text"))
+                .setText(resourceBundle.getString("Help.Documentation.orbitTutorials.text"))
                 .setIconFactory(system_help_3.factory())
                 .setAction(oia.OrbitTutorialsCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Help.Documentation.orbitManual.text"))
-                                .addDescriptionSection(resourceBundle.getString("Help.Documentation.orbitManual.tooltip.actionParagraph1"))
+                                .setTitle(resourceBundle.getString("Help.Documentation.orbitTutorials.text"))
+                                .addDescriptionSection(resourceBundle.getString("Help.Documentation.orbitTutorials.tooltip.actionParagraph1"))
                                 .build())
                 .build();
 
@@ -1126,8 +1124,7 @@ public class OrbitMenu extends JRibbonFrame {
                                 .build())
                 .build();
 
-        // TODO: LogFrameIcon() missing in generated classes. .mod instead of .svg in source directory...
-        this.showLogCommand = Command.builder()
+       this.showLogCommand = Command.builder()
                 .setText(resourceBundle.getString("Help.Logs.showLog.text"))
                 .setIconFactory(system_log_out_3.factory())
                 .setAction(oia.ShowLogCommandAction)
@@ -1164,24 +1161,12 @@ public class OrbitMenu extends JRibbonFrame {
 
     }
 
-
-    // TODO: Move to OrbitModel...
-        // Create a String[] with the class lists.
-//            String[] classNames = oia.getModel().getClassShapes().stream()
-//                    .map(ClassShape::getName)
-//                    .toArray(String[]::new);
-//
-//            ClassShape[] classShapes = oia.getModel().getClassShapes().stream()
-//                    .map(ClassShape.class::cast)
-//                    .toArray(ClassShape[]::new);
-
-    private void createStyleGalleryModel() {
-
-    }
-
+    /**
+     * Create the OrbitMenu JRibbon
+     * @param ribbon The OrbitMenu JRibbon
+     */
     public void configureRibbon(final JRibbon ribbon) {
         this.createCommands();
-        this.createStyleGalleryModel();
 
         JRibbonBand openImageBand = this.getImageBand();
         JRibbonBand openSpecialBand = this.getOpenSpecialBand();
@@ -1200,7 +1185,6 @@ public class OrbitMenu extends JRibbonFrame {
                 copyBand,
                 pasteBand);
 
-
         JRibbonBand openModelBand = this.getOpenModelBand();
         JRibbonBand saveModelBand = this.getSaveModelBand();
         JRibbonBand configureModelBand = this.getConfigureModelBand();
@@ -1210,7 +1194,6 @@ public class OrbitMenu extends JRibbonFrame {
                 openModelBand,
                 saveModelBand,
                 configureModelBand,
-//                clusteringModelBand,
                 resetModelBand);
 
         JRibbonBand setupClassesBand = oia.getExclusionModule().getSetupExclusionClassesBand();
@@ -1225,7 +1208,7 @@ public class OrbitMenu extends JRibbonFrame {
         JRibbonBand drawClassificationBand = this.getDrawBand();
         JRibbonBand machineLearningBand = this.getMachineLearningBand();
         JRibbonBand resetModelClassificationBand = this.getResetModelBand();
-        // TODO: Context specific use of the resetModelBand...
+
         RibbonTask classificationTask = new RibbonTask(resourceBundle.getString("Classification.textTaskTitle"),
                 setupClassesClassificationBand,
                 drawClassificationBand,
@@ -1296,7 +1279,6 @@ public class OrbitMenu extends JRibbonFrame {
         configureTaskBar(ribbon);
 
         configureKeyboardShortcuts(ribbon);
-
     }
 
     /**
@@ -1343,22 +1325,19 @@ public class OrbitMenu extends JRibbonFrame {
     }
 
     /**
-     * Define the application menu (The 'Orbit icon').
+     * Define the application menu for OrbitMenu.
+     * @param ribbon The radiance JRibbon component.
      */
     private void configureApplicationMenu(final JRibbon ribbon) {
-        // TODO: Figure out how to change the tab into an image.
         Map<Command, CommandButtonPresentationModel.Overlay> applicationMenuOverlays =
                 new HashMap<>();
         Map<Command, CommandButtonPresentationState> applicationMenuSecondaryStates =
                 new HashMap<>();
 
-        // Is this required?
-        //applicationMenuSecondaryStates.put(saveImageLinksCommand, CommandButtonPresentationState.MEDIUM);
-
         CommandMenuContentModel openImageMenu = new CommandMenuContentModel(
                 new CommandGroup(
                         "Open Image",
-                        // open image from server...
+                        // TODO: open image from server...
                         openImageCommand
                 )
         );
@@ -1391,37 +1370,38 @@ public class OrbitMenu extends JRibbonFrame {
                 )
         );
 
-        this.openImageMenuCommand = Command.builder()
+        // Application menu commands
+        Command openImageMenuCommand = Command.builder()
                 .setText("Open Image")
                 .setIconFactory(document_open_5.factory())
                 .setSecondaryContentModel(openImageMenu)
                 .build();
 
-        this.openModelMenuCommand = Command.builder()
+        Command openModelMenuCommand = Command.builder()
                 .setText("Open Model")
                 .setIconFactory(document_open_5.factory())
                 .setSecondaryContentModel(openModelMenu)
                 .build();
 
-        this.saveModelAsMenuCommand = Command.builder()
+        Command saveModelAsMenuCommand = Command.builder()
                 .setText("Save Model")
                 .setIconFactory(document_save_3.factory())
                 .setSecondaryContentModel(saveModelMenu)
                 .build();
 
-        this.helpMenuCommand = Command.builder()
+        Command helpMenuCommand = Command.builder()
                 .setText("Help")
                 .setIconFactory(help_about_3.factory())
                 .setSecondaryContentModel(helpMenu)
                 .build();
 
-        this.loginMenuCommand = Command.builder()
+        Command loginMenuCommand = Command.builder()
                 .setText("Login")
                 .setIconFactory(document_save_3.factory())
                 .setAction(oia.LogInCommand)
                 .build();
 
-        this.logoutMenuCommand = Command.builder()
+        Command logoutMenuCommand = Command.builder()
                 .setText("Logout")
                 .setIconFactory(system_log_out_3.factory())
                 .setAction(oia.LogOffCommand)
@@ -1438,19 +1418,11 @@ public class OrbitMenu extends JRibbonFrame {
                 new CommandGroup(logoutMenuCommand)
                 );
 
-                //Open Model
-                // Save Model
-                // Help
-                // Login
-                // Logout
-
-
         try {
-            // TODO: Change the image to a screenshot of our application menu bar.
             final BufferedImage appMenuButtonTooltipImage = ImageIO
                     .read(OrbitMenu.class.getResource(
                             "/ribbon/" +
-                                    "appmenubutton-tooltip-main.png"));
+                                    "application-menu-overview-image.png"));
             final int appMenuButtonTooltipImageWidth = appMenuButtonTooltipImage.getWidth();
             final int appMenuButtonTooltipImageHeight = appMenuButtonTooltipImage.getHeight();
             final float appMenuButtonTooltipImageRatio = (float) appMenuButtonTooltipImageWidth
@@ -1508,7 +1480,6 @@ public class OrbitMenu extends JRibbonFrame {
                                     .setSecondaryContentModel(applicationMenu)
                                     .build(),
                             CommandButtonPresentationModel.builder().build());
-            //CommandButtonPresentationModel.builder().setPopupKeyTip("F").build());
             ribbonMenuCommandProjection.setCommandOverlays(applicationMenuOverlays);
             ribbonMenuCommandProjection.setSecondaryLevelCommandPresentationState(
                     applicationMenuSecondaryStates);
@@ -1522,6 +1493,7 @@ public class OrbitMenu extends JRibbonFrame {
     /**
      * Define the task bar.
      * The smaller links at the top of the window.
+     * @param ribbon The radiance JRibbon component.
      */
     private void configureTaskBar(final JRibbon ribbon) {
         // Hand tool
@@ -1535,6 +1507,10 @@ public class OrbitMenu extends JRibbonFrame {
         ribbon.addTaskbarCommand(this.featuresCommand);
     }
 
+    /**
+     * Get the image band for the OrbitMenu.
+     * @return The image band
+     */
     private JRibbonBand getImageBand() {
         JRibbonBand openImageBand = new JRibbonBand(
                 resourceBundle.getString("Image.OpenImage.textBandTitle"),
@@ -1559,6 +1535,10 @@ public class OrbitMenu extends JRibbonFrame {
         return openImageBand;
     }
 
+    /**
+     * Get the open special band for the OrbitMenu.
+     * @return The open special band
+     */
     private JRibbonBand getOpenSpecialBand() {
         JRibbonBand openSpecialBand = new JRibbonBand(
                 resourceBundle.getString("Image.OpenSpecial.textBandTitle"),
@@ -1593,6 +1573,10 @@ public class OrbitMenu extends JRibbonFrame {
         return openSpecialBand;
     }
 
+    /**
+     * Get the save band for the OrbitMenu.
+     * @return The save band
+     */
     private JRibbonBand getSaveBand() {
         JRibbonBand saveImageBand = new JRibbonBand(
                 resourceBundle.getString("Image.Save.textBandTitle"),
@@ -1617,6 +1601,10 @@ public class OrbitMenu extends JRibbonFrame {
         return saveImageBand;
     }
 
+    /**
+     * Get the image provider band for the OrbitMenu.
+     * @return The image provider band
+     */
     protected JRibbonBand getImageProviderBand() {
         JRibbonBand imageProviderBand = new JRibbonBand(
                 resourceBundle.getString("Image.ImageProvider.textBandTitle"),
@@ -1641,6 +1629,10 @@ public class OrbitMenu extends JRibbonFrame {
         return imageProviderBand;
     }
 
+    /**
+     * Get the copy band for the OrbitMenu.
+     * @return The copy band
+     */
     private JRibbonBand getCopyBand() {
         JRibbonBand copyBand = new JRibbonBand(
                 resourceBundle.getString("Edit.Copy.textBandTitle"),
@@ -1671,6 +1663,10 @@ public class OrbitMenu extends JRibbonFrame {
         return copyBand;
     }
 
+    /**
+     * Get the paste band for the OrbitMenu.
+     * @return The paste band
+     */
     private JRibbonBand getPasteBand() {
         JRibbonBand pasteBand = new JRibbonBand(
                 resourceBundle.getString("Edit.Paste.textBandTitle"),
@@ -1695,6 +1691,10 @@ public class OrbitMenu extends JRibbonFrame {
         return pasteBand;
     }
 
+    /**
+     * Get the open model band for the OrbitMenu.
+     * @return The open model band
+     */
     private JRibbonBand getOpenModelBand() {
         JRibbonBand openModelBand = new JRibbonBand(
                 resourceBundle.getString("Model.OpenModel.textBandTitle"),
@@ -1725,6 +1725,10 @@ public class OrbitMenu extends JRibbonFrame {
         return openModelBand;
     }
 
+    /**
+     * Get the save model band for the OrbitMenu.
+     * @return The save model band
+     */
     private JRibbonBand getSaveModelBand() {
         JRibbonBand saveModelBand = new JRibbonBand(
                 resourceBundle.getString("Model.SaveModel.textBandTitle"),
@@ -1758,6 +1762,10 @@ public class OrbitMenu extends JRibbonFrame {
         return saveModelBand;
     }
 
+    /**
+     * Get the configure model band for the OrbitMenu.
+     * @return The configure model band
+     */
     private JRibbonBand getConfigureModelBand() {
         JRibbonBand configureModelBand = new JRibbonBand(
                 resourceBundle.getString("Model.ConfigureModel.textBandTitle"),
@@ -1775,7 +1783,6 @@ public class OrbitMenu extends JRibbonFrame {
                 CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> fuzzinessProjection = this.fuzzinessCommand.project(
                 CommandButtonPresentationModel.builder().build());
-        // TODO: Use public getter for the command.
         CommandButtonProjection<Command> exclusionModelLevelProjection = oia.getExclusionModule().getExclusionModelLevelCommand().project(
                 CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> performClusteringProjection = this.performClusteringCommand.project(
@@ -1793,30 +1800,10 @@ public class OrbitMenu extends JRibbonFrame {
         return configureModelBand;
     }
 
-//    private JRibbonBand getClusteringModelBand() {
-//        JRibbonBand clusteringBand = new JRibbonBand(
-//                resourceBundle.getString("Model.Clustering.textBandTitle"),
-//                null,
-//                null);
-//
-//        clusteringBand.setExpandButtonRichTooltip(RichTooltip.builder()
-//                .setTitle(resourceBundle.getString("Model.Clustering.textBandTitle"))
-//                .addDescriptionSection(resourceBundle.getString("Model.Clustering.textBandTooltipParagraph1"))
-//                .build());
-//
-//        CommandButtonProjection<Command> performClusteringProjection = this.performClusteringCommand.project(
-//                CommandButtonPresentationModel.builder().build());
-//
-//        clusteringBand.addRibbonCommand(performClusteringProjection, JRibbonBand.PresentationPriority.TOP);
-//
-//        List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
-//        resizePolicies.add(new CoreRibbonResizePolicies.Mirror(clusteringBand));
-//        resizePolicies.add(new CoreRibbonResizePolicies.Mid2Low(clusteringBand));
-//        clusteringBand.setResizePolicies(resizePolicies);
-//
-//        return clusteringBand;
-//    }
-
+    /**
+     * Get the reset model band for the OrbitMenu.
+     * @return The reset model band
+     */
     private JRibbonBand getResetModelBand() {
         JRibbonBand resetModelBand = new JRibbonBand(
                 resourceBundle.getString("Model.Reset.textBandTitle"),
@@ -1848,6 +1835,10 @@ public class OrbitMenu extends JRibbonFrame {
         return resetModelBand;
     }
 
+    /**
+     * Get the draw band for the OrbitMenu.
+     * @return The draw band
+     */
     private JRibbonBand getDrawBand() {
         JRibbonBand drawBand = new JRibbonBand(
                 resourceBundle.getString("ExclusionModel.Draw.textBandTitle"),
@@ -1874,13 +1865,15 @@ public class OrbitMenu extends JRibbonFrame {
         drawBand.addRibbonCommand(rectangleProjection, JRibbonBand.PresentationPriority.TOP);
 
         List<RibbonBandResizePolicy> resizePolicies = getGenericResizePolicy(drawBand);
-        //resizePolicies.add(new CoreRibbonResizePolicies.Mirror(drawBand));
-        //resizePolicies.add(new CoreRibbonResizePolicies.Mid2Low(drawBand));
         drawBand.setResizePolicies(resizePolicies);
 
         return drawBand;
     }
 
+    /**
+     * Get the setup classification classes band for the OrbitMenu.
+     * @return The setup classification classes band
+     */
     private JRibbonBand getSetupClassificationClassesBand() {
         JRibbonBand setupClassesBand = new JRibbonBand(
                 resourceBundle.getString("Classification.Setup.textBandTitle"),
@@ -1905,6 +1898,10 @@ public class OrbitMenu extends JRibbonFrame {
         return setupClassesBand;
     }
 
+    /**
+     * Get the machine learning band for the OrbitMenu.
+     * @return The machine learning band
+     */
     private JRibbonBand getMachineLearningBand() {
         JRibbonBand machineLearningBand = new JRibbonBand(
                 resourceBundle.getString("Classification.MachineLearning.textBandTitle"),
@@ -1933,6 +1930,10 @@ public class OrbitMenu extends JRibbonFrame {
         return machineLearningBand;
     }
 
+    /**
+     * Get the setup object segmentation band for the OrbitMenu.
+     * @return The setup object segementation band
+     */
     private JRibbonBand getSetupObjectSegmentationClassesBand() {
         JRibbonBand setupClassesBand = new JRibbonBand(
                 resourceBundle.getString("ObjectDetection.Setup.textBandTitle"),
@@ -1957,6 +1958,10 @@ public class OrbitMenu extends JRibbonFrame {
         return setupClassesBand;
     }
 
+    /**
+     * Get the object segmentation band for the OrbitMenu.
+     * @return The object segmentation band
+     */
     private JRibbonBand getObjectSegmentationBand() {
         JRibbonBand objectSegmentationBand = new JRibbonBand(
                 resourceBundle.getString("ObjectDetection.ObjectSegmentation.textBandTitle"),
@@ -2000,6 +2005,10 @@ public class OrbitMenu extends JRibbonFrame {
         return objectSegmentationBand;
     }
 
+    /**
+     * Get the object classification band for the OrbitMenu.
+     * @return The object classification band
+     */
     private JRibbonBand getObjectClassificationBand() {
         JRibbonBand objectClassificationBand = new JRibbonBand(
                 resourceBundle.getString("ObjectDetection.ObjectClassification.textBandTitle"),
@@ -2034,6 +2043,10 @@ public class OrbitMenu extends JRibbonFrame {
         return objectClassificationBand;
     }
 
+    /**
+     * Get the ROI band for the OrbitMenu.
+     * @return The ROI band
+     */
     private JRibbonBand getRoiBand() {
         JRibbonBand roiBand = new JRibbonBand(
                 resourceBundle.getString("ROI.RegionOfInterest.textBandTitle"),
@@ -2065,6 +2078,10 @@ public class OrbitMenu extends JRibbonFrame {
         return roiBand;
     }
 
+    /**
+     * Get the special ROI band for the OrbitMenu.
+     * @return The special ROI band
+     */
     private JRibbonBand getSpecialRoiBand() {
         JRibbonBand specialroiBand = new JRibbonBand(
                 resourceBundle.getString("ROI.SpecialROIs.textBandTitle"),
@@ -2092,6 +2109,10 @@ public class OrbitMenu extends JRibbonFrame {
         return specialroiBand;
     }
 
+    /**
+     * Get the model based mask band for the OrbitMenu.
+     * @return The model based mask band
+     */
     private JRibbonBand getModelBasedMasksBand() {
         JRibbonBand modelBasedMasksBand = new JRibbonBand(
                 resourceBundle.getString("Mask.ModelBasedMasks.textBandTitle"),
@@ -2126,6 +2147,10 @@ public class OrbitMenu extends JRibbonFrame {
         return modelBasedMasksBand;
     }
 
+    /**
+     * Get the batch band for the OrbitMenu.
+     * @return The batch band
+     */
     private JRibbonBand getBatchBand() {
         JRibbonBand batchBand = new JRibbonBand(
                 resourceBundle.getString("Batch.BatchExecute.textBandTitle"),
@@ -2139,16 +2164,16 @@ public class OrbitMenu extends JRibbonFrame {
 
         CommandButtonProjection<Command> localExecutionProjection = this.localExecutionCommand.project(
                 CommandButtonPresentationModel.builder().build());
-        CommandButtonProjection<Command> scaleOutExecutionProjection = this.scaleOutExecutionCommand.project(
-                CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> roiAreaComputationProjection = this.roiAreaComputationCommand.project(
+                CommandButtonPresentationModel.builder().build());
+        CommandButtonProjection<Command> scaleOutExecutionProjection = this.scaleOutExecutionCommand.project(
                 CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> retrieveExistingResultsProjection = this.retrieveExistingResultsCommand.project(
                 CommandButtonPresentationModel.builder().build());
 
         batchBand.addRibbonCommand(localExecutionProjection, JRibbonBand.PresentationPriority.TOP);
-        batchBand.addRibbonCommand(scaleOutExecutionProjection, JRibbonBand.PresentationPriority.TOP);
         batchBand.addRibbonCommand(roiAreaComputationProjection, JRibbonBand.PresentationPriority.TOP);
+        batchBand.addRibbonCommand(scaleOutExecutionProjection, JRibbonBand.PresentationPriority.TOP);
         batchBand.addRibbonCommand(retrieveExistingResultsProjection, JRibbonBand.PresentationPriority.TOP);
 
         List<RibbonBandResizePolicy> resizePolicies = getGenericResizePolicy(batchBand);
@@ -2157,6 +2182,10 @@ public class OrbitMenu extends JRibbonFrame {
         return batchBand;
     }
 
+    /**
+     * Get the manage files band for the OrbitMenu.
+     * @return The manage files band
+     */
     private JRibbonBand getManageFilesBand() {
         JRibbonBand manageFilesBand = new JRibbonBand(
                 resourceBundle.getString("Tools.ManageFiles.textBandTitle"),
@@ -2185,6 +2214,10 @@ public class OrbitMenu extends JRibbonFrame {
         return manageFilesBand;
     }
 
+    /**
+     * Get the save image band for the OrbitMenu.
+     * @return The save image band
+     */
     private JRibbonBand getSaveImageBand() {
         JRibbonBand saveImageBand = new JRibbonBand(
                 resourceBundle.getString("Tools.SaveImage.textBandTitle"),
@@ -2213,6 +2246,10 @@ public class OrbitMenu extends JRibbonFrame {
         return saveImageBand;
     }
 
+    /**
+     * Get the script band for the OrbitMenu.
+     * @return The script band
+     */
     private JRibbonBand getScriptBand() {
         JRibbonBand scriptBand = new JRibbonBand(
                 resourceBundle.getString("Tools.Script.textBandTitle"),
@@ -2237,6 +2274,10 @@ public class OrbitMenu extends JRibbonFrame {
         return scriptBand;
     }
 
+    /**
+     * Get the arrange windows band for the OrbitMenu.
+     * @return The arrange windows band
+     */
     private JRibbonBand getArrangeBand() {
         JRibbonBand arrangeBand = new JRibbonBand(
                 resourceBundle.getString("View.Arrange.textBandTitle"),
@@ -2268,6 +2309,10 @@ public class OrbitMenu extends JRibbonFrame {
         return arrangeBand;
     }
 
+    /**
+     * Get the show tools band for the OrbitMenu.
+     * @return The show tools band
+     */
     private JRibbonBand getShowBand() {
         JRibbonBand showBand = new JRibbonBand(
                 resourceBundle.getString("View.Show.textBandTitle"),
@@ -2311,6 +2356,10 @@ public class OrbitMenu extends JRibbonFrame {
         return showBand;
     }
 
+    /**
+     * Get the documentation band for the OrbitMenu.
+     * @return The documentation band
+     */
     private JRibbonBand getDocumentationBand() {
         JRibbonBand documentationBand = new JRibbonBand(
                 resourceBundle.getString("Help.Documentation.textBandTitle"),
@@ -2324,10 +2373,13 @@ public class OrbitMenu extends JRibbonFrame {
 
         CommandButtonProjection<Command> orbitManualProjection = this.orbitManualCommand.project(
                 CommandButtonPresentationModel.builder().build());
+        CommandButtonProjection<Command> orbitTutorialsProjection = this.orbitTutorialsCommand.project(
+                CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> aboutProjection = this.aboutCommand.project(
                 CommandButtonPresentationModel.builder().build());
 
         documentationBand.addRibbonCommand(orbitManualProjection, JRibbonBand.PresentationPriority.TOP);
+        documentationBand.addRibbonCommand(orbitTutorialsProjection, JRibbonBand.PresentationPriority.TOP);
         documentationBand.addRibbonCommand(aboutProjection, JRibbonBand.PresentationPriority.TOP);
 
         List<RibbonBandResizePolicy> resizePolicies = getGenericResizePolicy(documentationBand);
@@ -2336,6 +2388,10 @@ public class OrbitMenu extends JRibbonFrame {
         return documentationBand;
     }
 
+    /**
+     * Get the log files band for the OrbitMenu.
+     * @return The log files band
+     */
     private JRibbonBand getLogsBand() {
         JRibbonBand logsBand = new JRibbonBand(
                 resourceBundle.getString("Help.Logs.textBandTitle"),
@@ -2361,6 +2417,10 @@ public class OrbitMenu extends JRibbonFrame {
         return logsBand;
     }
 
+    /**
+     * Define a generic resize policy that most OrbitMenu band items can use.
+     * @return A generic resize policy that most bands used by the OrbitMenu ribbon can use.
+     */
     public static List<RibbonBandResizePolicy> getGenericResizePolicy(JRibbonBand jrband) {
         List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
         resizePolicies.add(new CoreRibbonResizePolicies.Low2Mid(jrband));
@@ -2371,48 +2431,48 @@ public class OrbitMenu extends JRibbonFrame {
         return resizePolicies;
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            // Not 100% sure that we should decorate this bar, need to do some tests
-            JFrame.setDefaultLookAndFeelDecorated(true);
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> {
+//            JFrame.setDefaultLookAndFeelDecorated(true);
+//
+//            SubstanceCortex.GlobalScope.setSkin(new GraphiteAquaSkin());
+//
+//            final OrbitMenu orbitmenu = new OrbitMenu();
+//            orbitmenu.configureRibbon(orbitmenu.getRibbon());
+//
+//            orbitmenu.applyComponentOrientation(ComponentOrientation.getOrientation(Locale.getDefault()));
+//            Rectangle r = GraphicsEnvironment.getLocalGraphicsEnvironment()
+//                    .getMaximumWindowBounds();
+//            orbitmenu.setPreferredSize(new Dimension(r.width, r.height / 2));
+//            orbitmenu.setMinimumSize(new Dimension(r.width / 10, r.height / 4));
+//            orbitmenu.pack();
+//            orbitmenu.setLocation(r.x, r.y);
+//            orbitmenu.setVisible(true);
+//            orbitmenu.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+//
+//            KeyStroke keyStroke = (NeonCortex.getPlatform() == NeonCortex
+//                    .Platform.MACOS) ? KeyStroke.getKeyStroke("meta alt E") :
+//                    KeyStroke.getKeyStroke("alt shift E");
+//
+//            orbitmenu.getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+//                    .put(keyStroke, "installTracingRepaintManager");
+//        });
+//    }
 
-            /*
-            try {
-                UIManager.setLookAndFeel(new SubstanceGraphiteAquaLookAndFeel());
-            } catch (Exception e) {
-                System.out.println("Substance Graphite failed to initialize");
-            }
-            */
-            SubstanceCortex.GlobalScope.setSkin(new GraphiteAquaSkin());
-
-            final OrbitMenu orbitmenu = new OrbitMenu();
-            orbitmenu.configureRibbon(orbitmenu.getRibbon());
-
-            orbitmenu.applyComponentOrientation(ComponentOrientation.getOrientation(Locale.getDefault()));
-            Rectangle r = GraphicsEnvironment.getLocalGraphicsEnvironment()
-                    .getMaximumWindowBounds();
-            orbitmenu.setPreferredSize(new Dimension(r.width, r.height / 2));
-            orbitmenu.setMinimumSize(new Dimension(r.width / 10, r.height / 4));
-            orbitmenu.pack();
-            orbitmenu.setLocation(r.x, r.y);
-            orbitmenu.setVisible(true);
-            orbitmenu.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-            KeyStroke keyStroke = (NeonCortex.getPlatform() == NeonCortex
-                    .Platform.MACOS) ? KeyStroke.getKeyStroke("meta alt E") :
-                    KeyStroke.getKeyStroke("alt shift E");
-
-            orbitmenu.getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
-                    .put(keyStroke, "installTracingRepaintManager");
-        });
-
-
-    }
-
+    /**
+     * Getter for the openSpecialResolutionContentModel - used to add items to the
+     * action list (e.g. as the number of image layers change when switching between
+     * image windows).
+     * @return The openSpecialResolutionContentModel used by openSpecialResolutionCommand
+     */
     CommandMenuContentModel getOpenSpecialResolutionContentModel() {
         return openSpecialResolutionContentModel;
     }
 
+    /**
+     * Used to enable or disable the button action when there are no image layers available.
+     * @return The openSpecialResolutionCommand button.
+     */
     Command getOpenSpecialResolutionCommand() {
         return openSpecialResolutionCommand;
     }

@@ -1,6 +1,6 @@
 /*
  *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2017 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
+ *     Copyright (C) 2009 - 2020 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ ext.description = "OrbitImageAnalysis"
 // Works with JDK 11...
 sourceCompatibility = JavaVersion.VERSION_11
 
-ext.orbitVersion = new File(projectDir,"src/main/resources/version.txt").text;
+ext.orbitVersion = new File(projectDir,"src/main/resources/version.txt").text
 ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
 
 repositories {
@@ -80,6 +80,10 @@ if (JavaVersion.current().isJava8Compatible()) {
         }
     }
 }
+test {
+    useJUnit()
+}
+
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
 }
@@ -93,7 +97,7 @@ publishing {
         mavenJava(MavenPublication) {
             groupId 'com.actelion.research'
             artifactId 'orbit-image-analysis'
-            version orbitVersion
+            version "$orbitVersion"
             from components.java
             artifact sourceJar {
                 classifier "sources"
@@ -107,6 +111,7 @@ publishing {
         }
     }
 }
+
 
 task copyToLib( type: Copy ) {
     into "$buildDir/libs/lib"
@@ -123,7 +128,6 @@ jar {
                 //,'Class-Path': 'lib/*'
     }
 }
-
 
 configurations {
     implementation.exclude module:'slf4j-log4j12'
@@ -158,7 +162,7 @@ dependencies {
 //    }
 
 
-    // explicite versions, see implementation.excludes
+    // explicit versions, see implementation.excludes
     implementation 'org.quartz-scheduler:quartz:2.1.1'
     implementation 'org.sonatype.sisu.inject:cglib:2.2.1-v20090111'
     implementation 'io.dropwizard.metrics:metrics-core:3.1.2'
@@ -239,8 +243,8 @@ dependencies {
     implementation 'org.tensorflow:tensorflow:1.14.0'  // 1.4.0 1.10.0 implementationOnly
     // implementation 'org.tensorflow:libtensorflow_jni_gpu:1.10.0'
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
-    testCompile 'junit:junit:[4.0,)'
-
+    //testCompile 'junit:junit:[4.0,)'
+    testImplementation 'junit:junit:4.13'
 }
 
 
