@@ -55,7 +55,6 @@ ext.orbitVersion = new File(projectDir,"src/main/resources/version.txt").text;
 ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
 
 repositories {
-    //mavenLocal()
     mavenCentral()
     maven {
         url 'http://artifacts.openmicroscopy.org/artifactory/maven/'
@@ -109,7 +108,6 @@ publishing {
     }
 }
 
-
 task copyToLib( type: Copy ) {
     into "$buildDir/libs/lib"
     from configurations.runtime
@@ -125,10 +123,6 @@ jar {
                 //,'Class-Path': 'lib/*'
     }
 }
-
-
-
-
 
 
 configurations {
@@ -149,12 +143,8 @@ dependencies {
     api 'com.actelion.research:map-reduce-generic:1.0.10'
 //    implementation 'com.actelion.research:map-reduce-exec-spark:1.1.3'
 
-
-//    implementation(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.3.1') {     // 0.2.14
-//        exclude(module: 'orbit-image-analysis')
-//    }
 //    implementation 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
-//   implementation 'com.actelion.research:imageproviderorbit:1.1.18'
+//    implementation 'com.actelion.research:imageproviderorbit:1.1.18'
 
 
     // JNA (needed for the NDPR C++ API)
@@ -253,11 +243,11 @@ dependencies {
 
 }
 
-/*
+
 if (file('custom.gradle').exists()) {
     apply from: 'custom.gradle'
 }
-*/
+
 
 /*
  * Compile the icons at build time, for better performance.
