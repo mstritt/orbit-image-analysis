@@ -1344,15 +1344,14 @@ public class OrbitMenu extends JRibbonFrame {
 
         CommandMenuContentModel openImageMenu = new CommandMenuContentModel(
                 new CommandGroup(
-                        "Open Image",
-                        // TODO: open image from server...
+                        resourceBundle.getString("AppMenu.PrimaryOptions.OpenImage.text"),
                         openImageCommand
                 )
         );
 
         CommandMenuContentModel openModelMenu = new CommandMenuContentModel(
                 new CommandGroup(
-                        "Open Image",
+                        resourceBundle.getString("AppMenu.PrimaryOptions.OpenModel.text"),
                         openModelServerCommand,
                         openModelCommand
                 )
@@ -1360,7 +1359,7 @@ public class OrbitMenu extends JRibbonFrame {
 
         CommandMenuContentModel saveModelMenu = new CommandMenuContentModel(
                 new CommandGroup(
-                        "Save Model",
+                        resourceBundle.getString("AppMenu.PrimaryOptions.SaveModel.text"),
                         saveModelAsCommand,
                         saveModelServerCommand,
                         saveNestedExclusionModelCommand,
@@ -1370,7 +1369,7 @@ public class OrbitMenu extends JRibbonFrame {
 
         CommandMenuContentModel helpMenu = new CommandMenuContentModel(
                 new CommandGroup(
-                        "Help",
+                        resourceBundle.getString("AppMenu.PrimaryOptions.Help.text"),
                         orbitManualCommand,
                         orbitTutorialsCommand,
                         //version check
@@ -1380,39 +1379,45 @@ public class OrbitMenu extends JRibbonFrame {
 
         // Application menu commands
         Command openImageMenuCommand = Command.builder()
-                .setText("Open Image")
+                .setText(resourceBundle.getString("AppMenu.PrimaryOptions.OpenImage.text"))
                 .setIconFactory(document_open_5.factory())
                 .setSecondaryContentModel(openImageMenu)
                 .build();
 
         Command openModelMenuCommand = Command.builder()
-                .setText("Open Model")
+                .setText(resourceBundle.getString("AppMenu.PrimaryOptions.OpenModel.text"))
                 .setIconFactory(document_open_5.factory())
                 .setSecondaryContentModel(openModelMenu)
                 .build();
 
         Command saveModelAsMenuCommand = Command.builder()
-                .setText("Save Model")
+                .setText(resourceBundle.getString("AppMenu.PrimaryOptions.SaveModel.text"))
                 .setIconFactory(document_save_3.factory())
                 .setSecondaryContentModel(saveModelMenu)
                 .build();
 
         Command helpMenuCommand = Command.builder()
-                .setText("Help")
+                .setText(resourceBundle.getString("AppMenu.PrimaryOptions.Help.text"))
                 .setIconFactory(help_about_3.factory())
                 .setSecondaryContentModel(helpMenu)
                 .build();
 
         Command loginMenuCommand = Command.builder()
-                .setText("Login")
+                .setText(resourceBundle.getString("AppMenu.PrimaryOptions.Login.text"))
                 .setIconFactory(document_save_3.factory())
                 .setAction(oia.LogInCommand)
                 .build();
 
         Command logoutMenuCommand = Command.builder()
-                .setText("Logout")
+                .setText(resourceBundle.getString("AppMenu.PrimaryOptions.Logout.text"))
                 .setIconFactory(system_log_out_3.factory())
                 .setAction(oia.LogOffCommand)
+                .build();
+
+        Command exitApplicationMenuCommand = Command.builder()
+                .setText(resourceBundle.getString("AppMenu.PrimaryOptions.Exit.text"))
+                .setIconFactory(application_exit_3.factory())
+                .setAction(oia.ExitApplicationCommand)
                 .build();
 
         // Add the options to the menu
@@ -1423,7 +1428,8 @@ public class OrbitMenu extends JRibbonFrame {
                 new CommandGroup(saveModelAsMenuCommand),
                 new CommandGroup(helpMenuCommand),
                 new CommandGroup(loginMenuCommand),
-                new CommandGroup(logoutMenuCommand)
+                new CommandGroup(logoutMenuCommand),
+                new CommandGroup(exitApplicationMenuCommand)
                 );
 
         try {

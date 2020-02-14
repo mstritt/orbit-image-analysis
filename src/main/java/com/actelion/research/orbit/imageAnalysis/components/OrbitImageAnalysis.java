@@ -3712,6 +3712,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     final CommandAction LogInCommand = e -> login();
 
+    final CommandAction ExitApplicationCommand = e -> exitProcedure();
+
 //    public final ActionListener copyOrbitListActionHandler = new ActionListener() {
 //        public void actionPerformed(ActionEvent e) {
 //            Transferable t = ((DesktopTransferHandler) desktopTransferHandler).createTransferable(desktop);
