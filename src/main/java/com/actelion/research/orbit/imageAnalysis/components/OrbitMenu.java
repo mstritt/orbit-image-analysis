@@ -10,6 +10,7 @@ import org.pushingpixels.flamingo.api.ribbon.projection.RibbonApplicationMenuCom
 import org.pushingpixels.flamingo.api.ribbon.resize.CoreRibbonResizePolicies;
 import org.pushingpixels.flamingo.api.ribbon.resize.RibbonBandResizePolicy;
 import org.pushingpixels.flamingo.api.ribbon.synapse.model.ComponentPresentationModel;
+import org.pushingpixels.neon.NeonCortex;
 import org.pushingpixels.neon.icon.ResizableIcon;
 
 import com.actelion.research.orbit.imageAnalysis.components.icons.*;
@@ -1299,10 +1300,18 @@ public class OrbitMenu extends JRibbonFrame {
         KeyStroke f11KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0);
         KeyStroke f12KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0);
 
-        KeyStroke copyImageKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK);
-        KeyStroke copyImageFullKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK);
-        KeyStroke pasteKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK);
-        KeyStroke loadOverviewKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK);
+        KeyStroke copyImageKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK);
+        KeyStroke copyImageFullKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke pasteKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke loadOverviewKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 
         ribbon.registerKeyboardAction(oia.orbitManualAction, f1KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
         ribbon.registerKeyboardAction(oia.classesAction, f2KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);

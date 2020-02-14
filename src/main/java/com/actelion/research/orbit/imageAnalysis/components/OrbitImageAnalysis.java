@@ -2943,6 +2943,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             for (ImageFrame iFrame : getIFrames())
                 iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
             loadFileOrbit();
+        } else {
+            loadFileOrbit();
         }
     };
     final CommandAction OverviewCommandAction = e -> loadSpecialImage(RawUtilsCommon.LEVEL_OVERVIEW);
