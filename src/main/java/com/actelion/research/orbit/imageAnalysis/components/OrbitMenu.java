@@ -197,7 +197,6 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("Image.OpenImage.text"))
                 .setIconFactory(document_open_5.factory())
                 .setAction(oia.OpenImageCommandAction)
-                .setAction(null)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("Image.OpenImage.text"))
