@@ -161,6 +161,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private JPanel propertyPanel;
     private MetaTabs metaBar;
     private JPanel taskPanel;
+    private RdfSearchBox searchBox;
     private AbstractOrbitTree rdTree;
     private ImageList imageList;
     private final OrbitStatusBar statusBar = new OrbitStatusBar();
@@ -315,8 +316,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
 
         // left panel
-        // TODO: Find a solution to the problem that this component breaks Radiance.
-        RdfSearchBox searchBox = new RdfSearchBoxExtended(false, false, false);
+        searchBox = new RdfSearchBoxExtended(false, false, false);
         //RdfSearchBox searchBox = new RdfSearchBox(false, false, false);
 
         imageList = new ImageList(new RdfThnCellRendererBig(DALConfig.getImageProvider()));
@@ -2875,11 +2875,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             DALConfig.switchLocalRemoteImageProvider();
             orbitMenu.updateMenuImageProviderEntries();
 
+
             // TODO: See below. Figure out where this should really live.
             SwingUtilities.invokeLater(() -> {
                 imageList.setModel(new DefaultListModel()); // clear image list
                 rdTree.setEnabled(!isLocalImageProvider());
-                });
+                searchBox.setEnabled(!isLocalImageProvider());
+            });
 
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
                     isLocalImageProvider() ? "Image provider local is active." : "Image provider remote is active.",
@@ -2887,32 +2889,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                     JOptionPane.INFORMATION_MESSAGE);
         }
     }
-
-    // TODO: This needs changing to handle the Image Provider stuff.
-    // TODO: Double check same behaviour with new implementation.
-//    public void updateMenuImageProviderEntries() {
-//        String openButtonTitel = isLocalImageProvider() ? OrbitMenu.openFromLocalStr : OrbitMenu.openFromServerStr;
-//        orbitMenu.getAmOpenOrbit().setText(openButtonTitel);
-//        orbitMenu.getButtonopenFromOrbit().setText(openButtonTitel);
-//        // tree / imagelist
-//        SwingUtilities.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                imageList.setModel(new DefaultListModel()); // clear image list
-//                rdTree.setEnabled(!isLocalImageProvider());
-//                orbitMenu.getSwitchImageProviderBtn().setEnabled(!DALConfig.onlyLocalImageProviderAvailable());
-//                orbitMenu.getButtonExecuteScaleout().setEnabled(!DALConfig.isLocalImageProvider());
-//                orbitMenu.getButtonRetrieveExistingResults().setEnabled(!DALConfig.isLocalImageProvider());
-//                orbitMenu.getAmEntryOpenModelOrbit().setEnabled(!DALConfig.isLocalImageProvider());
-//                orbitMenu.getAmSaveModelOrbit().setEnabled(!DALConfig.isLocalImageProvider());
-//                orbitMenu.getButtonSaveModelOrbit().setEnabled(!DALConfig.isLocalImageProvider());
-//                orbitMenu.getButtonLoadAndSetServer().setEnabled(!DALConfig.isLocalImageProvider());
-//                orbitMenu.getButtonOrbitBrowser().setEnabled(!DALConfig.isLocalImageProvider());
-//                orbitMenu.getButtonModelOpenOrbit().setEnabled(!DALConfig.isLocalImageProvider());
-//
-//            }
-//        });
-//    }
 
 
     //<editor-fold desc="ActionListeners">

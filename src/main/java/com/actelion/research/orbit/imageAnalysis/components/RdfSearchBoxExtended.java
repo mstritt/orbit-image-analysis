@@ -46,6 +46,11 @@ public class RdfSearchBoxExtended extends RdfSearchBox {
         super(showViewModeButtons, showConcatMode, showFileFilter);
     }
 
+    public void setEnabled(boolean enabled) {
+        _searchField.setEnabled(enabled);
+        this.getOkButton().setEnabled(enabled);
+    }
+
     @Override
     protected JTextField getSearchField() {
         if (_searchField == null) {
