@@ -16,6 +16,10 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+// Define the Radiance version in one place, since multiple libraries that need to be updated together.
+def radianceVersion = '2.5.1'
+
 buildscript {
     repositories {
         jcenter()
@@ -23,7 +27,7 @@ buildscript {
     dependencies {
         classpath "com.smokejumperit.gradle.license:Gradle-License-Report:0.0.2"
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
-        classpath 'org.pushing-pixels:radiance-ignite:2.5.1'
+        classpath "org.pushing-pixels:radiance-ignite:$radianceVersion"
     }
 }
 
@@ -138,9 +142,6 @@ configurations {
     implementation.exclude group:'quartz', module:'quartz'
 }
 
-// Define the Radiance version in one place, since multiple libraries that need to be updated together.
-def radianceVersion = '2.5.1'
-
 dependencies {
     implementation 'com.actelion.research:lib-orbit-common:1.2.12'
 //    implementation 'com.actelion.research:image-provider-omero:1.6.1'
@@ -181,10 +182,7 @@ dependencies {
         exclude (module: 'swing-worker')
     }
 
-    // substance
-    //implementation fileTree(dir: 'lib', include: ['*.jar'], exclude: 'flamingo-svg-transcoder-ant-1.1.1.jar')
-    //implementation 'com.github.insubstantial:substance:7.3'
-    //implementation 'com.github.insubstantial:substance-flamingo:7.3'
+    // Radiance UI and dependencies
     api "org.pushing-pixels:radiance-substance:$radianceVersion"
     api "org.pushing-pixels:radiance-flamingo:$radianceVersion"
     api "org.pushing-pixels:radiance-neon:$radianceVersion"
