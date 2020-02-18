@@ -317,6 +317,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         // left panel
         // TODO: Find a solution to the problem that this component breaks Radiance.
         RdfSearchBox searchBox = new RdfSearchBoxExtended(false, false, false);
+        //RdfSearchBox searchBox = new RdfSearchBox(false, false, false);
 
         imageList = new ImageList(new RdfThnCellRendererBig(DALConfig.getImageProvider()));
         searchBox.addPropertyChangeListener(imageList);

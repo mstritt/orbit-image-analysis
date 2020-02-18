@@ -20,12 +20,10 @@
 package com.actelion.research.orbit.imageAnalysis.components;
 
 import com.actelion.research.orbit.gui.RdfSearchBox;
-import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
-//import org.jdesktop.swingx.JXSearchField;
-//import org.jdesktop.swingx.JXSearchField.SearchMode;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -52,29 +50,21 @@ public class RdfSearchBoxExtended extends RdfSearchBox {
     protected JTextField getSearchField() {
         if (_searchField == null) {
             _searchField = new JTextField("search files...");
-            //_searchField = new JXSearchField("search files...");
-//            ((JTextField) _searchField).setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield");
-//            //((JXSearchField)_searchField).setInstantSearchDelay(1000);
-//            ((JTextField) _searchField).setSearchMode(SearchMode.REGULAR);
-//            ((JTextField) _searchField).getRecentSearches().setMaxRecents(40);
+            getOkButton().setIcon(new ImageIcon(this.getClass().getResource("/resource/view.png")));
+            getOkButton().setText("");
 
+            _searchField.addFocusListener(new FocusListener() {
 
-            if (OrbitUtils.DARKUI) {
-                _searchField.setDisabledTextColor(Color.lightGray);
-//                ((JTextField) _searchField).setUseSeperatePopupButton(false);
-//                ((JTextField) _searchField).setLayoutStyle(JXSearchField.LayoutStyle.MAC);
-//                ((JTextField) _searchField).getPopupButton().setIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
-//                ((JTextField) _searchField).getPopupButton().setPressedIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
-//                ((JTextField) _searchField).getPopupButton().setRolloverIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
-//
-//                ((JTextField) _searchField).getCancelButton().setIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
-//                ((JTextField) _searchField).getCancelButton().setPressedIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
-//                ((JTextField) _searchField).getCancelButton().setRolloverIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
+                @Override
+                public void focusGained(FocusEvent e) {
+                    _searchField.select(0, _searchField.getText().length());
+                }
 
-                getOkButton().setIcon(new ImageIcon(this.getClass().getResource("/resource/view.png")));
-                getOkButton().setText("");
-            }
-
+                @Override
+                public void focusLost(FocusEvent e) {
+                    _searchField.select(0, 0);
+                }
+            });
 
             _searchField.addKeyListener(new KeyAdapter() {
                 public void keyPressed(KeyEvent e) {
