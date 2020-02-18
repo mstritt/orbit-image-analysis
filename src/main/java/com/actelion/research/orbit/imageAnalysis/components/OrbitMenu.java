@@ -145,6 +145,10 @@ public class OrbitMenu extends JRibbonFrame {
     // Taskbar commands
     private Command handToolCommand;
 
+    // Application menu commands
+    private Command loginMenuCommand;
+    private Command logoutMenuCommand;
+
     public OrbitMenu() {
         super();
 
@@ -167,7 +171,7 @@ public class OrbitMenu extends JRibbonFrame {
     /**
      * Set enabled/disabled state (and text label) depending on image provider used.
      */
-    public void updateMenuImageProviderEntries() {
+    void updateMenuImageProviderEntries() {
         // TODO: This is useful, but feels like it should be handled by a listener...
         if (DALConfig.isLocalImageProvider()) {
             this.openImageCommand.setText(resourceBundle.getString("Image.OpenImage.Local.text"));
@@ -185,6 +189,24 @@ public class OrbitMenu extends JRibbonFrame {
             this.scaleOutExecutionCommand.setActionEnabled(true);
             this.retrieveExistingResultsCommand.setActionEnabled(true);
             this.orbitBrowserCommand.setActionEnabled(true);
+        }
+        toggleLoginButtons();
+    }
+
+    void toggleLoginButtons() {
+        if (DALConfig.isLocalImageProvider()) {
+            this.loginMenuCommand.setActionEnabled(false);
+            this.logoutMenuCommand.setActionEnabled(false);
+        } else {
+            if (OrbitImageAnalysis.loginUser.equals(OrbitImageAnalysis.GUEST_USER)) {
+                this.loginMenuCommand.setActionEnabled(true);
+                this.logoutMenuCommand.setActionEnabled(false);
+            } else {
+                this.loginMenuCommand.setActionEnabled(false);
+                this.logoutMenuCommand.setText("Logout user " + OrbitImageAnalysis.loginUser);
+                this.logoutMenuCommand.setActionEnabled(true);
+            }
+
         }
     }
 
@@ -1402,16 +1424,18 @@ public class OrbitMenu extends JRibbonFrame {
                 .setSecondaryContentModel(helpMenu)
                 .build();
 
-        Command loginMenuCommand = Command.builder()
+        this.loginMenuCommand = Command.builder()
                 .setText(resourceBundle.getString("AppMenu.PrimaryOptions.Login.text"))
                 .setIconFactory(document_save_3.factory())
                 .setAction(oia.LogInCommand)
+                .setActionEnabled(!DALConfig.isLocalImageProvider())
                 .build();
 
-        Command logoutMenuCommand = Command.builder()
+        this.logoutMenuCommand = Command.builder()
                 .setText(resourceBundle.getString("AppMenu.PrimaryOptions.Logout.text"))
                 .setIconFactory(system_log_out_3.factory())
                 .setAction(oia.LogOffCommand)
+                .setActionEnabled(DALConfig.isLocalImageProvider())
                 .build();
 
         Command exitApplicationMenuCommand = Command.builder()
@@ -1427,8 +1451,8 @@ public class OrbitMenu extends JRibbonFrame {
                 new CommandGroup(openModelMenuCommand),
                 new CommandGroup(saveModelAsMenuCommand),
                 new CommandGroup(helpMenuCommand),
-                new CommandGroup(loginMenuCommand),
-                new CommandGroup(logoutMenuCommand),
+                new CommandGroup(getLoginMenuCommand()),
+                new CommandGroup(getLogoutMenuCommand()),
                 new CommandGroup(exitApplicationMenuCommand)
                 );
 
@@ -2489,5 +2513,13 @@ public class OrbitMenu extends JRibbonFrame {
      */
     Command getOpenSpecialResolutionCommand() {
         return openSpecialResolutionCommand;
+    }
+
+    protected Command getLoginMenuCommand() {
+        return loginMenuCommand;
+    }
+
+    protected Command getLogoutMenuCommand() {
+        return logoutMenuCommand;
     }
 }

@@ -142,8 +142,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //    private final JMenuItem loadSVSLabelItem = null;
 //    private final JMenuItem loadSVSOverviewItem = null;
 //    private final JMenu loadSpecialLayerItem = null;
-    protected final JMenuItem menuLogOff = new JMenuItem("Log off ");
-    protected final JMenuItem menuLogIn = new JMenuItem("Login");
+//    protected final JMenuItem menuLogOff = new JMenuItem("Log off ");
+//    protected final JMenuItem menuLogIn = new JMenuItem("Login");
 //    protected final JCheckBox syncFramesCheckbox = new JCheckBox("Sync Frames", false);
 //    protected final JCheckBoxMenuItem showGaugeCheckbox = new JCheckBoxMenuItem("Show Gauge", true);
 //    protected final JCheckBoxMenuItem showMarkupCheckbox = new JCheckBoxMenuItem("Show Markup");
@@ -639,20 +639,19 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         logger.debug("login start");
         if (isLocalImageProvider()) {
             loginUser = GUEST_USER;
-            menuLogOff.setEnabled(false);
-            menuLogIn.setEnabled(true);
+
+            this.orbitMenu.toggleLoginButtons();
             updateStatusBar();
             return true;
         }
         if (OrbitLoginDialog.showLoginDialog(this) == Status.SUCCEEDED) {
             loginUser = OrbitLoginDialog.getUsername();
             loginPassword = OrbitLoginDialog.getPassword();
-            menuLogOff.setText("Log off " + loginUser);
-            menuLogIn.setEnabled(false);
+            //menuLogOff.setText("Log off " + loginUser);
             logger.info("user login called: " + loginUser + " [method call]");
             updateStatusBar();
             DALConfig.getImageProvider().logUsage(loginUser, "login");
-            menuLogOff.setEnabled(true);
+            orbitMenu.toggleLoginButtons();
             return true;
         } else return false;
     }
@@ -663,8 +662,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
         loginUser = GUEST_USER;
         OrbitLoginDialog.reset();
-        menuLogOff.setEnabled(false);
-        menuLogIn.setEnabled(true);
+        this.orbitMenu.toggleLoginButtons();
         if (DALConfig.getImageProvider().enforceLoginDialogAtStartup()) {
 
             DALConfig.getImageProvider().authenticateUser("", "");
