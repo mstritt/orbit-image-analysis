@@ -24,6 +24,7 @@ import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RangeBar;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
+import org.pushingpixels.flamingo.api.common.CommandAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,6 +99,11 @@ public class ThresholdModule extends AbstractOrbitModule {
     public void reset() {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public CommandAction menuCommandAction() {
+        return null;
     }
 
 }

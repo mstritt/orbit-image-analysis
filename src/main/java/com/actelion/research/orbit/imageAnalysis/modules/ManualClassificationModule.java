@@ -28,6 +28,7 @@ import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.features.TissueFeatures;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
+import org.pushingpixels.flamingo.api.common.CommandAction;
 import weka.core.DenseInstance;
 
 import javax.swing.*;
@@ -659,6 +660,11 @@ public class ManualClassificationModule extends AbstractSpotModule {
     @Override
     public String getName() {
         return "Manual Classification";
+    }
+
+    @Override
+    public CommandAction menuCommandAction() {
+        return null;
     }
 
     @Override

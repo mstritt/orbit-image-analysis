@@ -28,6 +28,7 @@ import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.PolygonMetrics;
+import org.pushingpixels.flamingo.api.common.CommandAction;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -654,6 +655,11 @@ public class ManualBoxCountModule extends AbstractSpotModule {
     @Override
     public String getName() {
         return "Manual Box Count";
+    }
+
+    @Override
+    public CommandAction menuCommandAction() {
+        return null;
     }
 
     @Override

@@ -466,6 +466,11 @@ public class ExclusionModule extends AbstractOrbitModule {
     public void reset() {
     }
 
+    @Override
+    public CommandAction menuCommandAction() {
+        return null;
+    }
+
     private void showHelp() {
         final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
         String color = OrbitUtils.DARKUI ? " color=white" : "";
@@ -550,40 +555,4 @@ public class ExclusionModule extends AbstractOrbitModule {
         return exclusionHelpCommand;
     }
 
-//
-//    public JButton getBtnClassify() {
-//        return btnClassify;
-//    }
-//
-//    public JButton getBtnConfigureClasses() {
-//        return btnConfigureClasses;
-//    }
-//
-//    public JButton getBtnHelp() {
-//        return btnHelp;
-//    }
-//
-//    public JButton getBtnLoad() {
-//        return btnLoad;
-//    }
-//
-//    public JButton getBtnLoadServer() {
-//        return btnLoadServer;
-//    }
-//
-//    public JButton getBtnLoadExplorer() {
-//        return btnLoadExplorer;
-//    }
-//
-//    public JButton getBtnReset() {
-//        return btnReset;
-//    }
-//
-//    public JButton getBtnSetupClasses() {
-//        return btnSetupClasses;
-//    }
-//
-//    public JButton getBtnTrain() {
-//        return btnTrain;
-//    }
 }

@@ -168,6 +168,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     protected OrbitModel model = new OrbitModel(); // with default values
 
+    private TMASpotGUI tmaSpotGUI = null;
+
     private double pixelFuzzyness = 0.0d;
     private double tileFuzzyness = 0.0d;
     private PlanarImage redChannel = null;
@@ -203,15 +205,18 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     public final static ResultFrame logFrame;
     private String loadedModel = "none";
     private final ScheduledExecutorService statusBarUpdater = Executors.newScheduledThreadPool(1);
-    private RareObjectDetectionModule rareObjectDetectionModule = null;
+    private ExclusionModule exclusionModule = null;
+
+    private LinkedHashSet<AbstractOrbitModule> enabledModules;
     private CellProfilerModule cellProfilerModule = null;
+    private RareObjectDetectionModule rareObjectDetectionModule = null;
     private NerveDetectionModule nerveDetectionModule = null;
     private ManualClassificationModule manualClassificationModule = null;
     private ManualBoxCountModule manualBoxCountModule = null;
-    private TMASpotGUI tmaSpotGUI = null;
     private ThresholdModule thresholdModule = null;
-    private ExclusionModule exclusionModule = null;
+    // TODO: can be removed?
     private MihcModule mihcModule = null;
+
     private ModelExplorer modelExplorer = null;
     final TransferHandler desktopTransferHandler = new DesktopTransferHandler();
 
@@ -286,6 +291,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         JAI.getDefaultInstance().getTileCache().setMemoryCapacity(OrbitUtils.PLANAR_IMAGE_CACHE);
 
         makeClassComboBox();
+        addModules();
 
         this.orbitMenu = new OrbitMenu(this);
 
@@ -791,7 +797,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         return infoStr;
     }
 
-    public synchronized void makeClassComboBox() {
+    private void makeClassComboBox() {
         // Class Combobox
         if (classBox == null) {
             // Define the model that backs the selection.
@@ -824,6 +830,18 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
             classBox = new ClassComboBox(ccbModel);
         }
+    }
+
+    private void addModules() {
+        if (enabledModules == null) {
+            enabledModules = new LinkedHashSet<AbstractOrbitModule>();
+        }
+        enabledModules.add(getCellProfilerModule());
+        enabledModules.add(getRareObjectDetectionModule());
+        enabledModules.add(getNerveDetectionModule());
+//        enabledModules.add(getManualClassificationModule());
+//        enabledModules.add(getManualBoxCountModule());
+        enabledModules.add(getThresholdModule());
     }
 
     private synchronized void updateSelectedClassShape() {
@@ -3199,7 +3217,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 == JOptionPane.YES_OPTION;
     }
 
-    //TODO: See also ExclusionModule.java, is this really one command for exclusion model and classification?
     final CommandAction SetupClassesClassificationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForClassification(); };
     final CommandAction SetupClassesObjectSegmentationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForObjectSegmentation(); };
     final CommandAction SetupClassesObjectClassificationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForObjectClassification(); };
@@ -4191,27 +4208,39 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         return desktop;
     }
 
-//    public RareObjectDetectionModule getRareObjectDetectionModule() {
-//        if (rareObjectDetectionModule == null) {
-//            rareObjectDetectionModule = new RareObjectDetectionModule(true);
-//        }
-//        return rareObjectDetectionModule;
-//    }
-//
-//    public CellProfilerModule getCellProfilerModule() {
-//        if (cellProfilerModule == null) {
-//            cellProfilerModule = new CellProfilerModule(true);
-//        }
-//        return cellProfilerModule;
-//    }
-//
-//    public NerveDetectionModule getNerveDetectionModule() {
-//        if (nerveDetectionModule == null) {
-//            nerveDetectionModule = new NerveDetectionModule(true);
-//        }
-//        return nerveDetectionModule;
-//    }
-//
+    /**
+     * This module is handled slightly differently to other
+     * modules, it's not included into the metaBar.
+     * @return Returns an exclusion module
+     */
+    public ExclusionModule getExclusionModule() {
+        if (exclusionModule == null) {
+            exclusionModule = new ExclusionModule();
+        }
+        return exclusionModule;
+    }
+
+    public CellProfilerModule getCellProfilerModule() {
+        if (cellProfilerModule == null) {
+            cellProfilerModule = new CellProfilerModule(true);
+        }
+        return cellProfilerModule;
+    }
+
+    public RareObjectDetectionModule getRareObjectDetectionModule() {
+        if (rareObjectDetectionModule == null) {
+            rareObjectDetectionModule = new RareObjectDetectionModule(true);
+        }
+        return rareObjectDetectionModule;
+    }
+
+    public NerveDetectionModule getNerveDetectionModule() {
+        if (nerveDetectionModule == null) {
+            nerveDetectionModule = new NerveDetectionModule(true);
+        }
+        return nerveDetectionModule;
+    }
+
 //    public ManualClassificationModule getManualClassificationModule() {
 //        if (manualClassificationModule == null) {
 //            manualClassificationModule = new ManualClassificationModule(true);
@@ -4225,27 +4254,24 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //        }
 //        return manualBoxCountModule;
 //    }
-//
+
+    public ThresholdModule getThresholdModule() {
+        if (thresholdModule == null) {
+            thresholdModule = new ThresholdModule();
+        }
+        return thresholdModule;
+    }
+
+
 //    public TMASpotGUI getTMASpotModule() {
 //        if (tmaSpotGUI == null) {
 //            tmaSpotGUI = new TMASpotGUI(true);
 //        }
 //        return tmaSpotGUI;
 //    }
-//
-//    public ThresholdModule getThresholdModule() {
-//        if (thresholdModule == null) {
-//            thresholdModule = new ThresholdModule();
-//        }
-//        return thresholdModule;
-//    }
 
-    public ExclusionModule getExclusionModule() {
-        if (exclusionModule == null) {
-            exclusionModule = new ExclusionModule();
-        }
-        return exclusionModule;
-    }
+
+
 
 
 //    public MihcModule getMihcModule() {
@@ -4393,7 +4419,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         return splitPanePropLoupe;
     }
 
-
+    protected HashSet<AbstractOrbitModule> getEnabledModules() {
+        return enabledModules;
+    }
 
 
     //</editor-fold>

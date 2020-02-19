@@ -30,6 +30,7 @@ import com.actelion.research.orbit.imageAnalysis.models.ImageAnnotation;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.SpotAnnotation;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
+import org.pushingpixels.flamingo.api.common.CommandAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -456,6 +457,11 @@ public class CellProfilerModule extends AbstractOrbitModule {
     @Override
     public void reset() {
 
+    }
+
+    @Override
+    public CommandAction menuCommandAction() {
+        return e -> this.init();
     }
 
 

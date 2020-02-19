@@ -26,6 +26,7 @@ import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.NerveDetectionWorker;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
+import org.pushingpixels.flamingo.api.common.CommandAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -529,6 +530,11 @@ public class NerveDetectionModule extends AbstractSpotModule {
     @Override
     public String getName() {
         return "Nerve Detection";
+    }
+
+    @Override
+    public CommandAction menuCommandAction() {
+        return null;
     }
 
     @Override

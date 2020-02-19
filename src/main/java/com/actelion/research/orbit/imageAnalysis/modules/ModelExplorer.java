@@ -25,6 +25,7 @@ import com.actelion.research.orbit.imageAnalysis.components.ImageFrame;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.ClassListCellRenderer;
+import org.pushingpixels.flamingo.api.common.CommandAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,6 +147,11 @@ public class ModelExplorer extends AbstractOrbitModule {
     @Override
     public void reset() {
         // image specific, don't do anything here
+    }
+
+    @Override
+    public CommandAction menuCommandAction() {
+        return null;
     }
 
     private void configureClasses(OrbitModel model) {

@@ -25,6 +25,7 @@ import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
+import org.pushingpixels.flamingo.api.common.CommandAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,6 +147,11 @@ public class MihcModule extends AbstractOrbitModule {
     @Override
     public void reset() {
 
+    }
+
+    @Override
+    public CommandAction menuCommandAction() {
+        return null;
     }
 
 }

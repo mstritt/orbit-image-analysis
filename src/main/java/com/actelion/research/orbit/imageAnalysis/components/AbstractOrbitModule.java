@@ -19,10 +19,17 @@
 
 package com.actelion.research.orbit.imageAnalysis.components;
 
+import com.actelion.research.orbit.imageAnalysis.components.icons.lightbulb;
+import org.pushingpixels.flamingo.api.common.CommandAction;
+import org.pushingpixels.flamingo.api.common.RichTooltip;
+import org.pushingpixels.flamingo.api.common.model.Command;
+
 import javax.swing.*;
 
 public abstract class AbstractOrbitModule extends JPanel {
     private static final long serialVersionUID = 1L;
+    private final Command menuCommand;
+    private final CommandAction menuCommandAction;
 
     public abstract String getName();
 
@@ -36,8 +43,32 @@ public abstract class AbstractOrbitModule extends JPanel {
      */
     public abstract void reset();
 
+    public abstract CommandAction menuCommandAction();
+
     public AbstractOrbitModule() {
+        // Must call init before creating the menuCommand.
         init();
+        this.menuCommandAction = menuCommandAction();
+        this.menuCommand = Command.builder()
+                .setText(this.getName())
+                .setIconFactory(lightbulb.factory())
+                .setAction(getMenuCommandAction())
+                .setToggle()
+//                .setActionRichTooltip(
+//                        RichTooltip.builder()
+//                                .setTitle(resourceBundle.getString("Tools.SaveImage.saveFullImage.text"))
+//                                .addDescriptionSection(resourceBundle.getString("Tools.SaveImage.saveFullImage.tooltip.actionParagraph1"))
+//                                .addDescriptionSection(resourceBundle.getString("Tools.SaveImage.saveFullImage.tooltip.actionParagraph2"))
+//                                .build())
+                .build();
+
     }
 
+    public CommandAction getMenuCommandAction() {
+        return menuCommandAction;
+    }
+
+    public Command getMenuCommand() {
+        return menuCommand;
+    };
 }

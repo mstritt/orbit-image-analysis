@@ -1265,10 +1265,12 @@ public class OrbitMenu extends JRibbonFrame {
 
         JRibbonBand manageFilesBand = this.getManageFilesBand();
         JRibbonBand saveImageBand = this.getSaveImageBand();
+        JRibbonBand extensionsBand = this.getExtensionsBand();
         JRibbonBand scriptBand = this.getScriptBand();
         RibbonTask toolsTask = new RibbonTask(resourceBundle.getString("Tools.textTaskTitle"),
                 manageFilesBand,
                 saveImageBand,
+                extensionsBand,
                 scriptBand);
 
         JRibbonBand arrangeBand = this.getArrangeBand();
@@ -2282,6 +2284,33 @@ public class OrbitMenu extends JRibbonFrame {
         saveImageBand.setResizePolicies(resizePolicies);
 
         return saveImageBand;
+    }
+
+    /**
+     * Get the extensions band for the OrbitMenu.
+     * @return The extensions band
+     */
+    private JRibbonBand getExtensionsBand() {
+        JRibbonBand extensionsBand = new JRibbonBand(
+                resourceBundle.getString("Tools.Extensions.textBandTitle"),
+                null,
+                null);
+
+        extensionsBand.setExpandButtonRichTooltip(RichTooltip.builder()
+                .setTitle(resourceBundle.getString("Tools.Extensions.textBandTitle"))
+                .addDescriptionSection(resourceBundle.getString("Tools.Extensions.textBandTooltipParagraph1"))
+                .build());
+
+        for(AbstractOrbitModule module: oia.getEnabledModules()) {
+            CommandButtonProjection<Command> moduleProjection = module.getMenuCommand().project(
+                    CommandButtonPresentationModel.builder().build());
+            extensionsBand.addRibbonCommand(moduleProjection, JRibbonBand.PresentationPriority.TOP);
+        }
+
+        List<RibbonBandResizePolicy> resizePolicies = getGenericResizePolicy(extensionsBand);
+        extensionsBand.setResizePolicies(resizePolicies);
+
+        return extensionsBand;
     }
 
     /**

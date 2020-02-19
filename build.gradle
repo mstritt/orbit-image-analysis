@@ -17,9 +17,6 @@
  *
  */
 
-// Define the Radiance version in one place, since multiple libraries that need to be updated together.
-def radianceVersion = '2.5.1'
-
 buildscript {
     repositories {
         jcenter()
@@ -27,7 +24,7 @@ buildscript {
     dependencies {
         classpath "com.smokejumperit.gradle.license:Gradle-License-Report:0.0.2"
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
-        classpath "org.pushing-pixels:radiance-ignite:$radianceVersion"
+        classpath "org.pushing-pixels:radiance-ignite:2.5.1"
     }
 }
 
@@ -57,6 +54,9 @@ sourceCompatibility = JavaVersion.VERSION_11
 
 ext.orbitVersion = new File(projectDir,"src/main/resources/version.txt").text
 ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
+
+// Define the Radiance version in one place, since multiple libraries that need to be updated together.
+def radianceVersion = '2.5.1'
 
 repositories {
     mavenCentral()
