@@ -28,14 +28,9 @@ import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.PolygonMetrics;
-import org.pushingpixels.flamingo.api.common.CommandAction;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -77,57 +72,39 @@ public class ManualBoxCountModule extends AbstractSpotModule {
 
         list.addKeyListener(new SpotModuleKeyListener());
 
-        btnGenerateSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                generateSpots(true);
+        btnGenerateSpots.addActionListener(e -> generateSpots(true));
+
+        btnShowStatistics.addActionListener(e -> showStatistics());
+
+
+        btnSaveSpots.addActionListener(e -> saveSpots(true));
+
+        btnLoadSpots.addActionListener(e -> loadSpots());
+
+
+        list.addListSelectionListener(e -> {
+            final ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+
+            if (list.getSelectedValue() != null && iFrame != null) {
+                ImageAnnotation ann = (ImageAnnotation) list.getSelectedValue();
+                PolygonExt shape = (PolygonExt) ann.getShape().getShapeList().get(0);
+                Rectangle bb = shape.getScaledInstance(100, new Point(0, 0)).getBounds();
+                double sc = iFrame.recognitionFrame.getScale() / 100d;
+                final Point targetP = new Point((int) (bb.getCenterX() * sc) - iFrame.recognitionFrame.getWidth() / 2, (int) (bb.getCenterY() * sc) - iFrame.recognitionFrame.getHeight() / 2);
+
+                // set annotation as selected for highlightning in recognitionframe and unset all others
+                for (ImageAnnotation annotation : iFrame.getRecognitionFrame().getAnnotations()) {
+                    if (annotation instanceof SpotAnnotation) {
+                        annotation.setSelected(false);
+                    }
+                }
+                if (ann instanceof SpotAnnotation) {
+                    ann.setSelected(true);
+                }
+
+                iFrame.setViewPortPositionAndAdjust(targetP);
             }
-        });
-
-        btnShowStatistics.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showStatistics();
-            }
-        });
-
-
-        btnSaveSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                saveSpots(true);
-            }
-        });
-
-        btnLoadSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                loadSpots();
-            }
-        });
-
-
-        list.addListSelectionListener(new ListSelectionListener() {
-                                          public void valueChanged(ListSelectionEvent e) {
-                                              final ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-
-                                              if (list.getSelectedValue() != null && iFrame != null) {
-                                                  ImageAnnotation ann = (ImageAnnotation) list.getSelectedValue();
-                                                  PolygonExt shape = (PolygonExt) ann.getShape().getShapeList().get(0);
-                                                  Rectangle bb = shape.getScaledInstance(100, new Point(0, 0)).getBounds();
-                                                  double sc = iFrame.recognitionFrame.getScale() / 100d;
-                                                  final Point targetP = new Point((int) (bb.getCenterX() * sc) - iFrame.recognitionFrame.getWidth() / 2, (int) (bb.getCenterY() * sc) - iFrame.recognitionFrame.getHeight() / 2);
-
-                                                  // set annotation as selected for highlightning in recognitionframe and unset all others
-                                                  for (ImageAnnotation annotation : iFrame.getRecognitionFrame().getAnnotations()) {
-                                                      if (annotation instanceof SpotAnnotation) {
-                                                          annotation.setSelected(false);
-                                                      }
-                                                  }
-                                                  if (ann instanceof SpotAnnotation) {
-                                                      ann.setSelected(true);
-                                                  }
-
-                                                  iFrame.setViewPortPositionAndAdjust(targetP);
-                                              }
-                                          }
-                                      }
+        }
         );
 
         // layout
@@ -136,56 +113,36 @@ public class ManualBoxCountModule extends AbstractSpotModule {
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("Spots");
         JMenuItem item = new JMenuItem("Remove Selected");
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                removeSpots();
-                repaintFrameAndList();
-            }
+        item.addActionListener(e -> {
+            removeSpots();
+            repaintFrameAndList();
         });
         menu.add(item);
         item = new JMenuItem("Remove in ROI");
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                removeSpotsInROI();
-                repaintFrameAndList();
-            }
+        item.addActionListener(e -> {
+            removeSpotsInROI();
+            repaintFrameAndList();
         });
         menu.add(item);
         menu.addSeparator();
         item = new JMenuItem("Reset all Boxes");
         item.setToolTipText("set class to 'undefined'");
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                resetAllSpots();
-            }
-        });
+        item.addActionListener(e -> resetAllSpots());
         menu.add(item);
         menuBar.add(menu);
 
         menu = new JMenu("Sort");
         item = new JMenuItem("Shuffle");
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                shuffle();
-            }
-        });
+        item.addActionListener(e -> shuffle());
         menu.add(item);
         item = new JMenuItem("Sort by Class");
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                sortByClass(false);
-            }
-        });
+        item.addActionListener(e -> sortByClass(false));
         menu.add(item);
         menuBar.add(menu);
 
         menu = new JMenu("Help");
         item = new JMenuItem("Show Help");
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showHelp();
-            }
-        });
+        item.addActionListener(e -> showHelp());
         menu.add(item);
         menuBar.add(menu);
 
@@ -212,12 +169,10 @@ public class ManualBoxCountModule extends AbstractSpotModule {
             SpotAnnotation annotation = (SpotAnnotation) listModel.get(i);
             annotationList.add(annotation);
         }
-        Collections.sort(annotationList, new Comparator<SpotAnnotation>() {
-            public int compare(SpotAnnotation o1, SpotAnnotation o2) {
-                if (useProposedClass)
-                    return o1.getProposedClassNum() - o2.getProposedClassNum();
-                else return o1.getClassNum() - o2.getClassNum(); // real class
-            }
+        Collections.sort(annotationList, (o1, o2) -> {
+            if (useProposedClass)
+                return o1.getProposedClassNum() - o2.getProposedClassNum();
+            else return o1.getClassNum() - o2.getClassNum(); // real class
         });
         clear();
         DefaultListModel newModel = new DefaultListModel();
@@ -235,7 +190,8 @@ public class ManualBoxCountModule extends AbstractSpotModule {
                 "<h1>Manual Box Count Module</h1>" +
                 "<h2>Prerequisites</h2>" +
                 "<ul>" +
-                "<li>Create (F4) or load an appropriate model. The model should contain count classes, e.g. class names from '0' till '9'.</li>" +
+                "<li>Create (F4) or load an appropriate model. The model should contain count classes, " +
+                "e.g. class names from '0' till '9'.</li>" +
                 "<li>Load an image from Orbit</li>" +
                 "<li>Activate the manual box count module (Tools->Manuel Box Count Module)</li>" +
                 "</ul>" +
@@ -243,7 +199,9 @@ public class ManualBoxCountModule extends AbstractSpotModule {
                 "<h2>Create Count Boxes</h2>" +
                 "<ul>" +
                 "<li>Create annotations on the image where you want to count (if not already done).</li>" +
-                "<li>Click the 'Generate' button. Enter the box size and the percentage and click 'ok'. The percentage will be the percentage areawhich will be covert by the boxes in each annotation. Ensure that the box size is small enough that Orbit is able is place enough boxes.</li>" +
+                "<li>Click the 'Generate' button. Enter the box size and the percentage and click 'ok'. " +
+                "The percentage will be the percentage areawhich will be covert by the boxes in each annotation. " +
+                "Ensure that the box size is small enough that Orbit is able is place enough boxes.</li>" +
                 "</ul>" +
 
                 "<h2>Load Existing Boxes</h2>" +
@@ -254,12 +212,15 @@ public class ManualBoxCountModule extends AbstractSpotModule {
                 "<h2>Count Objects in Boxes</h2>" +
                 "<ol>" +
                 "<li>Click on the first box entry in the list.</li>" +
-                "<li>Use the keyboard and press a number (e.g. 0-9) to assign a count number to the selected box.<br/>The selection will automatically jump to the next box. By holding down the ctrl key you can prevent this and the selection will stay on the selected item.</li>" +
+                "<li>Use the keyboard and press a number (e.g. 0-9) to assign a count number to the selected box.<br/>" +
+                "The selection will automatically jump to the next box. By holding down the ctrl key you can prevent " +
+                "this and the selection will stay on the selected item.</li>" +
                 "<li>With backspace you can mark spots as unseen (undefined).</li>" +
 
 
                 "<li>Once you think you counted enough boxes, click on 'Statistics' to retrieve a statistic.</li>" +
-                "<li>Click on 'Save' to persist your boxes and counts. You can always continue the quantification by pressing the 'Load' button after you opened the same image.</li>" +
+                "<li>Click on 'Save' to persist your boxes and counts. You can always continue the quantification by " +
+                "pressing the 'Load' button after you opened the same image.</li>" +
                 "</ol>" +
 
                 "</body></html>";
@@ -281,7 +242,11 @@ public class ManualBoxCountModule extends AbstractSpotModule {
 
 
         StringBuilder sb = new StringBuilder("#Statistics\n\n");
-        sb.append("Annotation\tCount\tCount/NumBoxes\tBoxesArea(" + areaUnit + ")\tNumBoxes\tAnnotationArea(" + areaUnit + ")\tPercentAnnotation\n"); // header
+        sb.append("Annotation\tCount\tCount/NumBoxes\tBoxesArea(")
+                .append(areaUnit)
+                .append(")\tNumBoxes\tAnnotationArea(")
+                .append(areaUnit)
+                .append(")\tPercentAnnotation\n"); // header
 
         RawDataFile rdf = iFrame.getRdf();
         if (rdf == null) {
@@ -326,17 +291,19 @@ public class ManualBoxCountModule extends AbstractSpotModule {
                 count += counts[i] * i; // starting from 0 - with first class!
             }
             double countNorm = count / (double) numBoxesInAnno;
-            sb.append(anno.getDescription() + "\t" + count + "\t" + countNorm + "\t" + boxArea + "\t" + numBoxesInAnno + "\t" + squareMmMeterPerAnno + "\t" + areaPercentage + "\n");
-
+            sb.append(
+                    anno.getDescription()).append("\t")
+                    .append(count).append("\t")
+                    .append(countNorm).append("\t")
+                    .append(boxArea).append("\t")
+                    .append(numBoxesInAnno).append("\t")
+                    .append(squareMmMeterPerAnno).append("\t")
+                    .append(areaPercentage).append("\n");
         }
 
         String res = OrbitUtils.text2SmartHtml(sb.toString());
         final ResultFrame result = new ResultFrame(res, getName() + " Statistics");
-        new Thread(new Runnable() {
-            public void run() {
-                oia.addInternalFrame(result);
-            }
-        }).start();
+        new Thread(() -> oia.addInternalFrame(result)).start();
 
     }
 
@@ -380,57 +347,53 @@ public class ManualBoxCountModule extends AbstractSpotModule {
         list.repaint();
 
         // ok, we have at least one open image and a model
-        new Thread() {
-            public void run() {
+        new Thread(() -> {
 
-                iFrame.recognitionFrame.setObjectSegmentationList(new ArrayList<Shape>());
-                List<Point> pList = generateGridPerAnnotation(iFrame);
-                List<Shape> shapes = iFrame.recognitionFrame.getObjectSegmentationList();
-                for (Point p : pList) {
-                    addGridShape(p, shapes);
-                }
-
-                // segmentation done, nuclei should be marked in the recognitionFrame
-
-                if (shapes.size() == 0) {
-                    logger.info("No spots found.");
-                    if (withGui)
-                        JOptionPane.showMessageDialog(ManualBoxCountModule.this, "No spots found in selected region of interest", "No spots found", JOptionPane.INFORMATION_MESSAGE);
-                    return;
-                }
-                // shuffle shape list to be unbiased for manual classification
-                Collections.shuffle(shapes);
-                final DefaultListModel listModel = new DefaultListModel();
-                for (Shape shape : shapes) {
-                    // at FOV to list
-                    ClassShape cs = new ClassShape("Spot", Color.green, ClassShape.SHAPETYPE_POLYGONEXT);
-                    PolygonExt pe = new PolygonExt((Polygon) shape);
-                    cs.getShapeList().add(pe);
-                    ManualBoxCountAnnotation annotation = new ManualBoxCountAnnotation(ManualClassSpotAnnotation.LABEL_UNIDENTIFIED, cs);
-                    annotation.setRawDataFileId(rdfId);
-                    annotation.setUserId(DEFAULT_USER);
-                    // squareMuMeter
-                    if (iFrame != null && (!Double.isNaN(iFrame.recognitionFrame.getMuMeterPerPixel())) && (iFrame.recognitionFrame.getMuMeterPerPixel() > 0)) {
-                        double mmpp = iFrame.recognitionFrame.getMuMeterPerPixel() / 1000d; // millimeter per pixel
-                        double squareMmMeterPerSpot = (shape.getBounds().width * mmpp) * (shape.getBounds().height * mmpp);
-                        annotation.setSquareMilliMeter(squareMmMeterPerSpot);
-                    }
-                    listModel.addElement(annotation);
-                    iFrame.getRecognitionFrame().getAnnotations().add(annotation);
-                }
-                try {
-                    SwingUtilities.invokeAndWait(new Runnable() {
-                        public void run() {
-                            list.setModel(listModel);
-                            OrbitImageAnalysis.getInstance().getIFrame().getRecognitionFrame().repaint();
-                        }
-                    });
-                } catch (Exception e) {
-                    logger.error("error updating spot list", e);
-                    e.printStackTrace();
-                }
+            iFrame.recognitionFrame.setObjectSegmentationList(new ArrayList<Shape>());
+            List<Point> pList = generateGridPerAnnotation(iFrame);
+            List<Shape> shapes = iFrame.recognitionFrame.getObjectSegmentationList();
+            for (Point p : pList) {
+                addGridShape(p, shapes);
             }
-        }.start();
+
+            // segmentation done, nuclei should be marked in the recognitionFrame
+
+            if (shapes.size() == 0) {
+                logger.info("No spots found.");
+                if (withGui)
+                    JOptionPane.showMessageDialog(ManualBoxCountModule.this, "No spots found in selected region of interest", "No spots found", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            // shuffle shape list to be unbiased for manual classification
+            Collections.shuffle(shapes);
+            final DefaultListModel listModel = new DefaultListModel();
+            for (Shape shape : shapes) {
+                // at FOV to list
+                ClassShape cs = new ClassShape("Spot", Color.green, ClassShape.SHAPETYPE_POLYGONEXT);
+                PolygonExt pe = new PolygonExt((Polygon) shape);
+                cs.getShapeList().add(pe);
+                ManualBoxCountAnnotation annotation = new ManualBoxCountAnnotation(ManualClassSpotAnnotation.LABEL_UNIDENTIFIED, cs);
+                annotation.setRawDataFileId(rdfId);
+                annotation.setUserId(DEFAULT_USER);
+                // squareMuMeter
+                if (iFrame != null && (!Double.isNaN(iFrame.recognitionFrame.getMuMeterPerPixel())) && (iFrame.recognitionFrame.getMuMeterPerPixel() > 0)) {
+                    double mmpp = iFrame.recognitionFrame.getMuMeterPerPixel() / 1000d; // millimeter per pixel
+                    double squareMmMeterPerSpot = (shape.getBounds().width * mmpp) * (shape.getBounds().height * mmpp);
+                    annotation.setSquareMilliMeter(squareMmMeterPerSpot);
+                }
+                listModel.addElement(annotation);
+                iFrame.getRecognitionFrame().getAnnotations().add(annotation);
+            }
+            try {
+                SwingUtilities.invokeAndWait(() -> {
+                    list.setModel(listModel);
+                    OrbitImageAnalysis.getInstance().getIFrame().getRecognitionFrame().repaint();
+                });
+            } catch (Exception e) {
+                logger.error("error updating spot list", e);
+                e.printStackTrace();
+            }
+        }).start();
     }
 
 
@@ -438,7 +401,7 @@ public class ManualBoxCountModule extends AbstractSpotModule {
         RawDataFile rdf = iFrame.getRdf();
         if (rdf == null) {
             logger.error("No Orbit image");
-            return new ArrayList<Point>();
+            return new ArrayList<>();
         }
         List<RawAnnotation> annotations = null;
         try {
@@ -474,7 +437,7 @@ public class ManualBoxCountModule extends AbstractSpotModule {
             Rectangle re = new Rectangle();
             Rectangle reOther = new Rectangle();
             boolean added = false;
-            List<Point> shapePList = new ArrayList<Point>();
+            List<Point> shapePList = new ArrayList<>();
             while ((!added) || percentArea(shapePList, annoShape, anno.getDescription()) < percentage) {
                 int x = bb.x + rand.nextInt(bb.width);
                 int y = bb.y + rand.nextInt(bb.height);
@@ -488,7 +451,7 @@ public class ManualBoxCountModule extends AbstractSpotModule {
                 cnt++;
                 if (cnt > maxCnt) {
                     logger.error("Cannot place boxes. Please select a smaller boxes width.");
-                    return new ArrayList<Point>();
+                    return new ArrayList<>();
                 }
             }
             pList.addAll(shapePList);
@@ -525,9 +488,9 @@ public class ManualBoxCountModule extends AbstractSpotModule {
                 Polygon poly = (Polygon) shape;
                 PolygonMetrics pm = new PolygonMetrics(poly);
                 area = pm.getArea();
-            } else { // renctangle
+            } else { // rectangle
                 Rectangle rect = shape.getBounds();
-                area = new Double(rect.width * rect.height);
+                area = (double) (rect.width * rect.height);
             }
             areaCache.put(annoName, area);
         }
@@ -658,15 +621,9 @@ public class ManualBoxCountModule extends AbstractSpotModule {
     }
 
     @Override
-    public CommandAction menuCommandAction() {
-        return null;
-    }
-
-    @Override
     protected JButton getBtnStatistics() {
         return btnShowStatistics;
     }
-
 
     class ManualBoxCountAnnotation extends ManualClassSpotAnnotation {
         public ManualBoxCountAnnotation() {

@@ -26,8 +26,6 @@ import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleContext;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -41,7 +39,7 @@ public class ManualClassificationRasterDialog extends JComponent implements Acce
     public static int APPROVE_OPTION = 0;
     public static int CANCEL_OPTION = 1;
     public static int RASTERDIALOG_ERROR = 2;
-    private boolean multiSelectionEnabled = false;
+    private final boolean multiSelectionEnabled = false;
     private int status = APPROVE_OPTION;
     private JDialog dialog = null;
     public static final int OPEN_DIALOG = 0;
@@ -50,11 +48,11 @@ public class ManualClassificationRasterDialog extends JComponent implements Acce
     private int dialogType = OPEN_DIALOG;
     private String title = "Number X/Y spots";
 
-    private JLabel labNumX = new JLabel("Grid #X spots:");
+    private final JLabel labNumX = new JLabel("Grid #X spots:");
     private JTextField tfNumX = null;
     private int numX = 30;
 
-    private JLabel labNumY = new JLabel("Grid #Y spots:");
+    private final JLabel labNumY = new JLabel("Grid #Y spots:");
     private JTextField tfNumY = null;
     private int numY = 30;
 
@@ -69,25 +67,21 @@ public class ManualClassificationRasterDialog extends JComponent implements Acce
 
         // Buttons
         JButton okBtn = new JButton("Ok");
-        okBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    numX = Integer.parseInt(tfNumX.getText());
-                    numY = Integer.parseInt(tfNumY.getText());
-                } catch (Exception e1) {
-                    JOptionPane.showMessageDialog(ManualClassificationRasterDialog.this, "Error parsing values. Please enter correct integer values.", "Error parsing values.", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                setStatus(APPROVE_OPTION);
-                exitProcedure();
+        okBtn.addActionListener(e -> {
+            try {
+                numX = Integer.parseInt(tfNumX.getText());
+                numY = Integer.parseInt(tfNumY.getText());
+            } catch (Exception e1) {
+                JOptionPane.showMessageDialog(ManualClassificationRasterDialog.this, "Error parsing values. Please enter correct integer values.", "Error parsing values.", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+            setStatus(APPROVE_OPTION);
+            exitProcedure();
         });
         JButton cancelBtn = new JButton("Cancel");
-        cancelBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                setStatus(CANCEL_OPTION);
-                exitProcedure();
-            }
+        cancelBtn.addActionListener(e -> {
+            setStatus(CANCEL_OPTION);
+            exitProcedure();
         });
         JPanel btnPanel = new JPanel();
         btnPanel.add(okBtn);
@@ -145,14 +139,6 @@ public class ManualClassificationRasterDialog extends JComponent implements Acce
 
         setPreferredSize(new Dimension(200, 150));
 
-        //	this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        /*
-        this.addWindowListener(new WindowAdapter() {
-		public void windowClosing(WindowEvent e) {
-		    exitProcedure();
-		    }
-	    });
-	    */
     }
 
 
@@ -165,9 +151,6 @@ public class ManualClassificationRasterDialog extends JComponent implements Acce
         }
         int oldValue = this.dialogType;
         this.dialogType = dialogType;
-        if (dialogType == OPEN_DIALOG || dialogType == SAVE_DIALOG) {
-          /*  setApproveButtonText(null); */
-        }
         firePropertyChange(MANUALCLASSIFICATIONRASTER_DIALOGTYPE_CHANGED, oldValue, dialogType);
     }
 
@@ -205,7 +188,6 @@ public class ManualClassificationRasterDialog extends JComponent implements Acce
 
         JDialog dialog;
 
-        //Window window = JOptionPane.getWindowForComponent(parent);
         Component window = parent;
         if (window instanceof Frame) {
             dialog = new JDialog((Frame) window, title, true);

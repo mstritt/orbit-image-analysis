@@ -19,34 +19,28 @@
 
 package com.actelion.research.orbit.imageAnalysis.modules;
 
-import com.actelion.research.orbit.imageAnalysis.components.AbstractOrbitModule;
+import com.actelion.research.orbit.imageAnalysis.components.AbstractOrbitRibbonModule;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RangeBar;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
-import org.pushingpixels.flamingo.api.common.CommandAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
-public class ThresholdModule extends AbstractOrbitModule {
+public class ThresholdModule extends AbstractOrbitRibbonModule {
 
     private static final long serialVersionUID = 1L;
     private final static Logger logger = LoggerFactory.getLogger(ThresholdModule.class);
-    private JButton btnMakeClassifier = new JButton("Set Classifier");
-    private RangeBar intensBar = new RangeBar(0, 255);
+    private final RangeBar intensBar = new RangeBar(0, 255);
 
     public ThresholdModule() {
-        btnMakeClassifier.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                makeClassifier();
-            }
-        });
+        super();
+        JButton btnMakeClassifier = new JButton("Set Classifier");
+        btnMakeClassifier.addActionListener(arg0 -> makeClassifier());
 
         setLayout(new BorderLayout());
         String text = "<html><body><ol>" +
@@ -74,7 +68,7 @@ public class ThresholdModule extends AbstractOrbitModule {
         FeatureDescription fd = new FeatureDescription(1, 3, FeatureDescription.FEATURE_SET_INTENS, 0, false, numBlur, skipRed, skipGreen, skipBlue, 1, null, false, false, deconvChannel, deconvName, useImageAdjustments,activeFluoChannels,false,0,0, false, null, OrbitUtils.getMergedHueMap());
         List<ClassShape> classShapes = OrbitImageAnalysis.getInstance().getModel().getClassShapes();
         if (classShapes.size() < 2) {
-            logger.error("Please define a two class setup (negative (<=threthold) and positive (>threshold) class");
+            logger.error("Please define a two class setup (negative (<=threshold) and positive (>threshold) class");
         }
 
         ClassifierWrapper classifier = new ClassifierWrapper(new ThresholdClassifier(
@@ -97,13 +91,7 @@ public class ThresholdModule extends AbstractOrbitModule {
 
     @Override
     public void reset() {
-        // TODO Auto-generated method stub
-
     }
 
-    @Override
-    public CommandAction menuCommandAction() {
-        return null;
-    }
 
 }

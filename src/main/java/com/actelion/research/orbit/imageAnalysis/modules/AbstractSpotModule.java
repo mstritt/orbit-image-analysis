@@ -20,7 +20,7 @@
 package com.actelion.research.orbit.imageAnalysis.modules;
 
 import com.actelion.research.orbit.beans.OrbitUser;
-import com.actelion.research.orbit.imageAnalysis.components.AbstractOrbitModule;
+import com.actelion.research.orbit.imageAnalysis.components.AbstractOrbitRibbonModule;
 import com.actelion.research.orbit.imageAnalysis.components.ImageFrame;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
-public abstract class AbstractSpotModule extends AbstractOrbitModule {
+public abstract class AbstractSpotModule extends AbstractOrbitRibbonModule {
 
     private static final long serialVersionUID = 1L;
     public static final String DEFAULT_USER = "Orbit";
@@ -56,6 +56,10 @@ public abstract class AbstractSpotModule extends AbstractOrbitModule {
     protected SpotCellRenderer cellRenderer = null;
     protected int lastCnt = 0;
     protected int bbExtend = 30;
+
+    public AbstractSpotModule() {
+        super();
+    }
 
     protected abstract JButton getBtnStatistics();
 
@@ -131,7 +135,7 @@ public abstract class AbstractSpotModule extends AbstractOrbitModule {
         final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
         final ImageFrame iFrame = oia.getIFrame();
         if (iFrame == null) return;
-        List<Object> remSpots = new ArrayList<Object>();
+        List<Object> remSpots = new ArrayList<>();
         if (iFrame.recognitionFrame.getROI() != null) {
             Shape roi = iFrame.recognitionFrame.getROI().getScaledInstance(100, new Point(0, 0));
             double x, y;
@@ -153,7 +157,6 @@ public abstract class AbstractSpotModule extends AbstractOrbitModule {
             }
             DefaultListModel newModel = copyModel((DefaultListModel) list.getModel());
             for (Object r : remSpots) {
-                //((DefaultListModel)list.getModel()).removeElement(r);
                 newModel.removeElement(r);
                 iFrame.getRecognitionFrame().getAnnotations().remove(r);
             }
@@ -229,7 +232,6 @@ public abstract class AbstractSpotModule extends AbstractOrbitModule {
     }
 
     public DefaultListModel getListModel() {
-        //return listModel;
         return (DefaultListModel) list.getModel();
     }
 
@@ -287,7 +289,7 @@ public abstract class AbstractSpotModule extends AbstractOrbitModule {
             int keyNum = -1;
             try {
                 keyNum = Integer.parseInt(e.getKeyChar() + "") + getClassNumOffset(); // number pressed? (if so, substract -1 because we count from 0)
-            } catch (Exception e1) {
+            } catch (Exception ignored) {
             }
             if (keyNum >= 0) {
                 setClass(keyNum, e);
@@ -379,7 +381,7 @@ public abstract class AbstractSpotModule extends AbstractOrbitModule {
     protected class SpotCellRenderer extends DefaultListCellRenderer {
         private static final long serialVersionUID = 1L;
         protected final long maxHashSize = 2000;
-        protected Map<Integer, ImageIcon> cellCache = new ConcurrentHashMap<Integer, ImageIcon>();
+        protected Map<Integer, ImageIcon> cellCache = new ConcurrentHashMap<>();
         private ExecutorService executor = createExecutor();
         private ImageIcon dummyThn = null;
         OrbitModel model;
@@ -395,20 +397,16 @@ public abstract class AbstractSpotModule extends AbstractOrbitModule {
             dummyThn.getImage().getGraphics().setColor(Color.white);
             dummyThn.getImage().getGraphics().fillRect(0, 0, dummyThn.getIconWidth(), dummyThn.getIconHeight());
 
-            jxlab.setBackgroundPainter(new Painter<JXLabelExt>() {
-                public void paint(Graphics2D g2d, JXLabelExt label, int width, int height) {
-                    if (label.isProposed)
-                        g2d.setPaint(new GradientPaint(0, 0, label.getBackground(), label.getWidth(), label.getHeight(), Color.white));
-                    else g2d.setPaint(label.getBackground());
-                    g2d.fillRect(0, 0, label.getWidth(), label.getHeight());
-                }
+            jxlab.setBackgroundPainter((Painter<JXLabelExt>) (g2d, label, width, height) -> {
+                if (label.isProposed)
+                    g2d.setPaint(new GradientPaint(0, 0, label.getBackground(), label.getWidth(), label.getHeight(), Color.white));
+                else g2d.setPaint(label.getBackground());
+                g2d.fillRect(0, 0, label.getWidth(), label.getHeight());
             });
 
         }
 
         private ExecutorService createExecutor() {
-            //return Executors.newSingleThreadExecutor();
-            //return Executors.newCachedThreadPool();
             return new ThreadPoolExecutor(0, 10, 10L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
         }
 
@@ -541,7 +539,7 @@ public abstract class AbstractSpotModule extends AbstractOrbitModule {
 
     }
 
-    class JXLabelExt extends JXLabel {
+    static class JXLabelExt extends JXLabel {
         private static final long serialVersionUID = 1L;
         private boolean isProposed = false;
 

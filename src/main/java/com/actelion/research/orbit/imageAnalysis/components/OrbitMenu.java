@@ -2301,7 +2301,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .addDescriptionSection(resourceBundle.getString("Tools.Extensions.textBandTooltipParagraph1"))
                 .build());
 
-        for(AbstractOrbitModule module: oia.getEnabledModules()) {
+        for(AbstractOrbitRibbonModule module: oia.getEnabledModules()) {
             CommandButtonProjection<Command> moduleProjection = module.getMenuCommand().project(
                     CommandButtonPresentationModel.builder().build());
             extensionsBand.addRibbonCommand(moduleProjection, JRibbonBand.PresentationPriority.TOP);

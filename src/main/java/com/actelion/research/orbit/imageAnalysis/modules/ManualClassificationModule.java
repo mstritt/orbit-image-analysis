@@ -28,18 +28,14 @@ import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.features.TissueFeatures;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
-import org.pushingpixels.flamingo.api.common.CommandAction;
 import weka.core.DenseInstance;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class ManualClassificationModule extends AbstractSpotModule {
@@ -69,60 +65,44 @@ public class ManualClassificationModule extends AbstractSpotModule {
 
         list.addKeyListener(new SpotModuleKeyListener());
 
-        btnGenerateSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                //OrbitImageAnalysis.getInstance().forceLogin();
-                //if (OrbitImageAnalysis.loginOk) {
-                generateSpots(true);
-                //}
-            }
+        btnGenerateSpots.addActionListener(e -> {
+            //OrbitImageAnalysis.getInstance().forceLogin();
+            //if (OrbitImageAnalysis.loginOk) {
+            generateSpots(true);
+            //}
         });
 
-        btnShowStatistics.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showStatistics();
+        btnShowStatistics.addActionListener(e -> showStatistics());
+
+
+        btnSaveSpots.addActionListener(e -> saveSpots(true));
+
+        btnLoadSpots.addActionListener(e -> loadSpots());
+
+
+        list.addListSelectionListener(e -> {
+            final ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+
+            if (list.getSelectedValue() != null && iFrame != null) {
+                ImageAnnotation ann = (ImageAnnotation) list.getSelectedValue();
+                PolygonExt shape = (PolygonExt) ann.getShape().getShapeList().get(0);
+                Rectangle bb = shape.getScaledInstance(100, new Point(0, 0)).getBounds();
+                double sc = iFrame.recognitionFrame.getScale() / 100d;
+                final Point targetP = new Point((int) (bb.getCenterX() * sc) - iFrame.recognitionFrame.getWidth() / 2, (int) (bb.getCenterY() * sc) - iFrame.recognitionFrame.getHeight() / 2);
+
+                // set annotation as selected for highlightning in recognitionframe and unset all others
+                for (ImageAnnotation annotation : iFrame.getRecognitionFrame().getAnnotations()) {
+                    if (annotation instanceof SpotAnnotation) {
+                        annotation.setSelected(false);
+                    }
+                }
+                if (ann instanceof SpotAnnotation) {
+                    ann.setSelected(true);
+                }
+
+                iFrame.setViewPortPositionAndAdjust(targetP);
             }
-        });
-
-
-        btnSaveSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                saveSpots(true);
-            }
-        });
-
-        btnLoadSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                loadSpots();
-            }
-        });
-
-
-        list.addListSelectionListener(new ListSelectionListener() {
-                                          public void valueChanged(ListSelectionEvent e) {
-                                              final ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-
-                                              if (list.getSelectedValue() != null && iFrame != null) {
-                                                  ImageAnnotation ann = (ImageAnnotation) list.getSelectedValue();
-                                                  PolygonExt shape = (PolygonExt) ann.getShape().getShapeList().get(0);
-                                                  Rectangle bb = shape.getScaledInstance(100, new Point(0, 0)).getBounds();
-                                                  double sc = iFrame.recognitionFrame.getScale() / 100d;
-                                                  final Point targetP = new Point((int) (bb.getCenterX() * sc) - iFrame.recognitionFrame.getWidth() / 2, (int) (bb.getCenterY() * sc) - iFrame.recognitionFrame.getHeight() / 2);
-
-                                                  // set annotation as selected for highlightning in recognitionframe and unset all others
-                                                  for (ImageAnnotation annotation : iFrame.getRecognitionFrame().getAnnotations()) {
-                                                      if (annotation instanceof SpotAnnotation) {
-                                                          annotation.setSelected(false);
-                                                      }
-                                                  }
-                                                  if (ann instanceof SpotAnnotation) {
-                                                      ann.setSelected(true);
-                                                  }
-
-                                                  iFrame.setViewPortPositionAndAdjust(targetP);
-                                              }
-                                          }
-                                      }
+        }
         );
 
         // layout
@@ -167,35 +147,19 @@ public class ManualClassificationModule extends AbstractSpotModule {
 
         menu = new JMenu("Sort");
         item = new JMenuItem("Shuffle");
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                shuffle();
-            }
-        });
+        item.addActionListener(e -> shuffle());
         menu.add(item);
         item = new JMenuItem("Sort by Class");
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                sortByClass(false);
-            }
-        });
+        item.addActionListener(e -> sortByClass(false));
         menu.add(item);
         item = new JMenuItem("Sort by Proposed Class");
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                sortByClass(true);
-            }
-        });
+        item.addActionListener(e -> sortByClass(true));
         menu.add(item);
         menuBar.add(menu);
 
         menu = new JMenu("Help");
         item = new JMenuItem("Show Help");
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showHelp();
-            }
-        });
+        item.addActionListener(e -> showHelp());
         menu.add(item);
         menuBar.add(menu);
 
@@ -217,17 +181,15 @@ public class ManualClassificationModule extends AbstractSpotModule {
 
     protected void sortByClass(final boolean useProposedClass) {
         DefaultListModel listModel = (DefaultListModel) list.getModel();
-        List<SpotAnnotation> annotationList = new ArrayList<SpotAnnotation>(listModel.size());
+        List<SpotAnnotation> annotationList = new ArrayList<>(listModel.size());
         for (int i = 0; i < listModel.getSize(); i++) {
             SpotAnnotation annotation = (SpotAnnotation) listModel.get(i);
             annotationList.add(annotation);
         }
-        Collections.sort(annotationList, new Comparator<SpotAnnotation>() {
-            public int compare(SpotAnnotation o1, SpotAnnotation o2) {
-                if (useProposedClass)
-                    return o1.getProposedClassNum() - o2.getProposedClassNum();
-                else return o1.getClassNum() - o2.getClassNum(); // real class
-            }
+        Collections.sort(annotationList, (o1, o2) -> {
+            if (useProposedClass)
+                return o1.getProposedClassNum() - o2.getProposedClassNum();
+            else return o1.getClassNum() - o2.getClassNum(); // real class
         });
         clear();
         DefaultListModel newModel = new DefaultListModel();
@@ -252,7 +214,8 @@ public class ManualClassificationModule extends AbstractSpotModule {
 
                 "<h2>Create a spot grid</h2>" +
                 "<ul>" +
-                "<li>Select a region of interest (ROI) if you want. If you want to distrubute the grid over the whole image, continue with the next step.</li>" +
+                "<li>Select a region of interest (ROI) if you want. If you want to distrubute the grid over the whole " +
+                "image, continue with the next step.</li>" +
                 "<li>Click the 'Generate' button. Enter the number of spots you want to create and click 'ok'.</li>" +
                 "</ul>" +
 
@@ -263,15 +226,21 @@ public class ManualClassificationModule extends AbstractSpotModule {
 
                 "<h2>Quantify spot classes</h2>" +
                 "<ol>" +
-                "<li>Click on 'Shuffle' to shuffle the list. This is necessary to achieve unbiased results. Generated spot lists are always shuffeled by default.</li>" +
+                "<li>Click on 'Shuffle' to shuffle the list. This is necessary to achieve unbiased results. Generated " +
+                "spot lists are always shuffeled by default.</li>" +
                 "<li>Click on the first spot entry in the list.</li>" +
-                "<li>Use the keyboard and press a number (e.g. 1-3) to assign the selected spot a class.<br/>The selection will automatically jump to the next spot. By holding down the ctrl key you can prevent this and the selection will stay on the selected item.</li>" +
-                "<li>Use specific classes only when you are sure. Otherwise select the 'other' class. These spots will later be excluded from the statistics.</li>" +
+                "<li>Use the keyboard and press a number (e.g. 1-3) to assign the selected spot a class.<br/>The " +
+                "selection will automatically jump to the next spot. By holding down the ctrl key you can prevent " +
+                "this and the selection will stay on the selected item.</li>" +
+                "<li>Use specific classes only when you are sure. Otherwise select the 'other' class. These spots " +
+                "will later be excluded from the statistics.</li>" +
                 "<li>With backspace you can make spots as unseen (undefined).</li>" +
 
 
-                "<li>Once you think you classified enough samples, click on 'Statistics' to retrieve a classification statistic.</li>" +
-                "<li>Click on 'Save' to persist your classifications. You can always continue with the classification by pressing the 'Load' button, shuffle your list and continue the classification.</li>" +
+                "<li>Once you think you classified enough samples, click on 'Statistics' to retrieve a classification " +
+                "statistic.</li>" +
+                "<li>Click on 'Save' to persist your classifications. You can always continue with the classification " +
+                "by pressing the 'Load' button, shuffle your list and continue the classification.</li>" +
                 "</ol>" +
 
                 "</body></html>";
@@ -280,10 +249,10 @@ public class ManualClassificationModule extends AbstractSpotModule {
 
 
     private void accept() {
-        if (!(list.getSelectedValues() != null && list.getSelectedValues().length > 0)) {
+        if (!(list.getSelectedValuesList() != null && list.getSelectedValuesList().size() > 0)) {
             logger.error("No spots selected. Please Select some spots.\nHint: You can use CTRL-A to select all spots.");
         }
-        for (Object o : list.getSelectedValues()) {
+        for (Object o : list.getSelectedValuesList()) {
             SpotAnnotation spot = (SpotAnnotation) o;
             if (spot.getProposedClassNum() >= 0)
                 spot.setClassNum(spot.getProposedClassNum());
@@ -294,12 +263,18 @@ public class ManualClassificationModule extends AbstractSpotModule {
         OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
         OrbitModel model = oia.getModel();
         if (model.getClassifier() == null || (!model.getClassifier().isBuild())) {
-            JOptionPane.showMessageDialog(this, "Model not trained. Please train a model first.", "Model not trained", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Model not trained. Please train a model first.",
+                    "Model not trained",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         ImageFrame iFrame = oia.getIFrame();
         if (iFrame == null) {
-            JOptionPane.showMessageDialog(this, "Please open at lease one image", "No image available", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Please open at lease one image",
+                    "No image available",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         try {
@@ -352,8 +327,6 @@ public class ManualClassificationModule extends AbstractSpotModule {
             overallMM = ((maxX - minX) * mmpp) * ((maxY - minY) * mmpp);
         }
 
-        //OrbitImageAnalysis.getInstance().forceLogin();
-        //if (OrbitImageAnalysis.loginOk) {
         StringBuilder sb = new StringBuilder("#Available Spots: " + list.getModel().getSize() + "\n\n");
         StringBuilder cpTable = new StringBuilder();
         logger.info("Manual Classification Statistics");
@@ -367,10 +340,10 @@ public class ManualClassificationModule extends AbstractSpotModule {
         }
         int[] counts = computeCounts();
         for (int i = 0; i < counts.length; i++) {
-            sb.append(model.getClassShapes().get(i).getName() + "\t" + counts[i]);
+            sb.append(model.getClassShapes().get(i).getName()).append("\t").append(counts[i]);
             if (!Double.isNaN(firstMuMeterPerSpot)) {
-                sb.append("\t" + String.format("%1$.2f", counts[i] * firstMuMeterPerSpot).replaceAll("\\.", ",") + "\tmm�"); // �m�
-                cpTable.append(String.format("%1$.4f", counts[i] * firstMuMeterPerSpot).replaceAll("\\.", ",") + "\n");
+                sb.append("\t").append(String.format("%1$.2f", counts[i] * firstMuMeterPerSpot).replaceAll("\\.", ",")).append("\tmm�"); // �m�
+                cpTable.append(String.format("%1$.4f", counts[i] * firstMuMeterPerSpot).replaceAll("\\.", ",")).append("\n");
                 logger.info(" ~ " + String.format("%1$.8f", counts[i] * firstMuMeterPerSpot) + " mm�");
             }
             sb.append("\n");
@@ -387,8 +360,8 @@ public class ManualClassificationModule extends AbstractSpotModule {
                 }
                 if (sum > 0) {
                     rel /= sum;
-                    sb.append(model.getClassShapes().get(i).getName() + "\t" + String.format("%1$.4f", rel).replaceAll("\\.", ","));
-                    cpTable.append(String.format("%1$.4f", rel).replaceAll("\\.", ",") + "\n");
+                    sb.append(model.getClassShapes().get(i).getName()).append("\t").append(String.format("%1$.4f", rel).replaceAll("\\.", ","));
+                    cpTable.append(String.format("%1$.4f", rel).replaceAll("\\.", ",")).append("\n");
                     sb.append("\n");
                     logger.info(model.getClassShapes().get(i).getName() + ": " + String.format("%1$.8f", rel));
                 }
@@ -400,14 +373,14 @@ public class ManualClassificationModule extends AbstractSpotModule {
                 for (int i = 0; i < counts.length; i++) {
                     double rel = counts[i];
                     double sum = 0d;
-                    for (int j = 0; j < counts.length; j++) {
-                        sum += counts[j];
+                    for (int count : counts) {
+                        sum += count;
                     }
                     if (sum > 0) {
                         rel /= sum;
-                        sb.append(model.getClassShapes().get(i).getName() + "\t" + String.format("%1$.2f", overallMM * rel).replaceAll("\\.", ",") + "\tmm�");
+                        sb.append(model.getClassShapes().get(i).getName()).append("\t").append(String.format("%1$.2f", overallMM * rel).replaceAll("\\.", ",")).append("\tmm�");
                         sb.append("\n");
-                        cpTable.append(String.format("%1$.4f", overallMM * rel).replaceAll("\\.", ",") + "\n");
+                        cpTable.append(String.format("%1$.4f", overallMM * rel).replaceAll("\\.", ",")).append("\n");
                         logger.info(model.getClassShapes().get(i).getName() + ": " + String.format("%1$.8f", overallMM * rel) + " mm�");
                     }
                 }
@@ -452,85 +425,83 @@ public class ManualClassificationModule extends AbstractSpotModule {
         list.repaint();
 
         // ok, we have at least one open image and a model
-        new Thread() {
-            public void run() {
+        new Thread(() -> {
 
-                iFrame.recognitionFrame.setObjectSegmentationList(new ArrayList<Shape>());
-                List<Shape> shapes = iFrame.recognitionFrame.getObjectSegmentationList();
+            iFrame.recognitionFrame.setObjectSegmentationList(new ArrayList<Shape>());
+            List<Shape> shapes = iFrame.recognitionFrame.getObjectSegmentationList();
 
-                // generate the FOV field
-                int crossWidth = 20;
-                int minX = 0;
-                int minY = 0;
-                int maxX = iFrame.recognitionFrame.bimg.getWidth();
-                int maxY = iFrame.recognitionFrame.bimg.getHeight();
-                if (iFrame.recognitionFrame.getROI() != null) {
-                    Rectangle re = iFrame.recognitionFrame.getROI().getScaledInstance(100, new Point(0, 0)).getBounds();
-                    minX = (int) re.getMinX();
-                    minY = (int) re.getMinY();
-                    maxX = (int) re.getMaxX();
-                    maxY = (int) re.getMaxY();
-                }
-                double stepX = (maxX - minX) / (double) numX;
-                double stepY = (maxY - minY) / (double) numY;
-                double xOffs = (maxX - (minX + (numX - 1) * stepX)) / 2d;
-                double yOffs = (maxY - (minY + (numY - 1) * stepY)) / 2d;
-                for (int ix = 0; ix < numX; ix++)
-                    for (int iy = 0; iy < numY; iy++) {
-                        int x = (int) Math.round(minX + stepX * ix + xOffs);
-                        int y = (int) Math.round(minY + stepY * iy + yOffs);
-                        Polygon p = new Polygon();
-                        p.addPoint(x - crossWidth, y);
-                        p.addPoint(x + crossWidth, y);
-                        p.addPoint(x, y);
-                        p.addPoint(x, y - crossWidth);
-                        p.addPoint(x, y + crossWidth);
-                        p.addPoint(x, y);
-                        shapes.add(p);
-                    }
-
-
-                // segmentation done, nuclei should be marked in the recognitionFrame
-
-                if (shapes.size() == 0) {
-                    logger.info("No spots found.");
-                    if (withGui)
-                        JOptionPane.showMessageDialog(ManualClassificationModule.this, "No spots found in selected region of interest", "No spots found", JOptionPane.INFORMATION_MESSAGE);
-                    return;
-                }
-                // shuffle shape list to be unbiased for manual classification
-                Collections.shuffle(shapes);
-                final DefaultListModel listModel = new DefaultListModel();
-                for (Shape shape : shapes) {
-                    // at FOV to list
-                    ClassShape cs = new ClassShape("Spot", Color.green, ClassShape.SHAPETYPE_POLYGONEXT);
-                    PolygonExt pe = new PolygonExt((Polygon) shape);
-                    cs.getShapeList().add(pe);
-                    ManualClassSpotAnnotation annotation = new ManualClassSpotAnnotation(ManualClassSpotAnnotation.LABEL_UNIDENTIFIED, cs);
-                    annotation.setRawDataFileId(rdfId);
-                    annotation.setUserId(DEFAULT_USER);
-                    // squareMuMeter
-                    if (iFrame != null && (!Double.isNaN(iFrame.recognitionFrame.getMuMeterPerPixel())) && (iFrame.recognitionFrame.getMuMeterPerPixel() > 0)) {
-                        double mmpp = iFrame.recognitionFrame.getMuMeterPerPixel() / 1000d; // millimeter per pixel
-                        double squareMmMeterPerSpot = (stepX * mmpp) * (stepY * mmpp);
-                        annotation.setSquareMilliMeter(squareMmMeterPerSpot);
-                    }
-                    listModel.addElement(annotation);
-                    iFrame.getRecognitionFrame().getAnnotations().add(annotation);
-                }
-                try {
-                    SwingUtilities.invokeAndWait(new Runnable() {
-                        public void run() {
-                            list.setModel(listModel);
-                            OrbitImageAnalysis.getInstance().getIFrame().getRecognitionFrame().repaint();
-                        }
-                    });
-                } catch (Exception e) {
-                    logger.error("error updating spot list", e);
-                    e.printStackTrace();
-                }
+            // generate the FOV field
+            int crossWidth = 20;
+            int minX = 0;
+            int minY = 0;
+            int maxX = iFrame.recognitionFrame.bimg.getWidth();
+            int maxY = iFrame.recognitionFrame.bimg.getHeight();
+            if (iFrame.recognitionFrame.getROI() != null) {
+                Rectangle re = iFrame.recognitionFrame.getROI().getScaledInstance(100, new Point(0, 0)).getBounds();
+                minX = (int) re.getMinX();
+                minY = (int) re.getMinY();
+                maxX = (int) re.getMaxX();
+                maxY = (int) re.getMaxY();
             }
-        }.start();
+            double stepX = (maxX - minX) / (double) numX;
+            double stepY = (maxY - minY) / (double) numY;
+            double xOffs = (maxX - (minX + (numX - 1) * stepX)) / 2d;
+            double yOffs = (maxY - (minY + (numY - 1) * stepY)) / 2d;
+            for (int ix = 0; ix < numX; ix++)
+                for (int iy = 0; iy < numY; iy++) {
+                    int x = (int) Math.round(minX + stepX * ix + xOffs);
+                    int y = (int) Math.round(minY + stepY * iy + yOffs);
+                    Polygon p = new Polygon();
+                    p.addPoint(x - crossWidth, y);
+                    p.addPoint(x + crossWidth, y);
+                    p.addPoint(x, y);
+                    p.addPoint(x, y - crossWidth);
+                    p.addPoint(x, y + crossWidth);
+                    p.addPoint(x, y);
+                    shapes.add(p);
+                }
+
+
+            // segmentation done, nuclei should be marked in the recognitionFrame
+
+            if (shapes.size() == 0) {
+                logger.info("No spots found.");
+                if (withGui)
+                    JOptionPane.showMessageDialog(ManualClassificationModule.this, "No spots found in selected region of interest", "No spots found", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            // shuffle shape list to be unbiased for manual classification
+            Collections.shuffle(shapes);
+            final DefaultListModel listModel = new DefaultListModel();
+            for (Shape shape : shapes) {
+                // at FOV to list
+                ClassShape cs = new ClassShape("Spot", Color.green, ClassShape.SHAPETYPE_POLYGONEXT);
+                PolygonExt pe = new PolygonExt((Polygon) shape);
+                cs.getShapeList().add(pe);
+                ManualClassSpotAnnotation annotation = new ManualClassSpotAnnotation(ManualClassSpotAnnotation.LABEL_UNIDENTIFIED, cs);
+                annotation.setRawDataFileId(rdfId);
+                annotation.setUserId(DEFAULT_USER);
+                // squareMuMeter
+                if (iFrame != null && (!Double.isNaN(iFrame.recognitionFrame.getMuMeterPerPixel())) && (iFrame.recognitionFrame.getMuMeterPerPixel() > 0)) {
+                    double mmpp = iFrame.recognitionFrame.getMuMeterPerPixel() / 1000d; // millimeter per pixel
+                    double squareMmMeterPerSpot = (stepX * mmpp) * (stepY * mmpp);
+                    annotation.setSquareMilliMeter(squareMmMeterPerSpot);
+                }
+                listModel.addElement(annotation);
+                iFrame.getRecognitionFrame().getAnnotations().add(annotation);
+            }
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    public void run() {
+                        list.setModel(listModel);
+                        OrbitImageAnalysis.getInstance().getIFrame().getRecognitionFrame().repaint();
+                    }
+                });
+            } catch (Exception e) {
+                logger.error("error updating spot list", e);
+                e.printStackTrace();
+            }
+        }).start();
     }
 
 
@@ -660,11 +631,6 @@ public class ManualClassificationModule extends AbstractSpotModule {
     @Override
     public String getName() {
         return "Manual Classification";
-    }
-
-    @Override
-    public CommandAction menuCommandAction() {
-        return null;
     }
 
     @Override

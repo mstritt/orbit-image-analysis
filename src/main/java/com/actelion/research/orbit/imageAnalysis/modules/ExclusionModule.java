@@ -74,6 +74,7 @@ public class ExclusionModule extends AbstractOrbitModule {
     private Command exclusionHelpCommand;
     
     public ExclusionModule() {
+        super();
         Locale currLocale = Locale.getDefault();
         resourceBundle = ResourceBundle.getBundle("Resources", currLocale);
         this.createCommands();
@@ -464,11 +465,6 @@ public class ExclusionModule extends AbstractOrbitModule {
 
     @Override
     public void reset() {
-    }
-
-    @Override
-    public CommandAction menuCommandAction() {
-        return null;
     }
 
     private void showHelp() {

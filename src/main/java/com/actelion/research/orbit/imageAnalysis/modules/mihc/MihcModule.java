@@ -25,14 +25,11 @@ import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
-import org.pushingpixels.flamingo.api.common.CommandAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MihcModule extends AbstractOrbitModule {
@@ -42,6 +39,7 @@ public class MihcModule extends AbstractOrbitModule {
     private final AtomicBoolean updatingMihc = new AtomicBoolean(false);
 
     public MihcModule() {
+        super();
         final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
         final OrbitModel model = oia.getModel();
         boolean initialMIHC = model.getFeatureDescription().isMihcActive();
@@ -68,37 +66,31 @@ public class MihcModule extends AbstractOrbitModule {
         tabbedPane.addTab("Calibration",calibratePane);
         add(tabbedPane,BorderLayout.CENTER);
 
-        unmixingCB.addActionListener(new ActionListener() {
-         @Override
-         public void actionPerformed(ActionEvent e) {
-             if (!updatingMihc.get()) {
-                 if (unmixingCB.isSelected()) {
-                     activate_mIHC();
-                 } else {
-                     deactivate_mIHC();
-                 }
-             }
-         }
-         });
-
-
-        btnLoadFromModel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updatingMihc.set(true);
-                try {
-                    final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
-                    final OrbitModel model = oia.getModel();
-                    if (model.getFeatureDescription().isMihcActive()) {
-                        unmixingCB.setSelected(true);
-                        activate_mIHC();
-                    } else {
-                        unmixingCB.setSelected(false);
-                        deactivate_mIHC();
-                    }
-                } finally {
-                    updatingMihc.set(false);
+        unmixingCB.addActionListener(e -> {
+            if (!updatingMihc.get()) {
+                if (unmixingCB.isSelected()) {
+                    activate_mIHC();
+                } else {
+                    deactivate_mIHC();
                 }
+            }
+        });
+
+
+        btnLoadFromModel.addActionListener(e -> {
+            updatingMihc.set(true);
+            try {
+                final OrbitImageAnalysis oia1 = OrbitImageAnalysis.getInstance();
+                final OrbitModel model1 = oia1.getModel();
+                if (model1.getFeatureDescription().isMihcActive()) {
+                    unmixingCB.setSelected(true);
+                    activate_mIHC();
+                } else {
+                    unmixingCB.setSelected(false);
+                    deactivate_mIHC();
+                }
+            } finally {
+                updatingMihc.set(false);
             }
         });
 
@@ -127,9 +119,8 @@ public class MihcModule extends AbstractOrbitModule {
             model.getFeatureDescription().setMihcActive(false);
             ((IModelAwareImageProvider) DALConfig.getImageProvider()).setOrbitModel(model);
             OrbitTiledImage2.resetTileCache();
-        } else {
-            // for deactivating no message needed
         }
+
     }
 
 
@@ -147,11 +138,6 @@ public class MihcModule extends AbstractOrbitModule {
     @Override
     public void reset() {
 
-    }
-
-    @Override
-    public CommandAction menuCommandAction() {
-        return null;
     }
 
 }

@@ -207,7 +207,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private final ScheduledExecutorService statusBarUpdater = Executors.newScheduledThreadPool(1);
     private ExclusionModule exclusionModule = null;
 
-    private LinkedHashSet<AbstractOrbitModule> enabledModules;
+    private LinkedHashSet<AbstractOrbitRibbonModule> enabledModules;
     private CellProfilerModule cellProfilerModule = null;
     private RareObjectDetectionModule rareObjectDetectionModule = null;
     private NerveDetectionModule nerveDetectionModule = null;
@@ -834,7 +834,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     private void addModules() {
         if (enabledModules == null) {
-            enabledModules = new LinkedHashSet<AbstractOrbitModule>();
+            enabledModules = new LinkedHashSet<AbstractOrbitRibbonModule>();
         }
         enabledModules.add(getCellProfilerModule());
         enabledModules.add(getRareObjectDetectionModule());
@@ -4162,9 +4162,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         return loadedModel;
     }
 
-//    public MetaTabs getMetaBar() {
-//        return metaBar;
-//    }
+    public MetaTabs getMetaBar() {
+        return metaBar;
+    }
 
     public RenderGrid getRenderGrid() {
         return renderGrid;
@@ -4419,7 +4419,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         return splitPanePropLoupe;
     }
 
-    protected HashSet<AbstractOrbitModule> getEnabledModules() {
+    protected HashSet<AbstractOrbitRibbonModule> getEnabledModules() {
         return enabledModules;
     }
 

@@ -30,7 +30,6 @@ import com.actelion.research.orbit.imageAnalysis.models.ImageAnnotation;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.SpotAnnotation;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
-import org.pushingpixels.flamingo.api.common.CommandAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +44,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.prefs.Preferences;
 
-public class CellProfilerModule extends AbstractOrbitModule {
+public class CellProfilerModule extends AbstractOrbitRibbonModule {
 
     private static final long serialVersionUID = 1L;
     protected static Preferences prefs = Preferences.userNodeForPackage(CellProfilerModule.class);
@@ -61,50 +60,25 @@ public class CellProfilerModule extends AbstractOrbitModule {
     private static boolean linux_ = System.getProperty("os.name").toLowerCase().startsWith("linux");
 
     public CellProfilerModule(boolean withGui) {
+        super();
         if (withGui) {
             createGUI();
         }
     }
 
     public void createGUI() {
-        btnStartCellprofiler.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                startCellprofiler(true);
-            }
-        });
+        btnStartCellprofiler.addActionListener(e -> startCellprofiler(true));
 
 
-        btnShowHelp.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showHelp();
-            }
-        });
+        btnShowHelp.addActionListener(e -> showHelp());
 
-        btnResetCpPath.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                resetCpPath();
-            }
-        });
+        btnResetCpPath.addActionListener(e -> resetCpPath());
 
-        btnLoadSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                loadSpots();
-            }
-        });
+        btnLoadSpots.addActionListener(e -> loadSpots());
 
-        btnDeleteSpots.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deleteSpots();
-            }
-        });
+        btnDeleteSpots.addActionListener(e -> deleteSpots());
 
-        btnDownloadTiles.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                downloadTiles();
-            }
-        });
+        btnDownloadTiles.addActionListener(e -> downloadTiles());
 
 
         // layout
@@ -260,9 +234,11 @@ public class CellProfilerModule extends AbstractOrbitModule {
             File[] files = dir.listFiles();
             if (files != null && files.length > 0) {
                 if (JOptionPane.showConfirmDialog(this,
-                        "The working directory is not empty. Please manually delete all files in " + dir + "\n(or the whole directory) and click ok",
-                        "Empty Directory", JOptionPane.OK_CANCEL_OPTION)
-                        == JOptionPane.CANCEL_OPTION) {
+                        "The working directory is not empty. Please manually delete all files in " + dir + "\n" +
+                                "(or the whole directory) and click ok",
+                        "Empty Directory",
+                        JOptionPane.OK_CANCEL_OPTION)
+                            == JOptionPane.CANCEL_OPTION) {
                     cancel = true;
                 }
             } else {
@@ -458,11 +434,5 @@ public class CellProfilerModule extends AbstractOrbitModule {
     public void reset() {
 
     }
-
-    @Override
-    public CommandAction menuCommandAction() {
-        return e -> this.init();
-    }
-
 
 }

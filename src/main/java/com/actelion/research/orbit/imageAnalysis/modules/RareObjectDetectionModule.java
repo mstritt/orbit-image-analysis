@@ -473,14 +473,13 @@ public class RareObjectDetectionModule extends AbstractSpotModule {
     }
 
     @Override
-    public CommandAction menuCommandAction() {
-        return null;
-    }
-
-    @Override
     protected JButton getBtnStatistics() {
         return btnShowStatistics;
     }
 
+    @Override
+    public void init() {
+
+    }
 
 }
