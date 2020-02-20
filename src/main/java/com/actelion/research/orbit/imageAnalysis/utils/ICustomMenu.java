@@ -19,10 +19,10 @@
 
 package com.actelion.research.orbit.imageAnalysis.utils;
 
-import org.pushingpixels.flamingo.api.common.JCommandButton;
+import com.actelion.research.orbit.imageAnalysis.components.AbstractOrbitAction;
 
-import java.util.List;
+import java.util.Set;
 
 public interface ICustomMenu {
-    List<JCommandButton> getTaskList();
+    Set<AbstractOrbitAction> getRibbonActionSet();
 }

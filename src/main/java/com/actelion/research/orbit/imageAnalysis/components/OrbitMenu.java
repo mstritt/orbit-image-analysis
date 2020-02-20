@@ -1,6 +1,7 @@
 package com.actelion.research.orbit.imageAnalysis.components;
 
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
+import com.actelion.research.orbit.imageAnalysis.utils.ICustomMenu;
 import org.pushingpixels.flamingo.api.common.CommandButtonPresentationState;
 import org.pushingpixels.flamingo.api.common.RichTooltip;
 import org.pushingpixels.flamingo.api.common.model.*;
@@ -1296,6 +1297,15 @@ public class OrbitMenu extends JRibbonFrame {
         ribbon.addTask(maskTask);
         ribbon.addTask(batchTask);
         ribbon.addTask(toolsTask);
+
+        ICustomMenu customMenu = DALConfig.getCustomMenu();
+        if (customMenu != null) {
+            JRibbonBand customMenuBand = this.getCustomMenuBand(customMenu);
+            RibbonTask customMenuTask = new RibbonTask(resourceBundle.getString("Custom.textTaskTitle"),
+                    customMenuBand);
+            ribbon.addTask(customMenuTask);
+        }
+
         ribbon.addTask(viewTask);
         ribbon.addTask(helpTask);
 
@@ -2311,6 +2321,33 @@ public class OrbitMenu extends JRibbonFrame {
         extensionsBand.setResizePolicies(resizePolicies);
 
         return extensionsBand;
+    }
+
+    /**
+     *
+     * @return The custom menu task
+     */
+    private JRibbonBand getCustomMenuBand(ICustomMenu customMenu) {
+        JRibbonBand customBand = new JRibbonBand(
+                resourceBundle.getString("Custom.Custom.textBandTitle"),
+                null,
+                null);
+
+        customBand.setExpandButtonRichTooltip(RichTooltip.builder()
+                .setTitle(resourceBundle.getString("Custom.Custom.textBandTitle"))
+                .addDescriptionSection(resourceBundle.getString("Custom.Custom.textBandTooltipParagraph1"))
+                .build());
+
+        for(AbstractOrbitAction module: customMenu.getRibbonActionSet()) {
+            CommandButtonProjection<Command> moduleProjection = module.getMenuCommand().project(
+                    CommandButtonPresentationModel.builder().build());
+            customBand.addRibbonCommand(moduleProjection, JRibbonBand.PresentationPriority.TOP);
+        }
+
+        List<RibbonBandResizePolicy> resizePolicies = getGenericResizePolicy(customBand);
+        customBand.setResizePolicies(resizePolicies);
+
+        return customBand;
     }
 
     /**

@@ -64,6 +64,7 @@ import org.pushingpixels.flamingo.api.common.model.Command;
 import org.pushingpixels.flamingo.api.common.model.CommandGroup;
 import org.pushingpixels.flamingo.api.ribbon.JRibbonFrame;
 import org.pushingpixels.flamingo.api.ribbon.synapse.model.RibbonDefaultComboBoxContentModel;
+import org.pushingpixels.neon.NeonCortex;
 import org.pushingpixels.substance.api.SubstanceCortex;
 import org.pushingpixels.substance.api.skin.GraphiteAquaSkin;
 import org.slf4j.LoggerFactory;
@@ -125,6 +126,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private static volatile OrbitImageAnalysis instance = null;
     final public String START_PIC = null; //"/image_small.jpg";
 //    final public String startModel = null; // = "D:\\orbitModels\\simple-segmentation_v5.omo";
+
+    public static final String platform = NeonCortex.getPlatform().toString();
 
     public static final String LOGO_NAME = "/resource/Orbital_bones32.png";
     public static final String GUEST_USER = "guest";
@@ -834,7 +837,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     private void addModules() {
         if (enabledModules == null) {
-            enabledModules = new LinkedHashSet<AbstractOrbitRibbonModule>();
+            enabledModules = new LinkedHashSet<>();
         }
         enabledModules.add(getCellProfilerModule());
         enabledModules.add(getRareObjectDetectionModule());
