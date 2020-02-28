@@ -25,12 +25,18 @@
  * Change image id!
  */
 
+import com.actelion.research.orbit.beans.RawAnnotation
 import com.actelion.research.orbit.beans.RawDataFile
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig
+import com.actelion.research.orbit.imageAnalysis.imaging.TileSizeWrapper
+import com.actelion.research.orbit.imageAnalysis.models.ImageAnnotation
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel
+import com.actelion.research.orbit.imageAnalysis.models.PolygonExt
 import com.actelion.research.orbit.imageAnalysis.models.ShapeAnnotationList
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitImagePlanar
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils
 
 import javax.imageio.ImageIO
@@ -55,10 +61,16 @@ exMapGen.generateMap();
 
 println("Starting analysis")
 
+// TODO: Reset the output directory? Or at least stop execution if already contains data (UUIDs will change so
+//  you'll get duplicates.
+
 // File to write out the 'answers' to.
 File outFile = new File("/home/fullejo1/test/stage1_test.csv")
 
 List<String> dataLines = new ArrayList<>()
+
+TileSizeWrapper tileSizeWrapper = new TileSizeWrapper(new OrbitImagePlanar(recognitionFrame.bimg.image, ""), 512, 512)
+OrbitTiledImageIOrbitImage orbitImage = new OrbitTiledImageIOrbitImage(tileSizeWrapper)
 
 recognitionFrame.bimg.image.getTileIndices(null).each {
     Point tileIdx = it
@@ -74,8 +86,38 @@ recognitionFrame.bimg.image.getTileIndices(null).each {
         // Generate a UUID to write the image
         String tileUuid = UUID.randomUUID().toString()
 
+        // Data for output file
+        // ImageId,EncodedPixels,Height,Width,Usage
+        // EncodedPixels is run length encoded.
+        // Usage can be padded.
         dataLines.add({ tileUuid.toString() } as String)
+        x = (int) it.getX() * 512
+        y = (int) it.getY() * 512
 
+        int minX = orbitImage.tileXToX((int) it.x)
+
+        for(RawAnnotation raw : rawAnnotationList) {
+            ImageAnnotation anno = new ImageAnnotation(raw)
+            shape = anno.getShape().getShapeList()
+            //println(shape.toString())
+            poly = shape.get(0)
+            if(anno.getSubType() == ImageAnnotation.SUBTYPE_ROI) {
+                for (int i=0; i<512; i++ ) {
+                    for (int j=0; j<512; j++) {
+                        if (poly.contains(i+x,j+y)) {
+                            println("Inside annotation! "+String.valueOf(i+x)+String.valueOf(j+y))
+                        }
+                    }
+                }
+            }
+
+//            for (PolygonExt poly : shape) {
+//                println(poly.listPoints())
+//                poly.
+//            }
+        }
+
+        annoShapesRoi
         // This is needed to write out the image correctly?
         bim.setData(r.getParent())
 
@@ -87,6 +129,6 @@ recognitionFrame.bimg.image.getTileIndices(null).each {
     }
 }
 
-println(dataLines.toString())
+//println(dataLines.toString())
 
-//DALConfig.getImageProvider().close();  // only close if not executed within Orbit
+DALConfig.getImageProvider().close();  // only close if not executed within Orbit
