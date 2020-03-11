@@ -66,7 +66,7 @@ import org.pushingpixels.flamingo.api.ribbon.JRibbonFrame;
 import org.pushingpixels.flamingo.api.ribbon.synapse.model.RibbonDefaultComboBoxContentModel;
 import org.pushingpixels.neon.NeonCortex;
 import org.pushingpixels.substance.api.SubstanceCortex;
-import org.pushingpixels.substance.api.skin.GraphiteAquaSkin;
+import org.pushingpixels.substance.api.skin.GraphiteGlassSkin;
 import org.slf4j.LoggerFactory;
 
 import javax.media.jai.JAI;
@@ -385,6 +385,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         //Lay out the main panel.
         desktop = new JDesktopPane();
         desktop.setLayout(null);
+        desktop.setBackground(Color.BLACK);
 
         desktop.setTransferHandler(desktopTransferHandler);
 
@@ -2811,8 +2812,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             SwingUtilities.invokeLater(() -> {
 
                 if (!ScaleoutMode.SCALEOUTMODE.get()) {
+                    // https://github.com/kirill-grouchnikov/radiance/blob/c8ae31a6f569a7fb1c0997c3a6338a955fa5f6b0/docs/substance/faq.md
+                    System.setProperty("sun.awt.noerasebackground", "true");
                     JFrame.setDefaultLookAndFeelDecorated(true);
-                    SubstanceCortex.GlobalScope.setSkin(new GraphiteAquaSkin());
+                    JDialog.setDefaultLookAndFeelDecorated(true);
+                    SubstanceCortex.GlobalScope.setSkin(new GraphiteGlassSkin());
                 }
 
                 getInstance();
