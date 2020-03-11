@@ -1,16 +1,11 @@
 package com.actelion.research.orbit.imageAnalysis.components.icons;
 
-import java.awt.*;
-import java.awt.geom.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.lang.ref.WeakReference;
-import java.util.Base64;
-import javax.imageio.ImageIO;
-import javax.swing.plaf.UIResource;
-
 import org.pushingpixels.neon.icon.ResizableIcon;
 import org.pushingpixels.neon.icon.ResizableIconUIResource;
+
+import javax.swing.plaf.UIResource;
+import java.awt.*;
+import java.awt.geom.*;
 
 /**
  * This class has been automatically generated using <a
