@@ -323,6 +323,10 @@ public class ImageProviderNoop implements IImageProvider {
             super(new DefaultMutableTreeNode("No Image Provider"));
         }
 
+        public OTree(String message) {
+            super(new DefaultMutableTreeNode(message));
+        }
+
         @Override
         public void setLoginUser(String s) {
 

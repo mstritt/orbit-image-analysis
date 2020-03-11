@@ -24,6 +24,10 @@ import javax.swing.*;
 public abstract class AbstractOrbitModule extends JPanel {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * The module name, used in the menu item name.
+     * @return module name
+     */
     public abstract String getName();
 
     /**

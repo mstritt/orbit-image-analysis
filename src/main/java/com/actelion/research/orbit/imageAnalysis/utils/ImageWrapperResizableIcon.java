@@ -18,7 +18,7 @@
  */
 package com.actelion.research.orbit.imageAnalysis.utils;
 
-import org.pushingpixels.flamingo.api.common.icon.ResizableIcon;
+import org.pushingpixels.neon.icon.ResizableIcon;
 
 import java.awt.*;
 import java.io.IOException;

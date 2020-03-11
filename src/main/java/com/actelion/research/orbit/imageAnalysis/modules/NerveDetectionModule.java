@@ -71,145 +71,109 @@ public class NerveDetectionModule extends AbstractSpotModule {
 
         list.addKeyListener(new SpotModuleKeyListener());
 
-        btnGenerateSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                //OrbitImageAnalysis.getInstance().forceLogin();
-                //if (OrbitImageAnalysis.loginOk) {
-                generateSpots(true);
-                OrbitImageAnalysis.getInstance().getIFrame().getRecognitionFrame().repaint();
-                //}
-            }
+        btnGenerateSpots.addActionListener(e -> {
+            generateSpots(true);
+            OrbitImageAnalysis.getInstance().getIFrame().getRecognitionFrame().repaint();
         });
 
-        btnShowStatistics.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                final OrbitModel model = OrbitImageAnalysis.getInstance().getModel();
-                final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
-                ImageFrame iFrame = oia.getIFrame();
-                //OrbitImageAnalysis.getInstance().forceLogin();
-                //if (OrbitImageAnalysis.loginOk) {
-                StringBuilder sb = new StringBuilder("Available Spots: " + list.getModel().getSize() + "\n\n");
+        btnShowStatistics.addActionListener(e -> {
+            final OrbitModel model = OrbitImageAnalysis.getInstance().getModel();
+            final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
+            ImageFrame iFrame = oia.getIFrame();
+            StringBuilder sb = new StringBuilder("Available Spots: " + list.getModel().getSize() + "\n\n");
 
-                // absolute counts
-                sb.append("Absolute Counts:\n\n");
-                int[] counts = computeCounts();
-                for (int i = 0; i < counts.length; i++) {
-                    sb.append(model.getClassShapes().get(i).getName() + ": " + counts[i] + "\n");
-                }
+            // absolute counts
+            sb.append("Absolute Counts:\n\n");
+            int[] counts = computeCounts();
+            for (int i = 0; i < counts.length; i++) {
+                sb.append(model.getClassShapes().get(i).getName()).append(": ").append(counts[i]).append("\n");
+            }
 
-                // weighted counts
-                sb.append("\n\nWeighted Counts (count*classnumber,  last class excluded):\n\n");
-                int cntAll = 0;
+            // weighted counts
+            sb.append("\n\nWeighted Counts (count*classnumber,  last class excluded):\n\n");
+            int cntAll = 0;
+            for (int i = 0; i < counts.length - 1; i++) {
+                int cnt = counts[i] * (i + 1);
+                sb.append(model.getClassShapes().get(i).getName()).append("x").append(i + 1).append(": ").append(cnt).append("\n");
+                cntAll += cnt;
+            }
+            sb.append("Weighted Count: ").append(cntAll).append("\n");
+
+            // relative counts
+            if (model.getClassShapes().size() > 2) {
+                sb.append("\n\nRelative Counts (class / all without last class):\n\n");
                 for (int i = 0; i < counts.length - 1; i++) {
-                    int cnt = counts[i] * (i + 1);
-                    sb.append(model.getClassShapes().get(i).getName() + "x" + (i + 1) + ": " + cnt + "\n");
-                    cntAll += cnt;
-                }
-                sb.append("Weighted Count: " + cntAll + "\n");
-
-                // relative counts
-                if (model.getClassShapes().size() > 2) {
-                    sb.append("\n\nRelative Counts (class / all without last class):\n\n");
-                    for (int i = 0; i < counts.length - 1; i++) {
-                        double rel = counts[i];
-                        double sum = 0d;
-                        for (int j = 0; j < counts.length - 1; j++) {
-                            sum += counts[j];
-                        }
-                        if (sum > 0) {
-                            rel /= sum;
-                            sb.append(model.getClassShapes().get(i).getName() + ": " + String.format("%1$.4f", rel) + "\n");
-                        }
+                    double rel = counts[i];
+                    double sum = 0d;
+                    for (int j = 0; j < counts.length - 1; j++) {
+                        sum += counts[j];
+                    }
+                    if (sum > 0) {
+                        rel /= sum;
+                        sb.append(model.getClassShapes().get(i).getName() + ": " + String.format("%1$.4f", rel) + "\n");
                     }
                 }
+            }
 
-                // juncion length
-                if (iFrame != null) {
-                    ImageAnnotation junction = NerveDetectionWorker.getJunctionAnnotation(iFrame.recognitionFrame.getAnnotations());
-                    if (junction != null) {
-                        PolygonExt poly = (PolygonExt) junction.getShape().getShapeList().get(0);
-                        poly = poly.getScaledInstance(100d, new Point(0, 0));
-                        double mmpp = iFrame.recognitionFrame.getMuMeterPerPixel();
-                        if (mmpp > 0) {
-                            double len = poly.getDistPath() * mmpp;
-                            sb.append("\nJunction length: " + String.format("%1$.2f", len) + " " + OrbitUtils.muMeter + "\n");
-                        }
+            // juncion length
+            if (iFrame != null) {
+                ImageAnnotation junction = NerveDetectionWorker.getJunctionAnnotation(iFrame.recognitionFrame.getAnnotations());
+                if (junction != null) {
+                    PolygonExt poly = (PolygonExt) junction.getShape().getShapeList().get(0);
+                    poly = poly.getScaledInstance(100d, new Point(0, 0));
+                    double mmpp = iFrame.recognitionFrame.getMuMeterPerPixel();
+                    if (mmpp > 0) {
+                        double len = poly.getDistPath() * mmpp;
+                        sb.append("\nJunction length: ").append(String.format("%1$.2f", len)).append(" ").append(OrbitUtils.muMeter).append("\n");
                     }
                 }
-
-                ResultFrame result = new ResultFrame(sb.toString(), "Statistics");
-                oia.addInternalFrame(result);
-                //}
             }
+
+            ResultFrame result = new ResultFrame(sb.toString(), "Statistics");
+            oia.addInternalFrame(result);
         });
 
-        btnShuffleSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                shuffle();
-            }
+        btnShuffleSpots.addActionListener(e -> shuffle());
+
+        btnShowHelp.addActionListener(e -> showHelp());
+
+        btnSaveSpots.addActionListener(e -> saveSpots(true));
+
+        btnLoadSpots.addActionListener(e -> loadSpots());
+
+        btnRemSpots.addActionListener(e -> {
+            removeSpots();
+            repaintFrameAndList();
         });
 
-        btnShowHelp.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showHelp();
-            }
+        btnRemSpotsROI.addActionListener(e -> {
+            removeSpotsInROI();
+            repaintFrameAndList();
         });
 
-        btnSaveSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                saveSpots(true);
-            }
+        btnOptions.addActionListener(arg0 -> {
+            NerveDetectionParamsDialog paramDlg = new NerveDetectionParamsDialog(nerveDetectionParams);
+            paramDlg.showDialog();
         });
 
-        btnLoadSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                loadSpots();
+        list.addListSelectionListener(e -> {
+            // unmark all annotations
+            for (int i = 0; i < list.getModel().getSize(); i++) {
+                ((ImageAnnotation) list.getModel().getElementAt(i)).setColor(annotationColor);
+            }
+
+            final ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+            if (list.getSelectedValue() != null && iFrame != null) {
+                ImageAnnotation ann = (ImageAnnotation) list.getSelectedValue();
+                ann.setColor(selectedColor);
+                PolygonExt shape = (PolygonExt) ann.getShape().getShapeList().get(0);
+                Rectangle bb = shape.getScaledInstance(100, new Point(0, 0)).getBounds();
+                double sc = iFrame.recognitionFrame.getScale() / 100d;
+                final Point targetP = new Point((int) (bb.getCenterX() * sc) - iFrame.recognitionFrame.getWidth() / 2, (int) (bb.getCenterY() * sc) - iFrame.recognitionFrame.getHeight() / 2);
+
+                iFrame.setViewPortPositionAndAdjust(targetP);
             }
         });
-
-        btnRemSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                removeSpots();
-                repaintFrameAndList();
-            }
-        });
-
-        btnRemSpotsROI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                removeSpotsInROI();
-                repaintFrameAndList();
-            }
-        });
-
-        btnOptions.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                NerveDetectionParamsDialog paramDlg = new NerveDetectionParamsDialog(nerveDetectionParams);
-                paramDlg.showDialog();
-            }
-        });
-
-        list.addListSelectionListener(new ListSelectionListener() {
-                                          //public void mousePressed(java.awt.event.MouseEvent e) {
-                                          public void valueChanged(ListSelectionEvent e) {
-                                              // unmark all annotations
-                                              for (int i = 0; i < list.getModel().getSize(); i++) {
-                                                  ((ImageAnnotation) list.getModel().getElementAt(i)).setColor(annotationColor);
-                                              }
-
-                                              final ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-                                              if (list.getSelectedValue() != null && iFrame != null) {
-                                                  ImageAnnotation ann = (ImageAnnotation) list.getSelectedValue();
-                                                  ann.setColor(selectedColor);
-                                                  PolygonExt shape = (PolygonExt) ann.getShape().getShapeList().get(0);
-                                                  Rectangle bb = shape.getScaledInstance(100, new Point(0, 0)).getBounds();
-                                                  double sc = iFrame.recognitionFrame.getScale() / 100d;
-                                                  final Point targetP = new Point((int) (bb.getCenterX() * sc) - iFrame.recognitionFrame.getWidth() / 2, (int) (bb.getCenterY() * sc) - iFrame.recognitionFrame.getHeight() / 2);
-
-                                                  iFrame.setViewPortPositionAndAdjust(targetP);
-                                              }
-                                          }
-                                      }
-        );
 
         // layout
 
@@ -255,7 +219,8 @@ public class NerveDetectionModule extends AbstractSpotModule {
 
                 "<h2>Detect new nerve segments</h2>" +
                 "<ul>" +
-                "<li>Click the 'Detect' button. This will detect nerve segments and list these spots in the list.<br/>You can also mark a region of interest (ROI) before spot detection to get fast results for a smaller region.</li>" +
+                "<li>Click the 'Detect' button. This will detect nerve segments and list these spots in the list.<br/>" +
+                "You can also mark a region of interest (ROI) before spot detection to get fast results for a smaller region.</li>" +
                 "<li>You can click on the 'Save' button to save detected spots.</li>" +
                 "</ul>" +
 
@@ -264,10 +229,14 @@ public class NerveDetectionModule extends AbstractSpotModule {
                 "<li>Activate the 'Annotation' tab.</li>" +
                 "<li>In the Annotation->Options menu, uncheck 'close polygons' (for a nicer display).</li>" +
                 "<li>Click on add polygon and draw the junction.</li>" +
-                "<li>You might continue and draw the junction several steps (click again on 'add polygon'). When finished, click on 'Options->Combine Polygons' to merge the junction segments to a single path.</li>" +
-                "<li>Select the junction annotation, click on 'edit' and rename it to <b>'junction'</b>. This is very important, because the nerve detection module will search for an annotation called 'junction' (otherwise it will do the nerve detection on the whole image). You might give it also another color.</li>" +
+                "<li>You might continue and draw the junction several steps (click again on 'add polygon'). When finished, " +
+                "click on 'Options->Combine Polygons' to merge the junction segments to a single path.</li>" +
+                "<li>Select the junction annotation, click on 'edit' and rename it to <b>'junction'</b>. This is very " +
+                "important, because the nerve detection module will search for an annotation called 'junction' (otherwise " +
+                "it will do the nerve detection on the whole image). You might give it also another color.</li>" +
                 "<li>Go back to the nerve detection tab, select a ROI around the junction and click on 'detect'.</li>" +
-                "<li>Remark: The old annotations are automatically removed from the database and the new combined one is automatically stored in the database.</li>" +
+                "<li>Remark: The old annotations are automatically removed from the database and the new combined one is " +
+                "automatically stored in the database.</li>" +
                 "</ul>" +
 
 
@@ -280,12 +249,17 @@ public class NerveDetectionModule extends AbstractSpotModule {
                 "<ol>" +
                 "<li>Click on 'Shuffle' to shuffle the list. This is necessary to achieve unbiased results.</li>" +
                 "<li>Click on the first spot entry in the list.</li>" +
-                "<li>Use the keyboard and press a number (e.g. 1-3) to assign the selected spot a class.<br/>The selection will automatically jump to the next spot. By holding down the ctrl key you can prevent this and the selection will stay on the selected item.</li>" +
-                "<li>Use specific classes only when you are sure. Otherwise select the 'other' class. These spots will later be excluded from the statistics.</li>" +
+                "<li>Use the keyboard and press a number (e.g. 1-3) to assign the selected spot a class.<br/>The selection " +
+                "will automatically jump to the next spot. By holding down the ctrl key you can prevent this and the " +
+                "selection will stay on the selected item.</li>" +
+                "<li>Use specific classes only when you are sure. Otherwise select the 'other' class. These spots will " +
+                "later be excluded from the statistics.</li>" +
                 "<li>Use backspace to reset the spot class (set to undefined).</li>" +
 
-                "<li>Once you think you classified enough samples, click on 'Statistics' to retrieve a classification statistic.</li>" +
-                "<li>Click on 'Save' to persist your classifications. You can always continue with the classification by pressing the 'Load' button, shuffle your list and continue the classification.</li>" +
+                "<li>Once you think you classified enough samples, click on 'Statistics' to retrieve a classification " +
+                "statistic.</li>" +
+                "<li>Click on 'Save' to persist your classifications. You can always continue with the classification " +
+                "by pressing the 'Load' button, shuffle your list and continue the classification.</li>" +
                 "</ol>" +
 
                 "</body></html>";
@@ -307,8 +281,11 @@ public class NerveDetectionModule extends AbstractSpotModule {
         boolean addOld = false;
         if (list.getModel().getSize() > 0) {
             if (JOptionPane.showConfirmDialog(this,
-                    "Do you want to keep the existing spots?\nOtherwise the existing spots will be removed from the list but still kept in the database.\nIf you then press the 'save spots' button they will also be removed from the database.",
-                    "Keep existing spots?", JOptionPane.YES_NO_OPTION)
+                    "Do you want to keep the existing spots?\nOtherwise the existing spots will be " +
+                            "removed from the list but still kept in the database.\n" +
+                            "If you then press the 'save spots' button they will also be removed from the database.",
+                    "Keep existing spots?",
+                    JOptionPane.YES_NO_OPTION)
                     == JOptionPane.YES_OPTION) {
                 addOld = true;
             }
@@ -326,56 +303,54 @@ public class NerveDetectionModule extends AbstractSpotModule {
         final ProgressPanel progressPanel = new ProgressPanel(oia.getTitle(), "Nerve Detection", segWorker);
         oia.addAndExecuteTask(progressPanel, true);
 
-        new Thread() {
-            public void run() {
-                oia.waitForWorker(segWorker);
-                // segmentation done, objects should be marked in the recognitionFrame
-                List<Shape> shapes = iFrame.recognitionFrame.getObjectSegmentationList();
-                if (shapes == null) {
-                    logger.error("Sorry, an error in nerve detection appeared.");
-                    return;
-                }
-                if (shapes.size() == 0) {
-                    logger.info("No nerves found.");
-                    if (withGui)
-                        JOptionPane.showMessageDialog(NerveDetectionModule.this, "No nerves found in selected region of interest", "No nerves found", JOptionPane.INFORMATION_MESSAGE);
-                    return;
-                }
-                // shuffle shape list to be unbiased for manual classification
-                Collections.shuffle(shapes);
-                final DefaultListModel listModel = new DefaultListModel();
-                if (addOldFin) {
-                    for (int i = 0; i < list.getModel().getSize(); i++) {
-                        listModel.addElement(list.getModel().getElementAt(i));
-                    }
-                }
-                for (Shape shape : shapes) {
-                    // at FOV to list
-                    ClassShape cs = new ClassShape("Nerves", Color.white, ClassShape.SHAPETYPE_POLYGONEXT);
-                    PolygonExt pe = new PolygonExt((Polygon) shape);
-                    cs.getShapeList().add(pe);
-                    SpotAnnotation annotation = new NerveAnnotation(SpotAnnotation.LABEL_UNIDENTIFIED, cs);
-                    annotation.setRawDataFileId(rdfId);
-                    String user = DEFAULT_USER;
-                    if (withGui && !OrbitImageAnalysis.GUEST_USER.equals(OrbitImageAnalysis.loginUser)) {
-                        user = OrbitImageAnalysis.loginUser;
-                    }
-                    annotation.setUserId(user);
-                    listModel.addElement(annotation);
-                    iFrame.getRecognitionFrame().getAnnotations().add(annotation);
-                }
-                try {
-                    SwingUtilities.invokeAndWait(new Runnable() {
-                        public void run() {
-                            list.setModel(listModel);
-                        }
-                    });
-                } catch (Exception e) {
-                    logger.error("error updating spot list", e);
-                    e.printStackTrace();
+        new Thread(() -> {
+            oia.waitForWorker(segWorker);
+            // segmentation done, objects should be marked in the recognitionFrame
+            List<Shape> shapes = iFrame.recognitionFrame.getObjectSegmentationList();
+            if (shapes == null) {
+                logger.error("Sorry, an error in nerve detection appeared.");
+                return;
+            }
+            if (shapes.size() == 0) {
+                logger.info("No nerves found.");
+                if (withGui)
+                    JOptionPane.showMessageDialog(NerveDetectionModule.this, "No nerves found in selected region of interest", "No nerves found", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            // shuffle shape list to be unbiased for manual classification
+            Collections.shuffle(shapes);
+            final DefaultListModel listModel = new DefaultListModel();
+            if (addOldFin) {
+                for (int i = 0; i < list.getModel().getSize(); i++) {
+                    listModel.addElement(list.getModel().getElementAt(i));
                 }
             }
-        }.start();
+            for (Shape shape : shapes) {
+                // at FOV to list
+                ClassShape cs = new ClassShape("Nerves", Color.white, ClassShape.SHAPETYPE_POLYGONEXT);
+                PolygonExt pe = new PolygonExt((Polygon) shape);
+                cs.getShapeList().add(pe);
+                SpotAnnotation annotation = new NerveAnnotation(SpotAnnotation.LABEL_UNIDENTIFIED, cs);
+                annotation.setRawDataFileId(rdfId);
+                String user = DEFAULT_USER;
+                if (withGui && !OrbitImageAnalysis.GUEST_USER.equals(OrbitImageAnalysis.loginUser)) {
+                    user = OrbitImageAnalysis.loginUser;
+                }
+                annotation.setUserId(user);
+                listModel.addElement(annotation);
+                iFrame.getRecognitionFrame().getAnnotations().add(annotation);
+            }
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    public void run() {
+                        list.setModel(listModel);
+                    }
+                });
+            } catch (Exception e) {
+                logger.error("error updating spot list", e);
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     /**

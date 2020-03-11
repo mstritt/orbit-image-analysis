@@ -25,16 +25,12 @@ import groovy.lang.GroovyShell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.*;
 import java.net.URL;
-import java.security.SecureRandom;
-import java.security.Security;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
 public class GroovyExecutor {
     private static final Logger logger = LoggerFactory.getLogger(GroovyExecutor.class);
 
+    /*
     public static void doTrustToCertificates() throws Exception {
         Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
         TrustManager[] trustAllCerts = new TrustManager[]{
@@ -66,12 +62,14 @@ public class GroovyExecutor {
         };
         HttpsURLConnection.setDefaultHostnameVerifier(hv);
     }
+    */
 
     public static void main(String[] args) throws Exception {
         OrbitLogAppender.GUI_APPENDER = false;
         if (args == null || args.length < 1)
             throw new IllegalArgumentException("No URL argument found. Call: GroovyExecutor <URL>");
-        doTrustToCertificates();
+        // TODO: Do this properly...
+        //doTrustToCertificates();
         //URL url = new URL("https://chiron.idorsia.com/stash/projects/ORBIT/repos/public-scripts/browse/QuantPerGroupLocalTest.groovy?at=5ff41667c494870aaacbe37fa43fd46fd4c9659c&raw");
         URL url = new URL(args[0]);
         String content = RawUtilsCommon.getContentStr(url);

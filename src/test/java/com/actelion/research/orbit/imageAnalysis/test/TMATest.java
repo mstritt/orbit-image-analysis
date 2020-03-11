@@ -27,11 +27,10 @@ import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.TiledImagePainter;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.Assert.*;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
-
-import static org.testng.Assert.*;
 
 @Ignore
 public class TMATest {
@@ -62,7 +61,7 @@ public class TMATest {
             tma = new TMAData(origGoldStandard, model);
         } catch (Exception ex) {
             ex.printStackTrace();
-            fail();
+            org.junit.Assert.fail();
         }
         return tma;
     }
@@ -79,9 +78,9 @@ public class TMATest {
             // Currently this fails because the mipMaps aren't generated, presumably because not needed?
             TMAData imgdata = new TMAData(tmaTest.getOriginalImage(), model);
 
-            assertEquals(-1, imgdata.getOriginalMaskedImage().getRGB(730, 4));
+            org.junit.Assert.assertEquals(-1, imgdata.getOriginalMaskedImage().getRGB(730, 4));
             // Colorspace wrong? Should be 0 not -16777216???
-            assertEquals(-16777216, imgdata.getOriginalMaskedImage().getRGB(235, 1));
+            org.junit.Assert.assertEquals(-16777216, imgdata.getOriginalMaskedImage().getRGB(235, 1));
 
             // There is an issue with comparing the data correctly, so the above two simple tests
             // are enabled instead at this point.
@@ -91,7 +90,7 @@ public class TMATest {
         } catch (Exception ex) {
             ex.printStackTrace();
             // If this exception is thrown then something is wrong with the image provider.
-            fail();
+            org.junit.Assert.fail();
         }
     }
 
@@ -101,10 +100,10 @@ public class TMATest {
         TMAData tma = createTestData();
 
         tma.cleanMask(25, 90);
-        assertEquals(tma.getBlobs().size(), 44);
+        org.junit.Assert.assertEquals(tma.getBlobs().size(), 44);
 
         tma.cleanMask(15, 70);
-        assertEquals(tma.getBlobs().size(), 52);
+        org.junit.Assert.assertEquals(tma.getBlobs().size(), 52);
     }
 
     @Test
@@ -124,10 +123,10 @@ public class TMATest {
         String d = TMAData.getCharForNumber(4);
         String moreThanZ = TMAData.getCharForNumber(27);
 
-        assertNull(lessThanA);
-        assertEquals(a, "A");
-        assertEquals(d, "D");
-        assertNull(moreThanZ);
+        org.junit.Assert.assertNull(lessThanA);
+        org.junit.Assert.assertEquals(a, "A");
+        org.junit.Assert.assertEquals(d, "D");
+        org.junit.Assert.assertNull(moreThanZ);
     }
 
     @Test
@@ -140,8 +139,8 @@ public class TMATest {
         List<Spot> spotList = tma.getSpots();
         List<Spot> gridSpotList = tma.getGridSpots();
 
-        assertEquals(spotList.size(), 37);
-        assertEquals(gridSpotList.size(), 37);
+        org.junit.Assert.assertEquals(spotList.size(), 37);
+        org.junit.Assert.assertEquals(gridSpotList.size(), 37);
 
         tma.cleanMask(15, 70);
 
@@ -149,8 +148,8 @@ public class TMATest {
         spotList = tma.getSpots();
         gridSpotList = tma.getGridSpots();
 
-        assertEquals(spotList.size(), 39);
-        assertEquals(gridSpotList.size(), 39);
+        org.junit.Assert.assertEquals(spotList.size(), 39);
+        org.junit.Assert.assertEquals(gridSpotList.size(), 39);
     }
 
     @Test

@@ -29,7 +29,7 @@ import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImag
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.Weigher;
-import sun.awt.image.ByteInterleavedRaster;
+//import sun.awt.image.ByteInterleavedRaster;
 
 import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
@@ -305,7 +305,7 @@ public class TileSizeWrapper implements IOrbitImage {
             for (int tx=20; tx<23; tx++)
                 for (int ty=20; ty<23; ty++) {
                     WritableRaster raster = (WritableRaster)oit2.getTile(tx, ty);   //59,10
-                    System.out.println("tx x ty: "+tx+" x "+ty+"  "+ "wxh: " + raster.getWidth() + " x " + raster.getHeight()+" scanlinestride: "+((ByteInterleavedRaster)raster).getScanlineStride()+"  oit2: "+((PixelInterleavedSampleModel)oit2.getSampleModel()).getScanlineStride());
+                    //System.out.println("tx x ty: "+tx+" x "+ty+"  "+ "wxh: " + raster.getWidth() + " x " + raster.getHeight()+" scanlinestride: "+((ByteInterleavedRaster)raster).getScanlineStride()+"  oit2: "+((PixelInterleavedSampleModel)oit2.getSampleModel()).getScanlineStride());
                     raster = (WritableRaster) raster.createTranslatedChild(0, 0);
                     BufferedImage bi = new BufferedImage(oit2.getColorModel(), raster, false, null);
                     ImageIO.write(bi, "png", new File("d:/NoBackup/a/tile"+ tx+"x"+ty+".png"));

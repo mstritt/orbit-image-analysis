@@ -53,6 +53,7 @@ public class ModelExplorer extends AbstractOrbitModule {
 
     public ModelExplorer() {
 
+        super();
         btnAddModel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

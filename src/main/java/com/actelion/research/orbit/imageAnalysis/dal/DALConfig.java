@@ -74,22 +74,23 @@ public class DALConfig {
             logger.info("Different image providers can be configured in resources/config.properties or resources/config_custom.properties (priority).");
 
             try {
-                imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).newInstance();
+                // TODO: What is happening here?
+                // https://docs.oracle.com/javase/9/docs/api/java/lang/Class.html#newInstance--
+                //imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).newInstance();
+                imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).getDeclaredConstructors()[0].newInstance();
+                //imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).getDeclaredConstructor().newInstance();
             } catch (IllegalStateException e) {
                 final String m = e.getMessage() + "\n\nOrbit will continue with the fallback local filesystem image provider.";
                 logger.warn(m);
                 if (!GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance() && !ScaleoutMode.SCALEOUTMODE.get()) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            Object[] options = new Object[]{"Continue", "More Information"};
-                            if (JOptionPane.showOptionDialog(null, m, "Image provider not available, using local filesystem fallback", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]) == JOptionPane.NO_OPTION) {
-                                if (Desktop.isDesktopSupported()) {
-                                    try {
-                                        Desktop.getDesktop().browse(new URI(OrbitUtils.orbitImageProviderURL));
-                                    } catch (Exception e1) {
-                                        e1.printStackTrace();
-                                    }
+                    SwingUtilities.invokeLater(() -> {
+                        Object[] options = new Object[]{"Continue", "More Information"};
+                        if (JOptionPane.showOptionDialog(null, m, "Image provider not available, using local filesystem fallback", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]) == JOptionPane.NO_OPTION) {
+                            if (Desktop.isDesktopSupported()) {
+                                try {
+                                    Desktop.getDesktop().browse(new URI(OrbitUtils.orbitImageProviderURL));
+                                } catch (Exception e1) {
+                                    e1.printStackTrace();
                                 }
                             }
                         }
@@ -323,7 +324,6 @@ public class DALConfig {
         }
         return list;
     }
-
 
     public static boolean isLocalImageProvider() {
         return getImageProvider() instanceof ImageProviderLocal;

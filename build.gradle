@@ -16,6 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 buildscript {
     repositories {
         jcenter()
@@ -23,12 +24,19 @@ buildscript {
     dependencies {
         classpath "com.smokejumperit.gradle.license:Gradle-License-Report:0.0.2"
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
+        classpath "org.pushing-pixels:radiance-ignite:2.5.1"
     }
 }
+
 plugins {
     id "com.github.cr0.macappbundle" version "3.0.1"
 }
+
+// Import ignite for the buildscript (to build the Java classes for the icons from the SVGs.
+apply plugin: 'org.pushing-pixels.ignite'
+
 apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 apply plugin: 'license-report'
 
@@ -36,14 +44,21 @@ apply plugin: 'license-report'
 
 ext.description = "OrbitImageAnalysis"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+// Pin the Gradle version
+//wrapper {
+//    gradleVersion = "6.0.1"
+//}
 
-ext.orbitVersion = new File(projectDir,"src/main/resources/version.txt").text;
+// Works with JDK 11...
+sourceCompatibility = JavaVersion.VERSION_11
+
+ext.orbitVersion = new File(projectDir,"src/main/resources/version.txt").text
 ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
 
+// Define the Radiance version in one place, since multiple libraries that need to be updated together.
+def radianceVersion = '2.5.1'
+
 repositories {
-    mavenLocal()
     mavenCentral()
     maven {
         url 'http://artifacts.openmicroscopy.org/artifactory/maven/'
@@ -52,7 +67,7 @@ repositories {
         url 'https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/'    // just for thredds-parent-4.3.22 used by netcdf-4.3.22
     }
     maven {
-        url 'https://maven.scijava.org/content/repositories/snapshots/'    // for legacy-imglib1-2.0.0-SNAPSHOT.jar used by imagej1 compatible graph_cut
+        url 'http://maven.imagej.net/content/repositories/snapshots/'    // for legacy-imglib1-2.0.0-SNAPSHOT.jar used by imagej1 compatible graph_cut
     }
     maven {
         url 'http://maven.imagej.net/content/repositories/releases/'  // scifio
@@ -69,6 +84,10 @@ if (JavaVersion.current().isJava8Compatible()) {
         }
     }
 }
+test {
+    useJUnit()
+}
+
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
 }
@@ -82,7 +101,7 @@ publishing {
         mavenJava(MavenPublication) {
             groupId 'com.actelion.research'
             artifactId 'orbit-image-analysis'
-            version orbitVersion
+            version "$orbitVersion"
             from components.java
             artifact sourceJar {
                 classifier "sources"
@@ -109,148 +128,142 @@ jar {
         attributes 'Implementation-Title': 'Orbit Image Analysis',
                 'Implementation-Version': orbitVersion,
                 'Main-Class': 'com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis',
-                'Vendor': 'Idorsia',
-                'Class-Path': 'lib/*'
+                'Vendor': 'Idorsia'
+                //,'Class-Path': 'lib/*'
     }
 }
 
-
-
-
-
-
-task icons {
-    ant.taskdef(name:'svg2java'
-            ,classpath:'lib/flamingo-svg-transcoder-ant-1.1.1.jar'
-            ,classname:'org.pushingpixels.flamingo.api.svg.SvgTranscoderTask'
-    )
-    ant.svg2java(todir:"src/main/java/com/actelion/research/orbit/imageAnalysis/components/icons",
-            verbose:"true", namingStrategy:"camelcase", template:"resizable", package:"com.actelion.research.orbit.imageAnalysis.components.icons",
-            {
-                fileset(dir:"src/main/resources/resource/svg", includes:"**/*.svg*")
-            })
-}
-
-
 configurations {
-    compile.exclude module:'slf4j-log4j12'
-    compile.exclude group:'com.codahale.metrics', module:'metrics-jvm'
-    compile.exclude group:'com.codahale.metrics', module:'metrics-core'
-    compile.exclude group:'com.codahale.metrics', module:'metrics-graphite'
-    compile.exclude group:'cglib', module:'cglib'
-    compile.exclude group:'quartz', module:'quartz'
+    implementation.exclude module:'slf4j-log4j12'
+    implementation.exclude group:'com.codahale.metrics', module:'metrics-jvm'
+    implementation.exclude group:'com.codahale.metrics', module:'metrics-core'
+    implementation.exclude group:'com.codahale.metrics', module:'metrics-graphite'
+    implementation.exclude group:'cglib', module:'cglib'
+    implementation.exclude group:'quartz', module:'quartz'
 }
-
-
 
 dependencies {
-    compile 'com.actelion.research:lib-orbit-common:1.2.12'
-    compile 'com.actelion.research:image-provider-omero:1.6.1'
-    compile 'com.actelion.research:map-reduce-generic:1.0.10'
-//    compile 'com.actelion.research:map-reduce-exec-spark:1.1.3'
+    implementation 'com.actelion.research:lib-orbit-common:1.2.12'
+//    implementation 'com.actelion.research:image-provider-omero:1.6.1'
+    api 'com.actelion.research:map-reduce-generic:1.0.10'
+//    implementation 'com.actelion.research:map-reduce-exec-spark:1.1.3'
 
-
-//    compile(group: 'com.actelion.research', name: 'OrbitImageAnalysisAct', version: '0.3.1') {     // 0.2.14
-//        exclude(module: 'orbit-image-analysis')
-//    }
-//    compile 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
-//   compile 'com.actelion.research:imageproviderorbit:1.1.18'
+//    implementation 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
+//    implementation 'com.actelion.research:imageproviderorbit:1.1.18'
 
 
     // JNA (needed for the NDPR C++ API)
-    compile 'net.java.dev.jna:jna:4.5.1'
+    implementation 'net.java.dev.jna:jna:4.5.1'
 
 // only used for image-provider-omero development
-//    compile(group: 'omero', name: 'blitz', version: '5.4.7-ice36-b93') {   // 5.2.7-ice36-b40   5.3.0-ice36-b59
+//    implementation(group: 'omero', name: 'blitz', version: '5.4.7-ice36-b93') {   // 5.2.7-ice36-b40   5.3.0-ice36-b59
 //        exclude group: 'org.springframework.ldap', module: 'spring-ldap'
 //        exclude group: 'org.testng', module: 'testng'
 //        exclude group: 'hsqldb', module: 'hsqldb'
 //    }
 
 
-    // explicite versions, see compile.excludes
-    compile 'org.quartz-scheduler:quartz:2.1.1'
-    compile 'org.sonatype.sisu.inject:cglib:2.2.1-v20090111'
-    compile 'io.dropwizard.metrics:metrics-core:3.1.2'
-    compile 'io.dropwizard.metrics:metrics-jvm:3.1.2'
-    compile 'io.dropwizard.metrics:metrics-graphite:3.1.2'
+    // explicit versions, see implementation.excludes
+    implementation 'org.quartz-scheduler:quartz:2.1.1'
+    implementation 'org.sonatype.sisu.inject:cglib:2.2.1-v20090111'
+    implementation 'io.dropwizard.metrics:metrics-core:3.1.2'
+    implementation 'io.dropwizard.metrics:metrics-jvm:3.1.2'
+    implementation 'io.dropwizard.metrics:metrics-graphite:3.1.2'
 
 
-    compile 'com.thoughtworks.xstream:xstream:1.4.9'
-    compile 'org.jaitools:jt-utils:1.4.0' // jai-tools
-    compile 'com.sun.media:jai-codec:1.1.3'
-    compile 'javax.media:jai-core:1.1.3'
-    compile 'com.github.jai-imageio:jai-imageio-core:1.3.1'
-    compile 'com.github.jai-imageio:jai-imageio-jpeg2000:1.3.0'
+    api 'com.thoughtworks.xstream:xstream:1.4.9'
+    implementation 'org.jaitools:jt-utils:1.4.0' // jai-tools
+    implementation 'com.sun.media:jai-codec:1.1.3'
+    api 'javax.media:jai-core:1.1.3'
+    implementation 'com.github.jai-imageio:jai-imageio-core:1.3.1'
+    implementation 'com.github.jai-imageio:jai-imageio-jpeg2000:1.3.0'
 
-    compile (group:'org.swinglabs', name:'swingx', version:'1.6.1') {
+    implementation (group:'org.swinglabs', name:'swingx', version:'1.6.1') {
         exclude (module: 'swing-worker')
     }
 
-    // substance
-    //compile fileTree(dir: 'lib', include: ['*.jar'], exclude: 'flamingo-svg-transcoder-ant-1.1.1.jar')
-    compile 'com.github.insubstantial:substance:7.3'
-    compile 'com.github.insubstantial:substance-flamingo:7.3'
-    //compile 'org.pushing-pixels:radiance-substance:1.0.2'
-    //compile 'org.pushing-pixels:radiance-flamingo:1.0.2'
+    // Radiance UI and dependencies
+    api "org.pushing-pixels:radiance-substance:$radianceVersion"
+    api "org.pushing-pixels:radiance-flamingo:$radianceVersion"
+    api "org.pushing-pixels:radiance-neon:$radianceVersion"
+    api "org.pushing-pixels:radiance-photon:$radianceVersion"
 
-    compile 'com.google.guava:guava:20.0'  // 21 only for java8
-    compile 'org.apache.commons:commons-math3:3.6.1'
-    compile (group: 'com.googlecode.matrix-toolkits-java', name: 'mtj', version:'1.0.4') {
+    api 'com.google.guava:guava:28.2-jre'
+    api 'org.apache.commons:commons-math3:3.6.1'
+    api (group: 'com.googlecode.matrix-toolkits-java', name: 'mtj', version:'1.0.4') {
         transitive = false
     }
     // weka start - only java implementations
-    compile (group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version:'3.8.0') {
+    api (group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version:'3.8.0') {
         transitive = false
     }
-    //compile 'nz.ac.waikato.cms.weka.thirdparty:java-cup-11b:2015.03.26'
-    //compile 'nz.ac.waikato.cms.weka.thirdparty:java-cup-11b-runtime:2015.03.26'
-    compile 'nz.ac.waikato.cms.weka.thirdparty:bounce:0.18'
-    compile 'com.github.fommil.netlib:core:1.1.2'
-    compile 'com.github.fommil.netlib:generator:1.1.2'
-    compile 'com.github.fommil.netlib:native_system-java:1.1'
-//    compile 'com.github.fommil.netlib:netlib-native_system-linux-x86_64:1.1'
-//    compile 'com.github.fommil.netlib:netlib-native_ref-linux-x86_64:1.1'
-//    compile 'com.github.fommil.netlib:netlib-native_system-win-x86_64:1.1'
-//    compile 'com.github.fommil.netlib:netlib-native_system-win-i686:1.1'
-//    compile 'com.github.fommil.netlib:netlib-native_system-osx-x86_64:1.1'
-//    compile 'com.github.fommil.netlib:netlib-native_ref-win-x86_64:1.1'
-//    compile 'com.github.fommil.netlib:netlib-native_ref-win-i686:1.1'
+    //implementation 'nz.ac.waikato.cms.weka.thirdparty:java-cup-11b:2015.03.26'
+    //implementation 'nz.ac.waikato.cms.weka.thirdparty:java-cup-11b-runtime:2015.03.26'
+    implementation 'nz.ac.waikato.cms.weka.thirdparty:bounce:0.18'
+    implementation 'com.github.fommil.netlib:core:1.1.2'
+    implementation 'com.github.fommil.netlib:generator:1.1.2'
+    implementation 'com.github.fommil.netlib:native_system-java:1.1'
+//    implementation 'com.github.fommil.netlib:netlib-native_system-linux-x86_64:1.1'
+//    implementation 'com.github.fommil.netlib:netlib-native_ref-linux-x86_64:1.1'
+//    implementation 'com.github.fommil.netlib:netlib-native_system-win-x86_64:1.1'
+//    implementation 'com.github.fommil.netlib:netlib-native_system-win-i686:1.1'
+//    implementation 'com.github.fommil.netlib:netlib-native_system-osx-x86_64:1.1'
+//    implementation 'com.github.fommil.netlib:netlib-native_ref-win-x86_64:1.1'
+//    implementation 'com.github.fommil.netlib:netlib-native_ref-win-i686:1.1'
     // weka end
 
 
 
-    compile 'gov.nih.imagej:imagej:1.46'
-    compile 'de.biomedical-imaging.ij:ij_blob:1.4.9'
-    compile (group: 'org.codelibs', name:'jcifs', version:'1.3.18.1') {  // for SmbUtils     (exclude javax.servlet-api because Spark needs a different version)
-       exclude (group:'javax.servlet', module: 'servlet-api')
+    api 'gov.nih.imagej:imagej:1.46'
+    implementation 'de.biomedical-imaging.ij:ij_blob:1.4.9'
+    implementation (group: 'org.codelibs', name:'jcifs', version:'1.3.18.1') {  // for SmbUtils     (exclude javax.servlet-api because Spark needs a different version)
+        exclude (group:'javax.servlet', module: 'servlet-api')
     }
-    compile (group: 'ome', name:'formats-gpl', version:'6.3.0') {     // 6.1.1
+    api (group: 'ome', name:'formats-gpl', version:'6.1.1') {     // 5.9.2
         exclude (module: 'blitz')
     }
-    compile (group: 'net.imglib2', name: 'imglib2', version: '3.2.1') // to avoid jpeg2000 problem: NoSuchMethodError: jj2000.j2k.fileformat.reader.FileFormatReader.<init>
+    api (group: 'net.imglib2', name: 'imglib2', version: '3.2.1') // to avoid jpeg2000 problem: NoSuchMethodError: jj2000.j2k.fileformat.reader.FileFormatReader.<init>
 
-//    compile 'io.scif:scifio:0.30.0'  // only java 1.8
-//    compile 'io.scif:scifio-bf-compat:2.0.0'
-    compile 'org.codehaus.groovy:groovy-all:2.5.7'
-    compile 'org.codehaus.gpars:gpars:1.2.1'
-    compile 'com.fifesoft:rsyntaxtextarea:3.0.3'
-    compile 'com.fifesoft:autocomplete:3.0.0'  
- //   compile 'com.fifesoft:languagesupport:3.0.0'
+//    implementation 'io.scif:scifio:0.30.0'  // only java 1.8
+//    implementation 'io.scif:scifio-bf-compat:2.0.0'
+    api 'org.codehaus.groovy:groovy-all:2.5.7'
+    api 'org.codehaus.gpars:gpars:1.2.1'
+    implementation 'com.fifesoft:rsyntaxtextarea:3.0.3'
+    implementation 'com.fifesoft:autocomplete:3.0.0'
+    //   implementation 'com.fifesoft:languagesupport:3.0.0'
 
-    compile 'ch.qos.logback:logback-classic:1.1.7'
-    compile 'net.java.linoleum:jlfgr:1_0'
-    compile (group: 'sc.fiji', name: 'legacy-imglib1', version: '2.0.0-SNAPSHOT') {     //1.1.5  2.0.0-SNAPSHOT for graph_cut
+    implementation 'ch.qos.logback:logback-classic:1.1.7'
+    implementation 'net.java.linoleum:jlfgr:1_0'
+    implementation (group: 'sc.fiji', name: 'legacy-imglib1', version: '2.0.0-SNAPSHOT') {     //1.1.5  2.0.0-SNAPSHOT for graph_cut
         transitive = false
     }
-    compile 'org.xerial:sqlite-jdbc:3.21.0'
-    compileOnly 'org.tensorflow:tensorflow:1.14.0'  // 1.4.0 1.11.0 compileOnly
-    compileOnly 'org.tensorflow:libtensorflow_jni_gpu:1.14.0'
-    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
-    testCompile 'junit:junit:[4.0,)'
-
+    implementation 'org.xerial:sqlite-jdbc:3.21.0'
+    implementation 'org.tensorflow:tensorflow:1.14.0'  // 1.4.0 1.10.0 implementationOnly
+    // implementation 'org.tensorflow:libtensorflow_jni_gpu:1.10.0'
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
+    //testCompile 'junit:junit:[4.0,)'
+    testImplementation 'junit:junit:4.13'
 }
+
 
 if (file('custom.gradle').exists()) {
     apply from: 'custom.gradle'
+}
+
+
+/*
+ * Compile the icons at build time, for better performance.
+ * Note that the example in https://github.com/kirill-grouchnikov/radiance/blob/master/docs/tools/ignite/ignite.md
+ * didn't work because the compileJava.doFirst meant that the
+ * parameters like inputDirectory were initialized at the wrong time.
+ */
+task generateIcons {
+    ignite {
+        inputDirectory = file('src/main/resources/resource/svg')
+        outputDirectory = file('src/main/java/com/actelion/research/orbit/imageAnalysis/components/icons')
+        outputLanguage = 'java'
+        outputPackageName = 'com.actelion.research.orbit.imageAnalysis.components.icons'
+        useResizableTemplate = true
+        transcode()
+    }
 }

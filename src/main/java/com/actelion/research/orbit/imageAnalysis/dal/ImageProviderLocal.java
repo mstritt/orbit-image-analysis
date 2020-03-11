@@ -25,6 +25,7 @@ import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.beans.RawMeta;
 import com.actelion.research.orbit.dal.IModelAwareImageProvider;
 import com.actelion.research.orbit.dal.IOrbitImage;
+import com.actelion.research.orbit.gui.AbstractOrbitTree;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAODataFileSQLite;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAORawAnnotationSQLite;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.OrbitImageBioformats;
@@ -62,39 +63,37 @@ import java.util.prefs.Preferences;
 public class ImageProviderLocal extends ImageProviderNoop implements IModelAwareImageProvider, ChangeListener {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ImageProviderLocal.class);
-    private RawData rawData;
+    private final RawData rawData;
     private static int series = 0;
     private OrbitModel orbitModel = null;
-    private LoadingCache<Integer,List<RawMeta>> rawMetaFileCache = CacheBuilder.newBuilder().build(new CacheLoader<Integer, List<RawMeta>>() {
+    private final LoadingCache<Integer,List<RawMeta>> rawMetaFileCache = CacheBuilder.newBuilder().build(new CacheLoader<>() {
         @Override
         public List<RawMeta> load(Integer rdfId) throws Exception {
-            List<RawMeta> rmList =  new ArrayList<>();
+            List<RawMeta> rmList = new ArrayList<>();
             RawDataFile rdf = LoadRawDataFile(rdfId);
-            IOrbitImage image = createOrbitImage(rdf,0);
+            IOrbitImage image = createOrbitImage(rdf, 0);
 
-            RawMetaFactoryFile rmff = new RawMetaFactoryFile(rdfId,new Date(),"orbit");
-            rmList.add(rmff.createMetaStr("Filename",rdf.getFileName()));
+            RawMetaFactoryFile rmff = new RawMetaFactoryFile(rdfId, new Date(), "orbit");
+            rmList.add(rmff.createMetaStr("Filename", rdf.getFileName()));
             rmList.add(rmff.createMetaStr("Filesize", RawUtilsCommon.formatFileSize(rdf.getFileSize())));
             rmList.add(rmff.createMetaInt("Orbit ID", rdf.getRawDataFileId()));
             if (rdf.getReferenceDate() != null)
                 rmList.add(rmff.createMetaDate("Create Date", rdf.getReferenceDate()));
             if (rdf.getModifyDate() != null)
                 rmList.add(rmff.createMetaDate("Update Date", rdf.getModifyDate()));
-            if (image!=null) {
+            if (image != null) {
                 rmList.add(rmff.createMetaInt(RawUtilsCommon.STR_META_IMAGE_IMAGEHEIGHT, image.getHeight()));
                 rmList.add(rmff.createMetaInt(RawUtilsCommon.STR_META_IMAGE_IMAGEWIDTH, image.getWidth()));
 
                 if (image instanceof OrbitImageBioformats) {
                     OrbitImageBioformats oib = (OrbitImageBioformats) image;
-                    if (oib.getPixelsPhysicalSizeX()!=null &&  oib.getPixelsPhysicalSizeX().value()!=null) {
+                    if (oib.getPixelsPhysicalSizeX() != null && oib.getPixelsPhysicalSizeX().value() != null) {
                         rmList.add(rmff.createMetaDouble(RawUtilsCommon.STR_META_IMAGE_SCALE, oib.getPixelsPhysicalSizeX().value().doubleValue()));
                     }
-                } else
-                if (image instanceof NDPIImageNative) {
+                } else if (image instanceof NDPIImageNative) {
                     NDPIImageNative img = (NDPIImageNative) image;
                     rmList.add(rmff.createMetaDouble(RawUtilsCommon.STR_META_IMAGE_SCALE, img.getImageInfo().resolutionMuMperPixel));
-                } else
-                if (image instanceof NDPISImageNative) {
+                } else if (image instanceof NDPISImageNative) {
                     NDPISImageNative img = (NDPISImageNative) image;
                     rmList.add(rmff.createMetaDouble(RawUtilsCommon.STR_META_IMAGE_SCALE, img.getImageInfo().resolutionMuMperPixel));
                 }
@@ -114,6 +113,12 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
         rawData.setUserId("orbit");
     }
 
+    // TODO: Implement a file system browser.
+    @Override
+    public AbstractOrbitTree createOrbitTree() {
+        return new OTree("Local File Browser not implemented yet");
+    }
+
     @Override
     public void setOrbitModel(Object orbitModel) {
         if (orbitModel instanceof  OrbitModel) {
@@ -131,7 +136,7 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
     @Override
     public List<RawDataFile> browseImages(Object parentObj) throws Exception {
         List<RawDataFile> rdfList = new ArrayList<>();
-        this.series = 0;
+        series = 0;
         JFileChooser fileChooser = OrbitUtils.buildOpenFileFileChooser(this);
         Preferences prefs = Preferences.userNodeForPackage(this.getClass());
         String dir = prefs.get("ImageProviderLocal.OpenFileCurrentDir", null);
@@ -140,7 +145,7 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
             fileChooser.setCurrentDirectory(cd);
         }
         Component parent = null;
-        if (parentObj != null && parentObj instanceof Component) {
+        if (parentObj instanceof Component) {
             parent = (Component) parentObj;
         }
         int returnVal = fileChooser.showOpenDialog(parent);
@@ -173,7 +178,6 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
             rdf = createRDF(file.getAbsolutePath(),series);
             DAODataFileSQLite.InsertRawDataFile(rdf);
         }
-       //RawDataFile rdf = createRDF(file.getAbsolutePath(),series);
 
         return rdf;
     }
@@ -212,7 +216,7 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
     }
 
     @Override
-    public RawData LoadRawData(int i) throws Exception {
+    public RawData LoadRawData(int i) {
         return rawData;
     }
 
@@ -224,6 +228,10 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
     @Override
     public List<RawMeta> LoadRawMetasByRawDataFileAndName(int rdfId, String name) throws Exception {
         List<RawMeta> allMetas =  LoadRawMetasByRawDataFile(rdfId);
+        return getRawMetas(name, allMetas);
+    }
+
+    private List<RawMeta> getRawMetas(String name, List<RawMeta> allMetas) {
         List<RawMeta> filteredMetas = new ArrayList<>();
         if (allMetas!=null) {
             for (RawMeta rm: allMetas) {
@@ -239,7 +247,7 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
      * Ignores rdId and loads default metas. LocalFiles don't have a rawData container.
      */
     @Override
-    public List<RawMeta> LoadRawMetasByRawData(int rdId) throws Exception {
+    public List<RawMeta> LoadRawMetasByRawData(int rdId) {
         List<RawMeta> rmList =  new ArrayList<>();
         RawMetaFactoryData rmfd = new RawMetaFactoryData (rawData.getRawDataId(),new Date(),"orbit");
         rmList.add(rmfd.createMetaStr("Filesystem","local"));
@@ -250,17 +258,9 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
      * Ignores rdId, see LoadRawMetasByRawData(rdId)
      */
     @Override
-    public List<RawMeta> LoadRawMetasByRawDataAndName(int rdId, String name) throws Exception {
+    public List<RawMeta> LoadRawMetasByRawDataAndName(int rdId, String name) {
         List<RawMeta> allMetas =  LoadRawMetasByRawData(rdId);
-        List<RawMeta> filteredMetas = new ArrayList<>();
-        if (allMetas!=null) {
-            for (RawMeta rm: allMetas) {
-                if (rm.getName().equals(name)) {
-                    filteredMetas.add(rm);
-                }
-            }
-        }
-        return filteredMetas;
+        return getRawMetas(name, allMetas);
     }
 
     /**
@@ -308,7 +308,7 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
         }
     }
 
-    public BufferedImage getThumbnail(String filename) throws Exception {
+    public BufferedImage getThumbnail(String filename) {
         File file = new File(filename);
         String ending = RawUtilsCommon.getExtension(file.getName()) ;
         BufferedImage bi = null;
@@ -328,7 +328,6 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
                     }
                     
                 }  else {
-                  //  OrbitImageScifio oi = new OrbitImageScifio(file.getAbsolutePath(), 0);
                     logger.debug("loading thumbnail of file "+filename+", series: "+series);
                     OrbitImageBioformats oi = new OrbitImageBioformats(file.getAbsolutePath(), 0, series, orbitModel);
                     bi = oi.getThumbnail();
@@ -342,7 +341,7 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
     }
 
     @Override
-    public BufferedImage getThumbnail(RawDataFile rdf) throws Exception {
+    public BufferedImage getThumbnail(RawDataFile rdf) {
         return getThumbnail(rdf.getDataPath() + File.separator + rdf.getFileName());
     }
 
@@ -427,7 +426,7 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
      */
     public static void DBCleanup() throws Exception {
         List<RawDataFile> rdfList = DAODataFileSQLite.LoadRawDataFiles(); // load all RDFs
-        if (rdfList!=null && rdfList.size()>0) {
+        if (rdfList.size() > 0) {
             for (RawDataFile rdf: rdfList) {
                 File file = new File(rdf.getDataPath()+File.separator+rdf.getFileName());
                 if (!file.exists()) {
@@ -449,8 +448,8 @@ public class ImageProviderLocal extends ImageProviderNoop implements IModelAware
     @Override
     public void stateChanged(ChangeEvent e) {
         if (e.getSource() instanceof Integer) {
-            this.series = (Integer) e.getSource();
-            logger.debug("series set to "+this.series);
+            series = (Integer) e.getSource();
+            logger.debug("series set to "+ series);
         }
     }
 

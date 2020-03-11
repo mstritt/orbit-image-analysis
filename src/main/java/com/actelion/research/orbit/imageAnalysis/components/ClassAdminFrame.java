@@ -25,12 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 
 public class ClassAdminFrame extends JDialog {
@@ -38,6 +38,9 @@ public class ClassAdminFrame extends JDialog {
     private static final Logger log = LoggerFactory.getLogger(ClassAdminFrame.class);
     private static final long serialVersionUID = 264449917842683627L;
     public static final String CLASSADMIN_DONE = "classAdminFrame_classAdminDone";
+
+    private final ResourceBundle resourceBundle;
+
     private JPanel panelClassAttributes = null;
     private JScrollPane classScrollPane = null;
     private JList classList = null;
@@ -48,18 +51,20 @@ public class ClassAdminFrame extends JDialog {
     private JButton btnRenameClass = null;
     private JButton btnChooseColor = null;
     private final JLabel labIncExclMode = new JLabel("For Exclusion and Mask Model:");
-    private JComboBox cbIncExclMode = new JComboBox(new String[]{ClassShape.STR_UNDEFINED, ClassShape.STR_Inclusion, ClassShape.STR_Exclusion});
+    private final JComboBox cbIncExclMode = new JComboBox(new String[]{ClassShape.STR_UNDEFINED, ClassShape.STR_Inclusion, ClassShape.STR_Exclusion});
     private JButton btnOK = null;
 
-    //private JComboBox boxToUpdate = null;
-    private int frameWidth = 800;  // 647
-    private int frameHeight = 555;
-    private int btnHeight = 30;
+    private final int frameWidth = (int)(800 / OrbitUtils.getScaleFactor()[0]);  // 647
+    private final int frameHeight = (int)(555/OrbitUtils.getScaleFactor()[1]);
+    private final int btnHeight = (int)(30/OrbitUtils.getScaleFactor()[1]);
     private int boundaryClass = -1;
     private boolean firePropertyChangeEvent = true;
 
 
     public ClassAdminFrame(final List<ClassShape> classShapes, final ListCellRenderer renderer, final int boundaryClass, boolean firePropertyChangeEvent) {
+        Locale currLocale = Locale.getDefault();
+        resourceBundle = ResourceBundle.getBundle("Resources", currLocale);
+
         this.firePropertyChangeEvent = firePropertyChangeEvent;
         this.boundaryClass = boundaryClass;
         initialize();
@@ -67,13 +72,11 @@ public class ClassAdminFrame extends JDialog {
         for (ClassShape cs : classShapes) model.addElement(cs);
         this.classList.setModel(model);
         this.classList.setCellRenderer(renderer);
-        this.classList.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                ClassShape cs = (ClassShape) classList.getSelectedValue();
-                if (cs == null) return;
-                if (tfClassName != null) tfClassName.setText(cs.getName());
-                setIncExclMode(cs);
-            }
+        this.classList.addListSelectionListener(e -> {
+            ClassShape cs = (ClassShape) classList.getSelectedValue();
+            if (cs == null) return;
+            if (tfClassName != null) tfClassName.setText(cs.getName());
+            setIncExclMode(cs);
         });
 
         this.classShapes = classShapes;
@@ -85,9 +88,8 @@ public class ClassAdminFrame extends JDialog {
         if (cs.getIncExcMode() == ClassShape.EXCLUSION) cbIncExclMode.setSelectedItem(ClassShape.STR_Exclusion);
     }
 
-
     private void initialize() {
-        this.setTitle("Class Configuration (F4)");
+        this.setTitle(resourceBundle.getString("Model.ConfigureModel.classes.text"));
         java.net.URL imgURL = this.getClass().getResource(OrbitImageAnalysis.LOGO_NAME);
         if (imgURL != null) {
             ImageIcon icon = new ImageIcon(imgURL);
@@ -165,66 +167,52 @@ public class ClassAdminFrame extends JDialog {
         };
         btnAddClass.addActionListener(addAction);
 
-        ActionListener renameAction = new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                if (tfClassName.getText().length() <= 0) return;
-                if (classList.getSelectedValue() == null) return;
-                ((ClassShape) classList.getSelectedValue()).setName(tfClassName.getText());
-                classList.repaint();
-                //boxToUpdate.repaint();
-            }
+        ActionListener renameAction = arg0 -> {
+            if (tfClassName.getText().length() <= 0) return;
+            if (classList.getSelectedValue() == null) return;
+            ((ClassShape) classList.getSelectedValue()).setName(tfClassName.getText());
+            classList.repaint();
         };
         btnRenameClass.addActionListener(renameAction);
 
-        ActionListener removeAction = new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                DefaultListModel model = (DefaultListModel) classList.getModel();
-                if (classList.getSelectedValue() == null) return;
-                ClassShape cs = (ClassShape) classList.getSelectedValue();
-                model.removeElement(cs);
-                //((DefaultComboBoxModel)boxToUpdate.getModel()).removeElement(cs);
-                classShapes.remove(cs);
-                //boxToUpdate.repaint();
-            }
+        ActionListener removeAction = arg0 -> {
+            DefaultListModel model = (DefaultListModel) classList.getModel();
+            if (classList.getSelectedValue() == null) return;
+            ClassShape cs = (ClassShape) classList.getSelectedValue();
+            model.removeElement(cs);
+            classShapes.remove(cs);
         };
         btnRemoveClass.addActionListener(removeAction);
 
 
-        ActionListener colorAction = new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                if (classList.getSelectedValue() == null) return;
-                Color oldCol = ((ClassShape) classList.getSelectedValue()).getColor();
-                Color c = JColorChooser.showDialog(ClassAdminFrame.this, "Select color", oldCol);
-                if (c != null && c.getRGB() != OrbitUtils.UNDEF_COLOR) { // c is null if the colorDialog is closed e.g. with cancel
-                    ((ClassShape) classList.getSelectedValue()).setColor(c);
-                    classList.repaint();
-                }
-                if (c != null && c.getRGB() == OrbitUtils.UNDEF_COLOR)
-                    log.warn("This special color (black) cannot be used as class color!");
+        ActionListener colorAction = arg0 -> {
+            if (classList.getSelectedValue() == null) return;
+            Color oldCol = ((ClassShape) classList.getSelectedValue()).getColor();
+            Color c = JColorChooser.showDialog(ClassAdminFrame.this, "Select color", oldCol);
+            if (c != null && c.getRGB() != OrbitUtils.UNDEF_COLOR) { // c is null if the colorDialog is closed e.g. with cancel
+                ((ClassShape) classList.getSelectedValue()).setColor(c);
+                classList.repaint();
             }
+            if (c != null && c.getRGB() == OrbitUtils.UNDEF_COLOR)
+                log.warn("This special color (black) cannot be used as class color!");
         };
         btnChooseColor.addActionListener(colorAction);
 
-        ActionListener cbIncExclAction = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (classList.getSelectedValue() == null) return;
-                ClassShape cs = ((ClassShape) classList.getSelectedValue());
-                String mode = (String) cbIncExclMode.getSelectedItem();
-                if (mode.equals(ClassShape.STR_UNDEFINED)) cs.setIncExcMode(ClassShape.UNDEFINED);
-                if (mode.equals(ClassShape.STR_Inclusion)) cs.setIncExcMode(ClassShape.INCLUSION);
-                if (mode.equals(ClassShape.STR_Exclusion)) cs.setIncExcMode(ClassShape.EXCLUSION);
-            }
+        ActionListener cbIncExclAction = e -> {
+            if (classList.getSelectedValue() == null) return;
+            ClassShape cs = ((ClassShape) classList.getSelectedValue());
+            String mode = (String) cbIncExclMode.getSelectedItem();
+            if (mode.equals(ClassShape.STR_UNDEFINED)) cs.setIncExcMode(ClassShape.UNDEFINED);
+            if (mode.equals(ClassShape.STR_Inclusion)) cs.setIncExcMode(ClassShape.INCLUSION);
+            if (mode.equals(ClassShape.STR_Exclusion)) cs.setIncExcMode(ClassShape.EXCLUSION);
         };
         cbIncExclMode.addActionListener(cbIncExclAction);
 
 
-        ActionListener okAction = new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                ClassAdminFrame.this.dispose();
-                if (firePropertyChangeEvent) {
-                    firePropertyChange(CLASSADMIN_DONE, null, classShapes);
-                }
+        ActionListener okAction = arg0 -> {
+            ClassAdminFrame.this.dispose();
+            if (firePropertyChangeEvent) {
+                firePropertyChange(CLASSADMIN_DONE, null, classShapes);
             }
         };
         btnOK.addActionListener(okAction);
@@ -239,7 +227,6 @@ public class ClassAdminFrame extends JDialog {
     private JPanel getPanelClassAttributes() {
         if (panelClassAttributes == null) {
             panelClassAttributes = new JPanel();
-            //BoxLayout bl = new BoxLayout(getJContentPane(), BoxLayout.Y_AXIS);
             panelClassAttributes.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
         }
         return panelClassAttributes;
@@ -253,7 +240,6 @@ public class ClassAdminFrame extends JDialog {
     private JScrollPane getClassScrollPane() {
         if (classScrollPane == null) {
             classScrollPane = new JScrollPane();
-            //classScrollPane.setSize(new Dimension(313,frameHeight-30));
             classScrollPane.setViewportView(getClassList());
         }
         return classScrollPane;

@@ -99,9 +99,9 @@ public class OrbitUtils {
 
     public static final String MODEL_ENDING = ".omo"; // filename ending of orbit models
     public static final String remoteNameSpace = "orbit/temp";
-    public static final String orbitHelpURL = "http://www.orbit.bio/help";
-    public static final String orbitTutorialsURL = "http://www.orbit.bio/tutorials";
-    public static final String orbitImageProviderURL = "http://www.orbit.bio/setup";
+    public static final String orbitHelpURL = "https://www.orbit.bio/help";
+    public static final String orbitTutorialsURL = "https://www.orbit.bio/tutorials";
+    public static final String orbitImageProviderURL = "https://www.orbit.bio/setup";
 
     public static final String CHANNEL_NAME_ALL = "<ALL CHANNELS>";
 
@@ -133,6 +133,7 @@ public class OrbitUtils {
         }
     }
 
+    @Deprecated
     public static String getCurrentDir() {
         return "/tmp";
         /*
@@ -158,6 +159,21 @@ public class OrbitUtils {
         */
     }
 
+    /**
+     * See also: https://github.com/kirill-grouchnikov/radiance/blob/master/docs/neon/neon.md#working-with-high-resolution--high-dpi-displays
+     * Should not be used outside GUI code, since headless it won't work.
+     *
+     * @return double[]{scaleX, scaleY} the respective X and Y scale factors for the highest resolution display.
+     */
+    public static double[] getScaleFactor() {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] gds = ge.getScreenDevices();
+        GraphicsConfiguration gc = gds[0].getDefaultConfiguration();
+        double scaleX = gc.getDefaultTransform().getScaleX();
+        double scaleY = gc.getDefaultTransform().getScaleY();
+
+        return new double[]{scaleX, scaleY};
+    }
 
     public static byte[] getContentBytes(URL url) {
         byte[] bytes = new byte[4096];

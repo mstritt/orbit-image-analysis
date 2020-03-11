@@ -38,18 +38,16 @@ public class LoupeWithScale extends JPanel {
         scaleSlider.setMinorTickSpacing(100);
         scaleSlider.setPaintTicks(false);
         scaleSlider.setPaintLabels(true);
-        Hashtable<Integer, Component> labelTable = new Hashtable<Integer, Component>();
+        Hashtable<Integer, Component> labelTable = new Hashtable<>();
         labelTable.put(100, new JLabel("100%"));
         labelTable.put(400, new JLabel("400%"));
         labelTable.put(700, new JLabel("700%"));
         labelTable.put(1000, new JLabel("1000%"));
         scaleSlider.setLabelTable(labelTable);
-        scaleSlider.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                double scale = scaleSlider.getValue();
-                loupe.setScale(scale);
-                loupe.repaint();
-            }
+        scaleSlider.addChangeListener(e -> {
+            double scale = scaleSlider.getValue();
+            loupe.setScale(scale);
+            loupe.repaint();
         });
 
         // layout
