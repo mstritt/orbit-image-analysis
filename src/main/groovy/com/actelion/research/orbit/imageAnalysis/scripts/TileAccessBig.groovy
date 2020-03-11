@@ -28,20 +28,23 @@
 import com.actelion.research.orbit.beans.RawDataFile
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig
+import com.actelion.research.orbit.imageAnalysis.models.IScaleableShape
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils
 
 import java.awt.Point
+import java.awt.Shape
 import java.awt.image.Raster
 
 RawDataFile rdf = DALConfig.imageProvider.LoadRawDataFile(7683);
 RecognitionFrame recognitionFrame = new RecognitionFrame(rdf);
 recognitionFrame.loadAnnotationROI(rdf.rawDataFileId,0);
+IScaleableShape roi = recognitionFrame.getROI()
 
 long[] rgb = [0,0,0];
 long cnt=0;
 recognitionFrame.bimg.image.getTileIndices(null).each {
     Point tileIdx = it;
-    if (OrbitUtils.isTileInROI((int)tileIdx.x,(int)tileIdx.y,recognitionFrame.bimg.image, null,null)) {   // fuzzy! (but fast)
+    if (OrbitUtils.isTileInROI((int)tileIdx.x,(int)tileIdx.y,recognitionFrame.bimg.image, roi,null)) {   // fuzzy! (but fast)
         Raster r = recognitionFrame.bimg.image.getTile((int) tileIdx.x, (int) tileIdx.y);
         for (int y=r.minY; y<r.minY + r.height; y++)
             for (int x=r.minX; x<r.minX + r.width; x++) {
