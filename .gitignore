@@ -12,7 +12,6 @@
 orbit-exe.xml
 *.exe
 settings.gradle
-/gradle/
 custom.gradle
 build.xml
 config_custom.properties
