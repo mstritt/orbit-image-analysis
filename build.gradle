@@ -32,7 +32,7 @@ plugins {
     id "com.github.cr0.macappbundle" version "3.0.1"
 }
 
-// Import ignite for the buildscript (to build the Java classes for the icons from the SVGs.
+// Import ignite for the buildscript (to build the Java classes for the icons from the SVGs).
 apply plugin: 'org.pushing-pixels.ignite'
 
 apply plugin: 'java'
@@ -43,11 +43,6 @@ apply plugin: 'license-report'
 [ compileJava, compileTestJava ]*.options*.encoding = 'UTF-8'
 
 ext.description = "OrbitImageAnalysis"
-
-// Pin the Gradle version
-wrapper {
-    gradleVersion = "6.2.2"
-}
 
 
 // Configure Java compilation for all the projects
@@ -80,7 +75,7 @@ tasks.withType(JavaCompile) {
         delete 'out'     // interpreted relative to the project directory
     }
 
-    disableAutoTargetJvm()
+//    disableAutoTargetJvm()
 }
 
 ext.orbitVersion = new File(projectDir,"src/main/resources/version.txt").text
@@ -112,10 +107,10 @@ repositories {
         //url 'http://maven.imagej.net/content/repositories/snapshots/'
         url 'https://maven.scijava.org/content/repositories/snapshots/'
         // https://docs.gradle.org/current/javadoc/org/gradle/api/artifacts/repositories/RepositoryContentDescriptor.html
-        content {
-//            // for legacy-imglib1-2.0.0-SNAPSHOT.jar used by imagej1 compatible graph_cut
-            includeModule "sc.fiji", "legacy-imglib1"//, "2.0.0-SNAPSHOT"
-        }
+//        content {
+////            // for legacy-imglib1-2.0.0-SNAPSHOT.jar used by imagej1 compatible graph_cut
+//            includeModule "sc.fiji", "legacy-imglib1"//, "2.0.0-SNAPSHOT"
+//        }
     }
 //    maven {
 //        url 'http://maven.imagej.net/content/repositories/releases/'  // scifio
@@ -232,7 +227,7 @@ dependencies {
 
     // Radiance UI and dependencies
     implementation "org.pushing-pixels:radiance-substance:$radianceVersion"
-    implementation "org.pushing-pixels:radiance-flamingo:$radianceVersion"
+    api "org.pushing-pixels:radiance-flamingo:$radianceVersion"
     implementation "org.pushing-pixels:radiance-neon:$radianceVersion"
     implementation "org.pushing-pixels:radiance-photon:$radianceVersion"
 
