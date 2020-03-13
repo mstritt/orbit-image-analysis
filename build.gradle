@@ -262,7 +262,7 @@ dependencies {
     implementation (group: 'org.codelibs', name:'jcifs', version:'1.3.18.1') {  // for SmbUtils     (exclude javax.servlet-api because Spark needs a different version)
         exclude (group:'javax.servlet', module: 'servlet-api')
     }
-    api (group: 'ome', name:'formats-gpl', version:'6.1.1') {     // 5.9.2
+    api (group: 'ome', name:'formats-gpl', version:'6.4.0') {
         exclude (module: 'blitz')
     }
     api (group: 'net.imglib2', name: 'imglib2', version: '3.2.1') // to avoid jpeg2000 problem: NoSuchMethodError: jj2000.j2k.fileformat.reader.FileFormatReader.<init>
