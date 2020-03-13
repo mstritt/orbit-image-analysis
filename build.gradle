@@ -161,7 +161,7 @@ publishing {
 
 task copyToLib( type: Copy ) {
     into "$buildDir/libs/lib"
-    from configurations.runtime
+    from configurations.runtimeClasspath
 }
 
 jar {
@@ -172,7 +172,6 @@ jar {
                 'Implementation-Version': orbitVersion,
                 'Main-Class': 'com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis',
                 'Vendor': 'Idorsia'
-                //,'Class-Path': 'lib/*'
     }
 }
 
