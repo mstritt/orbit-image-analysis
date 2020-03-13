@@ -23,7 +23,7 @@ buildscript {
     }
     dependencies {
         classpath "com.smokejumperit.gradle.license:Gradle-License-Report:0.0.2"
-        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.2"
         classpath "org.pushing-pixels:radiance-ignite:2.5.1"
     }
 }
@@ -75,7 +75,7 @@ tasks.withType(JavaCompile) {
         delete 'out'     // interpreted relative to the project directory
     }
 
-//    disableAutoTargetJvm()
+    disableAutoTargetJvm()
 }
 
 ext.orbitVersion = new File(projectDir,"src/main/resources/version.txt").text
@@ -134,7 +134,7 @@ task sourceJar(type: Jar) {
     from sourceSets.main.allJava
 }
 task docJar(type: Jar, dependsOn: 'javadoc') {
-    from javadoc.destinationDir
+    from destinationDirectory
 }
 
 
@@ -161,7 +161,7 @@ publishing {
 
 task copyToLib( type: Copy ) {
     into "$buildDir/libs/lib"
-    from configurations.runtime
+    from configurations.runtimeClasspath
 }
 
 jar {
@@ -172,7 +172,6 @@ jar {
                 'Implementation-Version': orbitVersion,
                 'Main-Class': 'com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis',
                 'Vendor': 'Idorsia'
-                //,'Class-Path': 'lib/*'
     }
 }
 
