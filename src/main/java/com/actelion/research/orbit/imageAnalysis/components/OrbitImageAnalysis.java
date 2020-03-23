@@ -2258,7 +2258,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             // are exactly the referenceClassShapes
             List<ClassShape> cs = (List<ClassShape>) evt.getNewValue();
             updateClassShapes(cs);
-
+            updateCcbModel(cs);
         } else if (evt.getPropertyName().equals("progress") && (evt.getSource() instanceof ClassificationWorker)) {
             int progress = (Integer) evt.getNewValue();
             if (logger.isTraceEnabled())
