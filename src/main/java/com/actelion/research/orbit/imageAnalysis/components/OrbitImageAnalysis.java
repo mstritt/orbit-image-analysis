@@ -2229,7 +2229,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
             logger.debug("Orbit shutdown");
             //this.dispose();
+            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             System.exit(0);
+        } else {
+            setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         }
     }
 
