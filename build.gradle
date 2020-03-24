@@ -28,9 +28,9 @@ buildscript {
     }
 }
 
-plugins {
-    id "com.github.cr0.macappbundle" version "3.0.1"
-}
+//plugins {
+//    id "com.github.cr0.macappbundle" version "3.0.1"
+//}
 
 // Import ignite for the buildscript (to build the Java classes for the icons from the SVGs).
 apply plugin: 'org.pushing-pixels.ignite'
@@ -39,6 +39,7 @@ apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 apply plugin: 'license-report'
+apply plugin: 'idea'
 
 [ compileJava, compileTestJava ]*.options*.encoding = 'UTF-8'
 
