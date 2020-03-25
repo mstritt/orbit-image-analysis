@@ -81,7 +81,7 @@ tasks.withType(JavaCompile) {
 
 ext.orbitVersion = new File(projectDir,"src/main/resources/version.txt").text
 ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
-project.version = orbitVersion
+project.version = ext.orbitVersion
 
 // Define the Radiance version in one place, since multiple libraries that need to be updated together.
 def radianceVersion = '2.5.1'
@@ -167,6 +167,7 @@ task copyToLib( type: Copy ) {
 }
 
 jar {
+    archiveVersion = orbitVersion
     dependsOn copyToLib
 //    zip64=true
     manifest {
@@ -290,9 +291,9 @@ dependencies {
 }
 
 
-if (file('custom.gradle').exists()) {
-    apply from: 'custom.gradle'
-}
+//if (file('custom.gradle').exists()) {
+//    apply from: 'custom.gradle'
+//}
 
 
 /*
