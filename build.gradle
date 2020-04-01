@@ -285,7 +285,7 @@ dependencies {
     implementation 'org.xerial:sqlite-jdbc:3.21.0'
     implementation 'org.tensorflow:tensorflow:1.14.0'  // 1.4.0 1.10.0 implementationOnly
     // implementation 'org.tensorflow:libtensorflow_jni_gpu:1.10.0'
-    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7'
     //testCompile 'junit:junit:[4.0,)'
     testImplementation 'junit:junit:4.13'
 }
