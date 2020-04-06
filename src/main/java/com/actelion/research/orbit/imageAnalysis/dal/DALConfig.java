@@ -75,17 +75,12 @@ public class DALConfig {
             logger.info("Different image providers can be configured in resources/config.properties or resources/config_custom.properties (priority).");
 
             try {
-                // TODO: What is happening here?
                 // https://docs.oracle.com/javase/9/docs/api/java/lang/Class.html#newInstance--
-                //imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).newInstance();
                 imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).getDeclaredConstructors()[0].newInstance();
-                //imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).getDeclaredConstructor().newInstance();
             } catch (InvocationTargetException e) {
                 e.getCause();
+                // Note that exceptions not chained with Constructors.newInstance(), so need to extract the cause.
                 if (e.getCause() instanceof IllegalStateException) {
-
-//                }
-//            } catch (IllegalStateException e) {
                     final String m = e.getCause().getMessage() + "\n\nOrbit will continue with the fallback local filesystem image provider.";
                     logger.warn(m);
                     if (!GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance() && !ScaleoutMode.SCALEOUTMODE.get()) {
