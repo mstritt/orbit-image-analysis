@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -79,24 +80,30 @@ public class DALConfig {
                 //imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).newInstance();
                 imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).getDeclaredConstructors()[0].newInstance();
                 //imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).getDeclaredConstructor().newInstance();
-            } catch (IllegalStateException e) {
-                final String m = e.getMessage() + "\n\nOrbit will continue with the fallback local filesystem image provider.";
-                logger.warn(m);
-                if (!GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance() && !ScaleoutMode.SCALEOUTMODE.get()) {
-                    SwingUtilities.invokeLater(() -> {
-                        Object[] options = new Object[]{"Continue", "More Information"};
-                        if (JOptionPane.showOptionDialog(null, m, "Image provider not available, using local filesystem fallback", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]) == JOptionPane.NO_OPTION) {
-                            if (Desktop.isDesktopSupported()) {
-                                try {
-                                    Desktop.getDesktop().browse(new URI(OrbitUtils.orbitImageProviderURL));
-                                } catch (Exception e1) {
-                                    e1.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.getCause();
+                if (e.getCause() instanceof IllegalStateException) {
+
+//                }
+//            } catch (IllegalStateException e) {
+                    final String m = e.getCause().getMessage() + "\n\nOrbit will continue with the fallback local filesystem image provider.";
+                    logger.warn(m);
+                    if (!GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance() && !ScaleoutMode.SCALEOUTMODE.get()) {
+                        SwingUtilities.invokeLater(() -> {
+                            Object[] options = new Object[]{"Continue", "More Information"};
+                            if (JOptionPane.showOptionDialog(null, m, "Image provider not available, using local filesystem fallback", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]) == JOptionPane.NO_OPTION) {
+                                if (Desktop.isDesktopSupported()) {
+                                    try {
+                                        Desktop.getDesktop().browse(new URI(OrbitUtils.orbitImageProviderURL));
+                                    } catch (Exception e1) {
+                                        e1.printStackTrace();
+                                    }
                                 }
                             }
-                        }
-                    });
+                        });
+                    }
+                    imageProvider = localImageProvider;
                 }
-                imageProvider = localImageProvider;
             }
 
             logger.info("scaleout mode: "+ScaleoutMode.SCALEOUTMODE.get());
