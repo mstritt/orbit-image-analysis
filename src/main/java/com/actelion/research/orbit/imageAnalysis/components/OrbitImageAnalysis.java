@@ -2816,7 +2816,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
                 if (!ScaleoutMode.SCALEOUTMODE.get()) {
                     // https://github.com/kirill-grouchnikov/radiance/blob/c8ae31a6f569a7fb1c0997c3a6338a955fa5f6b0/docs/substance/faq.md
-//                    System.setProperty("sun.awt.noerasebackground", "true");
+                    // Added to try and solve the issue in the link above (Windows window resize flickering)
+                    // But this doesn't seem to help, and introduces an issue with the Omero configuration
+                    // dialog. Therefore disabling the setting now.
+                    // System.setProperty("sun.awt.noerasebackground", "true");
                     JFrame.setDefaultLookAndFeelDecorated(true);
                     JDialog.setDefaultLookAndFeelDecorated(true);
                     SubstanceCortex.GlobalScope.setSkin(new GraphiteGlassSkin());
