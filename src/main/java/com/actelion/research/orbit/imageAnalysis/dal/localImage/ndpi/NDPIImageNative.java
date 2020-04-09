@@ -22,6 +22,8 @@ package com.actelion.research.orbit.imageAnalysis.dal.localImage.ndpi;
 import com.actelion.research.orbit.beans.MinMaxPerChan;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.ImageUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
@@ -34,6 +36,7 @@ import java.rmi.RemoteException;
 
 public class NDPIImageNative extends AbstractOrbitImage {
 
+    protected static final Logger logger = LoggerFactory.getLogger(NDPIImageNative.class);
     private ImageUtils imageUtils = null;
     private NDPICachingOrbitImageServerPyramid server = null;
     private final int NUM_TILE_TRIES = 5;
@@ -41,7 +44,7 @@ public class NDPIImageNative extends AbstractOrbitImage {
 
     public NDPIImageNative(String filename, int level) throws Exception {
         super(filename, level, false);
-        logger.trace("loading NDPI image using native ndpi library: "+filename+" ["+level+"]");
+        logger.info("loading NDPI image using native ndpi library: "+filename+" ["+level+"]");
         BufferedImage bi = new BufferedImage(getTileWidth(), getTileHeight(), BufferedImage.TYPE_3BYTE_BGR);
         PlanarImage image = PlanarImage.wrapRenderedImage(bi);
         if (image.getSampleModel() != null && (!image.getSampleModel().equals(sampleModel))) {
@@ -49,6 +52,8 @@ public class NDPIImageNative extends AbstractOrbitImage {
         }
         if (level >= getNumLevels())
             throw new OrbitImageServletException("level " + level + " >= numLevels (" + getNumLevels() + ")");
+
+        logger.info(filename+" loaded ["+width+" x "+height+"]");
     }
 
     private ImageUtils getImageUtils() {
@@ -159,11 +164,11 @@ public class NDPIImageNative extends AbstractOrbitImage {
 
     // set path to ndp.read lib via e.g. -Djna.library.path=/u00/.../OrbitNDPI/libNDPread2.so
     public static void main(String[] args) throws Exception {
-        NDPIImageNative img = new NDPIImageNative("test1.ndpi",5);
-        System.out.println(img.readInfoString("test.ndpi"));
+        NDPIImageNative img = new NDPIImageNative("C:\\Users\\fullejo1\\Downloads\\Orexin_24 - 2020-03-11 06.37.08.ndpi",5);
+        System.out.println(img.readInfoString("C:\\Users\\fullejo1\\Downloads\\Orexin_24 - 2020-03-11 06.37.08.ndpi"));
         WritableRaster raster = (WritableRaster) img.getTileData(1,0,true).createTranslatedChild(0,0);
         BufferedImage bi = new BufferedImage(img.getColorModel(),raster,false,null);
-        ImageIO.write(bi,"png",new File("d:/test.png"));
+        ImageIO.write(bi,"png",new File("C:\\Users\\fullejo1\\Downloads\\test-ndpi.png"));
         img.close();
     }
 }
