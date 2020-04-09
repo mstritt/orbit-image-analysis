@@ -1,6 +1,6 @@
 /*
  *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2018 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
+ *     Copyright (C) 2009 - 2020 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -19,12 +19,10 @@
 
 package com.actelion.research.orbit.imageAnalysis.test;
 
-import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.OrbitImageBioformats;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.ndpi.NDPIImageNative;
 import com.actelion.research.orbit.imageAnalysis.utils.*;
-import loci.formats.FormatException;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -37,7 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -47,12 +44,15 @@ import static org.hamcrest.Matchers.lessThan;
 
 //@Ignore
 public class TestNDPINativeAndJava {
+    // Define this image to use testReaderUserImage()
+    private static String testImagePath;
     private static String testBrightImagePath;
     private static String testFluoroImagePath;
 
     private enum TestImageType {
         BRIGHTFIELD,
-        FLUORESCENCE
+        FLUORESCENCE,
+        USER_DEFINED
     }
 
     @BeforeClass
@@ -62,79 +62,22 @@ public class TestNDPINativeAndJava {
         OrbitUtils.SLEEP_TILE=0;
 
         // TODO: Import images from http://openslide.cs.cmu.edu/download/openslide-testdata/Hamamatsu/
-//        testImagePath = TestTissueClassificationNDPIS.class.getResource("/testimages/test3-FITC 2 (485).ndpi").toString().replaceAll("file:/","").replaceAll("%20"," ");
         testBrightImagePath = TestTissueClassificationNDPIS.class.getResource("/testimages/CMU-1.ndpi").toString().replaceAll("file:/","").replaceAll("%20"," ");
         testFluoroImagePath = TestTissueClassificationNDPIS.class.getResource("/testimages/test3-FITC 2 (485).ndpi").toString().replaceAll("file:/","").replaceAll("%20"," ");
 
+        testImagePath = "";
         // Test a double size, >4Gb file...
-//        testImagePath = "C:\\Users\\fullejo1\\Downloads\\Orexin_24 - 2020-03-11 06.37.08.ndpi";
-//        testImagePath = "C:\\Users\\fullejo1\\Downloads\\IVV02-18_Lung_MT_Gr.A_Rat05 - 2020-01-08 10.14.16.ndpi";
 
         System.out.println("Brightfield test image: "+testBrightImagePath);
-        System.out.println("Fluoroscense test image: "+testFluoroImagePath);
+        System.out.println("Fluorescence test image: "+testFluoroImagePath);
+        System.out.println("User-defined test image: "+testImagePath);
     }
-
-//    /**
-//     * Here we check that the NDPI Reader that uses Native libraries produces the
-//     * same results as the Java version (which uses Bioformats).
-//     * @throws Exception
-//     */
-//    @Test
-//    public void testReaderIdenticalImages() throws Exception {
-//        OrbitTiledImage2 imgJava = getRecognitionFrameJava(TestImageType.BRIGHTFIELD, 0).bimg.getImage();
-//        OrbitTiledImage2 imgNative = getRecognitionFrameNative(TestImageType.BRIGHTFIELD, 0).bimg.getImage();
-//
-////        imgJava.getTile(0,0);
-////        imgNative.getTile(0,0);
-//        // The images should have the same dimension irrespective of the reader used.
-//        assertEquals(imgJava.getWidth(),imgNative.getWidth());
-//        assertEquals(imgJava.getHeight(),imgNative.getHeight());
-//
-//        System.out.println(Arrays.toString(imgJava.getTileIndices(null)));   // 3,4
-//        System.out.println(Arrays.toString(imgNative.getTileIndices(null)));  // 7,9
-//
-//        // rJ has tile size of 512, and rN has tile size of 1024 - which is why tile coordinates are different in each case.
-//        WritableRaster rJ = (WritableRaster) imgJava.getTile(3,4).createTranslatedChild(0,0);
-//        WritableRaster rN = (WritableRaster) imgNative.getTile(7,9).createTranslatedChild(0,0);
-//
-//        int pixelN = rN.getSample(rN.getMinX()+rN.getWidth()-100, rN.getMinY()+rN.getHeight()-8,0);
-//        int pixelJ = rJ.getSample(rJ.getMinX()+rJ.getWidth()-100, rJ.getMinY()+rJ.getHeight()-8,0);
-//        // TODO: Why is the delta 2?
-//        assertEquals(pixelN, pixelJ,2);
-//
-////        // https://github.com/ome/bioformats/issues/3059
-////        int pixelN1 = rN.getSample(rN.getMinX()+rN.getWidth()-100, rN.getMinY()+rN.getHeight(),0);
-////        int pixelJ1 = rJ.getSample(rJ.getMinX()+rJ.getWidth()-100, rJ.getMinY()+rJ.getHeight(),0);
-////        // TODO: Why is the delta 2?
-////        assertEquals(pixelN1, pixelJ1,2);
-//
-//        // You can use this code to manually check the images.
-////        BufferedImage biJ = new BufferedImage(imgJava.getColorModel(),rJ,false,null);
-////        BufferedImage biN = new BufferedImage(imgNative.getColorModel(),rN,false,null);
-////        ImageIO.write(biJ,"png",new File("C:\\Users\\fullejo1\\Downloads\\testJ.png"));
-////        ImageIO.write(biN,"png",new File("C:\\Users\\fullejo1\\Downloads\\testN.png"));
-//
-//        Rectangle rect = new Rectangle(imgJava.getWidth()-1024,imgJava.getHeight()-1024,1024,1024);
-////        ByteInterleavedRaster brN2 = (ByteInterleavedRaster) imgNative.getData(rect).createTranslatedChild(0,0);
-////
-////        IntegerInterleavedRaster irN2 = (IntegerInterleavedRaster) imgNative.getData(rect).createTranslatedChild(0,0);
-//
-//        WritableRaster rJ2 = (WritableRaster) imgJava.getData(rect).createTranslatedChild(0,0);
-//        WritableRaster rN2 = (WritableRaster) imgNative.getData(rect).createTranslatedChild(0,0);
-//
-////        int pixelN2 = rN2.getSample(rN2.getMinX()+rN2.getWidth()-1023, rN2.getMinY()+rN2.getHeight()-1023,0);
-////        int pixelJ2 = rJ2.getSample(rJ2.getMinX()+rJ2.getWidth()-1023, rJ2.getMinY()+rJ2.getHeight()-1023,0);
-//        int pixelJ2 = rJ2.getSample(0,0,0);
-//        int pixelN2 = rN2.getSample(0,0,0);
-//
-//        assertEquals(pixelN2, pixelJ2,0);
-//    }
 
     /**
      * Here we check that the NDPI Reader that uses Native libraries produces the
      * same results as the Java version (which uses Bioformats), using Brightfield
      * image as a test.
-     * @throws Exception
+     * @throws Exception :-(
      */
     @Test
     public void testReaderIdenticalBrightfieldTilePixels() throws Exception {
@@ -199,15 +142,12 @@ public class TestNDPINativeAndJava {
      * Here we check that the NDPI Reader that uses Native libraries produces the
      * same results as the Java version (which uses Bioformats), using Fluorescence
      * image as a test.
-     * @throws Exception
+     * @throws Exception :-(
      */
     @Test
     public void testReaderIdenticalFluorescenceTilePixels() throws Exception {
-
-        // Check the first and second levels.
-        for(int i=0; i<2; i++) {
-            OrbitTiledImage2 imgJava = getRecognitionFrameJava(TestImageType.FLUORESCENCE, i).bimg.getImage();
-            OrbitTiledImage2 imgNative = getRecognitionFrameNative(TestImageType.FLUORESCENCE, i).bimg.getImage();
+            OrbitTiledImage2 imgJava = getRecognitionFrameJava(TestImageType.FLUORESCENCE, 0).bimg.getImage();
+            OrbitTiledImage2 imgNative = getRecognitionFrameNative(TestImageType.FLUORESCENCE, 0).bimg.getImage();
 
             // The images should have the same dimension irrespective of the reader used.
             assertEquals(imgJava.getWidth(), imgNative.getWidth());
@@ -221,27 +161,25 @@ public class TestNDPINativeAndJava {
             int pixelN = rN.getSample(rN.getMinX() + rN.getWidth() - 100, rN.getMinY() + rN.getHeight() - 100, 0);
 
             // 'Random' pixel values at the first tile should have the same value.
-//            assertEquals(pixelJ, pixelN, 1);
+            assertEquals(pixelJ, pixelN, 1);
 
-            if(i==0) {
-                // rJ has tile size of 512, and rN has tile size of 1024 - which is why tile coordinates are different in each case.
-                WritableRaster rJ2 = (WritableRaster) imgJava.getTile(3, 4).createTranslatedChild(0, 0);
-                WritableRaster rN2 = (WritableRaster) imgNative.getTile(7, 9).createTranslatedChild(0, 0);
+            // rJ has tile size of 512, and rN has tile size of 1024 - which is why tile coordinates are different in each case.
+            WritableRaster rJ2 = (WritableRaster) imgJava.getTile(3, 4).createTranslatedChild(0, 0);
+            WritableRaster rN2 = (WritableRaster) imgNative.getTile(7, 9).createTranslatedChild(0, 0);
 
-                // A test that shouldn't suffer from: https://github.com/ome/bioformats/issues/3059
-                int pixelJ2 = rJ2.getSample(rJ.getMinX() + rJ.getWidth() - 100, rJ.getMinY() + rJ.getHeight() - 8, 0);
-                int pixelN2 = rN2.getSample(rN.getMinX() + rN.getWidth() - 100, rN.getMinY() + rN.getHeight() - 8, 0);
+            // A test that shouldn't suffer from: https://github.com/ome/bioformats/issues/3059
+            int pixelJ2 = rJ2.getSample(rJ.getMinX() + rJ.getWidth() - 100, rJ.getMinY() + rJ.getHeight() - 8, 0);
+            int pixelN2 = rN2.getSample(rN.getMinX() + rN.getWidth() - 100, rN.getMinY() + rN.getHeight() - 8, 0);
 
-                // Pixels at the same place on the last tile should have the same value.
-                //            assertEquals(pixelJ2, pixelN2, 1);
+            // Pixels at the same place on the last tile should have the same value.
+            assertEquals(pixelJ2, pixelN2, 2);
 
-                // A test that should suffer from: https://github.com/ome/bioformats/issues/3059
-                int pixelJ2a = rJ2.getSample(rJ.getMinX() + rJ.getWidth() - 100, rJ.getMinY() + rJ.getHeight()-1, 0);
-                int pixelN2a = rN2.getSample(rN.getMinX() + rN.getWidth() - 100, rN.getMinY() + rN.getHeight()-1, 0);
+            // A test that should suffer from: https://github.com/ome/bioformats/issues/3059
+            int pixelJ2a = rJ2.getSample(rJ.getMinX() + rJ.getWidth() - 100, rJ.getMinY() + rJ.getHeight()-1, 0);
+            int pixelN2a = rN2.getSample(rN.getMinX() + rN.getWidth() - 100, rN.getMinY() + rN.getHeight()-1, 0);
 
-                // Pixels at the same place on the last tile should have the same value.
-//            assertEquals(pixelJ2a, pixelN2a, 1);
-            }
+            // Pixels at the same place on the last tile should have the same value.
+            assertEquals(pixelJ2a, pixelN2a, 2);
 
             // Extract an area from the image (to avoid tile size differences)
             Rectangle rect = new Rectangle(imgJava.getWidth()-456,imgJava.getHeight()-456,1024,1024);
@@ -252,14 +190,13 @@ public class TestNDPINativeAndJava {
             int pixelJ3 = rJ3.getSample(0,0,0);
             int pixelN3 = rN3.getSample(0,0,0);
 
-//            assertEquals(pixelN3, pixelJ3,1);
+            assertEquals(pixelN3, pixelJ3,6);
 
             // Grab a more random pixel
             int pixelN4 = rN3.getSample(rN3.getMinX()+rN3.getWidth()-666, rN3.getMinY()+rN3.getHeight()-42,0);
             int pixelJ4 = rJ3.getSample(rJ3.getMinX()+rJ3.getWidth()-666, rJ3.getMinY()+rJ3.getHeight()-42,0);
 
             assertEquals(pixelN4, pixelJ4,2);
-        }
     }
 
     /**
@@ -332,6 +269,29 @@ public class TestNDPINativeAndJava {
     }
 
     /**
+     * Use this to test a specific image. Leave as @Ignore so it isn't tested by CI/CD.
+     * @throws Exception :-(
+     */
+    @Test
+    @Ignore
+    public void testReaderUserImage() throws Exception {
+        Instant startJ = java.time.Instant.now();
+        readTileWriteImage(getRecognitionFrameJava(TestImageType.USER_DEFINED, 0), "testJ.png");
+        Instant endJ = java.time.Instant.now();
+        Duration betweenJ = java.time.Duration.between(startJ, endJ);
+
+        Instant startN = java.time.Instant.now();
+        readTileWriteImage(getRecognitionFrameNative(TestImageType.USER_DEFINED, 0), "testN.png");
+        Instant endN = java.time.Instant.now();
+        Duration betweenN = java.time.Duration.between(startN, endN);
+
+        System.out.println("Java Implementation:"+ betweenJ ); // PT1.001S
+        System.out.println("Native Implementation:"+  betweenN ); // PT1.001S
+
+        assertThat(betweenJ, allOf(greaterThan(betweenN), lessThan(betweenN.multipliedBy(5))));
+    }
+
+    /**
      * Read a predefined tile and write it to a png file is java.io.tmpdir. Used for testing purposes.
      * @param recognitionFrame the recognition frame.
      * @param s the filename (as seen in the tmpdir)
@@ -363,6 +323,9 @@ public class TestNDPINativeAndJava {
             case FLUORESCENCE:
                 reader = new OrbitImageBioformats(testFluoroImagePath, imageLevel, 0, null);
                 break;
+            case USER_DEFINED:
+                reader = new OrbitImageBioformats(testImagePath, imageLevel, 0, null);
+                break;
             default:
                 throw new IllegalStateException("Unexpected value: " + imageType);
         }
@@ -388,6 +351,9 @@ public class TestNDPINativeAndJava {
                 break;
             case FLUORESCENCE:
                 reader =  new NDPIImageNative(testFluoroImagePath, imageLevel);
+                break;
+            case USER_DEFINED:
+                reader = new NDPIImageNative(testImagePath, imageLevel);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + imageType);
