@@ -33,6 +33,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -63,7 +65,12 @@ public class TestNDPINativeAndJava {
 
         // TODO: Import images from http://openslide.cs.cmu.edu/download/openslide-testdata/Hamamatsu/
         //testBrightImagePath = TestTissueClassificationNDPIS.class.getResource("/testimages/CMU-1.ndpi").toString().replaceAll("file:/","").replaceAll("%20"," ");
-        testFluoroImagePath = TestTissueClassificationNDPIS.class.getResource("/testimages/test3-FITC 2 (485).ndpi").toString().replaceAll("file:/","").replaceAll("%20"," ");
+        //testFluoroImagePath = TestNDPINativeAndJava.class.getResource("/testimages/test3-FITC 2 (485).ndpi").toString().replaceAll("file:/","").replaceAll("%20"," ");
+//        try {
+            testFluoroImagePath = new File(TestNDPINativeAndJava.class.getResource("/testimages/test3-FITC 2 (485).ndpi").getFile()).getPath();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         testImagePath = "";
         // Test a double size, >4Gb file...
