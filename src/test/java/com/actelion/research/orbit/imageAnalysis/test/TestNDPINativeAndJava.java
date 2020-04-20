@@ -67,7 +67,7 @@ public class TestNDPINativeAndJava {
         //testBrightImagePath = TestTissueClassificationNDPIS.class.getResource("/testimages/CMU-1.ndpi").toString().replaceAll("file:/","").replaceAll("%20"," ");
         //testFluoroImagePath = TestNDPINativeAndJava.class.getResource("/testimages/test3-FITC 2 (485).ndpi").toString().replaceAll("file:/","").replaceAll("%20"," ");
 //        try {
-            testFluoroImagePath = new File(TestNDPINativeAndJava.class.getResource("/testimages/test3-FITC 2 (485).ndpi").getFile()).getPath();
+            testFluoroImagePath = new File(TestNDPINativeAndJava.class.getResource("/testimages/test3-FITC 2 (485).ndpi").getFile()).getPath().replaceAll("%20"," ");
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
