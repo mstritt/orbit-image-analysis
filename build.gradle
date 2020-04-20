@@ -101,6 +101,7 @@ repositories {
         content {
             includeGroup "omero"
             includeGroup "ome"
+            includeModule "org.openmicroscopy", "omero-gateway"
             includeModule "woolz", "JWlz"
             includeModule "cisd", "jhdf5"
         }
@@ -111,6 +112,7 @@ repositories {
             // Dependencies from ome:formats-gpl
             includeModule "edu.ucar", "cdm"
             includeModule "edu.ucar", "httpservices"
+            includeModule "edu.ucar", "udunits"
         }
     }
     maven {
