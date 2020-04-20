@@ -131,6 +131,10 @@ repositories {
 
 test {
     useJUnit()
+
+    // Needed to load the native libraries:
+    // https://java-native-access.github.io/jna/4.2.1/com/sun/jna/NativeLibrary.html
+    systemProperty "jna.library.path", "lib/"
 }
 
 task sourceJar(type: Jar) {
@@ -262,7 +266,7 @@ dependencies {
     implementation 'org.tensorflow:tensorflow:1.14.0'  // 1.4.0 1.10.0 implementationOnly
     // implementation 'org.tensorflow:libtensorflow_jni_gpu:1.10.0'
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7'
-    implementation files('lib/NDPread2.dll')
+
     testImplementation 'junit:junit:4.13'
     testImplementation 'org.hamcrest:hamcrest:2.2'
 }
