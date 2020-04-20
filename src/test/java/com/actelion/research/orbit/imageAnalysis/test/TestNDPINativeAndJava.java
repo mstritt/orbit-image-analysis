@@ -202,7 +202,7 @@ public class TestNDPINativeAndJava {
     /**
      * Typically we expect the Java implementation to be about 3 times slower than the
      * native implementation. The test checks that the java implementation is not faster
-     * than the native, and that the java implementation is not worse than 5 times slower.
+     * than the native, and that the java implementation is not worse than 7 times slower.
      *
      * Note that this isn't in any way a fair test, it is however a useful indicator for
      * Orbit developers in case we make a change that massively affects performance.
@@ -224,13 +224,13 @@ public class TestNDPINativeAndJava {
         System.out.println("Java Implementation:"+ betweenJ ); // PT1.001S
         System.out.println("Native Implementation:"+  betweenN ); // PT1.001S
 
-        assertThat(betweenJ, allOf(greaterThan(betweenN), lessThan(betweenN.multipliedBy(5))));
+        assertThat(betweenJ, allOf(greaterThan(betweenN), lessThan(betweenN.multipliedBy(7))));
     }
 
     /**
      * Typically we expect the Java implementation to be about 3 times slower than the
      * native implementation. The test checks that the java implementation is not faster
-     * than the native, and that the java implementation is not worse than 5 times slower.
+     * than the native, and that the java implementation is not worse than 7 times slower.
      *
      * Note that this isn't in any way a fair test, it is however a useful indicator for
      * Orbit developers in case we make a change that massively affects performance.
@@ -265,7 +265,7 @@ public class TestNDPINativeAndJava {
         System.out.println("Java Implementation:"+ betweenJ ); // PT1.001S
         System.out.println("Native Implementation:"+  betweenN ); // PT1.001S
 
-        assertThat(betweenJ, allOf(greaterThan(betweenN), lessThan(betweenN.multipliedBy(5))));
+        assertThat(betweenJ, allOf(greaterThan(betweenN), lessThan(betweenN.multipliedBy(7))));
     }
 
     /**
