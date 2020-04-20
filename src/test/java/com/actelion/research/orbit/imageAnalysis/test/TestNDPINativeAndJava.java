@@ -62,7 +62,7 @@ public class TestNDPINativeAndJava {
         OrbitUtils.SLEEP_TILE=0;
 
         // TODO: Import images from http://openslide.cs.cmu.edu/download/openslide-testdata/Hamamatsu/
-        testBrightImagePath = TestTissueClassificationNDPIS.class.getResource("/testimages/CMU-1.ndpi").toString().replaceAll("file:/","").replaceAll("%20"," ");
+        //testBrightImagePath = TestTissueClassificationNDPIS.class.getResource("/testimages/CMU-1.ndpi").toString().replaceAll("file:/","").replaceAll("%20"," ");
         testFluoroImagePath = TestTissueClassificationNDPIS.class.getResource("/testimages/test3-FITC 2 (485).ndpi").toString().replaceAll("file:/","").replaceAll("%20"," ");
 
         testImagePath = "";
@@ -79,6 +79,7 @@ public class TestNDPINativeAndJava {
      * image as a test.
      * @throws Exception :-(
      */
+    @Ignore
     @Test
     public void testReaderIdenticalBrightfieldTilePixels() throws Exception {
 
@@ -212,12 +213,12 @@ public class TestNDPINativeAndJava {
     public void testReaderPerformance() throws Exception {
 
         Instant startJ = java.time.Instant.now();
-        readTileWriteImage(getRecognitionFrameJava(TestImageType.BRIGHTFIELD, 0), "testJ.png");
+        readTileWriteImage(getRecognitionFrameJava(TestImageType.FLUORESCENCE, 0), "testJ.png");
         Instant endJ = java.time.Instant.now();
         Duration betweenJ = java.time.Duration.between(startJ, endJ);
 
         Instant startN = java.time.Instant.now();
-        readTileWriteImage(getRecognitionFrameNative(TestImageType.BRIGHTFIELD, 0), "testN.png");
+        readTileWriteImage(getRecognitionFrameNative(TestImageType.FLUORESCENCE, 0), "testN.png");
         Instant endN = java.time.Instant.now();
         Duration betweenN = java.time.Duration.between(startN, endN);
 
@@ -244,7 +245,7 @@ public class TestNDPINativeAndJava {
         for(int i = 0; i<10; i++) {
             Instant startJ = java.time.Instant.now();
             // TODO: get a random tile in a loop.
-            readTileWriteImage(getRecognitionFrameJava(TestImageType.BRIGHTFIELD, 0), "testJ.png");
+            readTileWriteImage(getRecognitionFrameJava(TestImageType.FLUORESCENCE, 0), "testJ.png");
             Instant endJ = java.time.Instant.now();
             if (i == 0) {
                 betweenJ = java.time.Duration.between(startJ, endJ);
@@ -253,7 +254,7 @@ public class TestNDPINativeAndJava {
             }
 
             Instant startN = java.time.Instant.now();
-            readTileWriteImage(getRecognitionFrameNative(TestImageType.BRIGHTFIELD, 0), "testN.png");
+            readTileWriteImage(getRecognitionFrameNative(TestImageType.FLUORESCENCE, 0), "testN.png");
             Instant endN = java.time.Instant.now();
             if (i == 0) {
                 betweenN = java.time.Duration.between(startJ, endJ);
@@ -300,7 +301,10 @@ public class TestNDPINativeAndJava {
     private void readTileWriteImage(RecognitionFrame recognitionFrame, String s) throws IOException {
         OrbitTiledImage2 img = recognitionFrame.bimg.getImage();
 
-        Rectangle rect = new Rectangle(img.getWidth()-1024*10,img.getHeight()-1024*10,1024,1024);
+        Rectangle rect = new Rectangle(img.getWidth()-1024*2,img.getHeight()-1024*2,1024,1024);
+//        For BRIGHTFIELD used the below, made a much bigger performance difference.
+//        Rectangle rect = new Rectangle(img.getWidth()-1024*10,img.getHeight()-1024*10,1024,1024);
+
         WritableRaster r2 = (WritableRaster) img.getData(rect).createTranslatedChild(0,0);
         BufferedImage biJ = new BufferedImage(img.getColorModel(), r2, false, null);
         ImageIO.write(biJ, "png", new File(System.getProperty("java.io.tmpdir"),s));
