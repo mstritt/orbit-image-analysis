@@ -101,7 +101,7 @@ repositories {
         content {
             includeGroup "omero"
             includeGroup "ome"
-            includeModule "org.openmicroscopy", "omero-gateway"
+            includeGroup "org.openmicroscopy"
             includeModule "woolz", "JWlz"
             includeModule "cisd", "jhdf5"
         }
