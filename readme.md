@@ -6,7 +6,7 @@
 ### A versatile image analysis software for biological image-based quantification.
 
 ##### News:
-* 3.15: Omero 5.5.x, bioformats 6.1.1, bugfixes, AWS scaleout preperation.
+* 3.52: using image-provider-omero:1.7.1 for Omero 5.6.x, deep learning segmentation, new release preparation
 
 ##### Available backends:
 
