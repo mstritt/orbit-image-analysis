@@ -72,15 +72,15 @@ public class ModelBrowser {
         table.getColumnModel().getColumn(4).setCellRenderer(tableCellRenderer);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        final JXSearchField searchFieldName = new JXSearchField("name");
-        final JXSearchField searchFieldElb = new JXSearchField("elb");
-        final JXSearchField searchFieldId = new JXSearchField("id");
-        searchFieldName.setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield.modelBrowser.name");
-        searchFieldElb.setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield.modelBrowser.elb");
-        searchFieldId.setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield.modelBrowser.Id");
-        prepareSearchfield(searchFieldName);
-        prepareSearchfield(searchFieldElb);
-        prepareSearchfield(searchFieldId);
+        final JTextField searchFieldName = new JTextField("Search by Model Name");
+        final JTextField searchFieldElb = new JTextField("Search by ELB");
+        final JTextField searchFieldId = new JTextField("Search by Model ID");
+//        searchFieldName.setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield.modelBrowser.name");
+//        searchFieldElb.setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield.modelBrowser.elb");
+//        searchFieldId.setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield.modelBrowser.Id");
+//        prepareSearchfield(searchFieldName);
+//        prepareSearchfield(searchFieldElb);
+//        prepareSearchfield(searchFieldId);
 
         searchFieldName.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -265,6 +265,7 @@ public class ModelBrowser {
         frame.setVisible(true);
     }
 
+    @Deprecated
     private void prepareSearchfield(JXSearchField searchField) {
         searchField.setSearchMode(JXSearchField.SearchMode.INSTANT);
         searchField.setInstantSearchDelay(250);
