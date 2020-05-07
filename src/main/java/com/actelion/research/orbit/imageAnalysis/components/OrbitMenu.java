@@ -1335,8 +1335,8 @@ public class OrbitMenu extends JRibbonFrame {
         KeyStroke f12KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0);
 
         KeyStroke copyImageKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
-                ? KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK)
-                : KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK);
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_DOWN_MASK);
         KeyStroke copyImageFullKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
                 ? KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK)
                 : KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
@@ -1346,6 +1346,46 @@ public class OrbitMenu extends JRibbonFrame {
         KeyStroke loadOverviewKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
                 ? KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK)
                 : KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+
+        KeyStroke handToolKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke eraserKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke polygonKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke circleKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke rectangleKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke roiKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_I, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke setupClassesClassificationKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke setupClassesSegmentationKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke setupClassesObjectClassificationKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke prevClassKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke nextClassKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke zoomInKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke zoomOutKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_UP, InputEvent.ALT_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_UP, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 
         ribbon.registerKeyboardAction(oia.orbitManualAction, f1KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
         ribbon.registerKeyboardAction(oia.classesAction, f2KeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -1364,6 +1404,22 @@ public class OrbitMenu extends JRibbonFrame {
         ribbon.registerKeyboardAction(oia.copyImageFullAction, copyImageFullKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
         ribbon.registerKeyboardAction(oia.PasteImageAction, pasteKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
         ribbon.registerKeyboardAction(oia.overviewAction, loadOverviewKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        ribbon.registerKeyboardAction(oia.handAction, handToolKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.eraserAction, eraserKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.polygonAction, polygonKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.circleAction, circleKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.rectangleAction, rectangleKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.defineRoiAction, roiKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.setupClassesClassificationAction, setupClassesClassificationKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.setupClassesObjectSegmentationAction, setupClassesSegmentationKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.setupClassesObjectClassificationAction, setupClassesObjectClassificationKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.prevClassAction, prevClassKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.nextClassAction, nextClassKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.zoomInAction, zoomInKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ribbon.registerKeyboardAction(oia.zoomOutAction, zoomOutKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+
     }
 
     /**

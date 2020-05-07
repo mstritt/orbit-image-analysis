@@ -848,9 +848,25 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         enabledModules.add(getThresholdModule());
     }
 
+    private void zoomIn() {
+        int currentZoom = scaleSlider.getValue();
+        int newZoom = currentZoom * 2;
+        scaleSlider.setValue(newZoom);
+    }
+
+    private void zoomOut() {
+        int currentZoom = scaleSlider.getValue();
+        int newZoom = (int) (currentZoom * 0.5);
+        scaleSlider.setValue(newZoom);
+    }
+
     private synchronized void updateSelectedClassShape() {
         ClassShape classShape = (ClassShape) classBox.getSelectedItem();
         int classNum = classBox.getSelectedIndex();
+        setClassShape(classShape, classNum);
+    }
+
+    private void setClassShape(ClassShape classShape, int classNum) {
         for (ImageFrame iFrame : getIFrames()) {
             iFrame.recognitionFrame.getMyListener().setDeleteMode(false);
             // TODO: classNum should be in synch! (-> bug in segmentation with more than two classes?)
@@ -862,6 +878,26 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
         }
     }
+
+    private synchronized void getPrevClassShape() {
+        int classNum = classBox.getSelectedIndex();
+        if (classNum > 0) {
+            ClassShape classShape = (ClassShape) classBox.getItemAt(classNum-1);
+            setClassShape(classShape, classNum-1);
+            ccbModel.setSelectedItem(classShape);
+        }
+    }
+
+    private synchronized void getNextClassShape() {
+        int classNum = classBox.getSelectedIndex();
+        if (classNum < classBox.getItemCount()-1) {
+            ClassShape classShape = (ClassShape) classBox.getItemAt(classNum+1);
+            setClassShape(classShape, classNum+1);
+            ccbModel.setSelectedItem(classShape);
+        }
+    }
+
+
 
     /**
      * @param shapes the list of ClassShape items to add to the ClassComboBox model
@@ -2929,6 +2965,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         firePropertyChange(ImageFrame.SCALE_SET_EVENT, null, v);
     };
 
+    // Action Listeners for Keyboard shortcuts only
+    final ActionListener zoomInAction = e -> zoomIn();
+    final ActionListener zoomOutAction = e -> zoomOut();
+
     // CommandActions for OrbitMenu
     private void activateHandTool() {
         if (getIFrame() != null) {
@@ -3231,11 +3271,18 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     }
 
     final CommandAction SetupClassesClassificationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForClassification(); };
+    final ActionListener setupClassesClassificationAction = e -> { if (classesAreYouSurePopup()) setupClassesForClassification(); };
+
     final CommandAction SetupClassesObjectSegmentationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForObjectSegmentation(); };
+    final ActionListener setupClassesObjectSegmentationAction = e -> { if (classesAreYouSurePopup()) setupClassesForObjectSegmentation(); };
+
     final CommandAction SetupClassesObjectClassificationCommandAction = e -> { if (classesAreYouSurePopup()) setupClassesForObjectClassification(); };
+    final ActionListener setupClassesObjectClassificationAction = e -> { if (classesAreYouSurePopup()) setupClassesForObjectClassification(); };
 
+    final ActionListener prevClassAction = e -> getPrevClassShape();
+    final ActionListener nextClassAction = e -> getNextClassShape();
 
-    final CommandAction EraserCommandAction = e -> {
+    private void activateEraser() {
         logger.debug("select polygon to delete");
         if (getIFrame() != null) {
             getIFrame().recognitionFrame.setSelectedTool(Tools.delete);
@@ -3243,8 +3290,12 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             getIFrame().recognitionFrame.repaint();
         }
-    };
-    final CommandAction PolygonCommandAction = e -> {
+    }
+
+    final CommandAction EraserCommandAction = e -> activateEraser();
+    final ActionListener eraserAction = e -> activateEraser();
+
+    private void activatePolygonTool() {
         logger.debug("brush selected");
         updateSelectedClassShape();
         if (getIFrame() != null) {
@@ -3253,8 +3304,12 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_POLYGONEXT);
             getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         }
-    };
-    final CommandAction CircleCommandAction = e -> {
+    }
+
+    final CommandAction PolygonCommandAction = e -> activatePolygonTool();
+    final ActionListener polygonAction = e -> activatePolygonTool();
+
+    private void activateCircleTool() {
         logger.debug("circle selected");
         updateSelectedClassShape();
         if (getIFrame() != null) {
@@ -3262,8 +3317,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             getIFrame().recognitionFrame.getMyListener().setDeleteMode(false);
             getIFrame().recognitionFrame.getMyListener().setShapeMode(ClassShape.SHAPETYPE_ARC);
             getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-        }};
-    final CommandAction RectangleCommandAction = e -> {
+        }
+    }
+
+    final CommandAction CircleCommandAction = e -> activateCircleTool();
+    final ActionListener circleAction = e -> activateCircleTool();
+
+    private void activateRectangleTool() {
         logger.debug("rectangle selected");
         updateSelectedClassShape();
         if (getIFrame() != null) {
@@ -3273,6 +3333,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         }
     };
+
+    final CommandAction RectangleCommandAction = e -> activateRectangleTool();
+    final ActionListener rectangleAction = e -> activateRectangleTool();
 
     private void trainModel() {
         logger.debug("train");
@@ -3287,7 +3350,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     final CommandAction TrainCommandAction = e -> trainModel();
     final ActionListener trainAction = e-> trainModel();
 
-    final CommandAction DefineRoiCommandAction = e -> {
+    private void activateRoi() {
         logger.debug("select ROI selected");
         if (getIFrame() != null) {
             getIFrame().recognitionFrame.setSelectedTool(Tools.roi);
@@ -3296,6 +3359,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             getIFrame().recognitionFrame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         }
     };
+
+    final CommandAction DefineRoiCommandAction = e -> activateRoi();
+    final ActionListener defineRoiAction = e -> activateRoi();
 
     private void classifyModel() {
         if (getIFrame() != null) {
