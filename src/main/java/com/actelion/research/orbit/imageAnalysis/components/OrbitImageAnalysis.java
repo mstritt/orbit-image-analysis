@@ -216,6 +216,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private NerveDetectionModule nerveDetectionModule = null;
     private ManualClassificationModule manualClassificationModule = null;
     private ManualBoxCountModule manualBoxCountModule = null;
+    private AnomalyDetectionModule anomalyDetectionModule = null;
     private ThresholdModule thresholdModule = null;
     // TODO: can be removed?
     private MihcModule mihcModule = null;
@@ -846,6 +847,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //        enabledModules.add(getManualClassificationModule());
 //        enabledModules.add(getManualBoxCountModule());
         enabledModules.add(getThresholdModule());
+        enabledModules.add(getAnomalyDetectionModule());
     }
 
     private synchronized void updateSelectedClassShape() {
@@ -4252,6 +4254,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             nerveDetectionModule = new NerveDetectionModule(true);
         }
         return nerveDetectionModule;
+    }
+
+    public AnomalyDetectionModule getAnomalyDetectionModule() {
+        if (anomalyDetectionModule == null) {
+            anomalyDetectionModule = new AnomalyDetectionModule(true);
+        }
+        return anomalyDetectionModule;
     }
 
 //    public ManualClassificationModule getManualClassificationModule() {
