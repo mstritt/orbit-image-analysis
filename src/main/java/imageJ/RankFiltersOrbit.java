@@ -1,6 +1,4 @@
-
 package imageJ;
-
 import ij.*;
 import ij.gui.DialogListener;
 import ij.gui.GenericDialog;
@@ -20,6 +18,7 @@ import java.util.Arrays;
  */
 // Version 2012-07-15 M. Schmid:	Fixes a bug that could cause preview not to work correctly
 // Version 2012-12-23 M. Schmid:	Test for inverted LUT only once (not in each slice)
+// Version 2014-10-10 M. Schmid:   Fixes a bug that caused Threshold=0 when calling from API
 
 public class RankFiltersOrbit implements ExtendedPlugInFilter, DialogListener {
 	public static final int	 MEAN=0, MIN=1, MAX=2, VARIANCE=3, MEDIAN=4, OUTLIERS=5, DESPECKLE=6, REMOVE_NAN=7,
@@ -44,7 +43,8 @@ public class RankFiltersOrbit implements ExtendedPlugInFilter, DialogListener {
 	private PlugInFilterRunner pfr;
 	private int pass;
 	// M u l t i t h r e a d i n g - r e l a t e d
-	private int numThreads = Prefs.getThreads();
+	//private int numThreads = Prefs.getThreads();
+	private int numThreads = 1;
 	// Current state of processing is in class variables. Thus, stack parallelization must be done
 	// ONLY with one thread for the image (not using these class variables):
 	private int highestYinCache;		// the highest line read into the cache so far
@@ -145,7 +145,7 @@ public class RankFiltersOrbit implements ExtendedPlugInFilter, DialogListener {
 				Rectangle roiRect = roi.getBounds();
 				size = roiRect.width * roiRect.height;
 			}
-			double workToDo = size * radius;    //estimate computing time (arb. units)
+			double workToDo = size*(double)radius;	//estimate computing time (arb. units)
 			if (filterType==MEAN || filterType==VARIANCE) workToDo *= 0.5;
 			else if (filterType==MEDIAN) workToDo *= radius*0.5;
 			if (workToDo < 1e6 && imp.getImageStackSize()>=numThreads) {
@@ -163,7 +163,9 @@ public class RankFiltersOrbit implements ExtendedPlugInFilter, DialogListener {
 			whichOutliers = gd.getNextChoiceIndex();
 		}
 		int maxRadius = (filterType==MEDIAN || filterType==OUTLIERS || filterType==REMOVE_NAN) ? 100 : 1000;
-		return !(gd.invalidNumber() || radius < 0 || radius > maxRadius || (filterType == OUTLIERS && threshold < 0));
+		if (gd.invalidNumber() || radius<0 || radius>maxRadius || (filterType==OUTLIERS && threshold <0))
+			return false;
+		return true;
 	}
 
 	/**
@@ -258,8 +260,9 @@ public class RankFiltersOrbit implements ExtendedPlugInFilter, DialogListener {
 		Rectangle roi = ip.getRoi();
 		int width = ip.getWidth();
 		Object pixels = ip.getPixels();
-
 		int numThreads = Math.min(roi.height, this.numThreads);
+		if (numThreads==0)
+			return;
 
 		int kHeight = kHeight(lineRadii);
 		int kRadius	 = kRadius(lineRadii);
@@ -448,7 +451,7 @@ public class RankFiltersOrbit implements ExtendedPlugInFilter, DialogListener {
 			int cacheLineP = cacheWidth * (y % cacheHeight) + kRadius;	//points to pixel (roi.x, y)
 			filterLine(values, width, cache, cachePointers, kNPoints, cacheLineP, roi, y,	// F I L T E R
 					sums, medianBuf1, medianBuf2, minMaxOutliersSign, maxValue, isFloat, filterType,
-					smallKernel, sumFilter, minOrMax, minOrMaxOrOutliers);
+					smallKernel, sumFilter, minOrMax, minOrMaxOrOutliers, threshold);
 			if (!isFloat)		//Float images: data are written already during 'filterLine'
 				writeLineToPixels(values, pixels, roi.x+y*width, roi.width, colorChannel);	// W R I T E
 			//IJ.log("thread "+threadNumber+" @y="+y+" line done");
@@ -472,7 +475,7 @@ public class RankFiltersOrbit implements ExtendedPlugInFilter, DialogListener {
 
 	private void filterLine(float[] values, int width, float[] cache, int[] cachePointers, int kNPoints, int cacheLineP, Rectangle roi, int y,
 							double[] sums, float[] medianBuf1, float[] medianBuf2, float minMaxOutliersSign, float maxValue, boolean isFloat, int filterType,
-							boolean smallKernel, boolean sumFilter, boolean minOrMax, boolean minOrMaxOrOutliers) {
+							boolean smallKernel, boolean sumFilter, boolean minOrMax, boolean minOrMaxOrOutliers, float threshold) {
 		int valuesP = isFloat ? roi.x+y*width : 0;
 		float max = 0f;
 		float median = Float.isNaN(cache[cacheLineP]) ? 0 : cache[cacheLineP];	// a first guess
@@ -514,10 +517,15 @@ public class RankFiltersOrbit implements ExtendedPlugInFilter, DialogListener {
 				else	{// Variance: sum of squares - square of sums
 					float value = (float)((sums[1] - sums[0]*sums[0]/kNPoints)/kNPoints);
 					if (value>maxValue) value = maxValue;
+					if (value < 0) value = 0;   // numeric noise can cause values < 0
 					values[valuesP] = value;
 				}
 			} else if (filterType == MEDIAN) {
-				median = getMedian(cache, x, cachePointers, medianBuf1, medianBuf2, kNPoints, median);
+				if (isFloat) {
+					median = Float.isNaN(values[valuesP]) ? Float.NaN : values[valuesP]; // a first guess
+					median = getNaNAwareMedian(cache, x, cachePointers, medianBuf1, medianBuf2, kNPoints, median);
+				} else
+					median = getMedian(cache, x, cachePointers, medianBuf1, medianBuf2, kNPoints, median);
 				values[valuesP] = median;
 			} else if (filterType == OUTLIERS) {
 				float v = cache[cacheLineP+x];
@@ -604,7 +612,6 @@ public class RankFiltersOrbit implements ExtendedPlugInFilter, DialogListener {
 	}
 
 	/** Get max (or -min if sign=-1) within the kernel area.
-	 *	@param x between 0 and cacheWidth-1
 	 *	@param ignoreRight should be 0 for analyzing all data or 1 for leaving out the row at the right
 	 *	@param max should be -Float.MAX_VALUE or the smallest value the maximum can be */
 	private static float getAreaMax(float[] cache, int xCache0, int[] kernel, int ignoreRight, float max, float sign) {
@@ -636,7 +643,7 @@ public class RankFiltersOrbit implements ExtendedPlugInFilter, DialogListener {
 		double sum=0, sum2=0;
 		for (int kk=0; kk<kernel.length; kk++) {	// y within the cache stripe (we have 2 kernel pointers per cache line)
 			for (int p=kernel[kk++]+xCache0; p<=kernel[kk]+xCache0; p++) {
-				float v = cache[p];
+				double v = cache[p];
 				sum += v;
 				sum2 += v*v;
 			}
@@ -652,10 +659,10 @@ public class RankFiltersOrbit implements ExtendedPlugInFilter, DialogListener {
 	private static void addSideSums(float[] cache, int xCache0, int[] kernel, double[] sums) {
 		double sum=0, sum2=0;
 		for (int kk=0; kk<kernel.length; /*k++;k++ below*/) {
-			float v = cache[kernel[kk++]+(xCache0-1)];
+			double v = cache[kernel[kk++]+(xCache0-1)]; //this value is not in the kernel area any more
 			sum -= v;
 			sum2 -= v*v;
-			v = cache[kernel[kk++]+xCache0];
+			v = cache[kernel[kk++]+xCache0];            //this value comes into the kernel area
 			sum += v;
 			sum2 += v*v;
 		}
@@ -780,11 +787,10 @@ public class RankFiltersOrbit implements ExtendedPlugInFilter, DialogListener {
 	}
 
 	/** Create a circular kernel (structuring element) of a given radius.
-	 *	@param radius:
+	 *	@param radius
 	 *	Radius = 0.5 includes the 4 neighbors of the pixel in the center,
 	 *	radius = 1 corresponds to a 3x3 kernel size.
-	 *	@param width: width of the roi (or image if roi width=image width) for filtering.
-	 *	@return:
+	 *	@return the circular kernel
 	 *	The output is an array that gives the length of each line of the structuring element
 	 *	(kernel) to the left (negative) and to the right (positive):
 	 *	[0] left in line 0, [1] right in line 0,
