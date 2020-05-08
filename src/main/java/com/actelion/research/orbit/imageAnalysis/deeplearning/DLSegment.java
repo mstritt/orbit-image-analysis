@@ -120,7 +120,10 @@ public class DLSegment {
 
             for (Shape roiDef: roiDefList) {
                 Point[] tiles = orbitImage.getTileIndices(roiDef.getBounds());
+                int tileNr=0;
                 for (Point tile: tiles) {
+                    tileNr++;
+                    logger.trace("tile "+tileNr+" of "+tiles.length);
                    // if (!(tile.x==15 && tile.y==12)) continue;   // for testing: just on one tile
                     if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
                         // source image
