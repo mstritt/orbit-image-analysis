@@ -155,15 +155,13 @@ public class ClassAdminFrame extends JDialog {
 
 
     private void addActionListeners() {
-        ActionListener addAction = new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                DefaultListModel model = (DefaultListModel) classList.getModel();
-                ClassShape cs = new ClassShape(tfClassName.getText(), RecognitionFrame.getColorByNum(model.getSize()), ClassShape.SHAPETYPE_POLYGONEXT);
-                model.addElement(cs);
-                //((DefaultComboBoxModel)boxToUpdate.getModel()).addElement(cs);
-                classShapes.add(cs);
-                //boxToUpdate.repaint();
-            }
+        ActionListener addAction = arg0 -> {
+            DefaultListModel model = (DefaultListModel) classList.getModel();
+            ClassShape cs = new ClassShape(tfClassName.getText(), RecognitionFrame.getColorByNum(model.getSize()), ClassShape.SHAPETYPE_POLYGONEXT);
+            model.addElement(cs);
+            //((DefaultComboBoxModel)boxToUpdate.getModel()).addElement(cs);
+            classShapes.add(cs);
+            //boxToUpdate.repaint();
         };
         btnAddClass.addActionListener(addAction);
 

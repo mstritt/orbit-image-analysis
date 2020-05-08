@@ -30,11 +30,11 @@ import com.actelion.research.orbit.imageAnalysis.imaging.ManipulationUtils;
 import com.actelion.research.orbit.imageAnalysis.imaging.MedianFilter;
 import com.actelion.research.orbit.imageAnalysis.models.FeatureDescription;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
-import com.sun.media.jai.codec.PNGDecodeParam;
 import imageJ.Colour_Deconvolution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
 import javax.media.jai.*;
 import javax.media.jai.registry.RenderedRegistryMode;
 import java.awt.*;
@@ -183,12 +183,8 @@ public class TiledImagePainter implements Closeable {
             imageName = ((RawDataFile) inputStrOrURL).getFileName();
             imageAdjustments = OrbitUtils.getAndParseImageAdjustments(((RawDataFile) inputStrOrURL).getRawDataFileId());
         } else if (inputStrOrURL instanceof URL) {
-            PNGDecodeParam param = null;
-            if (String.valueOf(inputStrOrURL).toLowerCase().endsWith("png")) {
-                param = new PNGDecodeParam();
-                param.setSuppressAlpha(true);   // we don't support alpha channels here
-            }
-            origImage = JAI.create("url", inputStrOrURL, param);
+            BufferedImage bi = ImageIO.read((URL)inputStrOrURL);
+            origImage = PlanarImage.wrapRenderedImage(bi);
             imageName = inputStrOrURL.toString();
         } else if (inputStrOrURL instanceof RenderedImage) {
             origImage = PlanarImage.wrapRenderedImage((RenderedImage) inputStrOrURL);

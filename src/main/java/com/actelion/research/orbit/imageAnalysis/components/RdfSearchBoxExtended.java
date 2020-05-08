@@ -54,7 +54,12 @@ public class RdfSearchBoxExtended extends RdfSearchBox {
     @Override
     protected JTextField getSearchField() {
         if (_searchField == null) {
-            _searchField = new JTextField("search files...");
+
+    //        final RecentSearches recentSearches = new RecentSearches("com.actelion.research.orbit.OrbitImageAnalysis.searchfield");
+    //        recentSearches.setMaxRecents(40);
+
+            final String defaultSearchText = "search files...";
+            _searchField = new JTextField(defaultSearchText);
             getOkButton().setIcon(new ImageIcon(this.getClass().getResource("/resource/view.png")));
             getOkButton().setText("");
 
@@ -62,11 +67,32 @@ public class RdfSearchBoxExtended extends RdfSearchBox {
 
                 @Override
                 public void focusGained(FocusEvent e) {
+                    if (defaultSearchText.equals(_searchField.getText())) {
+                        _searchField.setText("");
+                    }
                     _searchField.select(0, _searchField.getText().length());
+
+  //                 final RecentSearches.RecentSearchesPopup popup = new RecentSearches.RecentSearchesPopup(recentSearches,_searchField) {
+  //                     @Override
+  //                     public void actionPerformed(ActionEvent e) {
+  //                         super.actionPerformed(e);
+  //                         //setVisible(false);
+  //                     }
+  //                 };
+  //                 SwingUtilities.invokeLater(new Runnable() {
+  //                     @Override
+  //                     public void run() {
+  //                         popup.show(_searchField,0,0);
+  //                     }
+  //                 });
+
                 }
 
                 @Override
                 public void focusLost(FocusEvent e) {
+                    if (_searchField.getText().isEmpty()) {
+                        _searchField.setText(defaultSearchText);
+                    }
                     _searchField.select(0, 0);
                 }
             });
@@ -78,6 +104,12 @@ public class RdfSearchBoxExtended extends RdfSearchBox {
                     }
                 }
             });
+
+            // recent searches
+
+           // recentSearches.install(_searchField);
+
+
         }
         return _searchField;
     }

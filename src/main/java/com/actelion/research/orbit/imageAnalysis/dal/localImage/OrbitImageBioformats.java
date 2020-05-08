@@ -1,6 +1,6 @@
 /*
  *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2018 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
+ *     Copyright (C) 2009 - 2020 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,11 +20,8 @@
 package com.actelion.research.orbit.imageAnalysis.dal.localImage;
 
 import com.actelion.research.orbit.beans.MinMaxPerChan;
-import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
-import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
-import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.modules.mihc.MihcConfig;
 import com.actelion.research.orbit.imageAnalysis.modules.mihc.MultiplexImageReader;
@@ -42,6 +39,7 @@ import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
 import loci.formats.gui.AWTImageTools;
 import loci.formats.gui.BufferedImageReader;
+import loci.formats.in.NDPIReader;
 import loci.formats.meta.IMetadata;
 import loci.formats.services.OMEXMLService;
 import ome.units.quantity.Length;
@@ -52,8 +50,8 @@ import javax.media.jai.PlanarImage;
 import java.awt.*;
 import java.awt.image.*;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -124,93 +122,90 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
 
         logger.info("bioformats image: "+this.filename);
 
-        reader = new ThreadLocal<BufferedImageReader>() {
-            @Override
-            protected BufferedImageReader initialValue() {
-                try {
-                    logger.debug("init bioformats: "+filename+" ["+level+"]"+" ["+ series +"]");
-                    IFormatReader r = getIFormatReader(filename, orbitModel);
-                    ServiceFactory factory = new ServiceFactory();
-                    OMEXMLService service = factory.getInstance(OMEXMLService.class);
-                    IMetadata meta = service.createOMEXMLMetadata();
-                    r.setMetadataStore(meta);
-                    
-                    r.setId(filename);
+        reader = ThreadLocal.withInitial(() -> {
+            try {
+                logger.debug("init bioformats: " + filename + " [" + level + "]" + " [" + series + "]");
+                IFormatReader r = getIFormatReader(filename, orbitModel);
+                ServiceFactory factory = new ServiceFactory();
+                OMEXMLService service = factory.getInstance(OMEXMLService.class);
+                IMetadata meta = service.createOMEXMLMetadata();
+                r.setMetadataStore(meta);
 
-                    if (series>=r.getSeriesCount()) {
-                        close();
-                        throw new OrbitImageServletException("image series " + series + " does not exist for image " + filename+" Max series count: "+r.getSeriesCount());
-                    }
+                r.setId(filename);
 
-                    try {
-                        pixelsPhysicalSizeX = meta.getPixelsPhysicalSizeX(series);
-                    }  catch (Exception e) {
-                        logger.warn("could not read pixel physical x from meta data");
-                    }
-
-                    //setReaderSeries(r, filename);
-                    r.setSeries(series);
-                    r.setResolution(level);
-                    is16bit = r.getBitsPerPixel()>8;
-                    logger.debug("is16bit: "+is16bit);
-                    BufferedImageReader bir;
-                    if (doMergeChannels(r)) {       // TODO: minMax for 1-channel grayscale image!
-                        // fluo images
-
-                        if (channelNames == null) {
-                            channelNames = new String[r.getSizeC()];
-                            for (int c = 0; c < r.getSizeC(); c++) {
-                                String name = meta.getChannelName(r.getSeries(), c);
-                                if (name == null) {
-                                    name = "Channel" + c;
-                                }
-                                logger.info("channel name " + c + ": " + name);
-                                channelNames[c] = name;
-                            }
-                        }
-                        // build hueMap
-                        hueMap = getHues();
-                    }
-                    if (is16bit) {
-                        synchronized (minMaxCache) {
-                            final FilenameSeries key = new FilenameSeries(originalFilename,series);
-                            if (is16bit && !minMaxCache.containsKey((key))) {
-                                int[] min = new int[r.getSizeC()];
-                                int[] max = new int[r.getSizeC()];
-                                for (int c = 0; c < r.getSizeC(); c++) {
-                                    MinMaxCalculator minMax = new MinMaxCalculator(r);
-                                    minMax.setResolution(r.getResolutionCount() - 1);
-                                    int[] nos = minMax.getZCTCoords(0);
-                                    int z = nos[0], t = nos[2];
-                                    int idx = minMax.getIndex(z, c, t);
-                                    minMax.openBytes(idx); // needed to make min,max available
-                                    Double tmin = minMax.getChannelKnownMinimum(c);
-                                    Double tmax = minMax.getChannelKnownMaximum(c);
-                                    min[c] = (int) tmin.doubleValue();
-                                    max[c] = (int) tmax.doubleValue();
-                                    logger.info("minIntens: " + min[c] + " maxIntens: " + max[c] + " channel: " + c);
-                                }
-                                minMaxCache.put(key, new MinMaxPerChan(min, max));
-                            }
-                        }
-                    }
-
-                    if (is16bit) {
-                        minMaxAnalysis = new MinMaxPerChan(new int[r.getSizeC()], new int[r.getSizeC()]);
-                        Arrays.fill(minMaxAnalysis.getMax(), RawUtilsCommon.MAX_INTENS_16BIT);
-                    }
-
-                    bir = BufferedImageReader.makeBufferedImageReader(r);
-                    synchronized (allReaders) {
-                        allReaders.add(bir); // remember for closing
-                    }
-                    return bir;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
+                if (series >= r.getSeriesCount()) {
+                    close();
+                    throw new OrbitImageServletException("image series " + series + " does not exist for image " + filename + " Max series count: " + r.getSeriesCount());
                 }
+
+                try {
+                    pixelsPhysicalSizeX = meta.getPixelsPhysicalSizeX(series);
+                } catch (Exception e) {
+                    logger.warn("could not read pixel physical x from meta data");
+                }
+
+                //setReaderSeries(r, filename);
+                r.setSeries(series);
+                r.setResolution(level);
+                is16bit = r.getBitsPerPixel() > 8;
+                logger.debug("is16bit: " + is16bit);
+                BufferedImageReader bir;
+                if (doMergeChannels(r)) {       // TODO: minMax for 1-channel grayscale image!
+                    // fluo images
+
+                    if (channelNames == null) {
+                        channelNames = new String[r.getSizeC()];
+                        for (int c = 0; c < r.getSizeC(); c++) {
+                            String name = meta.getChannelName(r.getSeries(), c);
+                            if (name == null) {
+                                name = "Channel" + c;
+                            }
+                            logger.info("channel name " + c + ": " + name);
+                            channelNames[c] = name;
+                        }
+                    }
+                    // build hueMap
+                    hueMap = getHues();
+                }
+                if (is16bit) {
+                    synchronized (minMaxCache) {
+                        final FilenameSeries key = new FilenameSeries(originalFilename, series);
+                        if (is16bit && !minMaxCache.containsKey((key))) {
+                            int[] min = new int[r.getSizeC()];
+                            int[] max = new int[r.getSizeC()];
+                            for (int c = 0; c < r.getSizeC(); c++) {
+                                MinMaxCalculator minMax = new MinMaxCalculator(r);
+                                minMax.setResolution(r.getResolutionCount() - 1);
+                                int[] nos = minMax.getZCTCoords(0);
+                                int z = nos[0], t = nos[2];
+                                int idx = minMax.getIndex(z, c, t);
+                                minMax.openBytes(idx); // needed to make min,max available
+                                Double tmin = minMax.getChannelKnownMinimum(c);
+                                Double tmax = minMax.getChannelKnownMaximum(c);
+                                min[c] = (int) tmin.doubleValue();
+                                max[c] = (int) tmax.doubleValue();
+                                logger.info("minIntens: " + min[c] + " maxIntens: " + max[c] + " channel: " + c);
+                            }
+                            minMaxCache.put(key, new MinMaxPerChan(min, max));
+                        }
+                    }
+                }
+
+                if (is16bit) {
+                    minMaxAnalysis = new MinMaxPerChan(new int[r.getSizeC()], new int[r.getSizeC()]);
+                    Arrays.fill(minMaxAnalysis.getMax(), RawUtilsCommon.MAX_INTENS_16BIT);
+                }
+
+                bir = BufferedImageReader.makeBufferedImageReader(r);
+                synchronized (allReaders) {
+                    allReaders.add(bir); // remember for closing
+                }
+                return bir;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
             }
-        };
+        });
 
         if (reader.get()==null) {
             throw new OrbitImageServletException("could not initialize reader for image " + filename);
@@ -309,6 +304,10 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
                     } 
                 }
             }
+        } else if (filename.toLowerCase().endsWith("ndpi")) {
+            // this check will become unnecessary when this bug is fixed: https://github.com/ome/bioformats/issues/3544
+            // could then just use ImageReader() and allow it to auto-detect.
+            r = new NDPIReader();
         } else {
             r = new ImageReader();
         }
@@ -318,7 +317,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
     }
 
 
-
+    @Deprecated
     private int getIndex(IFormatReader r, int channel) {
         int[] nos = r.getZCTCoords(0);
         int z = nos[0], t = nos[2];
@@ -409,7 +408,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         int y = optimalTileHeight * tileY;
         int w = (int) Math.min(optimalTileWidth, width - x);
         int h = (int) Math.min(optimalTileHeight, height - y);
-        final FilenameSeries key = new FilenameSeries(originalFilename,series);
+        final FilenameSeries key = new FilenameSeries(originalFilename, series);
         BufferedImageReader bir = reader.get();
         if (bir.getResolution()!=this.level) bir.setResolution(this.level);
 
@@ -441,7 +440,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
             for (int c = 0; c < sizeC; c++) {
                 if (isChannelActive(c,channelContributions,analysis)) {
                     int index = reader.get().getIndex(z, c, t);
-                    ROIDef roiDef = new ROIDef(filename,level, index,x,y,w,h);
+                    ROIDef roiDef = new ROIDef(filename, level, index, x, y, w, h);
                     BufferedImage bit = useCache? OrbitImageBioformats.tileCache.getIfPresent(roiDef): null;
                     if (bit==null) {
                         bit = reader.get().openImage(index, x, y, w, h);
@@ -473,7 +472,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
                             if (channelContributions!=null) {
                                 s *= channelContributions[c];
                             }
-                            int intens = s <= 255 ? s : 255;
+                            int intens = Math.min(s, 255);
                             pix = raster.getPixel(ix, iy, pix);
 
                             col = Color.HSBtoRGB(hueMap[c], 1f, intens / 255f);
@@ -687,9 +686,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
                 thumb = img;
             }
             return thumb;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (loci.formats.FormatException e) {
+        } catch (IOException | FormatException e) {
             e.printStackTrace();
         }
         return null;
@@ -764,7 +761,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         return pixelsPhysicalSizeX;
     }
 
-    private class ROIDef {
+    private static class ROIDef {
         String filename;
         int level,index,x,y,w,h;
 
@@ -820,7 +817,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
         }
     }
 
-    public class FilenameSeries {
+    public static class FilenameSeries {
         String filename;
         int series;
 
@@ -894,10 +891,19 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
 //        System.out.println("img: "+bi);
 //        oi.close();
 
-        DALConfig.switchLocalRemoteImageProvider();
-        RawDataFile rdf = DALConfig.getImageProvider().LoadRawDataFile(207);
-        RecognitionFrame rf = new RecognitionFrame(rdf);
-        DALConfig.getImageProvider().close();
+////        DALConfig.switchLocalRemoteImageProvider();
+////        RawDataFile rdf = DALConfig.getImageProvider().LoadRawDataFile(207);
+////        RecognitionFrame rf = new RecognitionFrame(rdf);
+////        DALConfig.getImageProvider().close();
+//        OrbitImageBioformats im2 = new OrbitImageBioformats()
 
+
+        // Test code that now exists in the test case.
+//        OrbitImageBioformats img = new OrbitImageBioformats("test.ndpi",5, 0, null);
+//        System.out.println(img.readInfoString("test.ndpi"));
+//        WritableRaster raster = (WritableRaster) img.getTileData(1,0,true).createTranslatedChild(0,0);
+//        BufferedImage bi = new BufferedImage(img.getColorModel(),raster,false,null);
+//        ImageIO.write(bi,"png",new File("test-bioformats.png"));
+//        img.close();
     }
 }

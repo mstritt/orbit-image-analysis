@@ -23,37 +23,73 @@ buildscript {
     }
     dependencies {
         classpath "com.smokejumperit.gradle.license:Gradle-License-Report:0.0.2"
-        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.2"
         classpath "org.pushing-pixels:radiance-ignite:2.5.1"
     }
 }
 
+//plugins {
+//    id "com.github.cr0.macappbundle" version "3.0.1"
+//}
+
+// Import ignite for the buildscript (to build the Java classes for the icons from the SVGs).
+
 plugins {
-    id "com.github.cr0.macappbundle" version "3.0.1"
+    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+    id 'idea'
+    id 'application'
 }
 
-// Import ignite for the buildscript (to build the Java classes for the icons from the SVGs.
+apply plugin: 'license-report'
 apply plugin: 'org.pushing-pixels.ignite'
 
-apply plugin: 'java'
-apply plugin: 'java-library'
-apply plugin: 'maven-publish'
-apply plugin: 'license-report'
 
 [ compileJava, compileTestJava ]*.options*.encoding = 'UTF-8'
 
 ext.description = "OrbitImageAnalysis"
 
-// Pin the Gradle version
-//wrapper {
-//    gradleVersion = "6.0.1"
-//}
+application {
+    mainClassName = 'com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis'
+}
 
-// Works with JDK 11...
-sourceCompatibility = JavaVersion.VERSION_11
+// Configure Java compilation for all the projects
+tasks.withType(JavaCompile) {
+    def javaVersion = JavaVersion.VERSION_11
+
+    // enforce Java 11 as the source + target + compile time level
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+
+    compileJava.doFirst {
+        if (JavaVersion.current() != javaVersion)
+            throw new IllegalStateException("Compiler version mismatch; required is "
+                    + javaVersion + ", but using " + JavaVersion.current());
+    }
+
+    // optionally flag all usage of deprecated APIs as errors
+//    options.deprecation = true
+//    options.compilerArgs += ['-Werror']
+
+    if (javaVersion.isJava8Compatible()) {
+        allprojects {
+            tasks.withType(Javadoc) {
+                options.addStringOption('Xdoclint:none', '-quiet')
+            }
+        }
+    }
+
+    clean {
+        delete 'out'     // interpreted relative to the project directory
+    }
+
+    disableAutoTargetJvm()
+}
 
 ext.orbitVersion = new File(projectDir,"src/main/resources/version.txt").text
 ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
+project.version = ext.orbitVersion
 
 // Define the Radiance version in one place, since multiple libraries that need to be updated together.
 def radianceVersion = '2.5.1'
@@ -61,40 +97,52 @@ def radianceVersion = '2.5.1'
 repositories {
     mavenCentral()
     maven {
-        url 'http://artifacts.openmicroscopy.org/artifactory/maven/'
+        url 'https://artifacts.openmicroscopy.org/artifactory/maven/'
+        content {
+            includeGroup "omero"
+            includeGroup "ome"
+            includeGroup "org.openmicroscopy"
+            includeModule "woolz", "JWlz"
+            includeModule "cisd", "jhdf5"
+        }
     }
     maven {
-        url 'https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/'    // just for thredds-parent-4.3.22 used by netcdf-4.3.22
+        url 'https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/'
+        content {
+            // Dependencies from ome:formats-gpl
+            includeModule "edu.ucar", "cdm"
+            includeModule "edu.ucar", "httpservices"
+            includeModule "edu.ucar", "udunits"
+        }
     }
     maven {
-        url 'http://maven.imagej.net/content/repositories/snapshots/'    // for legacy-imglib1-2.0.0-SNAPSHOT.jar used by imagej1 compatible graph_cut
+        url 'https://maven.scijava.org/content/repositories/snapshots/'
     }
     maven {
-        url 'http://maven.imagej.net/content/repositories/releases/'  // scifio
-    }
-    maven {
-        url 'https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/' // for jai-codec
-    }
-}
-
-if (JavaVersion.current().isJava8Compatible()) {
-    allprojects {
-        tasks.withType(Javadoc) {
-            options.addStringOption('Xdoclint:none', '-quiet')
+        url 'https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/'
+        content {
+            // for jai-codec
+            includeVersion "com.sun.media", "jai-codec", "1.1.3"
+            includeVersion "javax.media", "jai-core", "1.1.3"
         }
     }
 }
+
+
 test {
     useJUnit()
+
+    // Needed to load the native libraries:
+    // https://java-native-access.github.io/jna/4.2.1/com/sun/jna/NativeLibrary.html
+    systemProperty "jna.library.path", "lib/"
 }
 
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
 }
 task docJar(type: Jar, dependsOn: 'javadoc') {
-    from javadoc.destinationDir
+    from destinationDirectory
 }
-
 
 publishing {
     publications {
@@ -119,17 +167,18 @@ publishing {
 
 task copyToLib( type: Copy ) {
     into "$buildDir/libs/lib"
-    from configurations.runtime
+    from configurations.runtimeClasspath
 }
 
 jar {
+    archiveVersion = orbitVersion
     dependsOn copyToLib
+//    zip64=true
     manifest {
         attributes 'Implementation-Title': 'Orbit Image Analysis',
                 'Implementation-Version': orbitVersion,
                 'Main-Class': 'com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis',
                 'Vendor': 'Idorsia'
-                //,'Class-Path': 'lib/*'
     }
 }
 
@@ -144,24 +193,14 @@ configurations {
 
 dependencies {
     implementation 'com.actelion.research:lib-orbit-common:1.2.12'
-//    implementation 'com.actelion.research:image-provider-omero:1.6.1'
+//    implementation ('com.actelion.research:image-provider-omero:1.7.1') {
+//        because('Version 1.7.1 supports Omero 5.6.x')
+//    }
     api 'com.actelion.research:map-reduce-generic:1.0.10'
 //    implementation 'com.actelion.research:map-reduce-exec-spark:1.1.3'
 
-//    implementation 'com.actelion.research:mapReduceExecGrid:1.0.1.1'
-//    implementation 'com.actelion.research:imageproviderorbit:1.1.18'
-
-
     // JNA (needed for the NDPR C++ API)
     implementation 'net.java.dev.jna:jna:4.5.1'
-
-// only used for image-provider-omero development
-//    implementation(group: 'omero', name: 'blitz', version: '5.4.7-ice36-b93') {   // 5.2.7-ice36-b40   5.3.0-ice36-b59
-//        exclude group: 'org.springframework.ldap', module: 'spring-ldap'
-//        exclude group: 'org.testng', module: 'testng'
-//        exclude group: 'hsqldb', module: 'hsqldb'
-//    }
-
 
     // explicit versions, see implementation.excludes
     implementation 'org.quartz-scheduler:quartz:2.1.1'
@@ -183,10 +222,10 @@ dependencies {
     }
 
     // Radiance UI and dependencies
-    api "org.pushing-pixels:radiance-substance:$radianceVersion"
+    implementation "org.pushing-pixels:radiance-substance:$radianceVersion"
     api "org.pushing-pixels:radiance-flamingo:$radianceVersion"
-    api "org.pushing-pixels:radiance-neon:$radianceVersion"
-    api "org.pushing-pixels:radiance-photon:$radianceVersion"
+    implementation "org.pushing-pixels:radiance-neon:$radianceVersion"
+    implementation "org.pushing-pixels:radiance-photon:$radianceVersion"
 
     api 'com.google.guava:guava:28.2-jre'
     api 'org.apache.commons:commons-math3:3.6.1'
@@ -197,40 +236,26 @@ dependencies {
     api (group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version:'3.8.0') {
         transitive = false
     }
-    //implementation 'nz.ac.waikato.cms.weka.thirdparty:java-cup-11b:2015.03.26'
-    //implementation 'nz.ac.waikato.cms.weka.thirdparty:java-cup-11b-runtime:2015.03.26'
     implementation 'nz.ac.waikato.cms.weka.thirdparty:bounce:0.18'
     implementation 'com.github.fommil.netlib:core:1.1.2'
     implementation 'com.github.fommil.netlib:generator:1.1.2'
     implementation 'com.github.fommil.netlib:native_system-java:1.1'
-//    implementation 'com.github.fommil.netlib:netlib-native_system-linux-x86_64:1.1'
-//    implementation 'com.github.fommil.netlib:netlib-native_ref-linux-x86_64:1.1'
-//    implementation 'com.github.fommil.netlib:netlib-native_system-win-x86_64:1.1'
-//    implementation 'com.github.fommil.netlib:netlib-native_system-win-i686:1.1'
-//    implementation 'com.github.fommil.netlib:netlib-native_system-osx-x86_64:1.1'
-//    implementation 'com.github.fommil.netlib:netlib-native_ref-win-x86_64:1.1'
-//    implementation 'com.github.fommil.netlib:netlib-native_ref-win-i686:1.1'
     // weka end
-
-
 
     api 'gov.nih.imagej:imagej:1.46'
     implementation 'de.biomedical-imaging.ij:ij_blob:1.4.9'
     implementation (group: 'org.codelibs', name:'jcifs', version:'1.3.18.1') {  // for SmbUtils     (exclude javax.servlet-api because Spark needs a different version)
         exclude (group:'javax.servlet', module: 'servlet-api')
     }
-    api (group: 'ome', name:'formats-gpl', version:'6.1.1') {     // 5.9.2
+    api (group: 'ome', name:'formats-gpl', version:'6.4.0') {
         exclude (module: 'blitz')
     }
     api (group: 'net.imglib2', name: 'imglib2', version: '3.2.1') // to avoid jpeg2000 problem: NoSuchMethodError: jj2000.j2k.fileformat.reader.FileFormatReader.<init>
 
-//    implementation 'io.scif:scifio:0.30.0'  // only java 1.8
-//    implementation 'io.scif:scifio-bf-compat:2.0.0'
     api 'org.codehaus.groovy:groovy-all:2.5.7'
     api 'org.codehaus.gpars:gpars:1.2.1'
     implementation 'com.fifesoft:rsyntaxtextarea:3.0.3'
     implementation 'com.fifesoft:autocomplete:3.0.0'
-    //   implementation 'com.fifesoft:languagesupport:3.0.0'
 
     implementation 'ch.qos.logback:logback-classic:1.1.7'
     implementation 'net.java.linoleum:jlfgr:1_0'
@@ -240,9 +265,10 @@ dependencies {
     implementation 'org.xerial:sqlite-jdbc:3.21.0'
     implementation 'org.tensorflow:tensorflow:1.14.0'  // 1.4.0 1.10.0 implementationOnly
     // implementation 'org.tensorflow:libtensorflow_jni_gpu:1.10.0'
-    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
-    //testCompile 'junit:junit:[4.0,)'
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7'
+
     testImplementation 'junit:junit:4.13'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
 }
 
 

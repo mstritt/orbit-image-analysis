@@ -25,9 +25,13 @@ import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.ImageAnnotation;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitHelper;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -35,12 +39,13 @@ import java.util.List;
 public class CorpusCallosumAnnotator {
 
     public static int size = 1024;
+    public static int sizeBrain = 512;
 
     public void annotate(final int rdfId) throws Exception {
         RawDataFile rdf = DALConfig.getImageProvider().LoadRawDataFile(rdfId);
         RecognitionFrame rf = new RecognitionFrame(rdf);
         BufferedImage smallImage = rf.bimg.getMipMaps()[rf.bimg.getMipMaps().length-1].getImage().getAsBufferedImage();
-        BufferedImage image512 = DLHelpers.resize(smallImage,512,512);
+        BufferedImage image512 = DLHelpers.resize(smallImage,sizeBrain,sizeBrain);
         
 
         try (MRCNNBrainDetector brainDetector = new MRCNNBrainDetector();
@@ -48,11 +53,11 @@ public class CorpusCallosumAnnotator {
             ) {
             List<MRCNNBrainDetector.DetectorResult> brainROIs = brainDetector.detectBrains(smallImage,image512);
             for (MRCNNBrainDetector.DetectorResult brainROI: brainROIs) {
-                double scaleX1 = (brainROI.x2-brainROI.x1)/ (double)size;
-                double scaleY1 = (brainROI.y2-brainROI.y1)/ (double)size;
-                double scaleX2 = rf.bimg.getWidth() / (double)size;
-                double scaleY2 = rf.bimg.getHeight() / (double)size;
-             //   ImageIO.write(brainROI.roiImage,"jpeg", new File("d:/test.jpg"));
+                double scaleX1 = (brainROI.x2-brainROI.x1) / (double)size;
+                double scaleY1 = (brainROI.y2-brainROI.y1) / (double)size;
+                double scaleX2 = rf.bimg.getWidth() / (double)sizeBrain;
+                double scaleY2 = rf.bimg.getHeight() / (double)sizeBrain;
+               // ImageIO.write(brainROI.roiImage,"jpeg", new File("c:/temp/test.jpg"));
 
                 Detections detections = ccDetector.detectCorpusCallosum(brainROI.roiImage);
                 if (detections!=null) {
@@ -84,6 +89,12 @@ public class CorpusCallosumAnnotator {
 
     public static void main(String[] args) throws Exception {
         CorpusCallosumAnnotator annotator = new CorpusCallosumAnnotator();
-        annotator.annotate(10743901);
+        annotator.annotate(15573190);
+//        List<RawDataFile> rdfList = OrbitHelper.searchImages("ELB0433-0020");
+//        for (RawDataFile rdf: rdfList) {
+//            System.out.println("annotating image "+rdf.toStringDetail());
+//            annotator.annotate(rdf.getRawDataFileId());
+//        }
+//        System.out.println("done");
     }
 }

@@ -25,7 +25,7 @@ import com.actelion.research.orbit.imageAnalysis.models.ModelAnnotation;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.utils.RawUtilsCommon;
-import org.jdesktop.swingx.JXSearchField;
+//import org.jdesktop.swingx.JXSearchField;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -54,6 +54,7 @@ public class ModelBrowser {
     }
 
     public void showModelBrowser(final Frame owner, final String username, final boolean loadInOrbit) throws Exception {
+        // TODO: Do this async for better user experience.
         List<ModelAnnotation> modelList = OrbitModel.LoadFromOrbitUser(null);
         for (ModelAnnotation modelAnnotation : modelList) {
             System.out.println("model: " + modelAnnotation.getDescription() + " (" + modelAnnotation.getRawAnnotationId() + ")");
@@ -72,59 +73,57 @@ public class ModelBrowser {
         table.getColumnModel().getColumn(4).setCellRenderer(tableCellRenderer);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        final JXSearchField searchFieldName = new JXSearchField("name");
-        final JXSearchField searchFieldElb = new JXSearchField("elb");
-        final JXSearchField searchFieldId = new JXSearchField("id");
-        searchFieldName.setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield.modelBrowser.name");
-        searchFieldElb.setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield.modelBrowser.elb");
-        searchFieldId.setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield.modelBrowser.Id");
-        prepareSearchfield(searchFieldName);
-        prepareSearchfield(searchFieldElb);
-        prepareSearchfield(searchFieldId);
+        final JTextField searchFieldName = new JTextField("Search by Model Name");
+        final JTextField searchFieldElb = new JTextField("Search by ELB");
+        final JTextField searchFieldId = new JTextField("Search by Model ID");
+//        searchFieldName.setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield.modelBrowser.name");
+//        searchFieldElb.setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield.modelBrowser.elb");
+//        searchFieldId.setRecentSearchesSaveKey("com.actelion.research.orbit.OrbitImageAnalysis.searchfield.modelBrowser.Id");
+//        prepareSearchfield(searchFieldName);
+//        prepareSearchfield(searchFieldElb);
+//        prepareSearchfield(searchFieldId);
 
-        searchFieldName.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("find action name: " + searchFieldName.getText());
-                table.getRowSorter().allRowsChanged();
-            }
+        searchFieldName.addActionListener(e -> {
+            System.out.println("find action name: " + searchFieldName.getText());
+            table.getRowSorter().allRowsChanged();
         });
 
-        searchFieldElb.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("find action elb: " + searchFieldElb.getText());
-                table.getRowSorter().allRowsChanged();
-            }
+        searchFieldElb.addActionListener(e -> {
+            System.out.println("find action elb: " + searchFieldElb.getText());
+            table.getRowSorter().allRowsChanged();
         });
 
-        searchFieldId.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("find action id: " + searchFieldId.getText());
-                table.getRowSorter().allRowsChanged();
-            }
+        searchFieldId.addActionListener(e -> {
+            System.out.println("find action id: " + searchFieldId.getText());
+            table.getRowSorter().allRowsChanged();
         });
         searchFieldId.setInputVerifier(new IntInputVerifier(0));
 
         final JCheckBox onlyMine = new JCheckBox("only mine", false);
-        onlyMine.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("only mine: " + onlyMine.isSelected());
-                table.getRowSorter().allRowsChanged();
-            }
+        onlyMine.addActionListener(e -> {
+            System.out.println("only mine: " + onlyMine.isSelected());
+            table.getRowSorter().allRowsChanged();
         });
 
 
         // filter
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(tableModel);
-        RowFilter<Object, Object> filter = new RowFilter<Object, Object>() {
+        RowFilter<Object, Object> filter = new RowFilter<>() {
             public boolean include(Entry entry) {
                 String nameFilter = searchFieldName.getText();
+                if (nameFilter.equals("Search by Model Name")) {
+                    nameFilter = "";
+                }
                 String elbFilter = searchFieldElb.getText();
+                if (elbFilter.equals("Search by ELB")) {
+                    elbFilter = "";
+                }
                 String idFilter = searchFieldId.getText();
+
                 Integer idNum = null;
                 try {
                     idNum = Integer.parseInt(idFilter);
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
                 if (onlyMine.isSelected() && !entry.getStringValue(2).equals(username)) return false;
                 if (nameFilter.length() > 0 && !entry.getStringValue(0).toLowerCase().contains(nameFilter.toLowerCase()))
@@ -139,99 +138,76 @@ public class ModelBrowser {
 
 
         final JButton loadButton = new JButton("load");
-        loadButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (table.getSelectedRow() >= 0) {
-                    final ModelAnnotation annotation = (ModelAnnotation) table.getModel().getValueAt(table.convertRowIndexToModel(table.getSelectedRow()), -1);
-                    selectedModel = annotation.getModel();
-                    if (loadInOrbit) {
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                OrbitImageAnalysis.getInstance().loadModel(annotation.getModel(), getNameAndELB(annotation.getDescription())[0]);
-                            }
-                        });
-                    }
-                    frame.setVisible(false);
-                    frame.dispose();
+        loadButton.addActionListener(e -> {
+            if (table.getSelectedRow() >= 0) {
+                final ModelAnnotation annotation = (ModelAnnotation) table.getModel().getValueAt(table.convertRowIndexToModel(table.getSelectedRow()), -1);
+                selectedModel = annotation.getModel();
+                if (loadInOrbit) {
+                    SwingUtilities.invokeLater(() -> OrbitImageAnalysis.getInstance().loadModel(annotation.getModel(), getNameAndELB(annotation.getDescription())[0]));
                 }
-            }
-        });
-
-        final JButton cancelButton = new JButton("cancel");
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
                 frame.setVisible(false);
                 frame.dispose();
             }
         });
 
+        final JButton cancelButton = new JButton("cancel");
+        cancelButton.addActionListener(e -> {
+            frame.setVisible(false);
+            frame.dispose();
+        });
+
         final JButton delButton = new JButton("delete");
-        delButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (table.getSelectedRow() >= 0) {
-                    final ModelAnnotation annotation = (ModelAnnotation) table.getModel().getValueAt(table.convertRowIndexToModel(table.getSelectedRow()), -1);
-                    // security check
-                    if ((username.equalsIgnoreCase(annotation.getUserId())) || DALConfig.getImageProvider().getAdminUsers().contains(username)) {
-                        if (JOptionPane.showConfirmDialog(frame,
-                                "Do you really want to delete the model '" + annotation.getDescription() + "'",
-                                "Delete Model", JOptionPane.YES_NO_OPTION)
-                                == JOptionPane.YES_OPTION) {
-                            boolean deleted = false;
-                            try {
-                                deleted = DALConfig.getImageProvider().DeleteRawAnnotation(annotation.getRawAnnotationId());
-                                ((OrbitModelTableModel) table.getModel()).removeElement(annotation);
-                                table.getRowSorter().allRowsChanged();
-                            } catch (Exception e1) {
-                                e1.printStackTrace();
-                            }
-                            if (deleted)
-                                JOptionPane.showMessageDialog(frame, "Model successfully deleted.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                            else
-                                JOptionPane.showMessageDialog(frame, "Could not delete model (see log for details).", "Failure", JOptionPane.ERROR_MESSAGE);
+        delButton.addActionListener(e -> {
+            if (table.getSelectedRow() >= 0) {
+                final ModelAnnotation annotation = (ModelAnnotation) table.getModel().getValueAt(table.convertRowIndexToModel(table.getSelectedRow()), -1);
+                // security check
+                if ((username.equalsIgnoreCase(annotation.getUserId())) || DALConfig.getImageProvider().getAdminUsers().contains(username)) {
+                    if (JOptionPane.showConfirmDialog(frame,
+                            "Do you really want to delete the model '" + annotation.getDescription() + "'",
+                            "Delete Model", JOptionPane.YES_NO_OPTION)
+                            == JOptionPane.YES_OPTION) {
+                        boolean deleted = false;
+                        try {
+                            deleted = DALConfig.getImageProvider().DeleteRawAnnotation(annotation.getRawAnnotationId());
+                            ((OrbitModelTableModel) table.getModel()).removeElement(annotation);
+                            table.getRowSorter().allRowsChanged();
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
                         }
-                    } else {
-                        JOptionPane.showMessageDialog(frame, "Sorry, but you are not the owner of this model.", "Cannot delete model", JOptionPane.ERROR_MESSAGE);
+                        if (deleted)
+                            JOptionPane.showMessageDialog(frame, "Model successfully deleted.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        else
+                            JOptionPane.showMessageDialog(frame, "Could not delete model (see log for details).", "Failure", JOptionPane.ERROR_MESSAGE);
                     }
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Sorry, but you are not the owner of this model.", "Cannot delete model", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
         final JButton copyButton = new JButton("copy identifier");
-        copyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (table.getSelectedRow() >= 0) {
-                    ModelAnnotation annotation = (ModelAnnotation) table.getModel().getValueAt(table.convertRowIndexToModel(table.getSelectedRow()), -1);
-                    String ident = annotation.getDescription() + " (" + annotation.getRawAnnotationId() + ")";
-                    Transferable stringSelection = new StringSelection(ident);
-                    Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
-                    clpbrd.setContents(stringSelection, null);
-                    JOptionPane.showMessageDialog(frame, "Model identifier copied to clipboard.", "Copied to clipboard", JOptionPane.INFORMATION_MESSAGE);
-                }
+        copyButton.addActionListener(e -> {
+            if (table.getSelectedRow() >= 0) {
+                ModelAnnotation annotation = (ModelAnnotation) table.getModel().getValueAt(table.convertRowIndexToModel(table.getSelectedRow()), -1);
+                String ident = annotation.getDescription() + " (" + annotation.getRawAnnotationId() + ")";
+                Transferable stringSelection = new StringSelection(ident);
+                Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
+                clpbrd.setContents(stringSelection, null);
+                JOptionPane.showMessageDialog(frame, "Model identifier copied to clipboard.", "Copied to clipboard", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
         final JButton downloadButton = new JButton("download");
-        downloadButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (table.getSelectedRow() >= 0) {
-                    final ModelAnnotation annotation = (ModelAnnotation) table.getModel().getValueAt(table.convertRowIndexToModel(table.getSelectedRow()), -1);
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            String fn = getNameAndELB(annotation.getDescription())[0];
-                            if (!fn.toLowerCase().endsWith(OrbitUtils.MODEL_ENDING))
-                                fn += OrbitUtils.MODEL_ENDING;
-                            OrbitImageAnalysis.getInstance().saveModel(annotation.getModel(), fn);
-                            //JOptionPane.showMessageDialog(frame,"Model identifier copied to clipboard.","Copied to clipboard",JOptionPane.INFORMATION_MESSAGE);
-                        }
-                    });
-                }
+        downloadButton.addActionListener(e -> {
+            if (table.getSelectedRow() >= 0) {
+                final ModelAnnotation annotation = (ModelAnnotation) table.getModel().getValueAt(table.convertRowIndexToModel(table.getSelectedRow()), -1);
+                SwingUtilities.invokeLater(() -> {
+                    String fn = getNameAndELB(annotation.getDescription())[0];
+                    if (!fn.toLowerCase().endsWith(OrbitUtils.MODEL_ENDING))
+                        fn += OrbitUtils.MODEL_ENDING;
+                    OrbitImageAnalysis.getInstance().saveModel(annotation.getModel(), fn);
+                    //JOptionPane.showMessageDialog(frame,"Model identifier copied to clipboard.","Copied to clipboard",JOptionPane.INFORMATION_MESSAGE);
+                });
             }
         });
 
@@ -265,22 +241,24 @@ public class ModelBrowser {
         frame.setVisible(true);
     }
 
-    private void prepareSearchfield(JXSearchField searchField) {
-        searchField.setSearchMode(JXSearchField.SearchMode.INSTANT);
-        searchField.setInstantSearchDelay(250);
-        searchField.getRecentSearches().setMaxRecents(40);
-        if (OrbitUtils.DARKUI) {
-            searchField.setDisabledTextColor(Color.lightGray);
-            searchField.setUseSeperatePopupButton(false);
-            searchField.setLayoutStyle(JXSearchField.LayoutStyle.MAC);
-            searchField.getPopupButton().setIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
-            searchField.getPopupButton().setPressedIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
-            searchField.getPopupButton().setRolloverIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
-            searchField.getCancelButton().setIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
-            searchField.getCancelButton().setPressedIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
-            searchField.getCancelButton().setRolloverIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
-        }
-    }
+//    @Deprecated
+//    private void prepareSearchfield(JXSearchField searchField) {
+//        searchField.setSearchMode(JXSearchField.SearchMode.INSTANT);
+//        searchField.setInstantSearchDelay(250);
+//        searchField.getRecentSearches().setMaxRecents(40);
+//        searchField.getRecentSearches().setMaxRecents(40);
+//        if (OrbitUtils.DARKUI) {
+//            searchField.setDisabledTextColor(Color.lightGray);
+//            searchField.setUseSeperatePopupButton(false);
+//            searchField.setLayoutStyle(JXSearchField.LayoutStyle.MAC);
+//            searchField.getPopupButton().setIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
+//            searchField.getPopupButton().setPressedIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
+//            searchField.getPopupButton().setRolloverIcon(new ImageIcon(this.getClass().getResource("/resource/nav_down.png")));
+//            searchField.getCancelButton().setIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
+//            searchField.getCancelButton().setPressedIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
+//            searchField.getCancelButton().setRolloverIcon(new ImageIcon(this.getClass().getResource("/resource/delete2.png")));
+//        }
+//    }
 
 
     private String[] getNameAndELB(String descr) {
