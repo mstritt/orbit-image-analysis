@@ -109,23 +109,24 @@ public class OrbitUtils {
 
     public static List<String> fileTypeImages = Arrays.asList(RawUtilsCommon.fileTypesImage);
 
-//    static {
-//        Logger root = LoggerFactory.getLogger("com.actelion.research");
-//
-//        try {
-//            if (root instanceof ch.qos.logback.classic.Logger)   // can only set if logback implementation
-//                ((ch.qos.logback.classic.Logger) root).setLevel(DEVELOPMENTMODE ? Level.DEBUG : Level.INFO);
-//
-//            if (ScaleoutMode.SCALEOUTMODE.get()) {
-//                DALConfig.getImageProvider().setPooledConnectionEnabled(false);
-//                DALConfig.getImageProvider().setDBConnectionName("OrbitGridJob");
-//            }
-//        } catch (Throwable t) {
-//            root.error("Failure during static initialization", t);
-//            throw t;
-//        }
-//
-//    }
+    static {
+        Logger root = LoggerFactory.getLogger("com.actelion.research");
+
+        try {
+            if (root instanceof ch.qos.logback.classic.Logger)   // can only set if logback implementation
+                ((ch.qos.logback.classic.Logger) root).setLevel(DEVELOPMENTMODE ? Level.DEBUG : Level.INFO);
+
+            if (ScaleoutMode.SCALEOUTMODE.get()) {
+                DALConfig.getImageProvider().setPooledConnectionEnabled(false);
+                DALConfig.getImageProvider().setDBConnectionName("OrbitGridJob");
+            }
+        } catch (Exception t) {
+            t.printStackTrace();
+            root.error("Failure during static initialization", t);
+            throw t;
+        }
+
+    }
 
     public final static double getVersion() {
         try (InputStreamReader in = new InputStreamReader(OrbitUtils.class.getResourceAsStream("/version.txt"));
