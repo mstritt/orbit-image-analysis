@@ -116,12 +116,11 @@ public class OrbitUtils {
             if (root instanceof ch.qos.logback.classic.Logger)   // can only set if logback implementation
                 ((ch.qos.logback.classic.Logger) root).setLevel(DEVELOPMENTMODE ? Level.DEBUG : Level.INFO);
 
-            if (ScaleoutMode.SCALEOUTMODE.get()) {
-                DALConfig.getImageProvider().setPooledConnectionEnabled(false);
-                DALConfig.getImageProvider().setDBConnectionName("OrbitGridJob");
-            }
-        } catch (Exception t) {
-            t.printStackTrace();
+//            if (ScaleoutMode.SCALEOUTMODE.get()) {
+//                DALConfig.getImageProvider().setPooledConnectionEnabled(false);
+//                DALConfig.getImageProvider().setDBConnectionName("OrbitGridJob");
+//            }
+        } catch (Throwable t) {
             root.error("Failure during static initialization", t);
             throw t;
         }
