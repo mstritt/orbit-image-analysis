@@ -117,8 +117,8 @@ public class OrbitUtils {
                 ((ch.qos.logback.classic.Logger) root).setLevel(DEVELOPMENTMODE ? Level.DEBUG : Level.INFO);
 
             if (ScaleoutMode.SCALEOUTMODE.get()) {
-//                DALConfig.getImageProvider().setPooledConnectionEnabled(false);
-//                DALConfig.getImageProvider().setDBConnectionName("OrbitGridJob");
+                DALConfig.getImageProvider().setPooledConnectionEnabled(false);
+                DALConfig.getImageProvider().setDBConnectionName("OrbitGridJob");
             }
         } catch (Throwable t) {
             root.error("Failure during static initialization", t);
