@@ -130,7 +130,8 @@ repositories {
 
 
 test {
-    useJUnit()
+    //useJUnit()
+    useJUnitPlatform()
 
     // Needed to load the native libraries:
     // https://java-native-access.github.io/jna/4.2.1/com/sun/jna/NativeLibrary.html
@@ -268,10 +269,16 @@ dependencies {
     // implementation 'org.tensorflow:libtensorflow_jni_gpu:1.10.0'
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7'
 
-    testImplementation 'junit:junit:4.13'
     testImplementation 'org.hamcrest:hamcrest:2.2'
+
+    // testImplementation 'junit:junit:4.13'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
 }
 
+//tasks.test {
+//    maxParallelForks = 1
+//}
 
 if (file('custom.gradle').exists()) {
     apply from: 'custom.gradle'
