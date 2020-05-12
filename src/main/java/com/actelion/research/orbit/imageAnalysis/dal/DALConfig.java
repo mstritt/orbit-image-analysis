@@ -77,10 +77,10 @@ public class DALConfig {
             try {
                 // https://docs.oracle.com/javase/9/docs/api/java/lang/Class.html#newInstance--
                 imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).getDeclaredConstructors()[0].newInstance();
-            } catch (Exception e) {
-                e.getCause();
+            } catch (Throwable e) {
                 // Note that exceptions not chained with Constructors.newInstance(), so need to extract the cause.
-                if (e.getCause() instanceof IllegalStateException) {
+                //if (e.getCause() instanceof IllegalStateException)
+                {
                     final String m = e.getCause().getMessage() + "\n\nOrbit will continue with the fallback local filesystem image provider.";
                     logger.warn(m);
                     if (!GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance() && !ScaleoutMode.SCALEOUTMODE.get()) {
