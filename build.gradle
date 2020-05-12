@@ -135,6 +135,7 @@ test {
     // Needed to load the native libraries:
     // https://java-native-access.github.io/jna/4.2.1/com/sun/jna/NativeLibrary.html
     systemProperty "jna.library.path", "lib/"
+    systemProperty 'java.awt.headless', 'true'
 }
 
 task sourceJar(type: Jar) {
