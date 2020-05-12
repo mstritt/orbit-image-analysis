@@ -277,9 +277,9 @@ dependencies {
 //    maxParallelForks = 1
 //}
 
-//if (file('custom.gradle').exists()) {
-//    apply from: 'custom.gradle'
-//}
+if (file('custom.gradle').exists()) {
+    apply from: 'custom.gradle'
+}
 
 
 /*
