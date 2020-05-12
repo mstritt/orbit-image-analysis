@@ -130,8 +130,7 @@ repositories {
 
 
 test {
-    //useJUnit()
-    useJUnitPlatform()
+    useJUnit()
 
     // Needed to load the native libraries:
     // https://java-native-access.github.io/jna/4.2.1/com/sun/jna/NativeLibrary.html
@@ -271,9 +270,7 @@ dependencies {
 
     testImplementation 'org.hamcrest:hamcrest:2.2'
 
-    // testImplementation 'junit:junit:4.13'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+    testImplementation 'junit:junit:4.13'
 }
 
 //tasks.test {
