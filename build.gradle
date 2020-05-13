@@ -194,8 +194,11 @@ configurations {
 
 dependencies {
     implementation 'com.actelion.research:lib-orbit-common:1.2.12'
-    implementation ('com.actelion.research:image-provider-omero:1.7.1') {
+    implementation ('com.actelion.research:image-provider-omero:1.7.2') {
         because('Version 1.7.1 supports Omero 5.6.x')
+//        exclude (group:'com.amazonaws', module: 'aws-java-sdk-core')
+//        exclude (group:'com.amazonaws', module: 'aws-java-sdk-s3')
+//        exclude (group:'com.amazonaws', module: 'aws-java-sdk-kms')
     }
     api 'com.actelion.research:map-reduce-generic:1.0.10'
 //    implementation 'com.actelion.research:map-reduce-exec-spark:1.1.3'
