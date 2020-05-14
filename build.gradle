@@ -200,7 +200,7 @@ dependencies {
 //        exclude (group:'com.amazonaws', module: 'aws-java-sdk-s3')
 //        exclude (group:'com.amazonaws', module: 'aws-java-sdk-kms')
     }
-    api 'com.actelion.research:map-reduce-generic:1.0.10'
+    api ('com.actelion.research:map-reduce-generic:1.0.10')
 //    implementation 'com.actelion.research:map-reduce-exec-spark:1.1.3'
 
     // JNA (needed for the NDPR C++ API)

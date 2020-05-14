@@ -3040,9 +3040,15 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private void copyImageToClipboard(boolean copyFullImage) {
         if (getIFrame() != null) {
             if (OrbitUtils.isSmallImage(getIFrame().recognitionFrame.bimg.getImage())) {
-                Transferable t = ((DesktopTransferHandler) desktopTransferHandler).createImageTransferable(getIFrame(), copyFullImage);
+                // Small image, so can copy to clipboard.
+                Transferable t = ((DesktopTransferHandler) desktopTransferHandler).createImageTransferable(getIFrame(), true);
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(t, null);
+            } else if (!copyFullImage) {
+                // Large image, but ok with just the viewport image.
+                Transferable t = ((DesktopTransferHandler) desktopTransferHandler).createImageTransferable(getIFrame(), false);
                 Toolkit.getDefaultToolkit().getSystemClipboard().setContents(t, null);
             } else {
+                // wanted the large image, but it's too big.
                 JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
                         "The image is too large to be copied into the clipboard. " +
                                 "\nYou can use ALT-C to copy the currently visible region.",

@@ -6,7 +6,7 @@
 ### A versatile image analysis software for biological image-based quantification.
 
 ##### News:
-* 3.52: using image-provider-omero:1.7.1 for Omero 5.6.x, deep learning segmentation, new release preparation
+* 3.62: using image-provider-omero:1.7.2 for Omero 5.6.x, new keyboard shortcuts, bugfixes
 
 ##### Available backends:
 
