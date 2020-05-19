@@ -6,6 +6,7 @@
 ### A versatile image analysis software for biological image-based quantification.
 
 ##### News:
+* 3.63: bugfix for Orbit not starting up if OmeroOrbit.properties.template was not existing in home directory
 * 3.62: using image-provider-omero:1.7.2 for Omero 5.6.x, new keyboard shortcuts, bugfixes
 
 ##### Available backends:

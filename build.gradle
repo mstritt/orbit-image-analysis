@@ -276,14 +276,9 @@ dependencies {
     testImplementation 'junit:junit:4.13'
 }
 
-//tasks.test {
-//    maxParallelForks = 1
-//}
-
 if (file('custom.gradle').exists()) {
     apply from: 'custom.gradle'
 }
-
 
 /*
  * Compile the icons at build time, for better performance.
