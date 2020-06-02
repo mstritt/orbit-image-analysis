@@ -19,9 +19,9 @@
 package com.actelion.research.orbit.imageAnalysis.utils;
 
 // TODO: Add ...neon.api.Async... when upgrading to the next Radiance release (>2.5.1)
-import org.pushingpixels.neon.AsynchronousLoadListener;
-import org.pushingpixels.neon.AsynchronousLoading;
-import org.pushingpixels.neon.NeonCortex;
+import org.pushingpixels.neon.api.AsynchronousLoadListener;
+import org.pushingpixels.neon.api.AsynchronousLoading;
+import org.pushingpixels.neon.api.NeonCortex;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

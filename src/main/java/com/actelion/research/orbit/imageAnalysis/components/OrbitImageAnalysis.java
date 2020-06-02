@@ -64,7 +64,7 @@ import org.pushingpixels.flamingo.api.common.model.Command;
 import org.pushingpixels.flamingo.api.common.model.CommandGroup;
 import org.pushingpixels.flamingo.api.ribbon.JRibbonFrame;
 import org.pushingpixels.flamingo.api.ribbon.synapse.model.RibbonDefaultComboBoxContentModel;
-import org.pushingpixels.neon.NeonCortex;
+import org.pushingpixels.neon.api.NeonCortex;
 import org.pushingpixels.substance.api.SubstanceCortex;
 import org.pushingpixels.substance.api.skin.GraphiteGlassSkin;
 import org.slf4j.LoggerFactory;
@@ -515,6 +515,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         splitPaneRenderGridPropLoupe.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0), "none");
         propertyPanel.add(splitPaneRenderGridPropLoupe, gbcMetaBar);
 
+        // Problematic for multi-monitor setups...
         Rectangle size = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
 
         // SplitPanes

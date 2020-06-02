@@ -24,7 +24,7 @@ buildscript {
     dependencies {
         classpath "com.smokejumperit.gradle.license:Gradle-License-Report:0.0.2"
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.2"
-        classpath "org.pushing-pixels:radiance-ignite:2.5.1"
+        classpath "org.pushing-pixels:radiance-ignite:3.0.0"
     }
 }
 
@@ -92,7 +92,7 @@ ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
 project.version = ext.orbitVersion
 
 // Define the Radiance version in one place, since multiple libraries that need to be updated together.
-def radianceVersion = '2.5.1'
+def radianceVersion = '3.0.0'
 
 repositories {
     mavenCentral()
@@ -276,9 +276,9 @@ dependencies {
     testImplementation 'junit:junit:4.13'
 }
 
-if (file('custom.gradle').exists()) {
-    apply from: 'custom.gradle'
-}
+//if (file('custom.gradle').exists()) {
+//    apply from: 'custom.gradle'
+//}
 
 /*
  * Compile the icons at build time, for better performance.
