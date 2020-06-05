@@ -80,7 +80,6 @@ public class DALConfig {
             } catch (Throwable e) {
                 // Note that exceptions not chained with Constructors.newInstance().
                 {
-                    e.printStackTrace();
                     final String m = "Orbit will continue with the fallback local filesystem image provider.";
                     logger.warn(m);
                     if (!GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance() && !ScaleoutMode.SCALEOUTMODE.get()) {
