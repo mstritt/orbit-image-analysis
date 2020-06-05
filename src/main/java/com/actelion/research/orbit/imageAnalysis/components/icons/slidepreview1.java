@@ -6,229 +6,257 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.ref.WeakReference;
 import java.util.Base64;
+import java.util.Stack;
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 import javax.swing.plaf.UIResource;
 
-import org.pushingpixels.neon.icon.ResizableIcon;
-import org.pushingpixels.neon.icon.ResizableIconUIResource;
+import org.pushingpixels.neon.api.icon.ResizableIcon;
+import org.pushingpixels.neon.api.icon.ResizableIconUIResource;
 
 /**
  * This class has been automatically generated using <a
  * href="https://github.com/kirill-grouchnikov/radiance">Photon SVG transcoder</a>.
  */
 public class slidepreview1 implements ResizableIcon {
+    private Shape shape = null;
+    private GeneralPath generalPath = null;
+    private Paint paint = null;
+    private Stroke stroke = null;
+    private Shape clip = null;
+    private Stack<AffineTransform> transformsStack = new Stack<>();
+
     
 
-    @SuppressWarnings("unused")
-	private void innerPaint(Graphics2D g) {
-        Shape shape = null;
-        Paint paint = null;
-        Stroke stroke = null;
-        Shape clip = null;
-
-        float origAlpha = 1.0f;
-        Composite origComposite = g.getComposite();
-        if (origComposite instanceof AlphaComposite) {
-            AlphaComposite origAlphaComposite = 
-                (AlphaComposite)origComposite;
-            if (origAlphaComposite.getRule() == AlphaComposite.SRC_OVER) {
-                origAlpha = origAlphaComposite.getAlpha();
-            }
-        }
-        
-	    AffineTransform defaultTransform_ = g.getTransform();
+	private void _paint0(Graphics2D g,float origAlpha) {
+transformsStack.push(g.getTransform());
 // 
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0666667222976685f, 0.0f, 0.0f, 1.0666667222976685f, -0.0f, -0.0f));
 // _0
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, -308.2699890136719f));
 // _0_0
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.0f, 5.690700054168701f, -5.093100070953369f, 0.0f, 1039.4000244140625f, 316.82000732421875f));
 // _0_0_0
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 104.2699966430664f, -312.0799865722656f));
 // _0_0_0_0
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.7385900020599365f, 0.0f, 0.0f, 1.0f, -100.56999969482422f, 311.8800048828125f));
 // _0_0_0_0_0
 g.setComposite(AlphaComposite.getInstance(3, 0.5f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_0
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(11.862, 10.266);
-((GeneralPath)shape).lineTo(11.89325, 102.297);
-((GeneralPath)shape).lineTo(11.862, 194.297);
-((GeneralPath)shape).lineTo(111.862, 194.297);
-((GeneralPath)shape).lineTo(111.862, 117.766);
-((GeneralPath)shape).lineTo(111.862, 86.766);
-((GeneralPath)shape).lineTo(111.862, 10.265999);
-((GeneralPath)shape).lineTo(11.8619995, 10.265999);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(11.862f, 10.266f);
+generalPath.lineTo(11.89325f, 102.297f);
+generalPath.lineTo(11.862f, 194.297f);
+generalPath.lineTo(111.862f, 194.297f);
+generalPath.lineTo(111.862f, 117.766f);
+generalPath.lineTo(111.862f, 86.766f);
+generalPath.lineTo(111.862f, 10.265999f);
+generalPath.lineTo(11.8619995f, 10.265999f);
+generalPath.closePath();
+shape = generalPath;
 paint = new Color(0, 0, 0, 255);
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_1
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(13.556, 11.36);
-((GeneralPath)shape).lineTo(13.556, 49.627);
-((GeneralPath)shape).lineTo(13.556, 154.22699);
-((GeneralPath)shape).lineTo(13.556, 192.49399);
-((GeneralPath)shape).lineTo(109.556, 192.49399);
-((GeneralPath)shape).lineTo(109.556, 109.82199);
-((GeneralPath)shape).lineTo(109.556, 94.03699);
-((GeneralPath)shape).lineTo(109.556, 11.36499);
-((GeneralPath)shape).lineTo(13.556, 11.36499);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(13.556f, 11.36f);
+generalPath.lineTo(13.556f, 49.627f);
+generalPath.lineTo(13.556f, 154.22699f);
+generalPath.lineTo(13.556f, 192.49399f);
+generalPath.lineTo(109.556f, 192.49399f);
+generalPath.lineTo(109.556f, 109.82199f);
+generalPath.lineTo(109.556f, 94.03699f);
+generalPath.lineTo(109.556f, 11.36499f);
+generalPath.lineTo(13.556f, 11.36499f);
+generalPath.closePath();
+shape = generalPath;
 paint = new Color(255, 255, 255, 255);
 g.setPaint(paint);
 g.fill(shape);
 paint = new LinearGradientPaint(new Point2D.Double(15.5, 98.56400299072266), new Point2D.Double(112.5, 98.56400299072266), new float[] {0.0f,1.0f}, new Color[] {new Color(0, 0, 0, 255),new Color(0, 0, 0, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, -2.4435999393463135f, 3.359999895095825f));
 stroke = new BasicStroke(1.0f,0,0,4.0f,null,0.0f);
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(13.556, 11.36);
-((GeneralPath)shape).lineTo(13.556, 49.627);
-((GeneralPath)shape).lineTo(13.556, 154.22699);
-((GeneralPath)shape).lineTo(13.556, 192.49399);
-((GeneralPath)shape).lineTo(109.556, 192.49399);
-((GeneralPath)shape).lineTo(109.556, 109.82199);
-((GeneralPath)shape).lineTo(109.556, 94.03699);
-((GeneralPath)shape).lineTo(109.556, 11.36499);
-((GeneralPath)shape).lineTo(13.556, 11.36499);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(13.556f, 11.36f);
+generalPath.lineTo(13.556f, 49.627f);
+generalPath.lineTo(13.556f, 154.22699f);
+generalPath.lineTo(13.556f, 192.49399f);
+generalPath.lineTo(109.556f, 192.49399f);
+generalPath.lineTo(109.556f, 109.82199f);
+generalPath.lineTo(109.556f, 94.03699f);
+generalPath.lineTo(109.556f, 11.36499f);
+generalPath.lineTo(13.556f, 11.36499f);
+generalPath.closePath();
+shape = generalPath;
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_1);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_2 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_2
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(15.703, 10.452);
-((GeneralPath)shape).lineTo(15.703, 49.077);
-((GeneralPath)shape).lineTo(15.703, 154.657);
-((GeneralPath)shape).lineTo(15.703, 193.282);
-((GeneralPath)shape).lineTo(112.602005, 193.282);
-((GeneralPath)shape).lineTo(112.602005, 109.836);
-((GeneralPath)shape).lineTo(112.602005, 93.903);
-((GeneralPath)shape).lineTo(112.602005, 10.457001);
-((GeneralPath)shape).lineTo(15.703003, 10.457001);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(15.703f, 10.452f);
+generalPath.lineTo(15.703f, 49.077f);
+generalPath.lineTo(15.703f, 154.657f);
+generalPath.lineTo(15.703f, 193.282f);
+generalPath.lineTo(112.602005f, 193.282f);
+generalPath.lineTo(112.602005f, 109.836f);
+generalPath.lineTo(112.602005f, 93.903f);
+generalPath.lineTo(112.602005f, 10.457001f);
+generalPath.lineTo(15.703003f, 10.457001f);
+generalPath.closePath();
+shape = generalPath;
 paint = new RadialGradientPaint(new Point2D.Double(103.0999984741211, 56.262001037597656), 48.9f, new Point2D.Double(103.0999984741211, 56.262001037597656), new float[] {0.0f,1.0f}, new Color[] {new Color(210, 242, 255, 255),new Color(243, 243, 243, 201)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(-1.2288999557495117f, 2.1689000129699707f, -1.6426000595092773f, -0.9307000041007996f, 323.0400085449219f, -153.86000061035156f));
 g.setPaint(paint);
 g.fill(shape);
 paint = new RadialGradientPaint(new Point2D.Double(18.18199920654297, 147.3699951171875), 48.5f, new Point2D.Double(18.18199920654297, 147.3699951171875), new float[] {0.0f,1.0f}, new Color[] {new Color(0, 0, 0, 255),new Color(0, 0, 0, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.8930000066757202f, -0.012714000418782234f, 0.012729000300168991f, 1.8952000141143799f, -18.08099937438965f, -89.3280029296875f));
 stroke = new BasicStroke(1.8169f,0,0,4.0f,null,0.0f);
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(15.703, 10.452);
-((GeneralPath)shape).lineTo(15.703, 49.077);
-((GeneralPath)shape).lineTo(15.703, 154.657);
-((GeneralPath)shape).lineTo(15.703, 193.282);
-((GeneralPath)shape).lineTo(112.602005, 193.282);
-((GeneralPath)shape).lineTo(112.602005, 109.836);
-((GeneralPath)shape).lineTo(112.602005, 93.903);
-((GeneralPath)shape).lineTo(112.602005, 10.457001);
-((GeneralPath)shape).lineTo(15.703003, 10.457001);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(15.703f, 10.452f);
+generalPath.lineTo(15.703f, 49.077f);
+generalPath.lineTo(15.703f, 154.657f);
+generalPath.lineTo(15.703f, 193.282f);
+generalPath.lineTo(112.602005f, 193.282f);
+generalPath.lineTo(112.602005f, 109.836f);
+generalPath.lineTo(112.602005f, 93.903f);
+generalPath.lineTo(112.602005f, 10.457001f);
+generalPath.lineTo(15.703003f, 10.457001f);
+generalPath.closePath();
+shape = generalPath;
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_2);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_3 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_3
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_3_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_3_0
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(47.032, 42.984);
-((GeneralPath)shape).curveTo(46.911472, 42.990303, 46.804993, 43.01315, 46.68825, 43.0465);
-((GeneralPath)shape).curveTo(46.100033, 43.21456, 43.872753, 44.4056, 43.56325, 44.9215);
-((GeneralPath)shape).curveTo(43.072742, 45.73902, 44.14468, 50.572002, 44.407, 51.359);
-((GeneralPath)shape).curveTo(44.734, 52.339993, 46.0047, 55.4449, 45.4382, 56.5778);
-((GeneralPath)shape).curveTo(45.17393, 57.106342, 40.5993, 56.53452, 39.8132, 56.79655);
-((GeneralPath)shape).curveTo(39.56666, 56.87873, 39.42224, 57.30453, 39.1882, 57.42155);
-((GeneralPath)shape).curveTo(36.475403, 58.77795, 36.06, 60.65625, 38.157, 63.01535);
-((GeneralPath)shape).curveTo(38.92805, 63.882782, 39.5336, 64.36895, 40.4382, 65.10915);
-((GeneralPath)shape).curveTo(41.23719, 65.76287, 42.070503, 66.42635, 42.9382, 66.98415);
-((GeneralPath)shape).curveTo(42.9466, 66.989555, 43.064632, 67.075676, 43.15695, 67.1404);
-((GeneralPath)shape).curveTo(42.289303, 67.69818, 41.45595, 68.3617, 40.65695, 69.0154);
-((GeneralPath)shape).curveTo(39.752293, 69.755585, 39.14675, 70.24171, 38.37575, 71.10921);
-((GeneralPath)shape).curveTo(36.27885, 73.46821, 36.694252, 75.3466, 39.40695, 76.70301);
-((GeneralPath)shape).curveTo(39.64099, 76.82003, 39.78541, 77.245834, 40.03195, 77.32801);
-((GeneralPath)shape).curveTo(40.81805, 77.59004, 45.39265, 77.01822, 45.65695, 77.54676);
-((GeneralPath)shape).curveTo(46.223362, 78.67956, 44.95269, 81.78456, 44.62575, 82.765564);
-((GeneralPath)shape).curveTo(44.36343, 83.55252, 43.29145, 88.38557, 43.782, 89.203064);
-((GeneralPath)shape).curveTo(44.09154, 89.71896, 46.3188, 90.909966, 46.907, 91.078064);
-((GeneralPath)shape).curveTo(47.023743, 91.11141, 47.130222, 91.13426, 47.25075, 91.140564);
-((GeneralPath)shape).curveTo(47.61235, 91.159325, 48.01152, 91.078064, 48.37575, 91.078064);
-((GeneralPath)shape).curveTo(48.92625, 91.078064, 49.68745, 91.211075, 50.21955, 91.078064);
-((GeneralPath)shape).curveTo(53.54225, 90.24738, 58.22095, 85.769966, 60.21955, 83.17187);
-((GeneralPath)shape).curveTo(60.93426, 82.242744, 63.45195, 78.60547, 62.71955, 77.14067);
-((GeneralPath)shape).curveTo(62.50651, 76.714584, 62.35495, 77.09552, 62.09455, 76.92192);
-((GeneralPath)shape).curveTo(61.931282, 76.81307, 61.85157, 76.62452, 61.6883, 76.51567);
-((GeneralPath)shape).curveTo(61.19084, 76.18403, 60.6258, 76.70851, 60.6258, 75.89067);
-((GeneralPath)shape).curveTo(60.6258, 75.75192, 60.52769, 75.55128, 60.6258, 75.45317);
-((GeneralPath)shape).curveTo(60.63691, 75.44206, 63.133102, 75.19518, 63.3446, 75.26567);
-((GeneralPath)shape).curveTo(63.53076, 75.32772, 63.57534, 75.58416, 63.75085, 75.67192);
-((GeneralPath)shape).curveTo(63.90943, 75.75121, 64.14, 75.59823, 64.188354, 75.45317);
-((GeneralPath)shape).curveTo(64.412254, 74.78148, 64.301636, 71.902374, 64.188354, 71.10937);
-((GeneralPath)shape).curveTo(64.09435, 70.45137, 63.775833, 69.65307, 63.563354, 69.015564);
-((GeneralPath)shape).curveTo(63.376583, 68.455246, 63.440384, 67.65756, 63.500854, 66.92176);
-((GeneralPath)shape).lineTo(63.250854, 66.92176);
-((GeneralPath)shape).curveTo(63.200726, 66.2688, 63.181244, 65.59936, 63.344604, 65.10926);
-((GeneralPath)shape).curveTo(63.557083, 64.47182, 63.875603, 63.673462, 63.969604, 63.01546);
-((GeneralPath)shape).curveTo(64.082886, 62.22248, 64.193504, 59.34336, 63.969604, 58.67166);
-((GeneralPath)shape).curveTo(63.921253, 58.5266, 63.690685, 58.373623, 63.532104, 58.45291);
-((GeneralPath)shape).curveTo(63.356594, 58.540672, 63.312016, 58.79711, 63.125854, 58.85916);
-((GeneralPath)shape).curveTo(62.914383, 58.929653, 60.418255, 58.68277, 60.407055, 58.67166);
-((GeneralPath)shape).curveTo(60.308945, 58.57355, 60.407055, 58.37291, 60.407055, 58.23416);
-((GeneralPath)shape).curveTo(60.407055, 57.41632, 60.972095, 57.9408, 61.469555, 57.60916);
-((GeneralPath)shape).curveTo(61.632824, 57.500313, 61.712536, 57.31176, 61.875805, 57.20291);
-((GeneralPath)shape).curveTo(62.136204, 57.029312, 62.287766, 57.41025, 62.500805, 56.98416);
-((GeneralPath)shape).curveTo(63.233246, 55.51926, 60.715504, 51.88206, 60.000805, 50.95296);
-((GeneralPath)shape).curveTo(58.002205, 48.35476, 53.323505, 43.87736, 50.000805, 43.04676);
-((GeneralPath)shape).curveTo(49.468784, 42.91375, 48.707504, 43.04676, 48.157005, 43.04676);
-((GeneralPath)shape).curveTo(47.792774, 43.04676, 47.393604, 42.9655, 47.032005, 42.98426);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(47.032f, 42.984f);
+generalPath.curveTo(46.911472f, 42.990303f, 46.804993f, 43.01315f, 46.68825f, 43.0465f);
+generalPath.curveTo(46.100033f, 43.21456f, 43.872753f, 44.4056f, 43.56325f, 44.9215f);
+generalPath.curveTo(43.072742f, 45.73902f, 44.14468f, 50.572002f, 44.407f, 51.359f);
+generalPath.curveTo(44.734f, 52.339993f, 46.0047f, 55.4449f, 45.4382f, 56.5778f);
+generalPath.curveTo(45.17393f, 57.106342f, 40.5993f, 56.53452f, 39.8132f, 56.79655f);
+generalPath.curveTo(39.56666f, 56.87873f, 39.42224f, 57.30453f, 39.1882f, 57.42155f);
+generalPath.curveTo(36.475403f, 58.77795f, 36.06f, 60.65625f, 38.157f, 63.01535f);
+generalPath.curveTo(38.92805f, 63.882782f, 39.5336f, 64.36895f, 40.4382f, 65.10915f);
+generalPath.curveTo(41.23719f, 65.76287f, 42.070503f, 66.42635f, 42.9382f, 66.98415f);
+generalPath.curveTo(42.9466f, 66.989555f, 43.064632f, 67.075676f, 43.15695f, 67.1404f);
+generalPath.curveTo(42.289303f, 67.69818f, 41.45595f, 68.3617f, 40.65695f, 69.0154f);
+generalPath.curveTo(39.752293f, 69.755585f, 39.14675f, 70.24171f, 38.37575f, 71.10921f);
+generalPath.curveTo(36.27885f, 73.46821f, 36.694252f, 75.3466f, 39.40695f, 76.70301f);
+generalPath.curveTo(39.64099f, 76.82003f, 39.78541f, 77.245834f, 40.03195f, 77.32801f);
+generalPath.curveTo(40.81805f, 77.59004f, 45.39265f, 77.01822f, 45.65695f, 77.54676f);
+generalPath.curveTo(46.223362f, 78.67956f, 44.95269f, 81.78456f, 44.62575f, 82.765564f);
+generalPath.curveTo(44.36343f, 83.55252f, 43.29145f, 88.38557f, 43.782f, 89.203064f);
+generalPath.curveTo(44.09154f, 89.71896f, 46.3188f, 90.909966f, 46.907f, 91.078064f);
+generalPath.curveTo(47.023743f, 91.11141f, 47.130222f, 91.13426f, 47.25075f, 91.140564f);
+generalPath.curveTo(47.61235f, 91.159325f, 48.01152f, 91.078064f, 48.37575f, 91.078064f);
+generalPath.curveTo(48.92625f, 91.078064f, 49.68745f, 91.211075f, 50.21955f, 91.078064f);
+generalPath.curveTo(53.54225f, 90.24738f, 58.22095f, 85.769966f, 60.21955f, 83.17187f);
+generalPath.curveTo(60.93426f, 82.242744f, 63.45195f, 78.60547f, 62.71955f, 77.14067f);
+generalPath.curveTo(62.50651f, 76.714584f, 62.35495f, 77.09552f, 62.09455f, 76.92192f);
+generalPath.curveTo(61.931282f, 76.81307f, 61.85157f, 76.62452f, 61.6883f, 76.51567f);
+generalPath.curveTo(61.19084f, 76.18403f, 60.6258f, 76.70851f, 60.6258f, 75.89067f);
+generalPath.curveTo(60.6258f, 75.75192f, 60.52769f, 75.55128f, 60.6258f, 75.45317f);
+generalPath.curveTo(60.63691f, 75.44206f, 63.133102f, 75.19518f, 63.3446f, 75.26567f);
+generalPath.curveTo(63.53076f, 75.32772f, 63.57534f, 75.58416f, 63.75085f, 75.67192f);
+generalPath.curveTo(63.90943f, 75.75121f, 64.14f, 75.59823f, 64.188354f, 75.45317f);
+generalPath.curveTo(64.412254f, 74.78148f, 64.301636f, 71.902374f, 64.188354f, 71.10937f);
+generalPath.curveTo(64.09435f, 70.45137f, 63.775833f, 69.65307f, 63.563354f, 69.015564f);
+generalPath.curveTo(63.376583f, 68.455246f, 63.440384f, 67.65756f, 63.500854f, 66.92176f);
+generalPath.lineTo(63.250854f, 66.92176f);
+generalPath.curveTo(63.200726f, 66.2688f, 63.181244f, 65.59936f, 63.344604f, 65.10926f);
+generalPath.curveTo(63.557083f, 64.47182f, 63.875603f, 63.673462f, 63.969604f, 63.01546f);
+generalPath.curveTo(64.082886f, 62.22248f, 64.193504f, 59.34336f, 63.969604f, 58.67166f);
+generalPath.curveTo(63.921253f, 58.5266f, 63.690685f, 58.373623f, 63.532104f, 58.45291f);
+generalPath.curveTo(63.356594f, 58.540672f, 63.312016f, 58.79711f, 63.125854f, 58.85916f);
+generalPath.curveTo(62.914383f, 58.929653f, 60.418255f, 58.68277f, 60.407055f, 58.67166f);
+generalPath.curveTo(60.308945f, 58.57355f, 60.407055f, 58.37291f, 60.407055f, 58.23416f);
+generalPath.curveTo(60.407055f, 57.41632f, 60.972095f, 57.9408f, 61.469555f, 57.60916f);
+generalPath.curveTo(61.632824f, 57.500313f, 61.712536f, 57.31176f, 61.875805f, 57.20291f);
+generalPath.curveTo(62.136204f, 57.029312f, 62.287766f, 57.41025f, 62.500805f, 56.98416f);
+generalPath.curveTo(63.233246f, 55.51926f, 60.715504f, 51.88206f, 60.000805f, 50.95296f);
+generalPath.curveTo(58.002205f, 48.35476f, 53.323505f, 43.87736f, 50.000805f, 43.04676f);
+generalPath.curveTo(49.468784f, 42.91375f, 48.707504f, 43.04676f, 48.157005f, 43.04676f);
+generalPath.curveTo(47.792774f, 43.04676f, 47.393604f, 42.9655f, 47.032005f, 42.98426f);
+generalPath.closePath();
+shape = generalPath;
 paint = new Color(137, 93, 133, 255);
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_3_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_3_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_3_1
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(47.191, 48.61);
-((GeneralPath)shape).curveTo(50.827503, 55.3453, 42.249302, 59.389, 41.9462, 63.784);
-((GeneralPath)shape).curveTo(46.8872, 66.9692, 44.948803, 71.0035, 40.3067, 72.1003);
-((GeneralPath)shape).curveTo(41.157143, 78.598206, 51.5997, 71.89862, 48.0064, 80.6586);
-((GeneralPath)shape).curveTo(42.209103, 90.7296, 56.789402, 87.1692, 60.115402, 82.2457);
-((GeneralPath)shape).curveTo(64.4092, 78.31239, 58.118202, 75.499695, 63.699, 74.13789);
-((GeneralPath)shape).curveTo(61.9266, 66.74249, 62.093903, 59.404892, 57.6542, 52.442894);
-((GeneralPath)shape).curveTo(55.631702, 48.134495, 51.0247, 47.654293, 47.366203, 46.784294);
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(47.191f, 48.61f);
+generalPath.curveTo(50.827503f, 55.3453f, 42.249302f, 59.389f, 41.9462f, 63.784f);
+generalPath.curveTo(46.8872f, 66.9692f, 44.948803f, 71.0035f, 40.3067f, 72.1003f);
+generalPath.curveTo(41.157143f, 78.598206f, 51.5997f, 71.89862f, 48.0064f, 80.6586f);
+generalPath.curveTo(42.209103f, 90.7296f, 56.789402f, 87.1692f, 60.115402f, 82.2457f);
+generalPath.curveTo(64.4092f, 78.31239f, 58.118202f, 75.499695f, 63.699f, 74.13789f);
+generalPath.curveTo(61.9266f, 66.74249f, 62.093903f, 59.404892f, 57.6542f, 52.442894f);
+generalPath.curveTo(55.631702f, 48.134495f, 51.0247f, 47.654293f, 47.366203f, 46.784294f);
+shape = generalPath;
 paint = new Color(170, 102, 183, 255);
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_3_1);
-g.setTransform(defaultTransform__0_0_0_0_0_3);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_4 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_4
 shape = new Rectangle2D.Double(18.937999725341797, 136.86000061035156, 88.88600158691406, 51.0099983215332);
@@ -241,21 +269,21 @@ shape = new Rectangle2D.Double(18.937999725341797, 136.86000061035156, 88.886001
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_4);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.2417999505996704f, 0.0f, 0.0f, 1.0f, -5.451399803161621f, 0.0f));
 // _0_0_0_0_0_5
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 0.3838199973106384f, 221.75999450683594f, 165.1999969482422f));
 // _0_0_0_0_0_5_0_0
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_0_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_0_0
 shape = new Rectangle2D.Double(-186.74000549316406, 11.897000312805176, 0.9807800054550171, 37.02399826049805);
@@ -268,13 +296,13 @@ shape = new Rectangle2D.Double(-186.74000549316406, 11.897000312805176, 0.980780
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_0_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_0_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_0_1
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_0_1_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_0_1_0
 shape = new Rectangle2D.Double(-189.52999877929688, 11.928999900817871, 2.138200044631958, 36.959999084472656);
@@ -287,9 +315,9 @@ shape = new Rectangle2D.Double(-189.52999877929688, 11.928999900817871, 2.138200
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_0_1_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_0_1_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_0_1_1
 shape = new Rectangle2D.Double(-196.3300018310547, 11.928999900817871, 2.138200044631958, 36.959999084472656);
@@ -302,9 +330,9 @@ shape = new Rectangle2D.Double(-196.3300018310547, 11.928999900817871, 2.1382000
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_0_1_1);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_0_1_2 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_0_1_2
 shape = new Rectangle2D.Double(-199.14999389648438, 11.928999900817871, 2.138200044631958, 36.959999084472656);
@@ -317,10 +345,10 @@ shape = new Rectangle2D.Double(-199.14999389648438, 11.928999900817871, 2.138200
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_0_1_2);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_0_1);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_0_2 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_0_2
 shape = new Rectangle2D.Double(-178.72000122070312, 11.897000312805176, 0.9807800054550171, 37.02399826049805);
@@ -333,9 +361,9 @@ shape = new Rectangle2D.Double(-178.72000122070312, 11.897000312805176, 0.980780
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_0_2);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_0_3 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_0_3
 shape = new Rectangle2D.Double(-172.99000549316406, 11.897000312805176, 0.9807800054550171, 37.02399826049805);
@@ -348,13 +376,13 @@ shape = new Rectangle2D.Double(-172.99000549316406, 11.897000312805176, 0.980780
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_0_3);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_0_4 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_0_4
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_0_4_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_0_4_0
 shape = new Rectangle2D.Double(-175.7899932861328, 11.928999900817871, 2.138200044631958, 36.959999084472656);
@@ -367,9 +395,9 @@ shape = new Rectangle2D.Double(-175.7899932861328, 11.928999900817871, 2.1382000
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_0_4_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_0_4_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_0_4_1
 shape = new Rectangle2D.Double(-182.5800018310547, 11.928999900817871, 2.138200044631958, 36.959999084472656);
@@ -382,9 +410,9 @@ shape = new Rectangle2D.Double(-182.5800018310547, 11.928999900817871, 2.1382000
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_0_4_1);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_0_4_2 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_0_4_2
 shape = new Rectangle2D.Double(-185.41000366210938, 11.928999900817871, 2.138200044631958, 36.959999084472656);
@@ -397,10 +425,10 @@ shape = new Rectangle2D.Double(-185.41000366210938, 11.928999900817871, 2.138200
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_0_4_2);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_0_4);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_0_5 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_0_5
 shape = new Rectangle2D.Double(-164.97999572753906, 11.897000312805176, 0.9807800054550171, 37.02399826049805);
@@ -413,14 +441,14 @@ shape = new Rectangle2D.Double(-164.97999572753906, 11.897000312805176, 0.980780
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_0_5);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_0);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(-1.0f, 0.0f, 0.0f, 0.3838199973106384f, -112.37000274658203f, 165.1999969482422f));
 // _0_0_0_0_0_5_0_1
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_1_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_1_0
 shape = new Rectangle2D.Double(-186.74000549316406, 11.897000312805176, 0.9807800054550171, 37.02399826049805);
@@ -433,13 +461,13 @@ shape = new Rectangle2D.Double(-186.74000549316406, 11.897000312805176, 0.980780
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_1_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_1_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_1_1
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_1_1_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_1_1_0
 shape = new Rectangle2D.Double(-189.52999877929688, 11.928999900817871, 2.138200044631958, 36.959999084472656);
@@ -452,9 +480,9 @@ shape = new Rectangle2D.Double(-189.52999877929688, 11.928999900817871, 2.138200
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_1_1_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_1_1_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_1_1_1
 shape = new Rectangle2D.Double(-196.3300018310547, 11.928999900817871, 2.138200044631958, 36.959999084472656);
@@ -467,9 +495,9 @@ shape = new Rectangle2D.Double(-196.3300018310547, 11.928999900817871, 2.1382000
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_1_1_1);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_1_1_2 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_1_1_2
 shape = new Rectangle2D.Double(-199.14999389648438, 11.928999900817871, 2.138200044631958, 36.959999084472656);
@@ -482,10 +510,10 @@ shape = new Rectangle2D.Double(-199.14999389648438, 11.928999900817871, 2.138200
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_1_1_2);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_1_1);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_1_2 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_1_2
 shape = new Rectangle2D.Double(-178.72000122070312, 11.897000312805176, 0.9807800054550171, 37.02399826049805);
@@ -498,9 +526,9 @@ shape = new Rectangle2D.Double(-178.72000122070312, 11.897000312805176, 0.980780
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_1_2);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_1_3 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_1_3
 shape = new Rectangle2D.Double(-172.99000549316406, 11.897000312805176, 0.9807800054550171, 37.02399826049805);
@@ -513,13 +541,13 @@ shape = new Rectangle2D.Double(-172.99000549316406, 11.897000312805176, 0.980780
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_1_3);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_1_4 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_1_4
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_1_4_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_1_4_0
 shape = new Rectangle2D.Double(-175.7899932861328, 11.928999900817871, 2.138200044631958, 36.959999084472656);
@@ -532,9 +560,9 @@ shape = new Rectangle2D.Double(-175.7899932861328, 11.928999900817871, 2.1382000
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_1_4_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_1_4_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_1_4_1
 shape = new Rectangle2D.Double(-182.5800018310547, 11.928999900817871, 2.138200044631958, 36.959999084472656);
@@ -547,9 +575,9 @@ shape = new Rectangle2D.Double(-182.5800018310547, 11.928999900817871, 2.1382000
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_1_4_1);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_1_4_2 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_1_4_2
 shape = new Rectangle2D.Double(-185.41000366210938, 11.928999900817871, 2.138200044631958, 36.959999084472656);
@@ -562,10 +590,10 @@ shape = new Rectangle2D.Double(-185.41000366210938, 11.928999900817871, 2.138200
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_1_4_2);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_1_4);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.78761f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_5_0_1_5 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_5_0_1_5
 shape = new Rectangle2D.Double(-164.97999572753906, 11.897000312805176, 0.9807800054550171, 37.02399826049805);
@@ -578,705 +606,806 @@ shape = new Rectangle2D.Double(-164.97999572753906, 11.897000312805176, 0.980780
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_1_5);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0_1);
-g.setTransform(defaultTransform__0_0_0_0_0_5_0);
-g.setTransform(defaultTransform__0_0_0_0_0_5);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_6 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.9343100190162659f, 0.0f, 0.0f, 1.0702999830245972f, 0.0f, 0.0f));
+// _0_0_0_0_0_6
 {
     Graphics2D gText = ((Graphics2D)g.create());
             Shape shapeText = null;
+            GeneralPath generalPathText = null;
 gText.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
 gText.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
 gText.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
 paint = new Color(0, 0, 0, 255);
 gText.setPaint(paint);
-shapeText = new GeneralPath();
-((GeneralPath)shapeText).moveTo(24.16161, 146.07475);
-((GeneralPath)shapeText).lineTo(24.16161, 136.71182);
-((GeneralPath)shapeText).lineTo(30.931532, 136.71182);
-((GeneralPath)shapeText).lineTo(30.931532, 137.81459);
-((GeneralPath)shapeText).lineTo(25.400633, 137.81459);
-((GeneralPath)shapeText).lineTo(25.400633, 140.68436);
-((GeneralPath)shapeText).lineTo(30.58239, 140.68436);
-((GeneralPath)shapeText).lineTo(30.58239, 141.78288);
-((GeneralPath)shapeText).lineTo(25.400633, 141.78288);
-((GeneralPath)shapeText).lineTo(25.400633, 144.96773);
-((GeneralPath)shapeText).lineTo(31.14868, 144.96773);
-((GeneralPath)shapeText).lineTo(31.14868, 146.07475);
-((GeneralPath)shapeText).lineTo(24.16161, 146.07475);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(32.809227, 146.07475);
-((GeneralPath)shapeText).lineTo(32.809227, 136.71182);
-((GeneralPath)shapeText).lineTo(34.048252, 136.71182);
-((GeneralPath)shapeText).lineTo(34.048252, 144.96773);
-((GeneralPath)shapeText).lineTo(38.659462, 144.96773);
-((GeneralPath)shapeText).lineTo(38.659462, 146.07475);
-((GeneralPath)shapeText).lineTo(32.809227, 146.07475);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(40.0837, 146.07475);
-((GeneralPath)shapeText).lineTo(40.0837, 136.71182);
-((GeneralPath)shapeText).lineTo(43.596394, 136.71182);
-((GeneralPath)shapeText).quadTo(44.66936, 136.71182, 45.31655, 136.9971);
-((GeneralPath)shapeText).quadTo(45.967995, 137.2781, 46.334167, 137.86995);
-((GeneralPath)shapeText).quadTo(46.70034, 138.46178, 46.70034, 139.10472);
-((GeneralPath)shapeText).quadTo(46.70034, 139.70506, 46.372486, 140.23729);
-((GeneralPath)shapeText).quadTo(46.048893, 140.76526, 45.393192, 141.09311);
-((GeneralPath)shapeText).quadTo(46.240494, 141.34007, 46.69608, 141.94041);
-((GeneralPath)shapeText).quadTo(47.155926, 142.54077, 47.155926, 143.35826);
-((GeneralPath)shapeText).quadTo(47.155926, 144.01823, 46.87491, 144.58452);
-((GeneralPath)shapeText).quadTo(46.598152, 145.14655, 46.1894, 145.45311);
-((GeneralPath)shapeText).quadTo(45.78065, 145.75967, 45.16327, 145.91722);
-((GeneralPath)shapeText).quadTo(44.550144, 146.07475, 43.656002, 146.07475);
-((GeneralPath)shapeText).lineTo(40.0837, 146.07475);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(41.322723, 140.64604);
-((GeneralPath)shapeText).lineTo(43.34944, 140.64604);
-((GeneralPath)shapeText).quadTo(44.1712, 140.64604, 44.528854, 140.53534);
-((GeneralPath)shapeText).quadTo(45.001472, 140.39484, 45.23991, 140.07124);
-((GeneralPath)shapeText).quadTo(45.482605, 139.7434, 45.482605, 139.25374);
-((GeneralPath)shapeText).quadTo(45.482605, 138.78539, 45.25694, 138.43198);
-((GeneralPath)shapeText).quadTo(45.035534, 138.07858, 44.618267, 137.9466);
-((GeneralPath)shapeText).quadTo(44.20526, 137.81459, 43.19616, 137.81459);
-((GeneralPath)shapeText).lineTo(41.322723, 137.81459);
-((GeneralPath)shapeText).lineTo(41.322723, 140.64604);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(41.322723, 144.96773);
-((GeneralPath)shapeText).lineTo(43.656002, 144.96773);
-((GeneralPath)shapeText).quadTo(44.256355, 144.96773, 44.49905, 144.92514);
-((GeneralPath)shapeText).quadTo(44.92483, 144.8485, 45.210106, 144.66968);
-((GeneralPath)shapeText).quadTo(45.499638, 144.49084, 45.68272, 144.15022);
-((GeneralPath)shapeText).quadTo(45.870064, 143.80534, 45.870064, 143.35826);
-((GeneralPath)shapeText).quadTo(45.870064, 142.83456, 45.60182, 142.45135);
-((GeneralPath)shapeText).quadTo(45.33358, 142.06389, 44.856705, 141.90636);
-((GeneralPath)shapeText).quadTo(44.38409, 141.74881, 43.48995, 141.74881);
-((GeneralPath)shapeText).lineTo(41.322723, 141.74881);
-((GeneralPath)shapeText).lineTo(41.322723, 144.96773);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(48.394947, 141.45503);
-((GeneralPath)shapeText).quadTo(48.394947, 139.79448, 48.735573, 138.78539);
-((GeneralPath)shapeText).quadTo(49.0762, 137.77202, 49.74893, 137.22276);
-((GeneralPath)shapeText).quadTo(50.425926, 136.67351, 51.4478, 136.67351);
-((GeneralPath)shapeText).quadTo(52.201435, 136.67351, 52.767723, 136.97581);
-((GeneralPath)shapeText).quadTo(53.33827, 137.2781, 53.7087, 137.85292);
-((GeneralPath)shapeText).quadTo(54.07913, 138.42346, 54.28776, 139.24522);
-((GeneralPath)shapeText).quadTo(54.500652, 140.06273, 54.500652, 141.45503);
-((GeneralPath)shapeText).quadTo(54.500652, 143.1028, 54.160027, 144.11617);
-((GeneralPath)shapeText).quadTo(53.823658, 145.12952, 53.146667, 145.68303);
-((GeneralPath)shapeText).quadTo(52.473934, 146.23656, 51.4478, 146.23656);
-((GeneralPath)shapeText).quadTo(50.093815, 146.23656, 49.318893, 145.2615);
-((GeneralPath)shapeText).quadTo(48.394947, 144.09486, 48.394947, 141.45503);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(49.574364, 141.45503);
-((GeneralPath)shapeText).quadTo(49.574364, 143.76276, 50.115105, 144.5249);
-((GeneralPath)shapeText).quadTo(50.655846, 145.28706, 51.4478, 145.28706);
-((GeneralPath)shapeText).quadTo(52.239754, 145.28706, 52.776237, 144.52065);
-((GeneralPath)shapeText).quadTo(53.31698, 143.75424, 53.31698, 141.45503);
-((GeneralPath)shapeText).quadTo(53.31698, 139.14304, 52.776237, 138.38515);
-((GeneralPath)shapeText).quadTo(52.239754, 137.623, 51.435028, 137.623);
-((GeneralPath)shapeText).quadTo(50.643074, 137.623, 50.170456, 138.29573);
-((GeneralPath)shapeText).quadTo(49.574364, 139.15155, 49.574364, 141.45503);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(55.66942, 141.45503);
-((GeneralPath)shapeText).quadTo(55.66942, 139.79448, 56.010044, 138.78539);
-((GeneralPath)shapeText).quadTo(56.35067, 137.77202, 57.023403, 137.22276);
-((GeneralPath)shapeText).quadTo(57.700397, 136.67351, 58.72227, 136.67351);
-((GeneralPath)shapeText).quadTo(59.475906, 136.67351, 60.042194, 136.97581);
-((GeneralPath)shapeText).quadTo(60.61274, 137.2781, 60.98317, 137.85292);
-((GeneralPath)shapeText).quadTo(61.3536, 138.42346, 61.562233, 139.24522);
-((GeneralPath)shapeText).quadTo(61.775124, 140.06273, 61.775124, 141.45503);
-((GeneralPath)shapeText).quadTo(61.775124, 143.1028, 61.434498, 144.11617);
-((GeneralPath)shapeText).quadTo(61.09813, 145.12952, 60.42114, 145.68303);
-((GeneralPath)shapeText).quadTo(59.748405, 146.23656, 58.72227, 146.23656);
-((GeneralPath)shapeText).quadTo(57.368286, 146.23656, 56.593365, 145.2615);
-((GeneralPath)shapeText).quadTo(55.66942, 144.09486, 55.66942, 141.45503);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(56.848835, 141.45503);
-((GeneralPath)shapeText).quadTo(56.848835, 143.76276, 57.389576, 144.5249);
-((GeneralPath)shapeText).quadTo(57.930317, 145.28706, 58.72227, 145.28706);
-((GeneralPath)shapeText).quadTo(59.514225, 145.28706, 60.05071, 144.52065);
-((GeneralPath)shapeText).quadTo(60.59145, 143.75424, 60.59145, 141.45503);
-((GeneralPath)shapeText).quadTo(60.59145, 139.14304, 60.05071, 138.38515);
-((GeneralPath)shapeText).quadTo(59.514225, 137.623, 58.7095, 137.623);
-((GeneralPath)shapeText).quadTo(57.917545, 137.623, 57.444927, 138.29573);
-((GeneralPath)shapeText).quadTo(56.848835, 139.15155, 56.848835, 141.45503);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(63.11421, 143.90753);
-((GeneralPath)shapeText).lineTo(64.22124, 143.80534);
-((GeneralPath)shapeText).quadTo(64.36175, 144.58452, 64.75772, 144.93791);
-((GeneralPath)shapeText).quadTo(65.1537, 145.28706, 65.77108, 145.28706);
-((GeneralPath)shapeText).quadTo(66.30331, 145.28706, 66.69929, 145.04436);
-((GeneralPath)shapeText).quadTo(67.09952, 144.80167, 67.35499, 144.39717);
-((GeneralPath)shapeText).quadTo(67.61046, 143.99268, 67.78077, 143.30292);
-((GeneralPath)shapeText).quadTo(67.95534, 142.61314, 67.95534, 141.89784);
-((GeneralPath)shapeText).quadTo(67.95534, 141.8212, 67.95108, 141.66792);
-((GeneralPath)shapeText).quadTo(67.6062, 142.21718, 67.00585, 142.5578);
-((GeneralPath)shapeText).quadTo(66.40975, 142.89842, 65.71573, 142.89842);
-((GeneralPath)shapeText).quadTo(64.553345, 142.89842, 63.748623, 142.05537);
-((GeneralPath)shapeText).quadTo(62.943893, 141.21233, 62.943893, 139.8328);
-((GeneralPath)shapeText).quadTo(62.943893, 138.41069, 63.782684, 137.5421);
-((GeneralPath)shapeText).quadTo(64.621475, 136.67351, 65.88605, 136.67351);
-((GeneralPath)shapeText).quadTo(66.801476, 136.67351, 67.55511, 137.1674);
-((GeneralPath)shapeText).quadTo(68.312996, 137.65706, 68.70471, 138.56822);
-((GeneralPath)shapeText).quadTo(69.10069, 139.47514, 69.10069, 141.19955);
-((GeneralPath)shapeText).quadTo(69.10069, 142.99635, 68.70898, 144.0608);
-((GeneralPath)shapeText).quadTo(68.32151, 145.121, 67.55085, 145.67877);
-((GeneralPath)shapeText).quadTo(66.78018, 146.23656, 65.74554, 146.23656);
-((GeneralPath)shapeText).quadTo(64.64702, 146.23656, 63.94874, 145.62769);
-((GeneralPath)shapeText).quadTo(63.254715, 145.01456, 63.11421, 143.90753);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(67.82335, 139.77745);
-((GeneralPath)shapeText).quadTo(67.82335, 138.78539, 67.29538, 138.20631);
-((GeneralPath)shapeText).quadTo(66.76741, 137.623, 66.02655, 137.623);
-((GeneralPath)shapeText).quadTo(65.26015, 137.623, 64.6896, 138.24889);
-((GeneralPath)shapeText).quadTo(64.12331, 138.87479, 64.12331, 139.87112);
-((GeneralPath)shapeText).quadTo(64.12331, 140.76526, 64.664055, 141.32729);
-((GeneralPath)shapeText).quadTo(65.204796, 141.88507, 65.99675, 141.88507);
-((GeneralPath)shapeText).quadTo(66.79296, 141.88507, 67.30815, 141.32729);
-((GeneralPath)shapeText).quadTo(67.82335, 140.76526, 67.82335, 139.77745);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(70.21837, 141.45503);
-((GeneralPath)shapeText).quadTo(70.21837, 139.79448, 70.559, 138.78539);
-((GeneralPath)shapeText).quadTo(70.89962, 137.77202, 71.57236, 137.22276);
-((GeneralPath)shapeText).quadTo(72.249344, 136.67351, 73.271225, 136.67351);
-((GeneralPath)shapeText).quadTo(74.02486, 136.67351, 74.59114, 136.97581);
-((GeneralPath)shapeText).quadTo(75.16169, 137.2781, 75.53212, 137.85292);
-((GeneralPath)shapeText).quadTo(75.90255, 138.42346, 76.11118, 139.24522);
-((GeneralPath)shapeText).quadTo(76.32407, 140.06273, 76.32407, 141.45503);
-((GeneralPath)shapeText).quadTo(76.32407, 143.1028, 75.98345, 144.11617);
-((GeneralPath)shapeText).quadTo(75.64708, 145.12952, 74.97009, 145.68303);
-((GeneralPath)shapeText).quadTo(74.297356, 146.23656, 73.271225, 146.23656);
-((GeneralPath)shapeText).quadTo(71.91724, 146.23656, 71.14232, 145.2615);
-((GeneralPath)shapeText).quadTo(70.21837, 144.09486, 70.21837, 141.45503);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(71.39778, 141.45503);
-((GeneralPath)shapeText).quadTo(71.39778, 143.76276, 71.93853, 144.5249);
-((GeneralPath)shapeText).quadTo(72.47927, 145.28706, 73.271225, 145.28706);
-((GeneralPath)shapeText).quadTo(74.06317, 145.28706, 74.59966, 144.52065);
-((GeneralPath)shapeText).quadTo(75.1404, 143.75424, 75.1404, 141.45503);
-((GeneralPath)shapeText).quadTo(75.1404, 139.14304, 74.59966, 138.38515);
-((GeneralPath)shapeText).quadTo(74.06317, 137.623, 73.258446, 137.623);
-((GeneralPath)shapeText).quadTo(72.46649, 137.623, 71.99388, 138.29573);
-((GeneralPath)shapeText).quadTo(71.39778, 139.15155, 71.39778, 141.45503);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(77.365105, 143.2646);
-((GeneralPath)shapeText).lineTo(77.365105, 142.10648);
-((GeneralPath)shapeText).lineTo(80.89483, 142.10648);
-((GeneralPath)shapeText).lineTo(80.89483, 143.2646);
-((GeneralPath)shapeText).lineTo(77.365105, 143.2646);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(81.84858, 141.45503);
-((GeneralPath)shapeText).quadTo(81.84858, 139.79448, 82.18921, 138.78539);
-((GeneralPath)shapeText).quadTo(82.52983, 137.77202, 83.20257, 137.22276);
-((GeneralPath)shapeText).quadTo(83.879555, 136.67351, 84.901436, 136.67351);
-((GeneralPath)shapeText).quadTo(85.65507, 136.67351, 86.22135, 136.97581);
-((GeneralPath)shapeText).quadTo(86.7919, 137.2781, 87.16233, 137.85292);
-((GeneralPath)shapeText).quadTo(87.53276, 138.42346, 87.741394, 139.24522);
-((GeneralPath)shapeText).quadTo(87.954285, 140.06273, 87.954285, 141.45503);
-((GeneralPath)shapeText).quadTo(87.954285, 143.1028, 87.61366, 144.11617);
-((GeneralPath)shapeText).quadTo(87.27729, 145.12952, 86.6003, 145.68303);
-((GeneralPath)shapeText).quadTo(85.92757, 146.23656, 84.901436, 146.23656);
-((GeneralPath)shapeText).quadTo(83.54745, 146.23656, 82.77253, 145.2615);
-((GeneralPath)shapeText).quadTo(81.84858, 144.09486, 81.84858, 141.45503);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(83.02799, 141.45503);
-((GeneralPath)shapeText).quadTo(83.02799, 143.76276, 83.56874, 144.5249);
-((GeneralPath)shapeText).quadTo(84.10948, 145.28706, 84.901436, 145.28706);
-((GeneralPath)shapeText).quadTo(85.69338, 145.28706, 86.22987, 144.52065);
-((GeneralPath)shapeText).quadTo(86.770615, 143.75424, 86.770615, 141.45503);
-((GeneralPath)shapeText).quadTo(86.770615, 139.14304, 86.22987, 138.38515);
-((GeneralPath)shapeText).quadTo(85.69338, 137.623, 84.88866, 137.623);
-((GeneralPath)shapeText).quadTo(84.0967, 137.623, 83.62409, 138.29573);
-((GeneralPath)shapeText).quadTo(83.02799, 139.15155, 83.02799, 141.45503);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(89.123055, 141.45503);
-((GeneralPath)shapeText).quadTo(89.123055, 139.79448, 89.463684, 138.78539);
-((GeneralPath)shapeText).quadTo(89.804306, 137.77202, 90.47704, 137.22276);
-((GeneralPath)shapeText).quadTo(91.15403, 136.67351, 92.17591, 136.67351);
-((GeneralPath)shapeText).quadTo(92.92954, 136.67351, 93.49583, 136.97581);
-((GeneralPath)shapeText).quadTo(94.066376, 137.2781, 94.436806, 137.85292);
-((GeneralPath)shapeText).quadTo(94.807236, 138.42346, 95.01587, 139.24522);
-((GeneralPath)shapeText).quadTo(95.22876, 140.06273, 95.22876, 141.45503);
-((GeneralPath)shapeText).quadTo(95.22876, 143.1028, 94.88814, 144.11617);
-((GeneralPath)shapeText).quadTo(94.551765, 145.12952, 93.87478, 145.68303);
-((GeneralPath)shapeText).quadTo(93.20204, 146.23656, 92.17591, 146.23656);
-((GeneralPath)shapeText).quadTo(90.82192, 146.23656, 90.047005, 145.2615);
-((GeneralPath)shapeText).quadTo(89.123055, 144.09486, 89.123055, 141.45503);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(90.30247, 141.45503);
-((GeneralPath)shapeText).quadTo(90.30247, 143.76276, 90.843216, 144.5249);
-((GeneralPath)shapeText).quadTo(91.38396, 145.28706, 92.17591, 145.28706);
-((GeneralPath)shapeText).quadTo(92.96786, 145.28706, 93.50435, 144.52065);
-((GeneralPath)shapeText).quadTo(94.04509, 143.75424, 94.04509, 141.45503);
-((GeneralPath)shapeText).quadTo(94.04509, 139.14304, 93.50435, 138.38515);
-((GeneralPath)shapeText).quadTo(92.96786, 137.623, 92.16313, 137.623);
-((GeneralPath)shapeText).quadTo(91.37118, 137.623, 90.89857, 138.29573);
-((GeneralPath)shapeText).quadTo(90.30247, 139.15155, 90.30247, 141.45503);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(96.39753, 141.45503);
-((GeneralPath)shapeText).quadTo(96.39753, 139.79448, 96.73816, 138.78539);
-((GeneralPath)shapeText).quadTo(97.07878, 137.77202, 97.75152, 137.22276);
-((GeneralPath)shapeText).quadTo(98.428505, 136.67351, 99.450386, 136.67351);
-((GeneralPath)shapeText).quadTo(100.20402, 136.67351, 100.7703, 136.97581);
-((GeneralPath)shapeText).quadTo(101.34085, 137.2781, 101.71128, 137.85292);
-((GeneralPath)shapeText).quadTo(102.08171, 138.42346, 102.290344, 139.24522);
-((GeneralPath)shapeText).quadTo(102.503235, 140.06273, 102.503235, 141.45503);
-((GeneralPath)shapeText).quadTo(102.503235, 143.1028, 102.16261, 144.11617);
-((GeneralPath)shapeText).quadTo(101.82624, 145.12952, 101.149254, 145.68303);
-((GeneralPath)shapeText).quadTo(100.47652, 146.23656, 99.450386, 146.23656);
-((GeneralPath)shapeText).quadTo(98.0964, 146.23656, 97.32148, 145.2615);
-((GeneralPath)shapeText).quadTo(96.39753, 144.09486, 96.39753, 141.45503);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(97.57694, 141.45503);
-((GeneralPath)shapeText).quadTo(97.57694, 143.76276, 98.11769, 144.5249);
-((GeneralPath)shapeText).quadTo(98.65843, 145.28706, 99.450386, 145.28706);
-((GeneralPath)shapeText).quadTo(100.24233, 145.28706, 100.778824, 144.52065);
-((GeneralPath)shapeText).quadTo(101.319565, 143.75424, 101.319565, 141.45503);
-((GeneralPath)shapeText).quadTo(101.319565, 139.14304, 100.778824, 138.38515);
-((GeneralPath)shapeText).quadTo(100.24233, 137.623, 99.43761, 137.623);
-((GeneralPath)shapeText).quadTo(98.64565, 137.623, 98.17304, 138.29573);
-((GeneralPath)shapeText).quadTo(97.57694, 139.15155, 97.57694, 141.45503);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(103.842316, 143.90753);
-((GeneralPath)shapeText).lineTo(104.94935, 143.80534);
-((GeneralPath)shapeText).quadTo(105.08986, 144.58452, 105.48583, 144.93791);
-((GeneralPath)shapeText).quadTo(105.88181, 145.28706, 106.49919, 145.28706);
-((GeneralPath)shapeText).quadTo(107.03142, 145.28706, 107.4274, 145.04436);
-((GeneralPath)shapeText).quadTo(107.82763, 144.80167, 108.0831, 144.39717);
-((GeneralPath)shapeText).quadTo(108.33857, 143.99268, 108.50888, 143.30292);
-((GeneralPath)shapeText).quadTo(108.68345, 142.61314, 108.68345, 141.89784);
-((GeneralPath)shapeText).quadTo(108.68345, 141.8212, 108.67919, 141.66792);
-((GeneralPath)shapeText).quadTo(108.33431, 142.21718, 107.73396, 142.5578);
-((GeneralPath)shapeText).quadTo(107.13786, 142.89842, 106.44384, 142.89842);
-((GeneralPath)shapeText).quadTo(105.281456, 142.89842, 104.47673, 142.05537);
-((GeneralPath)shapeText).quadTo(103.672005, 141.21233, 103.672005, 139.8328);
-((GeneralPath)shapeText).quadTo(103.672005, 138.41069, 104.510796, 137.5421);
-((GeneralPath)shapeText).quadTo(105.34959, 136.67351, 106.61416, 136.67351);
-((GeneralPath)shapeText).quadTo(107.52959, 136.67351, 108.28322, 137.1674);
-((GeneralPath)shapeText).quadTo(109.04111, 137.65706, 109.43282, 138.56822);
-((GeneralPath)shapeText).quadTo(109.828804, 139.47514, 109.828804, 141.19955);
-((GeneralPath)shapeText).quadTo(109.828804, 142.99635, 109.43709, 144.0608);
-((GeneralPath)shapeText).quadTo(109.04962, 145.121, 108.27896, 145.67877);
-((GeneralPath)shapeText).quadTo(107.50829, 146.23656, 106.47365, 146.23656);
-((GeneralPath)shapeText).quadTo(105.37513, 146.23656, 104.67685, 145.62769);
-((GeneralPath)shapeText).quadTo(103.98283, 145.01456, 103.842316, 143.90753);
-((GeneralPath)shapeText).closePath();
-((GeneralPath)shapeText).moveTo(108.55146, 139.77745);
-((GeneralPath)shapeText).quadTo(108.55146, 138.78539, 108.02349, 138.20631);
-((GeneralPath)shapeText).quadTo(107.49552, 137.623, 106.75466, 137.623);
-((GeneralPath)shapeText).quadTo(105.98826, 137.623, 105.41771, 138.24889);
-((GeneralPath)shapeText).quadTo(104.85142, 138.87479, 104.85142, 139.87112);
-((GeneralPath)shapeText).quadTo(104.85142, 140.76526, 105.392166, 141.32729);
-((GeneralPath)shapeText).quadTo(105.93291, 141.88507, 106.72486, 141.88507);
-((GeneralPath)shapeText).quadTo(107.52107, 141.88507, 108.03626, 141.32729);
-((GeneralPath)shapeText).quadTo(108.55146, 140.76526, 108.55146, 139.77745);
-((GeneralPath)shapeText).closePath();
+if (generalPathText == null) {
+   generalPathText = new GeneralPath();
+} else {
+   generalPathText.reset();
+}
+generalPathText.moveTo(24.16161f, 146.07475f);
+generalPathText.lineTo(24.16161f, 136.71182f);
+generalPathText.lineTo(30.931532f, 136.71182f);
+generalPathText.lineTo(30.931532f, 137.81459f);
+generalPathText.lineTo(25.400633f, 137.81459f);
+generalPathText.lineTo(25.400633f, 140.68436f);
+generalPathText.lineTo(30.58239f, 140.68436f);
+generalPathText.lineTo(30.58239f, 141.78288f);
+generalPathText.lineTo(25.400633f, 141.78288f);
+generalPathText.lineTo(25.400633f, 144.96773f);
+generalPathText.lineTo(31.14868f, 144.96773f);
+generalPathText.lineTo(31.14868f, 146.07475f);
+generalPathText.lineTo(24.16161f, 146.07475f);
+generalPathText.closePath();
+generalPathText.moveTo(32.809227f, 146.07475f);
+generalPathText.lineTo(32.809227f, 136.71182f);
+generalPathText.lineTo(34.048252f, 136.71182f);
+generalPathText.lineTo(34.048252f, 144.96773f);
+generalPathText.lineTo(38.659462f, 144.96773f);
+generalPathText.lineTo(38.659462f, 146.07475f);
+generalPathText.lineTo(32.809227f, 146.07475f);
+generalPathText.closePath();
+generalPathText.moveTo(40.0837f, 146.07475f);
+generalPathText.lineTo(40.0837f, 136.71182f);
+generalPathText.lineTo(43.596394f, 136.71182f);
+generalPathText.quadTo(44.66936f, 136.71182f, 45.31655f, 136.9971f);
+generalPathText.quadTo(45.967995f, 137.2781f, 46.334167f, 137.86995f);
+generalPathText.quadTo(46.70034f, 138.46178f, 46.70034f, 139.10472f);
+generalPathText.quadTo(46.70034f, 139.70506f, 46.372486f, 140.23729f);
+generalPathText.quadTo(46.048893f, 140.76526f, 45.393192f, 141.09311f);
+generalPathText.quadTo(46.240494f, 141.34007f, 46.69608f, 141.94041f);
+generalPathText.quadTo(47.155926f, 142.54077f, 47.155926f, 143.35826f);
+generalPathText.quadTo(47.155926f, 144.01823f, 46.87491f, 144.58452f);
+generalPathText.quadTo(46.598152f, 145.14655f, 46.1894f, 145.45311f);
+generalPathText.quadTo(45.78065f, 145.75967f, 45.16327f, 145.91722f);
+generalPathText.quadTo(44.550144f, 146.07475f, 43.656002f, 146.07475f);
+generalPathText.lineTo(40.0837f, 146.07475f);
+generalPathText.closePath();
+generalPathText.moveTo(41.322723f, 140.64604f);
+generalPathText.lineTo(43.34944f, 140.64604f);
+generalPathText.quadTo(44.1712f, 140.64604f, 44.528854f, 140.53534f);
+generalPathText.quadTo(45.001472f, 140.39484f, 45.23991f, 140.07124f);
+generalPathText.quadTo(45.482605f, 139.7434f, 45.482605f, 139.25374f);
+generalPathText.quadTo(45.482605f, 138.78539f, 45.25694f, 138.43198f);
+generalPathText.quadTo(45.035534f, 138.07858f, 44.618267f, 137.9466f);
+generalPathText.quadTo(44.20526f, 137.81459f, 43.19616f, 137.81459f);
+generalPathText.lineTo(41.322723f, 137.81459f);
+generalPathText.lineTo(41.322723f, 140.64604f);
+generalPathText.closePath();
+generalPathText.moveTo(41.322723f, 144.96773f);
+generalPathText.lineTo(43.656002f, 144.96773f);
+generalPathText.quadTo(44.256355f, 144.96773f, 44.49905f, 144.92514f);
+generalPathText.quadTo(44.92483f, 144.8485f, 45.210106f, 144.66968f);
+generalPathText.quadTo(45.499638f, 144.49084f, 45.68272f, 144.15022f);
+generalPathText.quadTo(45.870064f, 143.80534f, 45.870064f, 143.35826f);
+generalPathText.quadTo(45.870064f, 142.83456f, 45.60182f, 142.45135f);
+generalPathText.quadTo(45.33358f, 142.06389f, 44.856705f, 141.90636f);
+generalPathText.quadTo(44.38409f, 141.74881f, 43.48995f, 141.74881f);
+generalPathText.lineTo(41.322723f, 141.74881f);
+generalPathText.lineTo(41.322723f, 144.96773f);
+generalPathText.closePath();
+generalPathText.moveTo(48.394947f, 141.45503f);
+generalPathText.quadTo(48.394947f, 139.79448f, 48.735573f, 138.78539f);
+generalPathText.quadTo(49.0762f, 137.77202f, 49.74893f, 137.22276f);
+generalPathText.quadTo(50.425926f, 136.67351f, 51.4478f, 136.67351f);
+generalPathText.quadTo(52.201435f, 136.67351f, 52.767723f, 136.97581f);
+generalPathText.quadTo(53.33827f, 137.2781f, 53.7087f, 137.85292f);
+generalPathText.quadTo(54.07913f, 138.42346f, 54.28776f, 139.24522f);
+generalPathText.quadTo(54.500652f, 140.06273f, 54.500652f, 141.45503f);
+generalPathText.quadTo(54.500652f, 143.1028f, 54.160027f, 144.11617f);
+generalPathText.quadTo(53.823658f, 145.12952f, 53.146667f, 145.68303f);
+generalPathText.quadTo(52.473934f, 146.23656f, 51.4478f, 146.23656f);
+generalPathText.quadTo(50.093815f, 146.23656f, 49.318893f, 145.2615f);
+generalPathText.quadTo(48.394947f, 144.09486f, 48.394947f, 141.45503f);
+generalPathText.closePath();
+generalPathText.moveTo(49.574364f, 141.45503f);
+generalPathText.quadTo(49.574364f, 143.76276f, 50.115105f, 144.5249f);
+generalPathText.quadTo(50.655846f, 145.28706f, 51.4478f, 145.28706f);
+generalPathText.quadTo(52.239754f, 145.28706f, 52.776237f, 144.52065f);
+generalPathText.quadTo(53.31698f, 143.75424f, 53.31698f, 141.45503f);
+generalPathText.quadTo(53.31698f, 139.14304f, 52.776237f, 138.38515f);
+generalPathText.quadTo(52.239754f, 137.623f, 51.435028f, 137.623f);
+generalPathText.quadTo(50.643074f, 137.623f, 50.170456f, 138.29573f);
+generalPathText.quadTo(49.574364f, 139.15155f, 49.574364f, 141.45503f);
+generalPathText.closePath();
+generalPathText.moveTo(55.66942f, 141.45503f);
+generalPathText.quadTo(55.66942f, 139.79448f, 56.010044f, 138.78539f);
+generalPathText.quadTo(56.35067f, 137.77202f, 57.023403f, 137.22276f);
+generalPathText.quadTo(57.700397f, 136.67351f, 58.72227f, 136.67351f);
+generalPathText.quadTo(59.475906f, 136.67351f, 60.042194f, 136.97581f);
+generalPathText.quadTo(60.61274f, 137.2781f, 60.98317f, 137.85292f);
+generalPathText.quadTo(61.3536f, 138.42346f, 61.562233f, 139.24522f);
+generalPathText.quadTo(61.775124f, 140.06273f, 61.775124f, 141.45503f);
+generalPathText.quadTo(61.775124f, 143.1028f, 61.434498f, 144.11617f);
+generalPathText.quadTo(61.09813f, 145.12952f, 60.42114f, 145.68303f);
+generalPathText.quadTo(59.748405f, 146.23656f, 58.72227f, 146.23656f);
+generalPathText.quadTo(57.368286f, 146.23656f, 56.593365f, 145.2615f);
+generalPathText.quadTo(55.66942f, 144.09486f, 55.66942f, 141.45503f);
+generalPathText.closePath();
+generalPathText.moveTo(56.848835f, 141.45503f);
+generalPathText.quadTo(56.848835f, 143.76276f, 57.389576f, 144.5249f);
+generalPathText.quadTo(57.930317f, 145.28706f, 58.72227f, 145.28706f);
+generalPathText.quadTo(59.514225f, 145.28706f, 60.05071f, 144.52065f);
+generalPathText.quadTo(60.59145f, 143.75424f, 60.59145f, 141.45503f);
+generalPathText.quadTo(60.59145f, 139.14304f, 60.05071f, 138.38515f);
+generalPathText.quadTo(59.514225f, 137.623f, 58.7095f, 137.623f);
+generalPathText.quadTo(57.917545f, 137.623f, 57.444927f, 138.29573f);
+generalPathText.quadTo(56.848835f, 139.15155f, 56.848835f, 141.45503f);
+generalPathText.closePath();
+generalPathText.moveTo(63.11421f, 143.90753f);
+generalPathText.lineTo(64.22124f, 143.80534f);
+generalPathText.quadTo(64.36175f, 144.58452f, 64.75772f, 144.93791f);
+generalPathText.quadTo(65.1537f, 145.28706f, 65.77108f, 145.28706f);
+generalPathText.quadTo(66.30331f, 145.28706f, 66.69929f, 145.04436f);
+generalPathText.quadTo(67.09952f, 144.80167f, 67.35499f, 144.39717f);
+generalPathText.quadTo(67.61046f, 143.99268f, 67.78077f, 143.30292f);
+generalPathText.quadTo(67.95534f, 142.61314f, 67.95534f, 141.89784f);
+generalPathText.quadTo(67.95534f, 141.8212f, 67.95108f, 141.66792f);
+generalPathText.quadTo(67.6062f, 142.21718f, 67.00585f, 142.5578f);
+generalPathText.quadTo(66.40975f, 142.89842f, 65.71573f, 142.89842f);
+generalPathText.quadTo(64.553345f, 142.89842f, 63.748623f, 142.05537f);
+generalPathText.quadTo(62.943893f, 141.21233f, 62.943893f, 139.8328f);
+generalPathText.quadTo(62.943893f, 138.41069f, 63.782684f, 137.5421f);
+generalPathText.quadTo(64.621475f, 136.67351f, 65.88605f, 136.67351f);
+generalPathText.quadTo(66.801476f, 136.67351f, 67.55511f, 137.1674f);
+generalPathText.quadTo(68.312996f, 137.65706f, 68.70471f, 138.56822f);
+generalPathText.quadTo(69.10069f, 139.47514f, 69.10069f, 141.19955f);
+generalPathText.quadTo(69.10069f, 142.99635f, 68.70898f, 144.0608f);
+generalPathText.quadTo(68.32151f, 145.121f, 67.55085f, 145.67877f);
+generalPathText.quadTo(66.78018f, 146.23656f, 65.74554f, 146.23656f);
+generalPathText.quadTo(64.64702f, 146.23656f, 63.94874f, 145.62769f);
+generalPathText.quadTo(63.254715f, 145.01456f, 63.11421f, 143.90753f);
+generalPathText.closePath();
+generalPathText.moveTo(67.82335f, 139.77745f);
+generalPathText.quadTo(67.82335f, 138.78539f, 67.29538f, 138.20631f);
+generalPathText.quadTo(66.76741f, 137.623f, 66.02655f, 137.623f);
+generalPathText.quadTo(65.26015f, 137.623f, 64.6896f, 138.24889f);
+generalPathText.quadTo(64.12331f, 138.87479f, 64.12331f, 139.87112f);
+generalPathText.quadTo(64.12331f, 140.76526f, 64.664055f, 141.32729f);
+generalPathText.quadTo(65.204796f, 141.88507f, 65.99675f, 141.88507f);
+generalPathText.quadTo(66.79296f, 141.88507f, 67.30815f, 141.32729f);
+generalPathText.quadTo(67.82335f, 140.76526f, 67.82335f, 139.77745f);
+generalPathText.closePath();
+generalPathText.moveTo(70.21837f, 141.45503f);
+generalPathText.quadTo(70.21837f, 139.79448f, 70.559f, 138.78539f);
+generalPathText.quadTo(70.89962f, 137.77202f, 71.57236f, 137.22276f);
+generalPathText.quadTo(72.249344f, 136.67351f, 73.271225f, 136.67351f);
+generalPathText.quadTo(74.02486f, 136.67351f, 74.59114f, 136.97581f);
+generalPathText.quadTo(75.16169f, 137.2781f, 75.53212f, 137.85292f);
+generalPathText.quadTo(75.90255f, 138.42346f, 76.11118f, 139.24522f);
+generalPathText.quadTo(76.32407f, 140.06273f, 76.32407f, 141.45503f);
+generalPathText.quadTo(76.32407f, 143.1028f, 75.98345f, 144.11617f);
+generalPathText.quadTo(75.64708f, 145.12952f, 74.97009f, 145.68303f);
+generalPathText.quadTo(74.297356f, 146.23656f, 73.271225f, 146.23656f);
+generalPathText.quadTo(71.91724f, 146.23656f, 71.14232f, 145.2615f);
+generalPathText.quadTo(70.21837f, 144.09486f, 70.21837f, 141.45503f);
+generalPathText.closePath();
+generalPathText.moveTo(71.39778f, 141.45503f);
+generalPathText.quadTo(71.39778f, 143.76276f, 71.93853f, 144.5249f);
+generalPathText.quadTo(72.47927f, 145.28706f, 73.271225f, 145.28706f);
+generalPathText.quadTo(74.06317f, 145.28706f, 74.59966f, 144.52065f);
+generalPathText.quadTo(75.1404f, 143.75424f, 75.1404f, 141.45503f);
+generalPathText.quadTo(75.1404f, 139.14304f, 74.59966f, 138.38515f);
+generalPathText.quadTo(74.06317f, 137.623f, 73.258446f, 137.623f);
+generalPathText.quadTo(72.46649f, 137.623f, 71.99388f, 138.29573f);
+generalPathText.quadTo(71.39778f, 139.15155f, 71.39778f, 141.45503f);
+generalPathText.closePath();
+generalPathText.moveTo(77.365105f, 143.2646f);
+generalPathText.lineTo(77.365105f, 142.10648f);
+generalPathText.lineTo(80.89483f, 142.10648f);
+generalPathText.lineTo(80.89483f, 143.2646f);
+generalPathText.lineTo(77.365105f, 143.2646f);
+generalPathText.closePath();
+generalPathText.moveTo(81.84858f, 141.45503f);
+generalPathText.quadTo(81.84858f, 139.79448f, 82.18921f, 138.78539f);
+generalPathText.quadTo(82.52983f, 137.77202f, 83.20257f, 137.22276f);
+generalPathText.quadTo(83.879555f, 136.67351f, 84.901436f, 136.67351f);
+generalPathText.quadTo(85.65507f, 136.67351f, 86.22135f, 136.97581f);
+generalPathText.quadTo(86.7919f, 137.2781f, 87.16233f, 137.85292f);
+generalPathText.quadTo(87.53276f, 138.42346f, 87.741394f, 139.24522f);
+generalPathText.quadTo(87.954285f, 140.06273f, 87.954285f, 141.45503f);
+generalPathText.quadTo(87.954285f, 143.1028f, 87.61366f, 144.11617f);
+generalPathText.quadTo(87.27729f, 145.12952f, 86.6003f, 145.68303f);
+generalPathText.quadTo(85.92757f, 146.23656f, 84.901436f, 146.23656f);
+generalPathText.quadTo(83.54745f, 146.23656f, 82.77253f, 145.2615f);
+generalPathText.quadTo(81.84858f, 144.09486f, 81.84858f, 141.45503f);
+generalPathText.closePath();
+generalPathText.moveTo(83.02799f, 141.45503f);
+generalPathText.quadTo(83.02799f, 143.76276f, 83.56874f, 144.5249f);
+generalPathText.quadTo(84.10948f, 145.28706f, 84.901436f, 145.28706f);
+generalPathText.quadTo(85.69338f, 145.28706f, 86.22987f, 144.52065f);
+generalPathText.quadTo(86.770615f, 143.75424f, 86.770615f, 141.45503f);
+generalPathText.quadTo(86.770615f, 139.14304f, 86.22987f, 138.38515f);
+generalPathText.quadTo(85.69338f, 137.623f, 84.88866f, 137.623f);
+generalPathText.quadTo(84.0967f, 137.623f, 83.62409f, 138.29573f);
+generalPathText.quadTo(83.02799f, 139.15155f, 83.02799f, 141.45503f);
+generalPathText.closePath();
+generalPathText.moveTo(89.123055f, 141.45503f);
+generalPathText.quadTo(89.123055f, 139.79448f, 89.463684f, 138.78539f);
+generalPathText.quadTo(89.804306f, 137.77202f, 90.47704f, 137.22276f);
+generalPathText.quadTo(91.15403f, 136.67351f, 92.17591f, 136.67351f);
+generalPathText.quadTo(92.92954f, 136.67351f, 93.49583f, 136.97581f);
+generalPathText.quadTo(94.066376f, 137.2781f, 94.436806f, 137.85292f);
+generalPathText.quadTo(94.807236f, 138.42346f, 95.01587f, 139.24522f);
+generalPathText.quadTo(95.22876f, 140.06273f, 95.22876f, 141.45503f);
+generalPathText.quadTo(95.22876f, 143.1028f, 94.88814f, 144.11617f);
+generalPathText.quadTo(94.551765f, 145.12952f, 93.87478f, 145.68303f);
+generalPathText.quadTo(93.20204f, 146.23656f, 92.17591f, 146.23656f);
+generalPathText.quadTo(90.82192f, 146.23656f, 90.047005f, 145.2615f);
+generalPathText.quadTo(89.123055f, 144.09486f, 89.123055f, 141.45503f);
+generalPathText.closePath();
+generalPathText.moveTo(90.30247f, 141.45503f);
+generalPathText.quadTo(90.30247f, 143.76276f, 90.843216f, 144.5249f);
+generalPathText.quadTo(91.38396f, 145.28706f, 92.17591f, 145.28706f);
+generalPathText.quadTo(92.96786f, 145.28706f, 93.50435f, 144.52065f);
+generalPathText.quadTo(94.04509f, 143.75424f, 94.04509f, 141.45503f);
+generalPathText.quadTo(94.04509f, 139.14304f, 93.50435f, 138.38515f);
+generalPathText.quadTo(92.96786f, 137.623f, 92.16313f, 137.623f);
+generalPathText.quadTo(91.37118f, 137.623f, 90.89857f, 138.29573f);
+generalPathText.quadTo(90.30247f, 139.15155f, 90.30247f, 141.45503f);
+generalPathText.closePath();
+generalPathText.moveTo(96.39753f, 141.45503f);
+generalPathText.quadTo(96.39753f, 139.79448f, 96.73816f, 138.78539f);
+generalPathText.quadTo(97.07878f, 137.77202f, 97.75152f, 137.22276f);
+generalPathText.quadTo(98.428505f, 136.67351f, 99.450386f, 136.67351f);
+generalPathText.quadTo(100.20402f, 136.67351f, 100.7703f, 136.97581f);
+generalPathText.quadTo(101.34085f, 137.2781f, 101.71128f, 137.85292f);
+generalPathText.quadTo(102.08171f, 138.42346f, 102.290344f, 139.24522f);
+generalPathText.quadTo(102.503235f, 140.06273f, 102.503235f, 141.45503f);
+generalPathText.quadTo(102.503235f, 143.1028f, 102.16261f, 144.11617f);
+generalPathText.quadTo(101.82624f, 145.12952f, 101.149254f, 145.68303f);
+generalPathText.quadTo(100.47652f, 146.23656f, 99.450386f, 146.23656f);
+generalPathText.quadTo(98.0964f, 146.23656f, 97.32148f, 145.2615f);
+generalPathText.quadTo(96.39753f, 144.09486f, 96.39753f, 141.45503f);
+generalPathText.closePath();
+generalPathText.moveTo(97.57694f, 141.45503f);
+generalPathText.quadTo(97.57694f, 143.76276f, 98.11769f, 144.5249f);
+generalPathText.quadTo(98.65843f, 145.28706f, 99.450386f, 145.28706f);
+generalPathText.quadTo(100.24233f, 145.28706f, 100.778824f, 144.52065f);
+generalPathText.quadTo(101.319565f, 143.75424f, 101.319565f, 141.45503f);
+generalPathText.quadTo(101.319565f, 139.14304f, 100.778824f, 138.38515f);
+generalPathText.quadTo(100.24233f, 137.623f, 99.43761f, 137.623f);
+generalPathText.quadTo(98.64565f, 137.623f, 98.17304f, 138.29573f);
+generalPathText.quadTo(97.57694f, 139.15155f, 97.57694f, 141.45503f);
+generalPathText.closePath();
+generalPathText.moveTo(103.842316f, 143.90753f);
+generalPathText.lineTo(104.94935f, 143.80534f);
+generalPathText.quadTo(105.08986f, 144.58452f, 105.48583f, 144.93791f);
+generalPathText.quadTo(105.88181f, 145.28706f, 106.49919f, 145.28706f);
+generalPathText.quadTo(107.03142f, 145.28706f, 107.4274f, 145.04436f);
+generalPathText.quadTo(107.82763f, 144.80167f, 108.0831f, 144.39717f);
+generalPathText.quadTo(108.33857f, 143.99268f, 108.50888f, 143.30292f);
+generalPathText.quadTo(108.68345f, 142.61314f, 108.68345f, 141.89784f);
+generalPathText.quadTo(108.68345f, 141.8212f, 108.67919f, 141.66792f);
+generalPathText.quadTo(108.33431f, 142.21718f, 107.73396f, 142.5578f);
+generalPathText.quadTo(107.13786f, 142.89842f, 106.44384f, 142.89842f);
+generalPathText.quadTo(105.281456f, 142.89842f, 104.47673f, 142.05537f);
+generalPathText.quadTo(103.672005f, 141.21233f, 103.672005f, 139.8328f);
+generalPathText.quadTo(103.672005f, 138.41069f, 104.510796f, 137.5421f);
+generalPathText.quadTo(105.34959f, 136.67351f, 106.61416f, 136.67351f);
+generalPathText.quadTo(107.52959f, 136.67351f, 108.28322f, 137.1674f);
+generalPathText.quadTo(109.04111f, 137.65706f, 109.43282f, 138.56822f);
+generalPathText.quadTo(109.828804f, 139.47514f, 109.828804f, 141.19955f);
+generalPathText.quadTo(109.828804f, 142.99635f, 109.43709f, 144.0608f);
+generalPathText.quadTo(109.04962f, 145.121f, 108.27896f, 145.67877f);
+generalPathText.quadTo(107.50829f, 146.23656f, 106.47365f, 146.23656f);
+generalPathText.quadTo(105.37513f, 146.23656f, 104.67685f, 145.62769f);
+generalPathText.quadTo(103.98283f, 145.01456f, 103.842316f, 143.90753f);
+generalPathText.closePath();
+generalPathText.moveTo(108.55146f, 139.77745f);
+generalPathText.quadTo(108.55146f, 138.78539f, 108.02349f, 138.20631f);
+generalPathText.quadTo(107.49552f, 137.623f, 106.75466f, 137.623f);
+generalPathText.quadTo(105.98826f, 137.623f, 105.41771f, 138.24889f);
+generalPathText.quadTo(104.85142f, 138.87479f, 104.85142f, 139.87112f);
+generalPathText.quadTo(104.85142f, 140.76526f, 105.392166f, 141.32729f);
+generalPathText.quadTo(105.93291f, 141.88507f, 106.72486f, 141.88507f);
+generalPathText.quadTo(107.52107f, 141.88507f, 108.03626f, 141.32729f);
+generalPathText.quadTo(108.55146f, 140.76526f, 108.55146f, 139.77745f);
+generalPathText.closePath();
+shapeText = generalPath;
 gText.fill(shapeText);
 gText.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
     gText.dispose();
 }
-g.setTransform(defaultTransform__0_0_0_0_0_6);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_7 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(-0.7411100268363953f, 0.0f, 0.0f, 0.7040200233459473f, 97.23999786376953f, 68.87799835205078f));
 // _0_0_0_0_0_7
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_7_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_7_0
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(47.032, 42.984);
-((GeneralPath)shape).curveTo(46.911472, 42.990303, 46.804993, 43.01315, 46.68825, 43.0465);
-((GeneralPath)shape).curveTo(46.100033, 43.21456, 43.872753, 44.4056, 43.56325, 44.9215);
-((GeneralPath)shape).curveTo(43.072742, 45.73902, 44.14468, 50.572002, 44.407, 51.359);
-((GeneralPath)shape).curveTo(44.734, 52.339993, 46.0047, 55.4449, 45.4382, 56.5778);
-((GeneralPath)shape).curveTo(45.17393, 57.106342, 40.5993, 56.53452, 39.8132, 56.79655);
-((GeneralPath)shape).curveTo(39.56666, 56.87873, 39.42224, 57.30453, 39.1882, 57.42155);
-((GeneralPath)shape).curveTo(36.475403, 58.77795, 36.06, 60.65625, 38.157, 63.01535);
-((GeneralPath)shape).curveTo(38.92805, 63.882782, 39.5336, 64.36895, 40.4382, 65.10915);
-((GeneralPath)shape).curveTo(41.23719, 65.76287, 42.070503, 66.42635, 42.9382, 66.98415);
-((GeneralPath)shape).curveTo(42.9466, 66.989555, 43.064632, 67.075676, 43.15695, 67.1404);
-((GeneralPath)shape).curveTo(42.289303, 67.69818, 41.45595, 68.3617, 40.65695, 69.0154);
-((GeneralPath)shape).curveTo(39.752293, 69.755585, 39.14675, 70.24171, 38.37575, 71.10921);
-((GeneralPath)shape).curveTo(36.27885, 73.46821, 36.694252, 75.3466, 39.40695, 76.70301);
-((GeneralPath)shape).curveTo(39.64099, 76.82003, 39.78541, 77.245834, 40.03195, 77.32801);
-((GeneralPath)shape).curveTo(40.81805, 77.59004, 45.39265, 77.01822, 45.65695, 77.54676);
-((GeneralPath)shape).curveTo(46.223362, 78.67956, 44.95269, 81.78456, 44.62575, 82.765564);
-((GeneralPath)shape).curveTo(44.36343, 83.55252, 43.29145, 88.38557, 43.782, 89.203064);
-((GeneralPath)shape).curveTo(44.09154, 89.71896, 46.3188, 90.909966, 46.907, 91.078064);
-((GeneralPath)shape).curveTo(47.023743, 91.11141, 47.130222, 91.13426, 47.25075, 91.140564);
-((GeneralPath)shape).curveTo(47.61235, 91.159325, 48.01152, 91.078064, 48.37575, 91.078064);
-((GeneralPath)shape).curveTo(48.92625, 91.078064, 49.68745, 91.211075, 50.21955, 91.078064);
-((GeneralPath)shape).curveTo(53.54225, 90.24738, 58.22095, 85.769966, 60.21955, 83.17187);
-((GeneralPath)shape).curveTo(60.93426, 82.242744, 63.45195, 78.60547, 62.71955, 77.14067);
-((GeneralPath)shape).curveTo(62.50651, 76.714584, 62.35495, 77.09552, 62.09455, 76.92192);
-((GeneralPath)shape).curveTo(61.931282, 76.81307, 61.85157, 76.62452, 61.6883, 76.51567);
-((GeneralPath)shape).curveTo(61.19084, 76.18403, 60.6258, 76.70851, 60.6258, 75.89067);
-((GeneralPath)shape).curveTo(60.6258, 75.75192, 60.52769, 75.55128, 60.6258, 75.45317);
-((GeneralPath)shape).curveTo(60.63691, 75.44206, 63.133102, 75.19518, 63.3446, 75.26567);
-((GeneralPath)shape).curveTo(63.53076, 75.32772, 63.57534, 75.58416, 63.75085, 75.67192);
-((GeneralPath)shape).curveTo(63.90943, 75.75121, 64.14, 75.59823, 64.188354, 75.45317);
-((GeneralPath)shape).curveTo(64.412254, 74.78148, 64.301636, 71.902374, 64.188354, 71.10937);
-((GeneralPath)shape).curveTo(64.09435, 70.45137, 63.775833, 69.65307, 63.563354, 69.015564);
-((GeneralPath)shape).curveTo(63.376583, 68.455246, 63.440384, 67.65756, 63.500854, 66.92176);
-((GeneralPath)shape).lineTo(63.250854, 66.92176);
-((GeneralPath)shape).curveTo(63.200726, 66.2688, 63.181244, 65.59936, 63.344604, 65.10926);
-((GeneralPath)shape).curveTo(63.557083, 64.47182, 63.875603, 63.673462, 63.969604, 63.01546);
-((GeneralPath)shape).curveTo(64.082886, 62.22248, 64.193504, 59.34336, 63.969604, 58.67166);
-((GeneralPath)shape).curveTo(63.921253, 58.5266, 63.690685, 58.373623, 63.532104, 58.45291);
-((GeneralPath)shape).curveTo(63.356594, 58.540672, 63.312016, 58.79711, 63.125854, 58.85916);
-((GeneralPath)shape).curveTo(62.914383, 58.929653, 60.418255, 58.68277, 60.407055, 58.67166);
-((GeneralPath)shape).curveTo(60.308945, 58.57355, 60.407055, 58.37291, 60.407055, 58.23416);
-((GeneralPath)shape).curveTo(60.407055, 57.41632, 60.972095, 57.9408, 61.469555, 57.60916);
-((GeneralPath)shape).curveTo(61.632824, 57.500313, 61.712536, 57.31176, 61.875805, 57.20291);
-((GeneralPath)shape).curveTo(62.136204, 57.029312, 62.287766, 57.41025, 62.500805, 56.98416);
-((GeneralPath)shape).curveTo(63.233246, 55.51926, 60.715504, 51.88206, 60.000805, 50.95296);
-((GeneralPath)shape).curveTo(58.002205, 48.35476, 53.323505, 43.87736, 50.000805, 43.04676);
-((GeneralPath)shape).curveTo(49.468784, 42.91375, 48.707504, 43.04676, 48.157005, 43.04676);
-((GeneralPath)shape).curveTo(47.792774, 43.04676, 47.393604, 42.9655, 47.032005, 42.98426);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(47.032f, 42.984f);
+generalPath.curveTo(46.911472f, 42.990303f, 46.804993f, 43.01315f, 46.68825f, 43.0465f);
+generalPath.curveTo(46.100033f, 43.21456f, 43.872753f, 44.4056f, 43.56325f, 44.9215f);
+generalPath.curveTo(43.072742f, 45.73902f, 44.14468f, 50.572002f, 44.407f, 51.359f);
+generalPath.curveTo(44.734f, 52.339993f, 46.0047f, 55.4449f, 45.4382f, 56.5778f);
+generalPath.curveTo(45.17393f, 57.106342f, 40.5993f, 56.53452f, 39.8132f, 56.79655f);
+generalPath.curveTo(39.56666f, 56.87873f, 39.42224f, 57.30453f, 39.1882f, 57.42155f);
+generalPath.curveTo(36.475403f, 58.77795f, 36.06f, 60.65625f, 38.157f, 63.01535f);
+generalPath.curveTo(38.92805f, 63.882782f, 39.5336f, 64.36895f, 40.4382f, 65.10915f);
+generalPath.curveTo(41.23719f, 65.76287f, 42.070503f, 66.42635f, 42.9382f, 66.98415f);
+generalPath.curveTo(42.9466f, 66.989555f, 43.064632f, 67.075676f, 43.15695f, 67.1404f);
+generalPath.curveTo(42.289303f, 67.69818f, 41.45595f, 68.3617f, 40.65695f, 69.0154f);
+generalPath.curveTo(39.752293f, 69.755585f, 39.14675f, 70.24171f, 38.37575f, 71.10921f);
+generalPath.curveTo(36.27885f, 73.46821f, 36.694252f, 75.3466f, 39.40695f, 76.70301f);
+generalPath.curveTo(39.64099f, 76.82003f, 39.78541f, 77.245834f, 40.03195f, 77.32801f);
+generalPath.curveTo(40.81805f, 77.59004f, 45.39265f, 77.01822f, 45.65695f, 77.54676f);
+generalPath.curveTo(46.223362f, 78.67956f, 44.95269f, 81.78456f, 44.62575f, 82.765564f);
+generalPath.curveTo(44.36343f, 83.55252f, 43.29145f, 88.38557f, 43.782f, 89.203064f);
+generalPath.curveTo(44.09154f, 89.71896f, 46.3188f, 90.909966f, 46.907f, 91.078064f);
+generalPath.curveTo(47.023743f, 91.11141f, 47.130222f, 91.13426f, 47.25075f, 91.140564f);
+generalPath.curveTo(47.61235f, 91.159325f, 48.01152f, 91.078064f, 48.37575f, 91.078064f);
+generalPath.curveTo(48.92625f, 91.078064f, 49.68745f, 91.211075f, 50.21955f, 91.078064f);
+generalPath.curveTo(53.54225f, 90.24738f, 58.22095f, 85.769966f, 60.21955f, 83.17187f);
+generalPath.curveTo(60.93426f, 82.242744f, 63.45195f, 78.60547f, 62.71955f, 77.14067f);
+generalPath.curveTo(62.50651f, 76.714584f, 62.35495f, 77.09552f, 62.09455f, 76.92192f);
+generalPath.curveTo(61.931282f, 76.81307f, 61.85157f, 76.62452f, 61.6883f, 76.51567f);
+generalPath.curveTo(61.19084f, 76.18403f, 60.6258f, 76.70851f, 60.6258f, 75.89067f);
+generalPath.curveTo(60.6258f, 75.75192f, 60.52769f, 75.55128f, 60.6258f, 75.45317f);
+generalPath.curveTo(60.63691f, 75.44206f, 63.133102f, 75.19518f, 63.3446f, 75.26567f);
+generalPath.curveTo(63.53076f, 75.32772f, 63.57534f, 75.58416f, 63.75085f, 75.67192f);
+generalPath.curveTo(63.90943f, 75.75121f, 64.14f, 75.59823f, 64.188354f, 75.45317f);
+generalPath.curveTo(64.412254f, 74.78148f, 64.301636f, 71.902374f, 64.188354f, 71.10937f);
+generalPath.curveTo(64.09435f, 70.45137f, 63.775833f, 69.65307f, 63.563354f, 69.015564f);
+generalPath.curveTo(63.376583f, 68.455246f, 63.440384f, 67.65756f, 63.500854f, 66.92176f);
+generalPath.lineTo(63.250854f, 66.92176f);
+generalPath.curveTo(63.200726f, 66.2688f, 63.181244f, 65.59936f, 63.344604f, 65.10926f);
+generalPath.curveTo(63.557083f, 64.47182f, 63.875603f, 63.673462f, 63.969604f, 63.01546f);
+generalPath.curveTo(64.082886f, 62.22248f, 64.193504f, 59.34336f, 63.969604f, 58.67166f);
+generalPath.curveTo(63.921253f, 58.5266f, 63.690685f, 58.373623f, 63.532104f, 58.45291f);
+generalPath.curveTo(63.356594f, 58.540672f, 63.312016f, 58.79711f, 63.125854f, 58.85916f);
+generalPath.curveTo(62.914383f, 58.929653f, 60.418255f, 58.68277f, 60.407055f, 58.67166f);
+generalPath.curveTo(60.308945f, 58.57355f, 60.407055f, 58.37291f, 60.407055f, 58.23416f);
+generalPath.curveTo(60.407055f, 57.41632f, 60.972095f, 57.9408f, 61.469555f, 57.60916f);
+generalPath.curveTo(61.632824f, 57.500313f, 61.712536f, 57.31176f, 61.875805f, 57.20291f);
+generalPath.curveTo(62.136204f, 57.029312f, 62.287766f, 57.41025f, 62.500805f, 56.98416f);
+generalPath.curveTo(63.233246f, 55.51926f, 60.715504f, 51.88206f, 60.000805f, 50.95296f);
+generalPath.curveTo(58.002205f, 48.35476f, 53.323505f, 43.87736f, 50.000805f, 43.04676f);
+generalPath.curveTo(49.468784f, 42.91375f, 48.707504f, 43.04676f, 48.157005f, 43.04676f);
+generalPath.curveTo(47.792774f, 43.04676f, 47.393604f, 42.9655f, 47.032005f, 42.98426f);
+generalPath.closePath();
+shape = generalPath;
 paint = new Color(137, 93, 133, 255);
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_7_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_0_7_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_0_7_1
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(47.191, 48.61);
-((GeneralPath)shape).curveTo(50.827503, 55.3453, 42.249302, 59.389, 41.9462, 63.784);
-((GeneralPath)shape).curveTo(46.8872, 66.9692, 44.948803, 71.0035, 40.3067, 72.1003);
-((GeneralPath)shape).curveTo(41.157143, 78.598206, 51.5997, 71.89862, 48.0064, 80.6586);
-((GeneralPath)shape).curveTo(42.209103, 90.7296, 56.789402, 87.1692, 60.115402, 82.2457);
-((GeneralPath)shape).curveTo(64.4092, 78.31239, 58.118202, 75.499695, 63.699, 74.13789);
-((GeneralPath)shape).curveTo(61.9266, 66.74249, 62.093903, 59.404892, 57.6542, 52.442894);
-((GeneralPath)shape).curveTo(55.631702, 48.134495, 51.0247, 47.654293, 47.366203, 46.784294);
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(47.191f, 48.61f);
+generalPath.curveTo(50.827503f, 55.3453f, 42.249302f, 59.389f, 41.9462f, 63.784f);
+generalPath.curveTo(46.8872f, 66.9692f, 44.948803f, 71.0035f, 40.3067f, 72.1003f);
+generalPath.curveTo(41.157143f, 78.598206f, 51.5997f, 71.89862f, 48.0064f, 80.6586f);
+generalPath.curveTo(42.209103f, 90.7296f, 56.789402f, 87.1692f, 60.115402f, 82.2457f);
+generalPath.curveTo(64.4092f, 78.31239f, 58.118202f, 75.499695f, 63.699f, 74.13789f);
+generalPath.curveTo(61.9266f, 66.74249f, 62.093903f, 59.404892f, 57.6542f, 52.442894f);
+generalPath.curveTo(55.631702f, 48.134495f, 51.0247f, 47.654293f, 47.366203f, 46.784294f);
+shape = generalPath;
 paint = new Color(170, 102, 183, 255);
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_0_7_1);
-g.setTransform(defaultTransform__0_0_0_0_0_7);
-g.setTransform(defaultTransform__0_0_0_0_0);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.83178f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_1
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(-82.237, 384.0);
-((GeneralPath)shape).curveTo(-74.0273, 387.3505, -71.222, 388.1269, -62.84, 388.4452);
-((GeneralPath)shape).curveTo(-59.6087, 388.5679, -45.059, 383.0726, -41.826, 382.9897);
-((GeneralPath)shape).curveTo(-41.826, 382.9897, -35.2518, 392.2841, -22.249, 408.06268);
-((GeneralPath)shape).curveTo(-21.675282, 408.75888, -17.654001, 406.42987, -18.471, 409.76227);
-((GeneralPath)shape).curveTo(-21.5489, 422.31726, 0.3899994, 435.31726, 8.688, 442.19226);
-((GeneralPath)shape).curveTo(8.96766, 442.0804, 9.341249, 442.04645, 9.49622, 441.78815);
-((GeneralPath)shape).curveTo(11.55102, 438.36356, 9.317639, 441.31363, 9.90033, 439.56555);
-((GeneralPath)shape).curveTo(10.177409, 438.7343, 11.398729, 435.95584, 11.92093, 435.12036);
-((GeneralPath)shape).curveTo(14.00163, 431.79126, 18.79083, 424.41138, 18.79083, 424.41138);
-((GeneralPath)shape).curveTo(18.79083, 424.41138, -2.53117, 401.37137, -13.740168, 395.11337);
-((GeneralPath)shape).curveTo(-15.983368, 393.84546, -18.271368, 390.9326, -20.407967, 389.25378);
-((GeneralPath)shape).curveTo(-27.763367, 383.4745, -25.406166, 385.2175, -35.763966, 379.55508);
-((GeneralPath)shape).curveTo(-37.429264, 378.64474, -39.014866, 377.52847, -40.815365, 376.92838);
-((GeneralPath)shape).curveTo(-41.342266, 376.75275, -41.885365, 377.23312, -42.431767, 377.3325);
-((GeneralPath)shape).curveTo(-44.353268, 377.68185, -40.827465, 375.8826, -45.462566, 377.7366);
-((GeneralPath)shape).curveTo(-47.616165, 378.59805, -49.651665, 379.7301, -51.726265, 380.7674);
-((GeneralPath)shape).curveTo(-52.209805, 381.00916, -52.789864, 381.41766, -53.342667, 381.57562);
-((GeneralPath)shape).curveTo(-60.524868, 383.62772, -73.774666, 385.4106, -82.236664, 384.00034);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(-82.237f, 384.0f);
+generalPath.curveTo(-74.0273f, 387.3505f, -71.222f, 388.1269f, -62.84f, 388.4452f);
+generalPath.curveTo(-59.6087f, 388.5679f, -45.059f, 383.0726f, -41.826f, 382.9897f);
+generalPath.curveTo(-41.826f, 382.9897f, -35.2518f, 392.2841f, -22.249f, 408.06268f);
+generalPath.curveTo(-21.675282f, 408.75888f, -17.654001f, 406.42987f, -18.471f, 409.76227f);
+generalPath.curveTo(-21.5489f, 422.31726f, 0.3899994f, 435.31726f, 8.688f, 442.19226f);
+generalPath.curveTo(8.96766f, 442.0804f, 9.341249f, 442.04645f, 9.49622f, 441.78815f);
+generalPath.curveTo(11.55102f, 438.36356f, 9.317639f, 441.31363f, 9.90033f, 439.56555f);
+generalPath.curveTo(10.177409f, 438.7343f, 11.398729f, 435.95584f, 11.92093f, 435.12036f);
+generalPath.curveTo(14.00163f, 431.79126f, 18.79083f, 424.41138f, 18.79083f, 424.41138f);
+generalPath.curveTo(18.79083f, 424.41138f, -2.53117f, 401.37137f, -13.740168f, 395.11337f);
+generalPath.curveTo(-15.983368f, 393.84546f, -18.271368f, 390.9326f, -20.407967f, 389.25378f);
+generalPath.curveTo(-27.763367f, 383.4745f, -25.406166f, 385.2175f, -35.763966f, 379.55508f);
+generalPath.curveTo(-37.429264f, 378.64474f, -39.014866f, 377.52847f, -40.815365f, 376.92838f);
+generalPath.curveTo(-41.342266f, 376.75275f, -41.885365f, 377.23312f, -42.431767f, 377.3325f);
+
+}
+
+private void _paint1(Graphics2D g,float origAlpha) {
+generalPath.curveTo(-44.353268f, 377.68185f, -40.827465f, 375.8826f, -45.462566f, 377.7366f);
+generalPath.curveTo(-47.616165f, 378.59805f, -49.651665f, 379.7301f, -51.726265f, 380.7674f);
+generalPath.curveTo(-52.209805f, 381.00916f, -52.789864f, 381.41766f, -53.342667f, 381.57562f);
+generalPath.curveTo(-60.524868f, 383.62772f, -73.774666f, 385.4106f, -82.236664f, 384.00034f);
+generalPath.closePath();
+shape = generalPath;
 paint = new Color(128, 128, 128, 255);
 g.setPaint(paint);
 g.fill(shape);
 paint = new Color(77, 77, 77, 255);
 stroke = new BasicStroke(1.0f,0,0,4.0f,null,0.0f);
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(-82.237, 384.0);
-((GeneralPath)shape).curveTo(-74.0273, 387.3505, -71.222, 388.1269, -62.84, 388.4452);
-((GeneralPath)shape).curveTo(-59.6087, 388.5679, -45.059, 383.0726, -41.826, 382.9897);
-((GeneralPath)shape).curveTo(-41.826, 382.9897, -35.2518, 392.2841, -22.249, 408.06268);
-((GeneralPath)shape).curveTo(-21.675282, 408.75888, -17.654001, 406.42987, -18.471, 409.76227);
-((GeneralPath)shape).curveTo(-21.5489, 422.31726, 0.3899994, 435.31726, 8.688, 442.19226);
-((GeneralPath)shape).curveTo(8.96766, 442.0804, 9.341249, 442.04645, 9.49622, 441.78815);
-((GeneralPath)shape).curveTo(11.55102, 438.36356, 9.317639, 441.31363, 9.90033, 439.56555);
-((GeneralPath)shape).curveTo(10.177409, 438.7343, 11.398729, 435.95584, 11.92093, 435.12036);
-((GeneralPath)shape).curveTo(14.00163, 431.79126, 18.79083, 424.41138, 18.79083, 424.41138);
-((GeneralPath)shape).curveTo(18.79083, 424.41138, -2.53117, 401.37137, -13.740168, 395.11337);
-((GeneralPath)shape).curveTo(-15.983368, 393.84546, -18.271368, 390.9326, -20.407967, 389.25378);
-((GeneralPath)shape).curveTo(-27.763367, 383.4745, -25.406166, 385.2175, -35.763966, 379.55508);
-((GeneralPath)shape).curveTo(-37.429264, 378.64474, -39.014866, 377.52847, -40.815365, 376.92838);
-((GeneralPath)shape).curveTo(-41.342266, 376.75275, -41.885365, 377.23312, -42.431767, 377.3325);
-((GeneralPath)shape).curveTo(-44.353268, 377.68185, -40.827465, 375.8826, -45.462566, 377.7366);
-((GeneralPath)shape).curveTo(-47.616165, 378.59805, -49.651665, 379.7301, -51.726265, 380.7674);
-((GeneralPath)shape).curveTo(-52.209805, 381.00916, -52.789864, 381.41766, -53.342667, 381.57562);
-((GeneralPath)shape).curveTo(-60.524868, 383.62772, -73.774666, 385.4106, -82.236664, 384.00034);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(-82.237f, 384.0f);
+generalPath.curveTo(-74.0273f, 387.3505f, -71.222f, 388.1269f, -62.84f, 388.4452f);
+generalPath.curveTo(-59.6087f, 388.5679f, -45.059f, 383.0726f, -41.826f, 382.9897f);
+generalPath.curveTo(-41.826f, 382.9897f, -35.2518f, 392.2841f, -22.249f, 408.06268f);
+generalPath.curveTo(-21.675282f, 408.75888f, -17.654001f, 406.42987f, -18.471f, 409.76227f);
+generalPath.curveTo(-21.5489f, 422.31726f, 0.3899994f, 435.31726f, 8.688f, 442.19226f);
+generalPath.curveTo(8.96766f, 442.0804f, 9.341249f, 442.04645f, 9.49622f, 441.78815f);
+generalPath.curveTo(11.55102f, 438.36356f, 9.317639f, 441.31363f, 9.90033f, 439.56555f);
+generalPath.curveTo(10.177409f, 438.7343f, 11.398729f, 435.95584f, 11.92093f, 435.12036f);
+generalPath.curveTo(14.00163f, 431.79126f, 18.79083f, 424.41138f, 18.79083f, 424.41138f);
+generalPath.curveTo(18.79083f, 424.41138f, -2.53117f, 401.37137f, -13.740168f, 395.11337f);
+generalPath.curveTo(-15.983368f, 393.84546f, -18.271368f, 390.9326f, -20.407967f, 389.25378f);
+generalPath.curveTo(-27.763367f, 383.4745f, -25.406166f, 385.2175f, -35.763966f, 379.55508f);
+generalPath.curveTo(-37.429264f, 378.64474f, -39.014866f, 377.52847f, -40.815365f, 376.92838f);
+generalPath.curveTo(-41.342266f, 376.75275f, -41.885365f, 377.23312f, -42.431767f, 377.3325f);
+generalPath.curveTo(-44.353268f, 377.68185f, -40.827465f, 375.8826f, -45.462566f, 377.7366f);
+generalPath.curveTo(-47.616165f, 378.59805f, -49.651665f, 379.7301f, -51.726265f, 380.7674f);
+generalPath.curveTo(-52.209805f, 381.00916f, -52.789864f, 381.41766f, -53.342667f, 381.57562f);
+generalPath.curveTo(-60.524868f, 383.62772f, -73.774666f, 385.4106f, -82.236664f, 384.00034f);
+generalPath.closePath();
+shape = generalPath;
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_1);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2
 g.setComposite(AlphaComposite.getInstance(3, 0.75543f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.9869899749755859f, 0.0f, 0.0f, 0.978630006313324f, -104.56999969482422f, 310.82000732421875f));
 // _0_0_0_0_2_0
 paint = new Color(0, 0, 0, 255);
 stroke = new BasicStroke(4.9646f,1,1,4.0f,null,0.0f);
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(5.4074, 41.0);
-((GeneralPath)shape).curveTo(5.4074, 60.095, 20.9044, 75.593, 40.000397, 75.593);
-((GeneralPath)shape).curveTo(59.095398, 75.593, 74.5934, 60.096, 74.5934, 41.000004);
-((GeneralPath)shape).curveTo(74.5934, 21.905005, 59.096397, 6.4070053, 40.0004, 6.4070053);
-((GeneralPath)shape).curveTo(20.905401, 6.4070053, 5.407402, 21.904005, 5.407402, 41.000004);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(5.4074f, 41.0f);
+generalPath.curveTo(5.4074f, 60.095f, 20.9044f, 75.593f, 40.000397f, 75.593f);
+generalPath.curveTo(59.095398f, 75.593f, 74.5934f, 60.096f, 74.5934f, 41.000004f);
+generalPath.curveTo(74.5934f, 21.905005f, 59.096397f, 6.4070053f, 40.0004f, 6.4070053f);
+generalPath.curveTo(20.905401f, 6.4070053f, 5.407402f, 21.904005f, 5.407402f, 41.000004f);
+generalPath.closePath();
+shape = generalPath;
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(-1.0311000347137451f, -0.03793000057339668f, 0.04966599866747856f, -1.3436000347137451f, -27.29800033569336f, 385.25f));
 // _0_0_0_0_2_1
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_1_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_1_0
 paint = new LinearGradientPaint(new Point2D.Double(34.84199905395508, -7.142499923706055), new Point2D.Double(35.56100082397461, 11.416000366210938), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(255, 255, 255, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 stroke = new BasicStroke(0.414f,0,0,4.0f,null,0.0f);
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(9.6228, 14.273);
-((GeneralPath)shape).curveTo(16.524, 6.0827, 26.347801, 1.7529993, 37.1158, 1.7529993);
-((GeneralPath)shape).curveTo(47.883797, 1.7529993, 58.4088, 7.2011995, 64.412796, 14.980999);
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(9.6228f, 14.273f);
+generalPath.curveTo(16.524f, 6.0827f, 26.347801f, 1.7529993f, 37.1158f, 1.7529993f);
+generalPath.curveTo(47.883797f, 1.7529993f, 58.4088f, 7.2011995f, 64.412796f, 14.980999f);
+shape = generalPath;
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_1_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_1_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_1_1
 paint = new LinearGradientPaint(new Point2D.Double(34.84199905395508, -7.142499923706055), new Point2D.Double(35.56100082397461, 11.416000366210938), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(255, 255, 255, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 stroke = new BasicStroke(0.914f,0,0,4.0f,null,0.0f);
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(9.6228, 14.573);
-((GeneralPath)shape).curveTo(16.524, 6.3827, 26.347801, 2.0529995, 37.1158, 2.0529995);
-((GeneralPath)shape).curveTo(47.883797, 2.0529995, 58.4088, 7.5011997, 64.412796, 15.280999);
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(9.6228f, 14.573f);
+generalPath.curveTo(16.524f, 6.3827f, 26.347801f, 2.0529995f, 37.1158f, 2.0529995f);
+generalPath.curveTo(47.883797f, 2.0529995f, 58.4088f, 7.5011997f, 64.412796f, 15.280999f);
+shape = generalPath;
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_1_1);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_1_2 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_1_2
 paint = new LinearGradientPaint(new Point2D.Double(34.84199905395508, -7.142499923706055), new Point2D.Double(35.56100082397461, 11.416000366210938), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(255, 255, 255, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 stroke = new BasicStroke(0.614f,0,0,4.0f,null,0.0f);
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(9.6228, 14.473);
-((GeneralPath)shape).curveTo(16.524, 6.2826996, 26.347801, 1.9529991, 37.1158, 1.9529991);
-((GeneralPath)shape).curveTo(47.883797, 1.9529991, 58.4088, 7.4011993, 64.412796, 15.180999);
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(9.6228f, 14.473f);
+generalPath.curveTo(16.524f, 6.2826996f, 26.347801f, 1.9529991f, 37.1158f, 1.9529991f);
+generalPath.curveTo(47.883797f, 1.9529991f, 58.4088f, 7.4011993f, 64.412796f, 15.180999f);
+shape = generalPath;
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_1_2);
-g.setTransform(defaultTransform__0_0_0_0_2_1);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_2 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_2
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_2_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_2_0
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(-38.284, 385.23);
-((GeneralPath)shape).curveTo(-34.3457, 381.93262, -31.1235, 378.31122, -28.512402, 374.258);
-((GeneralPath)shape).curveTo(-7.110401, 392.807, 5.342598, 404.57, 22.9086, 419.94098);
-((GeneralPath)shape).curveTo(19.6089, 424.53506, 15.7764, 428.30518, 12.0436, 431.88397);
-((GeneralPath)shape).curveTo(-4.7964, 415.69797, -11.756399, 410.95197, -38.2844, 385.22998);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(-38.284f, 385.23f);
+generalPath.curveTo(-34.3457f, 381.93262f, -31.1235f, 378.31122f, -28.512402f, 374.258f);
+generalPath.curveTo(-7.110401f, 392.807f, 5.342598f, 404.57f, 22.9086f, 419.94098f);
+generalPath.curveTo(19.6089f, 424.53506f, 15.7764f, 428.30518f, 12.0436f, 431.88397f);
+generalPath.curveTo(-4.7964f, 415.69797f, -11.756399f, 410.95197f, -38.2844f, 385.22998f);
+generalPath.closePath();
+shape = generalPath;
 paint = new LinearGradientPaint(new Point2D.Double(91.89399719238281, 98.322998046875), new Point2D.Double(102.63999938964844, 87.5780029296875), new float[] {0.0f,1.0f}, new Color[] {new Color(54, 54, 54, 255),new Color(179, 179, 179, 255)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, -105.08999633789062f, 309.8800048828125f));
 g.setPaint(paint);
 g.fill(shape);
 paint = new Color(23, 23, 23, 113);
 stroke = new BasicStroke(1.0f,1,1,4.0f,null,0.0f);
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(-38.284, 385.23);
-((GeneralPath)shape).curveTo(-34.3457, 381.93262, -31.1235, 378.31122, -28.512402, 374.258);
-((GeneralPath)shape).curveTo(-7.110401, 392.807, 5.342598, 404.57, 22.9086, 419.94098);
-((GeneralPath)shape).curveTo(19.6089, 424.53506, 15.7764, 428.30518, 12.0436, 431.88397);
-((GeneralPath)shape).curveTo(-4.7964, 415.69797, -11.756399, 410.95197, -38.2844, 385.22998);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(-38.284f, 385.23f);
+generalPath.curveTo(-34.3457f, 381.93262f, -31.1235f, 378.31122f, -28.512402f, 374.258f);
+generalPath.curveTo(-7.110401f, 392.807f, 5.342598f, 404.57f, 22.9086f, 419.94098f);
+generalPath.curveTo(19.6089f, 424.53506f, 15.7764f, 428.30518f, 12.0436f, 431.88397f);
+generalPath.curveTo(-4.7964f, 415.69797f, -11.756399f, 410.95197f, -38.2844f, 385.22998f);
+generalPath.closePath();
+shape = generalPath;
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_2_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_2_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_2_1
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(-30.828, 377.52);
-((GeneralPath)shape).lineTo(-34.4638, 381.6373);
-((GeneralPath)shape).curveTo(-30.663898, 387.898, -22.1988, 397.3373, -10.278799, 408.5503);
-((GeneralPath)shape).curveTo(-0.52239895, 417.728, 8.3852005, 424.7373, 14.8962, 428.94128);
-((GeneralPath)shape).curveTo(17.1789, 426.8997, 18.5235, 425.3455, 20.0873, 423.5463);
-((GeneralPath)shape).curveTo(15.396199, 417.1861, 7.3182993, 408.5623, -2.5167007, 399.3103);
-((GeneralPath)shape).curveTo(-14.356701, 388.1733, -24.484701, 380.8293, -30.827702, 377.5193);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(-30.828f, 377.52f);
+generalPath.lineTo(-34.4638f, 381.6373f);
+generalPath.curveTo(-30.663898f, 387.898f, -22.1988f, 397.3373f, -10.278799f, 408.5503f);
+generalPath.curveTo(-0.52239895f, 417.728f, 8.3852005f, 424.7373f, 14.8962f, 428.94128f);
+generalPath.curveTo(17.1789f, 426.8997f, 18.5235f, 425.3455f, 20.0873f, 423.5463f);
+generalPath.curveTo(15.396199f, 417.1861f, 7.3182993f, 408.5623f, -2.5167007f, 399.3103f);
+generalPath.curveTo(-14.356701f, 388.1733f, -24.484701f, 380.8293f, -30.827702f, 377.5193f);
+generalPath.closePath();
+shape = generalPath;
 paint = new RadialGradientPaint(new Point2D.Double(3.9530999660491943, 74.83300018310547), 6.932f, new Point2D.Double(0.9055799841880798, 73.2959976196289), new float[] {0.0f,0.66372f,1.0f}, new Color[] {new Color(0, 0, 0, 255),new Color(0, 0, 0, 61),new Color(0, 0, 0, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(0.4359700083732605f, -0.566100001335144f, 5.670899868011475f, 5.233699798583984f, -433.7300109863281f, 13.38700008392334f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_2_1);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_2_2 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_2_2
 g.setComposite(AlphaComposite.getInstance(3, 0.7326f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_2_2_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_2_2_0
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(-37.659, 384.96);
-((GeneralPath)shape).curveTo(-34.4309, 381.9875, -31.3194, 378.44968, -28.633, 374.82498);
-((GeneralPath)shape).curveTo(-11.816999, 389.19498, 5.7350006, 405.69098, 21.714, 419.74997);
-((GeneralPath)shape).curveTo(18.2859, 424.27936, 17.086601, 426.46497, 12.201701, 430.83298);
-((GeneralPath)shape).curveTo(-4.4082994, 414.86597, -21.6983, 400.28897, -37.659298, 384.95898);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(-37.659f, 384.96f);
+generalPath.curveTo(-34.4309f, 381.9875f, -31.3194f, 378.44968f, -28.633f, 374.82498f);
+generalPath.curveTo(-11.816999f, 389.19498f, 5.7350006f, 405.69098f, 21.714f, 419.74997f);
+generalPath.curveTo(18.2859f, 424.27936f, 17.086601f, 426.46497f, 12.201701f, 430.83298f);
+generalPath.curveTo(-4.4082994f, 414.86597f, -21.6983f, 400.28897f, -37.659298f, 384.95898f);
+generalPath.closePath();
+shape = generalPath;
 paint = new RadialGradientPaint(new Point2D.Double(49.15700149536133, 62.38100051879883), 8.3332f, new Point2D.Double(45.900001525878906, 62.29800033569336), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(255, 255, 255, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(0.6268500089645386f, -0.7038300037384033f, 7.6057000160217285f, 6.891600131988525f, -534.4500122070312f, -18.267000198364258f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_2_2_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.74419f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_2_2_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_2_2_1
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(-36.597, 385.4);
-((GeneralPath)shape).lineTo(-28.726799, 381.3865);
-((GeneralPath)shape).curveTo(-11.910799, 395.7565, 2.7852, 407.3085, 20.0512, 420.7475);
-((GeneralPath)shape).curveTo(17.5006, 425.9685, 15.791201, 426.2425, 11.364301, 430.5502);
-((GeneralPath)shape).curveTo(-4.9847, 414.7262, -20.6357, 400.7292, -36.5967, 385.3992);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(-36.597f, 385.4f);
+generalPath.lineTo(-28.726799f, 381.3865f);
+generalPath.curveTo(-11.910799f, 395.7565f, 2.7852f, 407.3085f, 20.0512f, 420.7475f);
+generalPath.curveTo(17.5006f, 425.9685f, 15.791201f, 426.2425f, 11.364301f, 430.5502f);
+generalPath.curveTo(-4.9847f, 414.7262f, -20.6357f, 400.7292f, -36.5967f, 385.3992f);
+generalPath.closePath();
+shape = generalPath;
 paint = new RadialGradientPaint(new Point2D.Double(39.0359992980957, 69.15299987792969), 8.3332f, new Point2D.Double(36.2859992980957, 69.15299987792969), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(255, 255, 255, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(0.6268500089645386f, -0.7038300037384033f, 7.6057000160217285f, 6.891600131988525f, -535.2899780273438f, -18.54599952697754f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_2_2_1);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_2_2_2 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_2_2_2
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(-28.666, 374.13);
-((GeneralPath)shape).curveTo(-32.6043, 377.4274, -35.8338, 381.057, -38.4449, 385.11002);
-((GeneralPath)shape).lineTo(-38.26895, 385.26944);
-((GeneralPath)shape).curveTo(-34.33065, 381.97205, -31.10115, 378.34244, -28.490051, 374.28943);
-((GeneralPath)shape).lineTo(-28.666, 374.13);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(-28.666f, 374.13f);
+generalPath.curveTo(-32.6043f, 377.4274f, -35.8338f, 381.057f, -38.4449f, 385.11002f);
+generalPath.lineTo(-38.26895f, 385.26944f);
+generalPath.curveTo(-34.33065f, 381.97205f, -31.10115f, 378.34244f, -28.490051f, 374.28943f);
+generalPath.lineTo(-28.666f, 374.13f);
+generalPath.closePath();
+shape = generalPath;
 paint = new Color(92, 92, 92, 255);
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_2_2_2);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_2_2_3 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.68367999792099f, -0.7920500040054321f, 0.188960000872612f, 0.16405999660491943f, -78.21399688720703f, 412.69000244140625f));
 // _0_0_0_0_2_2_2_3
 shape = new Ellipse2D.Double(48.53860092163086, 49.94240188598633, 10.56879997253418, 3.707200050354004);
 paint = new RadialGradientPaint(new Point2D.Double(53.823001861572266, 51.79600143432617), 5.2844f, new Point2D.Double(53.362998962402344, 53.70399856567383), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(255, 255, 255, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 0.35076001286506653f, 0.0f, 33.62799835205078f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_2_2_3);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.65116f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_2_2_4 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.672249972820282f, -0.8017799854278564f, 0.19213999807834625f, 0.16032999753952026f, -27.104000091552734f, 458.25f));
 // _0_0_0_0_2_2_2_4
 shape = new Ellipse2D.Double(48.53860092163086, 49.94240188598633, 10.56879997253418, 3.707200050354004);
 paint = new RadialGradientPaint(new Point2D.Double(53.823001861572266, 51.79600143432617), 5.2844f, new Point2D.Double(53.362998962402344, 53.70399856567383), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(255, 255, 255, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 0.35076001286506653f, 0.0f, 33.62799835205078f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_2_2_4);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_2_2_5 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_2_2_5
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(-37.011, 370.07);
-((GeneralPath)shape).curveTo(-39.165203, 372.69162, -41.1481, 374.9367, -43.091904, 376.933);
-((GeneralPath)shape).lineTo(-36.558804, 382.94333);
-((GeneralPath)shape).curveTo(-34.140404, 380.69342, -31.929504, 378.54523, -30.292004, 376.19962);
-((GeneralPath)shape).lineTo(-37.011, 370.06992);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(-37.011f, 370.07f);
+generalPath.curveTo(-39.165203f, 372.69162f, -41.1481f, 374.9367f, -43.091904f, 376.933f);
+generalPath.lineTo(-36.558804f, 382.94333f);
+generalPath.curveTo(-34.140404f, 380.69342f, -31.929504f, 378.54523f, -30.292004f, 376.19962f);
+generalPath.lineTo(-37.011f, 370.06992f);
+generalPath.closePath();
+shape = generalPath;
 paint = new LinearGradientPaint(new Point2D.Double(28.07200050354004, 20.204999923706055), new Point2D.Double(40.19900131225586, 20.204999923706055), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(174, 174, 174, 255)}, MultipleGradientPaint.CycleMethod.REFLECT, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(-0.35819000005722046f, 0.4021799862384796f, 0.3968200087547302f, 0.3595600128173828f, -33.88999938964844f, 356.5899963378906f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_2_2_5);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_2_2_6 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_2_2_6
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(-36.767, 371.22);
-((GeneralPath)shape).curveTo(-38.9212, 373.8416, -40.7735, 375.3644, -42.7174, 377.3607);
-((GeneralPath)shape).lineTo(-36.558, 382.94177);
-((GeneralPath)shape).curveTo(-34.1396, 380.69186, -31.9287, 378.54367, -30.291199, 376.19806);
-((GeneralPath)shape).lineTo(-36.767, 371.21997);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(-36.767f, 371.22f);
+generalPath.curveTo(-38.9212f, 373.8416f, -40.7735f, 375.3644f, -42.7174f, 377.3607f);
+generalPath.lineTo(-36.558f, 382.94177f);
+generalPath.curveTo(-34.1396f, 380.69186f, -31.9287f, 378.54367f, -30.291199f, 376.19806f);
+generalPath.lineTo(-36.767f, 371.21997f);
+generalPath.closePath();
+shape = generalPath;
 paint = new LinearGradientPaint(new Point2D.Double(67.51499938964844, 86.70600128173828), new Point2D.Double(63.402000427246094, 61.356998443603516), new float[] {0.0f,1.0f}, new Color[] {new Color(0, 0, 0, 255),new Color(0, 0, 0, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0052000284194946f, 0.03706600144505501f, -0.03709600120782852f, 1.00600004196167f, -101.08000183105469f, 311.42999267578125f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_2_2_6);
-g.setTransform(defaultTransform__0_0_0_0_2_2_2);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_2_3 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_2_3
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(22.397, 419.85);
-((GeneralPath)shape).curveTo(16.2911, 414.1099, 6.445999, 405.997, -4.983, 395.664);
-((GeneralPath)shape).curveTo(-13.8197, 387.6748, -22.222, 380.30402, -28.657, 375.545);
-((GeneralPath)shape).lineTo(-33.426598, 380.1473);
-((GeneralPath)shape).curveTo(-28.044498, 386.0718, -19.903599, 394.4043, -11.066597, 402.3933);
-((GeneralPath)shape).curveTo(0.36140347, 412.7253, 10.994404, 421.2203, 17.706404, 425.6373);
-((GeneralPath)shape).lineTo(22.397604, 419.8492);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(22.397f, 419.85f);
+generalPath.curveTo(16.2911f, 414.1099f, 6.445999f, 405.997f, -4.983f, 395.664f);
+generalPath.curveTo(-13.8197f, 387.6748f, -22.222f, 380.30402f, -28.657f, 375.545f);
+generalPath.lineTo(-33.426598f, 380.1473f);
+generalPath.curveTo(-28.044498f, 386.0718f, -19.903599f, 394.4043f, -11.066597f, 402.3933f);
+generalPath.curveTo(0.36140347f, 412.7253f, 10.994404f, 421.2203f, 17.706404f, 425.6373f);
+generalPath.lineTo(22.397604f, 419.8492f);
+generalPath.closePath();
+shape = generalPath;
 paint = new RadialGradientPaint(new Point2D.Double(-22.187999725341797, 69.9219970703125), 3.3125f, new Point2D.Double(-24.22599983215332, 69.91400146484375), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(255, 255, 255, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(-0.8920699954032898f, 1.0390000343322754f, -21.232999801635742f, -18.231000900268555f, 1459.199951171875f, 1698.9000244140625f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_2_3);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.8f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_2_4 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_2_4
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(-36.873, 370.17);
-((GeneralPath)shape).curveTo(-37.84244, 371.46112, -38.9028, 372.6998, -40.0605, 373.8575);
-((GeneralPath)shape).curveTo(-40.473183, 374.2702, -40.907433, 374.68365, -41.3417, 375.07632);
-((GeneralPath)shape).curveTo(-41.363403, 375.09592, -41.382442, 375.11923, -41.4042, 375.13882);
-((GeneralPath)shape).curveTo(-41.971962, 375.75613, -42.5335, 376.34683, -43.0917, 376.92);
-((GeneralPath)shape).lineTo(-40.8105, 379.045);
-((GeneralPath)shape).curveTo(-38.666203, 377.6895, -36.8135, 375.87842, -35.4355, 373.63882);
-((GeneralPath)shape).curveTo(-35.14378, 373.1647, -34.88919, 372.6898, -34.65425, 372.20132);
-((GeneralPath)shape).lineTo(-36.87305, 370.17014);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(-36.873f, 370.17f);
+generalPath.curveTo(-37.84244f, 371.46112f, -38.9028f, 372.6998f, -40.0605f, 373.8575f);
+generalPath.curveTo(-40.473183f, 374.2702f, -40.907433f, 374.68365f, -41.3417f, 375.07632f);
+generalPath.curveTo(-41.363403f, 375.09592f, -41.382442f, 375.11923f, -41.4042f, 375.13882f);
+generalPath.curveTo(-41.971962f, 375.75613f, -42.5335f, 376.34683f, -43.0917f, 376.92f);
+generalPath.lineTo(-40.8105f, 379.045f);
+generalPath.curveTo(-38.666203f, 377.6895f, -36.8135f, 375.87842f, -35.4355f, 373.63882f);
+generalPath.curveTo(-35.14378f, 373.1647f, -34.88919f, 372.6898f, -34.65425f, 372.20132f);
+generalPath.lineTo(-36.87305f, 370.17014f);
+generalPath.closePath();
+shape = generalPath;
 paint = new RadialGradientPaint(new Point2D.Double(56.25699996948242, 56.999000549316406), 9.7255f, new Point2D.Double(56.25699996948242, 56.999000549316406), new float[] {0.0f,0.66372f,1.0f}, new Color[] {new Color(0, 0, 0, 255),new Color(0, 0, 0, 61),new Color(0, 0, 0, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 0.9252899885177612f, -99.09100341796875f, 320.1400146484375f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_2_4);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.1875f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_2_5 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.6643437579259793f, -0.7474271678931584f, 0.7474271678931584f, 0.6643437579259793f, 0.0f, 0.0f));
 // _0_0_0_0_2_2_5
 shape = new Rectangle2D.Double(-305.6099853515625, 218.85000610351562, 1.6519999504089355, 8.381999969482422);
 paint = new LinearGradientPaint(new Point2D.Double(113.91999816894531, 47.0359992980957), new Point2D.Double(108.61000061035156, 69.37799835205078), new float[] {0.0f,1.0f}, new Color[] {new Color(86, 228, 253, 175),new Color(255, 255, 255, 181)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, -420.2900085449219f, 160.38999938964844f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_2_5);
-g.setTransform(defaultTransform__0_0_0_0_2_2);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_3 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(-5.3277997970581055f, 0.0f, 0.0f, 7.7866997718811035f, 87.01399993896484f, 392.5299987792969f));
 // _0_0_0_0_2_3
 paint = new LinearGradientPaint(new Point2D.Double(28.548999786376953, -10.10099983215332), new Point2D.Double(28.548999786376953, -0.8540199995040894), new float[] {0.0f,1.0f}, new Color[] {new Color(201, 202, 204, 255),new Color(172, 174, 177, 255)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
@@ -1285,44 +1414,54 @@ shape = new Ellipse2D.Double(22.167299270629883, -9.843700408935547, 12.76340007
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_3);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_4 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_4
 paint = new RadialGradientPaint(new Point2D.Double(28.548999786376953, -5.47730016708374), 6.6922f, new Point2D.Double(28.548999786376953, -5.47730016708374), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 0),new Color(129, 129, 129, 255)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(-5.37939977645874f, -1.0974999895552173E-6f, -5.982300081086578E-6f, 29.320999145507812f, 88.48799896240234f, 510.489990234375f));
 stroke = new BasicStroke(4.0f,1,1,4.0f,null,0.0f);
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(-99.091, 349.88);
-((GeneralPath)shape).curveTo(-99.091, 368.648, -83.859, 383.88, -65.091, 383.88);
-((GeneralPath)shape).curveTo(-46.323006, 383.88, -31.091003, 368.648, -31.091003, 349.88);
-((GeneralPath)shape).curveTo(-31.091003, 331.112, -46.323006, 315.88, -65.091, 315.88);
-((GeneralPath)shape).curveTo(-83.859, 315.88, -99.091, 331.112, -99.091, 349.88);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(-99.091f, 349.88f);
+generalPath.curveTo(-99.091f, 368.648f, -83.859f, 383.88f, -65.091f, 383.88f);
+generalPath.curveTo(-46.323006f, 383.88f, -31.091003f, 368.648f, -31.091003f, 349.88f);
+generalPath.curveTo(-31.091003f, 331.112f, -46.323006f, 315.88f, -65.091f, 315.88f);
+generalPath.curveTo(-83.859f, 315.88f, -99.091f, 331.112f, -99.091f, 349.88f);
+generalPath.closePath();
+shape = generalPath;
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_4);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.71f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_5 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_5
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(-65.248, 317.88);
-((GeneralPath)shape).curveTo(-65.79382, 317.871, -66.3527, 317.8921, -66.9042, 317.9112);
-((GeneralPath)shape).curveTo(-84.5542, 318.5255, -98.312195, 333.3522, -97.6232, 351.0052);
-((GeneralPath)shape).curveTo(-97.39908, 356.74197, -95.672, 362.0652, -92.842, 366.6302);
-((GeneralPath)shape).curveTo(-92.85964, 366.35657, -92.862495, 366.09323, -92.87325, 365.8177);
-((GeneralPath)shape).curveTo(-93.56291, 348.16467, -79.80525, 333.33868, -62.15425, 332.7237);
-((GeneralPath)shape).curveTo(-50.24025, 332.30902, -39.595253, 338.4611, -33.71625, 347.9427);
-((GeneralPath)shape).curveTo(-34.79325, 331.2327, -48.59925, 318.14468, -65.24725, 317.88068);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(-65.248f, 317.88f);
+generalPath.curveTo(-65.79382f, 317.871f, -66.3527f, 317.8921f, -66.9042f, 317.9112f);
+generalPath.curveTo(-84.5542f, 318.5255f, -98.312195f, 333.3522f, -97.6232f, 351.0052f);
+generalPath.curveTo(-97.39908f, 356.74197f, -95.672f, 362.0652f, -92.842f, 366.6302f);
+generalPath.curveTo(-92.85964f, 366.35657f, -92.862495f, 366.09323f, -92.87325f, 365.8177f);
+generalPath.curveTo(-93.56291f, 348.16467f, -79.80525f, 333.33868f, -62.15425f, 332.7237f);
+generalPath.curveTo(-50.24025f, 332.30902f, -39.595253f, 338.4611f, -33.71625f, 347.9427f);
+generalPath.curveTo(-34.79325f, 331.2327f, -48.59925f, 318.14468f, -65.24725f, 317.88068f);
+generalPath.closePath();
+shape = generalPath;
 paint = new RadialGradientPaint(new Point2D.Double(39.409000396728516, 9.579099655151367), 31.966f, new Point2D.Double(33.48400115966797, 10.614999771118164), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(255, 255, 255, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 0.7625700235366821f, -105.08999633789062f, 317.57000732421875f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_5);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_6 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.038472000509500504f, 1.1053999662399292f, 1.1382999420166016f, -0.04446899890899658f, -110.4000015258789f, 304.54998779296875f));
 // _0_0_0_0_2_6
 paint = new LinearGradientPaint(new Point2D.Double(13.645000457763672, 38.36800003051758), new Point2D.Double(71.4729995727539, 38.36800003051758), new float[] {0.0f,1.0f}, new Color[] {new Color(163, 165, 168, 255),new Color(255, 255, 255, 255)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
@@ -1331,245 +1470,311 @@ shape = new Ellipse2D.Double(14.50899887084961, 11.124000549316406, 56.099998474
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_6);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_7 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.2725000381469727f, 0.0f, 0.0f, 1.2725000381469727f, -100.70999908447266f, 321.2799987792969f));
 // _0_0_0_0_2_7
 g.setComposite(AlphaComposite.getInstance(3, 0.40625f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_7_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.9136800169944763f, 0.0f, 0.0f, 0.6306300163269043f, -393.989990234375f, 40.72100067138672f));
 // _0_0_0_0_2_7_0
 shape = new Ellipse2D.Double(440.6340026855469, -70.14599609375, 42.69200134277344, 40.13600158691406);
 paint = new RadialGradientPaint(new Point2D.Double(461.9800109863281, -50.077999114990234), 21.346f, new Point2D.Double(461.54998779296875, -62.784000396728516), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(255, 255, 255, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.9244999885559082f, 8.883200166565075E-7f, -2.196299959678072E-7f, 0.9889900088310242f, -427.1099853515625f, -0.5516300201416016f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_7_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_7_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_7_1
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(28.333, -1.7689);
-((GeneralPath)shape).curveTo(14.895, -1.7689, 3.9820004, 9.1441, 3.9820004, 22.5821);
-((GeneralPath)shape).curveTo(3.9820004, 36.0201, 14.895, 46.911102, 28.333, 46.911102);
-((GeneralPath)shape).curveTo(41.771, 46.911102, 52.662003, 36.019104, 52.662003, 22.582102);
-((GeneralPath)shape).curveTo(52.662003, 9.144102, 41.770004, -1.768898, 28.333002, -1.768898);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(28.333f, -1.7689f);
+generalPath.curveTo(14.895f, -1.7689f, 3.9820004f, 9.1441f, 3.9820004f, 22.5821f);
+generalPath.curveTo(3.9820004f, 36.0201f, 14.895f, 46.911102f, 28.333f, 46.911102f);
+generalPath.curveTo(41.771f, 46.911102f, 52.662003f, 36.019104f, 52.662003f, 22.582102f);
+generalPath.curveTo(52.662003f, 9.144102f, 41.770004f, -1.768898f, 28.333002f, -1.768898f);
+generalPath.closePath();
+shape = generalPath;
 paint = new RadialGradientPaint(new Point2D.Double(654.5399780273438, -20.356000900268555), 38.29f, new Point2D.Double(653.77001953125, 3.276599884033203), new float[] {0.0f,0.57964f,0.8823f,1.0f}, new Color[] {new Color(162, 243, 255, 79),new Color(81, 210, 244, 119),new Color(56, 139, 201, 169),new Color(31, 68, 158, 220)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(0.635670006275177f, 0.0f, 0.0f, 0.635670006275177f, -387.739990234375f, 35.51100158691406f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_7_1);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.39062f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_7_2 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.7026399970054626f, 0.0f, 0.0f, 0.7026399970054626f, -333.2799987792969f, 26.423999786376953f));
 // _0_0_0_0_2_7_2
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(514.84, -41.875);
-((GeneralPath)shape).curveTo(495.23303, -41.875, 479.30902, -25.951, 479.30902, -6.344002);
-((GeneralPath)shape).curveTo(479.30902, -2.9409018, 479.78867, 0.35289812, 480.68402, 3.4684982);
-((GeneralPath)shape).curveTo(479.99997, 0.73939824, 479.62152, -2.1225019, 479.62152, -5.062702);
-((GeneralPath)shape).curveTo(479.62152, -24.377703, 495.30652, -40.062702, 514.6215, -40.062702);
-((GeneralPath)shape).curveTo(533.9365, -40.062702, 549.6215, -24.3777, 549.6215, -5.062702);
-((GeneralPath)shape).curveTo(549.6215, 1.5766978, 547.7747, 7.7712975, 544.559, 13.062298);
-((GeneralPath)shape).curveTo(548.2111, 7.482698, 550.3402, 0.8232975, 550.3402, -6.3437023);
-((GeneralPath)shape).curveTo(550.3402, -25.950703, 534.4472, -41.874702, 514.8402, -41.874702);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(514.84f, -41.875f);
+generalPath.curveTo(495.23303f, -41.875f, 479.30902f, -25.951f, 479.30902f, -6.344002f);
+generalPath.curveTo(479.30902f, -2.9409018f, 479.78867f, 0.35289812f, 480.68402f, 3.4684982f);
+generalPath.curveTo(479.99997f, 0.73939824f, 479.62152f, -2.1225019f, 479.62152f, -5.062702f);
+generalPath.curveTo(479.62152f, -24.377703f, 495.30652f, -40.062702f, 514.6215f, -40.062702f);
+generalPath.curveTo(533.9365f, -40.062702f, 549.6215f, -24.3777f, 549.6215f, -5.062702f);
+generalPath.curveTo(549.6215f, 1.5766978f, 547.7747f, 7.7712975f, 544.559f, 13.062298f);
+generalPath.curveTo(548.2111f, 7.482698f, 550.3402f, 0.8232975f, 550.3402f, -6.3437023f);
+generalPath.curveTo(550.3402f, -25.950703f, 534.4472f, -41.874702f, 514.8402f, -41.874702f);
+generalPath.closePath();
+shape = generalPath;
 paint = new LinearGradientPaint(new Point2D.Double(529.52001953125, -49.40800094604492), new Point2D.Double(529.1300048828125, -2.031899929046631), new float[] {0.0f,1.0f}, new Color[] {new Color(0, 0, 0, 255),new Color(0, 0, 0, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_7_2);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.57031f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_7_3 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.7026399970054626f, 0.0f, 0.0f, 0.7026399970054626f, -266.5899963378906f, 26.423999786376953f));
 // _0_0_0_0_2_7_3
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(385.94, -16.094);
-((GeneralPath)shape).curveTo(384.7994, -12.5924, 384.19, -8.880899, 384.19, -5.0);
-((GeneralPath)shape).curveTo(384.19, 14.819, 400.277, 30.905998, 420.096, 30.905998);
-((GeneralPath)shape).curveTo(439.915, 30.905998, 455.971, 14.818998, 455.971, -5.0);
-((GeneralPath)shape).curveTo(455.971, -8.8806, 455.36163, -12.592199, 454.221, -16.094);
-((GeneralPath)shape).curveTo(455.1052, -12.9945, 455.596, -9.726, 455.596, -6.344);
-((GeneralPath)shape).curveTo(455.596, 13.2630005, 439.703, 29.156, 420.096, 29.156);
-((GeneralPath)shape).curveTo(400.489, 29.155998, 384.565, 13.2630005, 384.565, -6.344);
-((GeneralPath)shape).curveTo(384.565, -9.726, 385.05582, -12.994499, 385.94, -16.094);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(385.94f, -16.094f);
+generalPath.curveTo(384.7994f, -12.5924f, 384.19f, -8.880899f, 384.19f, -5.0f);
+generalPath.curveTo(384.19f, 14.819f, 400.277f, 30.905998f, 420.096f, 30.905998f);
+generalPath.curveTo(439.915f, 30.905998f, 455.971f, 14.818998f, 455.971f, -5.0f);
+generalPath.curveTo(455.971f, -8.8806f, 455.36163f, -12.592199f, 454.221f, -16.094f);
+generalPath.curveTo(455.1052f, -12.9945f, 455.596f, -9.726f, 455.596f, -6.344f);
+generalPath.curveTo(455.596f, 13.2630005f, 439.703f, 29.156f, 420.096f, 29.156f);
+generalPath.curveTo(400.489f, 29.155998f, 384.565f, 13.2630005f, 384.565f, -6.344f);
+generalPath.curveTo(384.565f, -9.726f, 385.05582f, -12.994499f, 385.94f, -16.094f);
+generalPath.closePath();
+shape = generalPath;
 paint = new LinearGradientPaint(new Point2D.Double(425.9100036621094, 7.406199932098389), new Point2D.Double(426.2699890136719, -21.584999084472656), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(255, 255, 255, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_7_3);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_7_4 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.7026399970054626f, 0.0f, 0.0f, 0.7026399970054626f, -266.5899963378906f, 26.423999786376953f));
 // _0_0_0_0_2_7_4
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(385.94, -16.094);
-((GeneralPath)shape).curveTo(384.7994, -12.5924, 384.19, -8.880899, 384.19, -5.0);
-((GeneralPath)shape).curveTo(384.19, 14.819, 400.277, 29.905998, 420.096, 29.905998);
-((GeneralPath)shape).curveTo(439.915, 29.905998, 455.971, 14.818998, 455.971, -5.0);
-((GeneralPath)shape).curveTo(455.971, -8.8806, 455.36163, -12.592199, 454.221, -16.094);
-((GeneralPath)shape).curveTo(455.1052, -12.9945, 455.596, -9.726, 455.596, -6.344);
-((GeneralPath)shape).curveTo(455.596, 13.2630005, 439.703, 29.156, 420.096, 29.156);
-((GeneralPath)shape).curveTo(400.489, 29.155998, 384.565, 13.2630005, 384.565, -6.344);
-((GeneralPath)shape).curveTo(384.565, -9.726, 385.05582, -12.994499, 385.94, -16.094);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(385.94f, -16.094f);
+generalPath.curveTo(384.7994f, -12.5924f, 384.19f, -8.880899f, 384.19f, -5.0f);
+generalPath.curveTo(384.19f, 14.819f, 400.277f, 29.905998f, 420.096f, 29.905998f);
+generalPath.curveTo(439.915f, 29.905998f, 455.971f, 14.818998f, 455.971f, -5.0f);
+generalPath.curveTo(455.971f, -8.8806f, 455.36163f, -12.592199f, 454.221f, -16.094f);
+generalPath.curveTo(455.1052f, -12.9945f, 455.596f, -9.726f, 455.596f, -6.344f);
+generalPath.curveTo(455.596f, 13.2630005f, 439.703f, 29.156f, 420.096f, 29.156f);
+generalPath.curveTo(400.489f, 29.155998f, 384.565f, 13.2630005f, 384.565f, -6.344f);
+generalPath.curveTo(384.565f, -9.726f, 385.05582f, -12.994499f, 385.94f, -16.094f);
+generalPath.closePath();
+shape = generalPath;
 paint = new LinearGradientPaint(new Point2D.Double(425.20001220703125, 35.691001892089844), new Point2D.Double(424.8599853515625, 12.001999855041504), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(255, 255, 255, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_7_4);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_7_5 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.7026399970054626f, 0.0f, 0.0f, 0.7026399970054626f, -333.2799987792969f, 26.423999786376953f));
 // _0_0_0_0_2_7_5
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(514.84, -40.875);
-((GeneralPath)shape).curveTo(495.23303, -40.875, 479.30902, -25.951, 479.30902, -6.344002);
-((GeneralPath)shape).curveTo(479.30902, -2.9409018, 479.78867, 0.35289812, 480.68402, 3.4684982);
-((GeneralPath)shape).curveTo(479.99997, 0.73939824, 479.62152, -2.1225019, 479.62152, -5.062702);
-((GeneralPath)shape).curveTo(479.62152, -24.377703, 495.30652, -40.062702, 514.6215, -40.062702);
-((GeneralPath)shape).curveTo(533.9365, -40.062702, 549.6215, -24.3777, 549.6215, -5.062702);
-((GeneralPath)shape).curveTo(549.6215, 1.5766978, 547.7747, 7.7712975, 544.559, 13.062298);
-((GeneralPath)shape).curveTo(548.2111, 7.482698, 550.3402, 0.8232975, 550.3402, -6.3437023);
-((GeneralPath)shape).curveTo(550.3402, -25.950703, 534.4472, -40.874702, 514.8402, -40.874702);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(514.84f, -40.875f);
+generalPath.curveTo(495.23303f, -40.875f, 479.30902f, -25.951f, 479.30902f, -6.344002f);
+generalPath.curveTo(479.30902f, -2.9409018f, 479.78867f, 0.35289812f, 480.68402f, 3.4684982f);
+generalPath.curveTo(479.99997f, 0.73939824f, 479.62152f, -2.1225019f, 479.62152f, -5.062702f);
+generalPath.curveTo(479.62152f, -24.377703f, 495.30652f, -40.062702f, 514.6215f, -40.062702f);
+generalPath.curveTo(533.9365f, -40.062702f, 549.6215f, -24.3777f, 549.6215f, -5.062702f);
+generalPath.curveTo(549.6215f, 1.5766978f, 547.7747f, 7.7712975f, 544.559f, 13.062298f);
+generalPath.curveTo(548.2111f, 7.482698f, 550.3402f, 0.8232975f, 550.3402f, -6.3437023f);
+generalPath.curveTo(550.3402f, -25.950703f, 534.4472f, -40.874702f, 514.8402f, -40.874702f);
+generalPath.closePath();
+shape = generalPath;
 paint = new LinearGradientPaint(new Point2D.Double(529.52001953125, -49.40800094604492), new Point2D.Double(529.6300048828125, -22.281999588012695), new float[] {0.0f,1.0f}, new Color[] {new Color(0, 0, 0, 255),new Color(0, 0, 0, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_7_5);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_7_6 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_7_6
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(28.429, -3.5255);
-((GeneralPath)shape).curveTo(14.458001, -3.5255, 3.1120014, 7.7024994, 3.1120014, 21.5275);
-((GeneralPath)shape).curveTo(3.1120014, 26.8858, 4.8222013, 31.838501, 7.7231016, 35.9095);
-((GeneralPath)shape).curveTo(5.0298014, 31.928501, 3.4634018, 27.1329, 3.4634018, 21.9665);
-((GeneralPath)shape).curveTo(3.4634018, 8.189499, 14.652402, -2.9995003, 28.429401, -2.9995003);
-((GeneralPath)shape).curveTo(42.2064, -2.9995003, 53.3734, 8.1895, 53.3734, 21.9665);
-((GeneralPath)shape).curveTo(53.3734, 27.1329, 51.8031, 31.9285, 49.1137, 35.9095);
-((GeneralPath)shape).curveTo(52.0104, 31.838001, 53.7248, 26.885601, 53.7248, 21.5275);
-((GeneralPath)shape).curveTo(53.7248, 7.7015, 42.4008, -3.5265007, 28.4298, -3.5265007);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(28.429f, -3.5255f);
+generalPath.curveTo(14.458001f, -3.5255f, 3.1120014f, 7.7024994f, 3.1120014f, 21.5275f);
+generalPath.curveTo(3.1120014f, 26.8858f, 4.8222013f, 31.838501f, 7.7231016f, 35.9095f);
+generalPath.curveTo(5.0298014f, 31.928501f, 3.4634018f, 27.1329f, 3.4634018f, 21.9665f);
+generalPath.curveTo(3.4634018f, 8.189499f, 14.652402f, -2.9995003f, 28.429401f, -2.9995003f);
+generalPath.curveTo(42.2064f, -2.9995003f, 53.3734f, 8.1895f, 53.3734f, 21.9665f);
+generalPath.curveTo(53.3734f, 27.1329f, 51.8031f, 31.9285f, 49.1137f, 35.9095f);
+generalPath.curveTo(52.0104f, 31.838001f, 53.7248f, 26.885601f, 53.7248f, 21.5275f);
+generalPath.curveTo(53.7248f, 7.7015f, 42.4008f, -3.5265007f, 28.4298f, -3.5265007f);
+generalPath.closePath();
+shape = generalPath;
 paint = new LinearGradientPaint(new Point2D.Double(455.3399963378906, -91.46199798583984), new Point2D.Double(452.6600036621094, -34.051998138427734), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(255, 255, 255, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(0.6517199873924255f, 0.0f, 0.0f, 0.6517199873924255f, -266.5899963378906f, 35.222999572753906f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_7_6);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_7_7 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.7026399970054626f, 0.0f, 0.0f, 0.7026399970054626f, -357.760009765625f, 26.423999786376953f));
 // _0_0_0_0_2_7_7
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(549.12, -40.125);
-((GeneralPath)shape).curveTo(529.996, -40.125, 514.464, -24.593, 514.464, -5.469002);
-((GeneralPath)shape).curveTo(514.464, 12.078999, 527.565, 26.542, 544.495, 28.811996);
-((GeneralPath)shape).curveTo(529.90497, 26.583696, 518.714, 13.989997, 518.714, -1.2190037);
-((GeneralPath)shape).curveTo(518.714, -18.001003, 532.338, -31.625004, 549.12, -31.625004);
-((GeneralPath)shape).curveTo(565.902, -31.625004, 579.526, -18.001003, 579.526, -1.2190037);
-((GeneralPath)shape).curveTo(579.526, 14.513996, 567.567, 27.443996, 552.245, 28.999996);
-((GeneralPath)shape).curveTo(569.911, 27.426996, 583.745, 12.606997, 583.745, -5.4690056);
-((GeneralPath)shape).curveTo(583.745, -24.593006, 568.244, -40.125004, 549.12, -40.125004);
-((GeneralPath)shape).closePath();
-((GeneralPath)shape).moveTo(552.25, 29.0);
-((GeneralPath)shape).curveTo(551.73926, 29.05186, 551.2054, 29.09875, 550.6875, 29.125);
-((GeneralPath)shape).curveTo(551.20624, 29.10194, 551.7375, 29.04564, 552.25, 29.0);
-((GeneralPath)shape).closePath();
-((GeneralPath)shape).moveTo(544.5, 28.8125);
-((GeneralPath)shape).curveTo(545.01154, 28.88111, 545.5129, 28.95397, 546.0312, 29.0);
-((GeneralPath)shape).curveTo(545.5212, 28.948, 545.00116, 28.889, 544.50116, 28.812);
-((GeneralPath)shape).closePath();
-((GeneralPath)shape).moveTo(546.03, 29.0005);
-((GeneralPath)shape).curveTo(546.54016, 29.0458, 547.04504, 29.10255, 547.5612, 29.1255);
-((GeneralPath)shape).curveTo(547.0433, 29.099249, 546.54083, 29.05236, 546.03, 29.0005);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(549.12f, -40.125f);
+generalPath.curveTo(529.996f, -40.125f, 514.464f, -24.593f, 514.464f, -5.469002f);
+generalPath.curveTo(514.464f, 12.078999f, 527.565f, 26.542f, 544.495f, 28.811996f);
+generalPath.curveTo(529.90497f, 26.583696f, 518.714f, 13.989997f, 518.714f, -1.2190037f);
+generalPath.curveTo(518.714f, -18.001003f, 532.338f, -31.625004f, 549.12f, -31.625004f);
+generalPath.curveTo(565.902f, -31.625004f, 579.526f, -18.001003f, 579.526f, -1.2190037f);
+generalPath.curveTo(579.526f, 14.513996f, 567.567f, 27.443996f, 552.245f, 28.999996f);
+generalPath.curveTo(569.911f, 27.426996f, 583.745f, 12.606997f, 583.745f, -5.4690056f);
+generalPath.curveTo(583.745f, -24.593006f, 568.244f, -40.125004f, 549.12f, -40.125004f);
+generalPath.closePath();
+generalPath.moveTo(552.25f, 29.0f);
+generalPath.curveTo(551.73926f, 29.05186f, 551.2054f, 29.09875f, 550.6875f, 29.125f);
+generalPath.curveTo(551.20624f, 29.10194f, 551.7375f, 29.04564f, 552.25f, 29.0f);
+generalPath.closePath();
+generalPath.moveTo(544.5f, 28.8125f);
+generalPath.curveTo(545.01154f, 28.88111f, 545.5129f, 28.95397f, 546.0312f, 29.0f);
+generalPath.curveTo(545.5212f, 28.948f, 545.00116f, 28.889f, 544.50116f, 28.812f);
+generalPath.closePath();
+generalPath.moveTo(546.03f, 29.0005f);
+generalPath.curveTo(546.54016f, 29.0458f, 547.04504f, 29.10255f, 547.5612f, 29.1255f);
+generalPath.curveTo(547.0433f, 29.099249f, 546.54083f, 29.05236f, 546.03f, 29.0005f);
+generalPath.closePath();
+shape = generalPath;
 paint = new RadialGradientPaint(new Point2D.Double(549.1099853515625, -5.5), 34.641f, new Point2D.Double(549.1099853515625, 15.369000434875488), new float[] {0.0f,0.795f,1.0f}, new Color[] {new Color(22, 54, 122, 0),new Color(22, 54, 122, 0),new Color(22, 54, 122, 255)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 0.9995499849319458f, 0.0f, -0.0024808000307530165f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_7_7);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.40625f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_7_8 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.737309992313385f, 0.0f, 0.0f, 0.6411399841308594f, -307.55999755859375f, 33.86000061035156f));
 // _0_0_0_0_2_7_8
 shape = new Ellipse2D.Double(441.3970031738281, -52.3650016784668, 28.20599937438965, 35.06800079345703);
 paint = new RadialGradientPaint(new Point2D.Double(455.5, -40.349998474121094), 14.103f, new Point2D.Double(455.5, -32.882999420166016), new float[] {0.0f,1.0f}, new Color[] {new Color(86, 228, 253, 175),new Color(255, 255, 255, 181)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.4865000247955322f, -8.41730013689812E-7f, 1.040699999066419E-6f, 1.8378000259399414f, -221.60000610351562f, 32.46500015258789f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_7_8);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.58984f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_7_9 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0_0_2_7_9
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(29.446, 0.21256);
-((GeneralPath)shape).lineTo(29.64835, 4.43926);
-((GeneralPath)shape).curveTo(31.32425, 4.469351, 32.95675, 4.62685, 34.52765, 4.87474);
-((GeneralPath)shape).curveTo(34.20265, 3.4994402, 33.87965, 2.12434, 33.53965, 0.7504401);
-((GeneralPath)shape).curveTo(32.22965, 0.45351014, 30.86165, 0.28429013, 29.44665, 0.2125001);
-((GeneralPath)shape).closePath();
-((GeneralPath)shape).moveTo(26.342999, 0.238178);
-((GeneralPath)shape).curveTo(24.984999, 0.34142798, 23.662998, 0.565678, 22.407999, 0.878588);
-((GeneralPath)shape).curveTo(22.046999, 2.335688, 21.696999, 3.799288, 21.352, 5.2589884);
-((GeneralPath)shape).curveTo(22.967999, 4.8953886, 24.657, 4.6671886, 26.411, 4.5416884);
-((GeneralPath)shape).lineTo(26.613379, 0.23818827);
-((GeneralPath)shape).curveTo(26.521019, 0.24415827, 26.435518, 0.23119827, 26.34356, 0.23818827);
-((GeneralPath)shape).closePath();
-((GeneralPath)shape).moveTo(36.011597, 1.467778);
-((GeneralPath)shape).curveTo(36.427948, 2.779578, 36.838585, 4.095078, 37.2483, 5.412678);
-((GeneralPath)shape).curveTo(40.2043, 6.1379776, 42.886997, 7.2236776, 45.1406, 8.614677);
-((GeneralPath)shape).curveTo(43.3896, 5.4700775, 40.122597, 2.9144773, 36.011597, 1.4677773);
-((GeneralPath)shape).closePath();
-((GeneralPath)shape).moveTo(19.574596, 1.775178);
-((GeneralPath)shape).curveTo(15.172596, 3.5408778, 11.842596, 6.621478, 10.513597, 10.304978);
-((GeneralPath)shape).curveTo(12.571596, 8.597178, 15.185596, 7.1941786, 18.158596, 6.1810784);
-((GeneralPath)shape).curveTo(18.627596, 4.7133784, 19.096596, 3.2451785, 19.574596, 1.7751784);
-((GeneralPath)shape).closePath();
-((GeneralPath)shape).moveTo(29.715595, 5.848178);
-((GeneralPath)shape).lineTo(30.030375, 12.021678);
-((GeneralPath)shape).curveTo(32.185276, 12.077718, 34.289974, 12.271188, 36.281273, 12.636468);
-((GeneralPath)shape).curveTo(35.829273, 10.537468, 35.354275, 8.435167, 34.864273, 6.334268);
-((GeneralPath)shape).curveTo(33.209274, 6.055868, 31.489273, 5.882668, 29.715273, 5.847568);
-((GeneralPath)shape).closePath();
-((GeneralPath)shape).moveTo(26.342794, 5.925027);
-((GeneralPath)shape).curveTo(24.479994, 6.061687, 22.696594, 6.366017, 20.991295, 6.7703667);
-((GeneralPath)shape).curveTo(20.503614, 8.8699665, 20.047964, 10.968567, 19.597195, 13.071966);
-((GeneralPath)shape).curveTo(21.643394, 12.5788965, 23.797094, 12.254356, 26.050495, 12.098546);
-((GeneralPath)shape).lineTo(26.342495, 5.925546);
-((GeneralPath)shape).closePath();
-((GeneralPath)shape).moveTo(37.720795, 6.949627);
-((GeneralPath)shape).curveTo(38.386776, 9.108827, 39.053196, 11.287027, 39.699493, 13.456127);
-((GeneralPath)shape).curveTo(42.113594, 14.140887, 44.323895, 15.030027, 46.287693, 16.120228);
-((GeneralPath)shape).curveTo(46.451374, 15.381918, 46.535034, 14.638728, 46.535034, 13.866028);
-((GeneralPath)shape).curveTo(46.535034, 12.736427, 46.339993, 11.662628, 45.995384, 10.612728);
-((GeneralPath)shape).curveTo(43.685383, 9.031828, 40.877384, 7.775328, 37.720783, 6.949628);
-((GeneralPath)shape).closePath();
-((GeneralPath)shape).moveTo(17.641794, 7.7437267);
-((GeneralPath)shape).curveTo(14.657294, 8.824027, 12.052195, 10.311426, 10.041794, 12.098527);
-((GeneralPath)shape).curveTo(9.941224, 12.678987, 9.884414, 13.265327, 9.884414, 13.866027);
-((GeneralPath)shape).curveTo(9.884414, 14.898127, 10.042384, 15.895627, 10.334114, 16.863127);
-((GeneralPath)shape).curveTo(11.905514, 15.868227, 13.669714, 14.994926, 15.5956135, 14.275927);
-((GeneralPath)shape).curveTo(16.265123, 12.101927, 16.949913, 9.9205265, 17.641813, 7.7438264);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(29.446f, 0.21256f);
+generalPath.lineTo(29.64835f, 4.43926f);
+generalPath.curveTo(31.32425f, 4.469351f, 32.95675f, 4.62685f, 34.52765f, 4.87474f);
+generalPath.curveTo(34.20265f, 3.4994402f, 33.87965f, 2.12434f, 33.53965f, 0.7504401f);
+generalPath.curveTo(32.22965f, 0.45351014f, 30.86165f, 0.28429013f, 29.44665f, 0.2125001f);
+generalPath.closePath();
+generalPath.moveTo(26.342999f, 0.238178f);
+generalPath.curveTo(24.984999f, 0.34142798f, 23.662998f, 0.565678f, 22.407999f, 0.878588f);
+generalPath.curveTo(22.046999f, 2.335688f, 21.696999f, 3.799288f, 21.352f, 5.2589884f);
+generalPath.curveTo(22.967999f, 4.8953886f, 24.657f, 4.6671886f, 26.411f, 4.5416884f);
+generalPath.lineTo(26.613379f, 0.23818827f);
+generalPath.curveTo(26.521019f, 0.24415827f, 26.435518f, 0.23119827f, 26.34356f, 0.23818827f);
+generalPath.closePath();
+generalPath.moveTo(36.011597f, 1.467778f);
+generalPath.curveTo(36.427948f, 2.779578f, 36.838585f, 4.095078f, 37.2483f, 5.412678f);
+generalPath.curveTo(40.2043f, 6.1379776f, 42.886997f, 7.2236776f, 45.1406f, 8.614677f);
+generalPath.curveTo(43.3896f, 5.4700775f, 40.122597f, 2.9144773f, 36.011597f, 1.4677773f);
+generalPath.closePath();
+generalPath.moveTo(19.574596f, 1.775178f);
+generalPath.curveTo(15.172596f, 3.5408778f, 11.842596f, 6.621478f, 10.513597f, 10.304978f);
+generalPath.curveTo(12.571596f, 8.597178f, 15.185596f, 7.1941786f, 18.158596f, 6.1810784f);
+generalPath.curveTo(18.627596f, 4.7133784f, 19.096596f, 3.2451785f, 19.574596f, 1.7751784f);
+generalPath.closePath();
+generalPath.moveTo(29.715595f, 5.848178f);
+generalPath.lineTo(30.030375f, 12.021678f);
+generalPath.curveTo(32.185276f, 12.077718f, 34.289974f, 12.271188f, 36.281273f, 12.636468f);
+generalPath.curveTo(35.829273f, 10.537468f, 35.354275f, 8.435167f, 34.864273f, 6.334268f);
+generalPath.curveTo(33.209274f, 6.055868f, 31.489273f, 5.882668f, 29.715273f, 5.847568f);
+generalPath.closePath();
+generalPath.moveTo(26.342794f, 5.925027f);
+generalPath.curveTo(24.479994f, 6.061687f, 22.696594f, 6.366017f, 20.991295f, 6.7703667f);
+generalPath.curveTo(20.503614f, 8.8699665f, 20.047964f, 10.968567f, 19.597195f, 13.071966f);
+generalPath.curveTo(21.643394f, 12.5788965f, 23.797094f, 12.254356f, 26.050495f, 12.098546f);
+generalPath.lineTo(26.342495f, 5.925546f);
+generalPath.closePath();
+generalPath.moveTo(37.720795f, 6.949627f);
+generalPath.curveTo(38.386776f, 9.108827f, 39.053196f, 11.287027f, 39.699493f, 13.456127f);
+generalPath.curveTo(42.113594f, 14.140887f, 44.323895f, 15.030027f, 46.287693f, 16.120228f);
+generalPath.curveTo(46.451374f, 15.381918f, 46.535034f, 14.638728f, 46.535034f, 13.866028f);
+generalPath.curveTo(46.535034f, 12.736427f, 46.339993f, 11.662628f, 45.995384f, 10.612728f);
+generalPath.curveTo(43.685383f, 9.031828f, 40.877384f, 7.775328f, 37.720783f, 6.949628f);
+generalPath.closePath();
+generalPath.moveTo(17.641794f, 7.7437267f);
+generalPath.curveTo(14.657294f, 8.824027f, 12.052195f, 10.311426f, 10.041794f, 12.098527f);
+generalPath.curveTo(9.941224f, 12.678987f, 9.884414f, 13.265327f, 9.884414f, 13.866027f);
+generalPath.curveTo(9.884414f, 14.898127f, 10.042384f, 15.895627f, 10.334114f, 16.863127f);
+generalPath.curveTo(11.905514f, 15.868227f, 13.669714f, 14.994926f, 15.5956135f, 14.275927f);
+generalPath.curveTo(16.265123f, 12.101927f, 16.949913f, 9.9205265f, 17.641813f, 7.7438264f);
+generalPath.closePath();
+shape = generalPath;
 paint = new RadialGradientPaint(new Point2D.Double(419.6600036621094, -24.165000915527344), 27.473f, new Point2D.Double(419.6600036621094, -24.165000915527344), new float[] {0.0f,1.0f}, new Color[] {new Color(255, 255, 255, 255),new Color(255, 255, 255, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(0.7195299863815308f, 0.0f, 0.0f, 0.6485199928283691f, -273.739990234375f, 28.177000045776367f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_7_9);
-g.setTransform(defaultTransform__0_0_0_0_2_7);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 0.45652f * origAlpha));
-AffineTransform defaultTransform__0_0_0_0_2_8 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(0.6643437579259793f, -0.7474271678931584f, 0.7474271678931584f, 0.6643437579259793f, 0.0f, 0.0f));
 // _0_0_0_0_2_8
 shape = new Rectangle2D.Double(-304.29998779296875, 228.7899932861328, 0.75586998462677, 66.29399871826172);
 paint = new LinearGradientPaint(new Point2D.Double(113.43000030517578, 55.402000427246094), new Point2D.Double(114.41999816894531, 118.7300033569336), new float[] {0.0f,1.0f}, new Color[] {new Color(202, 236, 243, 251),new Color(14, 82, 104, 0)}, MultipleGradientPaint.CycleMethod.NO_CYCLE, MultipleGradientPaint.ColorSpaceType.SRGB, new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, -420.010009765625f, 170.0500030517578f));
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_0_0_2_8);
-g.setTransform(defaultTransform__0_0_0_0_2);
-g.setTransform(defaultTransform__0_0_0_0);
-g.setTransform(defaultTransform__0_0_0);
-g.setTransform(defaultTransform__0_0);
-g.setTransform(defaultTransform__0);
-g.setTransform(defaultTransform_);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
 
+}
+
+
+
+    @SuppressWarnings("unused")
+	private void innerPaint(Graphics2D g) {
+        float origAlpha = 1.0f;
+        Composite origComposite = g.getComposite();
+        if (origComposite instanceof AlphaComposite) {
+            AlphaComposite origAlphaComposite = 
+                (AlphaComposite)origComposite;
+            if (origAlphaComposite.getRule() == AlphaComposite.SRC_OVER) {
+                origAlpha = origAlphaComposite.getAlpha();
+            }
+        }
+        
+	    _paint0(g, origAlpha);
+_paint1(g, origAlpha);
+
+
+	    shape = null;
+	    generalPath = null;
+	    paint = null;
+	    stroke = null;
+	    clip = null;
+        transformsStack.clear();
 	}
 
     /**
@@ -1634,13 +1839,13 @@ g.setTransform(defaultTransform_);
 	}
 
 	@Override
-	public void setDimension(Dimension newDimension) {
+	public synchronized void setDimension(Dimension newDimension) {
 		this.width = newDimension.width;
 		this.height = newDimension.height;
 	}
 
     @Override
-	public void paintIcon(Component c, Graphics g, int x, int y) {
+	public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
 		Graphics2D g2d = (Graphics2D) g.create();
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);

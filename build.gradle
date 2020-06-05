@@ -24,7 +24,7 @@ buildscript {
     dependencies {
         classpath "com.smokejumperit.gradle.license:Gradle-License-Report:0.0.2"
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.2"
-        classpath "org.pushing-pixels:radiance-ignite:2.5.1"
+        classpath "org.pushing-pixels:radiance-ignite:3.0.0"
     }
 }
 
@@ -92,7 +92,7 @@ ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
 project.version = ext.orbitVersion
 
 // Define the Radiance version in one place, since multiple libraries that need to be updated together.
-def radianceVersion = '2.5.1'
+def radianceVersion = '3.0.0'
 
 repositories {
     mavenCentral()
@@ -135,6 +135,7 @@ test {
     // Needed to load the native libraries:
     // https://java-native-access.github.io/jna/4.2.1/com/sun/jna/NativeLibrary.html
     systemProperty "jna.library.path", "lib/"
+    systemProperty 'java.awt.headless', 'true'
 }
 
 task sourceJar(type: Jar) {
@@ -193,10 +194,13 @@ configurations {
 
 dependencies {
     implementation 'com.actelion.research:lib-orbit-common:1.2.12'
-    implementation ('com.actelion.research:image-provider-omero:1.7.1') {
+    implementation ('com.actelion.research:image-provider-omero:1.7.2') {
         because('Version 1.7.1 supports Omero 5.6.x')
+//        exclude (group:'com.amazonaws', module: 'aws-java-sdk-core')
+//        exclude (group:'com.amazonaws', module: 'aws-java-sdk-s3')
+//        exclude (group:'com.amazonaws', module: 'aws-java-sdk-kms')
     }
-    api 'com.actelion.research:map-reduce-generic:1.0.10'
+    api ('com.actelion.research:map-reduce-generic:1.0.10')
 //    implementation 'com.actelion.research:map-reduce-exec-spark:1.1.3'
 
     // JNA (needed for the NDPR C++ API)
@@ -247,7 +251,7 @@ dependencies {
     implementation (group: 'org.codelibs', name:'jcifs', version:'1.3.18.1') {  // for SmbUtils     (exclude javax.servlet-api because Spark needs a different version)
         exclude (group:'javax.servlet', module: 'servlet-api')
     }
-    api (group: 'ome', name:'formats-gpl', version:'6.4.0') {
+    api (group: 'ome', name:'formats-gpl', version:'6.5.0') {
         exclude (module: 'blitz')
     }
     api (group: 'net.imglib2', name: 'imglib2', version: '3.2.1') // to avoid jpeg2000 problem: NoSuchMethodError: jj2000.j2k.fileformat.reader.FileFormatReader.<init>
@@ -267,15 +271,14 @@ dependencies {
     // implementation 'org.tensorflow:libtensorflow_jni_gpu:1.10.0'
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7'
 
-    testImplementation 'junit:junit:4.13'
     testImplementation 'org.hamcrest:hamcrest:2.2'
-}
 
+    testImplementation 'junit:junit:4.13'
+}
 
 //if (file('custom.gradle').exists()) {
 //    apply from: 'custom.gradle'
 //}
-
 
 /*
  * Compile the icons at build time, for better performance.

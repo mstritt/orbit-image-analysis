@@ -6,26 +6,106 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.ref.WeakReference;
 import java.util.Base64;
+import java.util.Stack;
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 import javax.swing.plaf.UIResource;
 
-import org.pushingpixels.neon.icon.ResizableIcon;
-import org.pushingpixels.neon.icon.ResizableIconUIResource;
+import org.pushingpixels.neon.api.icon.ResizableIcon;
+import org.pushingpixels.neon.api.icon.ResizableIconUIResource;
 
 /**
  * This class has been automatically generated using <a
  * href="https://github.com/kirill-grouchnikov/radiance">Photon SVG transcoder</a>.
  */
 public class draw_roi implements ResizableIcon {
+    private Shape shape = null;
+    private GeneralPath generalPath = null;
+    private Paint paint = null;
+    private Stroke stroke = null;
+    private Shape clip = null;
+    private Stack<AffineTransform> transformsStack = new Stack<>();
+
     
+
+	private void _paint0(Graphics2D g,float origAlpha) {
+transformsStack.push(g.getTransform());
+// 
+g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
+transformsStack.push(g.getTransform());
+g.transform(new AffineTransform(1.0666667222976685f, 0.0f, 0.0f, 1.0666667222976685f, -0.0f, -0.0f));
+// _0
+g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
+transformsStack.push(g.getTransform());
+g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, -343.7007751464844f));
+// _0_0
+g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
+transformsStack.push(g.getTransform());
+g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
+// _0_0_0
+paint = new Color(255, 255, 0, 255);
+stroke = new BasicStroke(55.323944f,0,0,4.0f,null,0.0f);
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(389.36908f, 378.59903f);
+generalPath.curveTo(342.05927f, 379.01486f, 294.78314f, 383.2077f, 248.1386f, 391.12454f);
+generalPath.curveTo(223.51381f, 395.30402f, 198.66672f, 400.6619f, 176.69513f, 412.5403f);
+generalPath.curveTo(165.70934f, 418.47952f, 155.53157f, 426.03955f, 147.21364f, 435.35483f);
+generalPath.curveTo(138.89569f, 444.67007f, 132.47147f, 455.7775f, 129.24968f, 467.84323f);
+generalPath.curveTo(125.37266f, 482.36288f, 126.23848f, 497.95206f, 130.6291f, 512.3247f);
+generalPath.curveTo(135.01973f, 526.6974f, 142.8345f, 539.89f, 152.46996f, 551.42303f);
+generalPath.curveTo(171.74084f, 574.489f, 197.77066f, 590.7103f, 223.40332f, 606.40656f);
+generalPath.curveTo(258.06274f, 627.6304f, 293.99103f, 649.6921f, 316.5381f, 683.5056f);
+generalPath.curveTo(327.8116f, 700.41235f, 335.36002f, 720.1194f, 336.1088f, 740.4263f);
+generalPath.curveTo(336.85757f, 760.73315f, 330.423f, 781.59674f, 316.75903f, 796.6376f);
+generalPath.curveTo(302.86823f, 811.9281f, 282.56946f, 820.2744f, 262.10617f, 823.10455f);
+generalPath.curveTo(241.64288f, 825.9347f, 220.82916f, 823.70386f, 200.40036f, 820.63477f);
+generalPath.curveTo(179.97156f, 817.5657f, 159.5823f, 813.6517f, 138.9314f, 813.10803f);
+generalPath.curveTo(118.28047f, 812.56433f, 97.052315f, 815.5934f, 78.98116f, 825.6028f);
+generalPath.curveTo(60.653214f, 835.75446f, 46.441654f, 852.88184f, 39.16655f, 872.5298f);
+generalPath.curveTo(31.891447f, 892.1778f, 31.474049f, 914.1758f, 37.30143f, 934.3007f);
+generalPath.curveTo(43.128815f, 954.42566f, 55.076176f, 972.6302f, 70.73965f, 986.54517f);
+generalPath.curveTo(86.40312f, 1000.46014f, 105.69519f, 1010.1187f, 126.058f, 1015.0509f);
+generalPath.curveTo(148.88968f, 1020.5811f, 172.85915f, 1020.2374f, 196.05508f, 1016.5202f);
+generalPath.curveTo(219.25102f, 1012.803f, 241.78801f, 1005.7849f, 263.97064f, 998.0518f);
+generalPath.curveTo(308.33594f, 982.58575f, 352.77716f, 963.9379f, 399.74188f, 962.60034f);
+generalPath.curveTo(446.56314f, 961.26685f, 492.14114f, 977.30054f, 538.84644f, 980.8539f);
+generalPath.curveTo(562.1991f, 982.63055f, 586.1518f, 981.1856f, 608.13525f, 973.10913f);
+generalPath.curveTo(630.1187f, 965.03265f, 650.0409f, 949.8128f, 660.6592f, 928.93805f);
+generalPath.curveTo(668.8794f, 912.7778f, 671.1782f, 893.9213f, 668.51184f, 875.9876f);
+generalPath.curveTo(665.8455f, 858.0539f, 658.38416f, 841.0239f, 648.20917f, 826.01733f);
+generalPath.curveTo(627.85925f, 796.0042f, 597.47f, 774.4857f, 567.3034f, 754.3639f);
+generalPath.curveTo(546.18494f, 740.27734f, 524.39935f, 726.1392f, 508.98135f, 705.9723f);
+generalPath.curveTo(501.27237f, 695.8888f, 495.28778f, 684.3468f, 492.5694f, 671.9486f);
+generalPath.curveTo(489.85098f, 659.5504f, 490.52097f, 646.26794f, 495.4913f, 634.58887f);
+generalPath.curveTo(502.098f, 619.06476f, 515.71466f, 607.4512f, 530.5646f, 599.44336f);
+generalPath.curveTo(545.4145f, 591.43555f, 561.69366f, 586.5325f, 577.4992f, 580.6307f);
+generalPath.curveTo(593.30475f, 574.72894f, 609.04944f, 567.57587f, 621.3147f, 555.99097f);
+generalPath.curveTo(627.4473f, 550.19855f, 632.62994f, 543.3265f, 636.01495f, 535.59973f);
+generalPath.curveTo(639.39996f, 527.8729f, 640.94244f, 519.27234f, 639.91345f, 510.8996f);
+generalPath.curveTo(638.9966f, 503.43964f, 636.06335f, 496.29407f, 631.87115f, 490.0557f);
+generalPath.curveTo(627.67896f, 483.81732f, 622.2516f, 478.4635f, 616.2416f, 473.94995f);
+generalPath.curveTo(604.2216f, 464.92285f, 590.0539f, 459.29358f, 576.08044f, 453.75198f);
+generalPath.curveTo(513.71576f, 429.0194f, 451.4775f, 403.96796f, 389.36896f, 378.599f);
+generalPath.closePath();
+shape = generalPath;
+g.setPaint(paint);
+g.setStroke(stroke);
+g.draw(shape);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
+
+}
+
+
 
     @SuppressWarnings("unused")
 	private void innerPaint(Graphics2D g) {
-        Shape shape = null;
-        Paint paint = null;
-        Stroke stroke = null;
-        Shape clip = null;
-
         float origAlpha = 1.0f;
         Composite origComposite = g.getComposite();
         if (origComposite instanceof AlphaComposite) {
@@ -36,72 +116,15 @@ public class draw_roi implements ResizableIcon {
             }
         }
         
-	    AffineTransform defaultTransform_ = g.getTransform();
-// 
-g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0 = g.getTransform();
-g.transform(new AffineTransform(1.0666667222976685f, 0.0f, 0.0f, 1.0666667222976685f, -0.0f, -0.0f));
-// _0
-g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0 = g.getTransform();
-g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, -343.7007751464844f));
-// _0_0
-g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0 = g.getTransform();
-g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
-// _0_0_0
-paint = new Color(255, 255, 0, 255);
-stroke = new BasicStroke(55.323944f,0,0,4.0f,null,0.0f);
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(389.36908, 378.59903);
-((GeneralPath)shape).curveTo(342.05927, 379.01486, 294.78314, 383.2077, 248.1386, 391.12454);
-((GeneralPath)shape).curveTo(223.51381, 395.30402, 198.66672, 400.6619, 176.69513, 412.5403);
-((GeneralPath)shape).curveTo(165.70934, 418.47952, 155.53157, 426.03955, 147.21364, 435.35483);
-((GeneralPath)shape).curveTo(138.89569, 444.67007, 132.47147, 455.7775, 129.24968, 467.84323);
-((GeneralPath)shape).curveTo(125.37266, 482.36288, 126.23848, 497.95206, 130.6291, 512.3247);
-((GeneralPath)shape).curveTo(135.01973, 526.6974, 142.8345, 539.89, 152.46996, 551.42303);
-((GeneralPath)shape).curveTo(171.74084, 574.489, 197.77066, 590.7103, 223.40332, 606.40656);
-((GeneralPath)shape).curveTo(258.06274, 627.6304, 293.99103, 649.6921, 316.5381, 683.5056);
-((GeneralPath)shape).curveTo(327.8116, 700.41235, 335.36002, 720.1194, 336.1088, 740.4263);
-((GeneralPath)shape).curveTo(336.85757, 760.73315, 330.423, 781.59674, 316.75903, 796.6376);
-((GeneralPath)shape).curveTo(302.86823, 811.9281, 282.56946, 820.2744, 262.10617, 823.10455);
-((GeneralPath)shape).curveTo(241.64288, 825.9347, 220.82916, 823.70386, 200.40036, 820.63477);
-((GeneralPath)shape).curveTo(179.97156, 817.5657, 159.5823, 813.6517, 138.9314, 813.10803);
-((GeneralPath)shape).curveTo(118.28047, 812.56433, 97.052315, 815.5934, 78.98116, 825.6028);
-((GeneralPath)shape).curveTo(60.653214, 835.75446, 46.441654, 852.88184, 39.16655, 872.5298);
-((GeneralPath)shape).curveTo(31.891447, 892.1778, 31.474049, 914.1758, 37.30143, 934.3007);
-((GeneralPath)shape).curveTo(43.128815, 954.42566, 55.076176, 972.6302, 70.73965, 986.54517);
-((GeneralPath)shape).curveTo(86.40312, 1000.46014, 105.69519, 1010.1187, 126.058, 1015.0509);
-((GeneralPath)shape).curveTo(148.88968, 1020.5811, 172.85915, 1020.2374, 196.05508, 1016.5202);
-((GeneralPath)shape).curveTo(219.25102, 1012.803, 241.78801, 1005.7849, 263.97064, 998.0518);
-((GeneralPath)shape).curveTo(308.33594, 982.58575, 352.77716, 963.9379, 399.74188, 962.60034);
-((GeneralPath)shape).curveTo(446.56314, 961.26685, 492.14114, 977.30054, 538.84644, 980.8539);
-((GeneralPath)shape).curveTo(562.1991, 982.63055, 586.1518, 981.1856, 608.13525, 973.10913);
-((GeneralPath)shape).curveTo(630.1187, 965.03265, 650.0409, 949.8128, 660.6592, 928.93805);
-((GeneralPath)shape).curveTo(668.8794, 912.7778, 671.1782, 893.9213, 668.51184, 875.9876);
-((GeneralPath)shape).curveTo(665.8455, 858.0539, 658.38416, 841.0239, 648.20917, 826.01733);
-((GeneralPath)shape).curveTo(627.85925, 796.0042, 597.47, 774.4857, 567.3034, 754.3639);
-((GeneralPath)shape).curveTo(546.18494, 740.27734, 524.39935, 726.1392, 508.98135, 705.9723);
-((GeneralPath)shape).curveTo(501.27237, 695.8888, 495.28778, 684.3468, 492.5694, 671.9486);
-((GeneralPath)shape).curveTo(489.85098, 659.5504, 490.52097, 646.26794, 495.4913, 634.58887);
-((GeneralPath)shape).curveTo(502.098, 619.06476, 515.71466, 607.4512, 530.5646, 599.44336);
-((GeneralPath)shape).curveTo(545.4145, 591.43555, 561.69366, 586.5325, 577.4992, 580.6307);
-((GeneralPath)shape).curveTo(593.30475, 574.72894, 609.04944, 567.57587, 621.3147, 555.99097);
-((GeneralPath)shape).curveTo(627.4473, 550.19855, 632.62994, 543.3265, 636.01495, 535.59973);
-((GeneralPath)shape).curveTo(639.39996, 527.8729, 640.94244, 519.27234, 639.91345, 510.8996);
-((GeneralPath)shape).curveTo(638.9966, 503.43964, 636.06335, 496.29407, 631.87115, 490.0557);
-((GeneralPath)shape).curveTo(627.67896, 483.81732, 622.2516, 478.4635, 616.2416, 473.94995);
-((GeneralPath)shape).curveTo(604.2216, 464.92285, 590.0539, 459.29358, 576.08044, 453.75198);
-((GeneralPath)shape).curveTo(513.71576, 429.0194, 451.4775, 403.96796, 389.36896, 378.599);
-((GeneralPath)shape).closePath();
-g.setPaint(paint);
-g.setStroke(stroke);
-g.draw(shape);
-g.setTransform(defaultTransform__0_0_0);
-g.setTransform(defaultTransform__0_0);
-g.setTransform(defaultTransform__0);
-g.setTransform(defaultTransform_);
+	    _paint0(g, origAlpha);
 
+
+	    shape = null;
+	    generalPath = null;
+	    paint = null;
+	    stroke = null;
+	    clip = null;
+        transformsStack.clear();
 	}
 
     /**
@@ -166,13 +189,13 @@ g.setTransform(defaultTransform_);
 	}
 
 	@Override
-	public void setDimension(Dimension newDimension) {
+	public synchronized void setDimension(Dimension newDimension) {
 		this.width = newDimension.width;
 		this.height = newDimension.height;
 	}
 
     @Override
-	public void paintIcon(Component c, Graphics g, int x, int y) {
+	public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
 		Graphics2D g2d = (Graphics2D) g.create();
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);

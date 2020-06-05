@@ -6,48 +6,41 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.ref.WeakReference;
 import java.util.Base64;
+import java.util.Stack;
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 import javax.swing.plaf.UIResource;
 
-import org.pushingpixels.neon.icon.ResizableIcon;
-import org.pushingpixels.neon.icon.ResizableIconUIResource;
+import org.pushingpixels.neon.api.icon.ResizableIcon;
+import org.pushingpixels.neon.api.icon.ResizableIconUIResource;
 
 /**
  * This class has been automatically generated using <a
  * href="https://github.com/kirill-grouchnikov/radiance">Photon SVG transcoder</a>.
  */
 public class cellClassMarker implements ResizableIcon {
+    private Shape shape = null;
+    private GeneralPath generalPath = null;
+    private Paint paint = null;
+    private Stroke stroke = null;
+    private Shape clip = null;
+    private Stack<AffineTransform> transformsStack = new Stack<>();
+
     
 
-    @SuppressWarnings("unused")
-	private void innerPaint(Graphics2D g) {
-        Shape shape = null;
-        Paint paint = null;
-        Stroke stroke = null;
-        Shape clip = null;
-
-        float origAlpha = 1.0f;
-        Composite origComposite = g.getComposite();
-        if (origComposite instanceof AlphaComposite) {
-            AlphaComposite origAlphaComposite = 
-                (AlphaComposite)origComposite;
-            if (origAlphaComposite.getRule() == AlphaComposite.SRC_OVER) {
-                origAlpha = origAlphaComposite.getAlpha();
-            }
-        }
-        
-	    AffineTransform defaultTransform_ = g.getTransform();
+	private void _paint0(Graphics2D g,float origAlpha) {
+transformsStack.push(g.getTransform());
 // 
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0666667222976685f, 0.0f, 0.0f, 1.0666667222976685f, -0.0f, -0.0f));
 // _0
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, -343.7007751464844f));
 // _0_0
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_0 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_0
 shape = new Ellipse2D.Double(70.71428680419922, 378.0765380859375, 243.57142639160156, 318.5714416503906);
@@ -60,9 +53,9 @@ shape = new Ellipse2D.Double(70.71428680419922, 378.0765380859375, 243.571426391
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_0);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_1 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_1
 shape = new Ellipse2D.Double(378.21429443359375, 410.2193603515625, 243.57142639160156, 318.5714416503906);
@@ -75,9 +68,9 @@ shape = new Ellipse2D.Double(378.21429443359375, 410.2193603515625, 243.57142639
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_1);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_2 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_2
 shape = new Ellipse2D.Double(275.0675048828125, 716.3582763671875, 159.86502075195312, 220.57931518554688);
@@ -90,9 +83,9 @@ shape = new Ellipse2D.Double(275.0675048828125, 716.3582763671875, 159.865020751
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_2);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_3 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_3
 shape = new Ellipse2D.Double(506.4156799316406, 752.7064208984375, 180.0258026123047, 265.7401123046875);
@@ -105,9 +98,9 @@ shape = new Ellipse2D.Double(506.4156799316406, 752.7064208984375, 180.025802612
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_3);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_4 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_4
 shape = new Ellipse2D.Double(136.5498809814453, 882.1263427734375, 143.328857421875, 154.0431671142578);
@@ -120,9 +113,9 @@ shape = new Ellipse2D.Double(136.5498809814453, 882.1263427734375, 143.328857421
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_4);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_5 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_5
 shape = new Ellipse2D.Double(30.60478973388672, 724.0383911132812, 133.07611083984375, 160.21897888183594);
@@ -135,46 +128,76 @@ shape = new Ellipse2D.Double(30.60478973388672, 724.0383911132812, 133.076110839
 g.setPaint(paint);
 g.setStroke(stroke);
 g.draw(shape);
-g.setTransform(defaultTransform__0_0_5);
+g.setTransform(transformsStack.pop());
 g.setComposite(AlphaComposite.getInstance(3, 1.0f * origAlpha));
-AffineTransform defaultTransform__0_0_6 = g.getTransform();
+transformsStack.push(g.getTransform());
 g.transform(new AffineTransform(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f));
 // _0_0_6
-shape = new GeneralPath();
-((GeneralPath)shape).moveTo(91.45387, 752.9883);
-((GeneralPath)shape).lineTo(166.17111, 846.64734);
-((GeneralPath)shape).lineTo(184.85052, 900.45154);
-((GeneralPath)shape).lineTo(217.5394, 928.3498);
-((GeneralPath)shape).lineTo(212.86958, 970.19745);
-((GeneralPath)shape).lineTo(423.0119, 966.212);
-((GeneralPath)shape).lineTo(425.34692, 920.37885);
-((GeneralPath)shape).lineTo(455.70078, 908.4223);
-((GeneralPath)shape).lineTo(453.366, 858.6039);
-((GeneralPath)shape).lineTo(476.715, 840.669);
-((GeneralPath)shape).lineTo(486.05472, 715.1262);
-((GeneralPath)shape).lineTo(413.6722, 673.27856);
-((GeneralPath)shape).lineTo(378.64847, 651.3582);
-((GeneralPath)shape).lineTo(334.2851, 651.3582);
-((GeneralPath)shape).lineTo(303.93124, 633.4236);
-((GeneralPath)shape).lineTo(254.89796, 625.4526);
-((GeneralPath)shape).lineTo(250.22816, 543.7501);
-((GeneralPath)shape).lineTo(233.88382, 527.8081);
-((GeneralPath)shape).lineTo(201.19489, 527.8081);
-((GeneralPath)shape).lineTo(184.85057, 549.7282);
-((GeneralPath)shape).lineTo(182.51578, 737.0464);
-((GeneralPath)shape).lineTo(161.50134, 739.03906);
-((GeneralPath)shape).lineTo(133.48251, 713.1334);
-((GeneralPath)shape).lineTo(96.12375, 715.12634);
-((GeneralPath)shape).lineTo(91.453926, 752.98846);
-((GeneralPath)shape).closePath();
+if (generalPath == null) {
+   generalPath = new GeneralPath();
+} else {
+   generalPath.reset();
+}
+generalPath.moveTo(91.45387f, 752.9883f);
+generalPath.lineTo(166.17111f, 846.64734f);
+generalPath.lineTo(184.85052f, 900.45154f);
+generalPath.lineTo(217.5394f, 928.3498f);
+generalPath.lineTo(212.86958f, 970.19745f);
+generalPath.lineTo(423.0119f, 966.212f);
+generalPath.lineTo(425.34692f, 920.37885f);
+generalPath.lineTo(455.70078f, 908.4223f);
+generalPath.lineTo(453.366f, 858.6039f);
+generalPath.lineTo(476.715f, 840.669f);
+generalPath.lineTo(486.05472f, 715.1262f);
+generalPath.lineTo(413.6722f, 673.27856f);
+generalPath.lineTo(378.64847f, 651.3582f);
+generalPath.lineTo(334.2851f, 651.3582f);
+generalPath.lineTo(303.93124f, 633.4236f);
+generalPath.lineTo(254.89796f, 625.4526f);
+generalPath.lineTo(250.22816f, 543.7501f);
+generalPath.lineTo(233.88382f, 527.8081f);
+generalPath.lineTo(201.19489f, 527.8081f);
+generalPath.lineTo(184.85057f, 549.7282f);
+generalPath.lineTo(182.51578f, 737.0464f);
+generalPath.lineTo(161.50134f, 739.03906f);
+generalPath.lineTo(133.48251f, 713.1334f);
+generalPath.lineTo(96.12375f, 715.12634f);
+generalPath.lineTo(91.453926f, 752.98846f);
+generalPath.closePath();
+shape = generalPath;
 paint = new Color(255, 255, 255, 255);
 g.setPaint(paint);
 g.fill(shape);
-g.setTransform(defaultTransform__0_0_6);
-g.setTransform(defaultTransform__0_0);
-g.setTransform(defaultTransform__0);
-g.setTransform(defaultTransform_);
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
+g.setTransform(transformsStack.pop());
 
+}
+
+
+
+    @SuppressWarnings("unused")
+	private void innerPaint(Graphics2D g) {
+        float origAlpha = 1.0f;
+        Composite origComposite = g.getComposite();
+        if (origComposite instanceof AlphaComposite) {
+            AlphaComposite origAlphaComposite = 
+                (AlphaComposite)origComposite;
+            if (origAlphaComposite.getRule() == AlphaComposite.SRC_OVER) {
+                origAlpha = origAlphaComposite.getAlpha();
+            }
+        }
+        
+	    _paint0(g, origAlpha);
+
+
+	    shape = null;
+	    generalPath = null;
+	    paint = null;
+	    stroke = null;
+	    clip = null;
+        transformsStack.clear();
 	}
 
     /**
@@ -239,13 +262,13 @@ g.setTransform(defaultTransform_);
 	}
 
 	@Override
-	public void setDimension(Dimension newDimension) {
+	public synchronized void setDimension(Dimension newDimension) {
 		this.width = newDimension.width;
 		this.height = newDimension.height;
 	}
 
     @Override
-	public void paintIcon(Component c, Graphics g, int x, int y) {
+	public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
 		Graphics2D g2d = (Graphics2D) g.create();
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
