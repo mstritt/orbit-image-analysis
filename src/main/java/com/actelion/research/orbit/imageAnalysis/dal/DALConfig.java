@@ -76,11 +76,11 @@ public class DALConfig {
 
             try {
                 // https://docs.oracle.com/javase/9/docs/api/java/lang/Class.html#newInstance--
-                imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).getDeclaredConstructors()[0].newInstance();
+                // Use constructor without any parameter. This assumes that an omero config file is available.
+                imageProvider = (IImageProvider) Class.forName(props.getProperty("ImageProvider")).getConstructor().newInstance();
             } catch (Throwable e) {
                 // Note that exceptions not chained with Constructors.newInstance().
                 {
-                    e.printStackTrace();
                     final String m = "Orbit will continue with the fallback local filesystem image provider.";
                     logger.warn(m);
                     if (!GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance() && !ScaleoutMode.SCALEOUTMODE.get()) {
