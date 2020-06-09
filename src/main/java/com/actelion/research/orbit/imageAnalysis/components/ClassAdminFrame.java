@@ -97,7 +97,7 @@ public class ClassAdminFrame extends JDialog {
         }
         setResizable(false);
         setSize(new Dimension(frameWidth, frameHeight));
-        setLayout(new GridLayout(1, 3, 10, 10));
+        //setLayout(new GridLayout(1, 3, 10, 10));
 
         // class attributes panel
         JPanel p = getPanelClassAttributes();
@@ -132,11 +132,18 @@ public class ClassAdminFrame extends JDialog {
         btnOK.setBounds(10, 500, (int) btnOK.getBounds().getWidth(), (int) btnOK.getBounds().getHeight());
         JPanel spacer = new JPanel();
         setCompBounds(spacer, 500);
-        p.add(spacer);
+        //p.add(spacer);
         p.add(btnOK);
 
-        add(getClassScrollPane());
-        add(p);
+        JPanel panel = new JPanel();
+        panel.setPreferredSize(new Dimension(frameWidth, frameHeight*2));
+
+        panel.setLayout(new GridLayout(1, 3, 10, 10));
+        panel.add(getClassScrollPane());
+        panel.add(p);
+
+        JScrollPane scrollPane = new JScrollPane(panel,ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        add(scrollPane);
 
         addActionListeners();
 
