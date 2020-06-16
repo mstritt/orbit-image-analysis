@@ -254,7 +254,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
         }
     }
 
-    public RecognitionFrame(IOrbitImage orbitImage, String imageName) throws Exception {
+    public RecognitionFrame(IOrbitImage orbitImage, String imageName) {
         this.setOpaque(opaque);
         this.setIgnoreRepaint(ignoreRepaint);
         this.setDoubleBuffered(doubleBuffered);
@@ -263,10 +263,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
         ratio = new double[classShapes.size()];
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         OrbitTiledImageIOrbitImage img = new OrbitTiledImageIOrbitImage(orbitImage);
-        TiledImagePainter tip = new TiledImagePainter(img,imageName);
-        if (tip != null) {
-            bimg = tip;
-        }
+        bimg = new TiledImagePainter(img,imageName);
     }
 
 

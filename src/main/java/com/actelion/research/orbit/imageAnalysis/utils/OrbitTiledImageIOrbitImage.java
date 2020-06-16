@@ -21,22 +21,19 @@ package com.actelion.research.orbit.imageAnalysis.utils;
 
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
-import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 
 import java.awt.image.Raster;
 import java.io.IOException;
 
-@SuppressWarnings("unchecked")
 public class OrbitTiledImageIOrbitImage extends OrbitTiledImage2 {
 
-    protected IOrbitImage image = null;
+    protected IOrbitImage image;
 
-    public OrbitTiledImageIOrbitImage(IOrbitImage image) throws Exception {
+    public OrbitTiledImageIOrbitImage(IOrbitImage image) {
         this(image,0);
     }
 
-    public OrbitTiledImageIOrbitImage(IOrbitImage image, int level) throws Exception {
-        //super("");
+    public OrbitTiledImageIOrbitImage(IOrbitImage image, int level) {
         this.image = image;
         this.level = level;
         this.width = image.getWidth();
@@ -52,34 +49,23 @@ public class OrbitTiledImageIOrbitImage extends OrbitTiledImage2 {
         this.colorModel = image.getColorModel();
         this.sampleModel = image.getSampleModel();
 
-//		if (numBands==1) this.colorModel = grayColorModel; else
-//		{
-//			this.colorModel = rgbColorModel;
-//		}
-
-//		this.colorModel = rgbColorModel; // an OrbitTiledImage is always a RGB image
-//		this.sampleModel = colorModel.createCompatibleSampleModel(tileWidth, tileHeight);
-
         // bugfix 20.04.2012 Manuel: colorModel is now always defined by input image (overview image problem)
         this.colorModel = image.getColorModel();
         this.sampleModel = image.getSampleModel();
-        //this.filename = "PlanarImage "+image.hashCode();
         this.filename = image.getFilename();
         // better set useCache always to false here???
 
         this.originalWasGrayScale = image.getOriginalWasGrayScale();
         this.originalBitsPerSample = image.getOriginalBitsPerSample();
-
     }
 
-
     @Override
-    protected synchronized boolean readInfo(String filename) throws OrbitImageServletException {
+    protected synchronized boolean readInfo(String filename) {
         return true;
     }
 
     @Override
-    protected String readInfoString(String filename) throws OrbitImageServletException {
+    protected String readInfoString(String filename) {
         return null; // or use infoStr from image?
     }
 
@@ -91,11 +77,6 @@ public class OrbitTiledImageIOrbitImage extends OrbitTiledImage2 {
             return image.getTileData(arg0, arg1, analysis);
         }
     }
-
-//	public BufferedImage getBufferedImage() {
-//		return image.getBufferedImage();
-//	}
-
 
     @Override
     public void close() throws IOException {

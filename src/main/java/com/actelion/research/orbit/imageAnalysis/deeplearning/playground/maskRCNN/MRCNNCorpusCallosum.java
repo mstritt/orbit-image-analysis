@@ -87,7 +87,7 @@ public class MRCNNCorpusCallosum implements Closeable {
             Tensor<Float> input = DLHelpers.convertBufferedImageToTensor(originalImage, size, size);
             if (input != null) {
                 RawDetections rawDetections = DLHelpers.executeInceptionGraph(s, input, size, size, MAX_DETECTIONS, maskWidth, maskHeight);
-                Detections detections = maskRCNN.processDetections(size,size,rawDetections);
+                MaskRCNNDetections detections = maskRCNN.processDetections(size,size,rawDetections);
                 BufferedImage outputImage = DLHelpers.augmentDetections(originalImage, detections);
                 ImageIO.write(outputImage, "png", new File(OUTPUT_IMAGE));
             }
@@ -99,11 +99,11 @@ public class MRCNNCorpusCallosum implements Closeable {
         System.out.println(String.format("Ended in %ds .", elapsedTimeInSec));
     }
 
-    public Detections detectCorpusCallosum(BufferedImage image512) {
+    public MaskRCNNDetections detectCorpusCallosum(BufferedImage image512) {
         Tensor<Float> input = DLHelpers.convertBufferedImageToTensor(image512, size, size);
         if (input != null) {
             RawDetections rawDetections = DLHelpers.executeInceptionGraph(s, input, size, size, MAX_DETECTIONS, maskWidth, maskHeight);
-            Detections detections = processDetections(size,size,rawDetections);
+            MaskRCNNDetections detections = processDetections(size,size,rawDetections);
             //BufferedImage outputImage = DLHelpers.augmentDetections(image512, detections);
             //ImageIO.write(outputImage, "jpeg", new File("d:/test-seg.jpg"));
             return detections;
@@ -111,8 +111,8 @@ public class MRCNNCorpusCallosum implements Closeable {
         return null;
     }
 
-    public Detections processDetections(int imgWidth, int imgHeight, RawDetections rawDetections) {
-        Detections detections = new Detections();
+    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, RawDetections rawDetections) {
+        MaskRCNNDetections detections = new MaskRCNNDetections();
         detections.setBoundingBoxes(new ArrayList<>());
         detections.setContours(new ArrayList<>());
         detections.setProbabilities(new ArrayList<>());

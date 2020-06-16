@@ -138,7 +138,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
     }
 
     /**
-     * used for classificaiton / analysis
+     * used for classification / analysis
      */
     @Override
     public Raster getTile(int tileX, int tileY) {

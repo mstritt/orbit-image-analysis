@@ -20,7 +20,10 @@
 package com.actelion.research.orbit.imageAnalysis.models;
 
 import com.actelion.research.orbit.beans.RawAnnotation;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.MaskRCNNSegment;
 import com.freedomotic.util.SerialClone.SerialClone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.*;
@@ -32,6 +35,7 @@ import java.util.List;
  * An OrbitAnnotation contains a shape (classShape) and a text (description) of that annotation.
  */
 public class ImageAnnotation extends RawAnnotation {
+    private static final Logger logger = LoggerFactory.getLogger(ImageAnnotation.class);
 
     public static final int SUBTYPE_NORMAL = 0;
     public static final int SUBTYPE_INCLUSION = 1;
@@ -66,7 +70,7 @@ public class ImageAnnotation extends RawAnnotation {
     /**
      * constructs a ImageAnnotation from a rawAnnotation
      *
-     * @param ra
+     * @param ra RawAnnotation to be converted to Image Annotation
      * @throws IOException
      * @throws ClassNotFoundException
      */
@@ -86,8 +90,9 @@ public class ImageAnnotation extends RawAnnotation {
         try {
             setSubType(ois.readInt());
             setGroup(ois.readInt());
-        } catch (Exception e) {
-            // do nothing, this will happen for earlier versions which don't have a subType or group
+        } catch (IOException e) {
+            logger.error("Do nothing, this will happen for earlier versions which don't have a subType or group");
+            logger.error(e.getLocalizedMessage());
         }
         ois.close();
         is.close();
@@ -111,17 +116,14 @@ public class ImageAnnotation extends RawAnnotation {
                     iaList.add(ia);
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (IOException | ClassNotFoundException e) {
+            logger.error(e.getLocalizedMessage());
         }
         return iaList;
     }
 
     public Shape getFirstShape() {
-        Shape cs = shape.getShapeList().get(0);
-        return cs;
+        return shape.getShapeList().get(0);
     }
 
     public ClassShape getShape() {
@@ -136,7 +138,7 @@ public class ImageAnnotation extends RawAnnotation {
     /**
      * sRGB color in int encoding
      *
-     * @return
+     * @return sRGB color in int encoding
      */
     public int getColor() {
         return color;
@@ -145,7 +147,7 @@ public class ImageAnnotation extends RawAnnotation {
     /**
      * sRGB color in int encoding
      *
-     * @param color
+     * @param color sRGB color in int encoding
      */
     public void setColor(int color) {
         this.color = color;

@@ -25,13 +25,9 @@ import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.models.ImageAnnotation;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
-import com.actelion.research.orbit.imageAnalysis.utils.OrbitHelper;
-import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -59,7 +55,7 @@ public class CorpusCallosumAnnotator {
                 double scaleY2 = rf.bimg.getHeight() / (double)sizeBrain;
                // ImageIO.write(brainROI.roiImage,"jpeg", new File("c:/temp/test.jpg"));
 
-                Detections detections = ccDetector.detectCorpusCallosum(brainROI.roiImage);
+                MaskRCNNDetections detections = ccDetector.detectCorpusCallosum(brainROI.roiImage);
                 if (detections!=null) {
                     for (PolygonExt poly: detections.getContours()) {
                         // scale

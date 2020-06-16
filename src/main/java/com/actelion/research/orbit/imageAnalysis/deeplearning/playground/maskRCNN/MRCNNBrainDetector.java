@@ -81,7 +81,7 @@ public class MRCNNBrainDetector implements Closeable {
             Tensor<Float> input = DLHelpers.convertBufferedImageToTensor(originalImage,512,512);
             if (input != null) {
                 RawDetections rawDetections = DLHelpers.executeInceptionGraph(s, input, 512, 512, MAX_DETECTIONS,28,28);
-                Detections detections = maskRCNN.processDetections(512,512,rawDetections);
+                MaskRCNNDetections detections = maskRCNN.processDetections(512,512,rawDetections);
 
                 BufferedImage bigger = ImageIO.read(new File(INPUT_IMAGE.replaceAll(".jpg", "_ori.jpg")));
                 double scaleW = bigger.getWidth()/(double)originalImage.getWidth();
@@ -112,7 +112,7 @@ public class MRCNNBrainDetector implements Closeable {
         Tensor<Float> input = DLHelpers.convertBufferedImageToTensor(image512,512,512);
         if (input != null) {
             RawDetections rawDetections = DLHelpers.executeInceptionGraph(s, input, 512, 512, MAX_DETECTIONS,28,28);
-            Detections detections = processDetections(512,512,rawDetections);
+            MaskRCNNDetections detections = processDetections(512,512,rawDetections);
             double scaleW = smallImage.getWidth()/(double)image512.getWidth();
             double scaleH = smallImage.getHeight()/(double)image512.getHeight();
             Rectangle bb = detections.getContours().get(0).getBounds();
@@ -129,8 +129,8 @@ public class MRCNNBrainDetector implements Closeable {
         return resList;
     }
 
-    public Detections processDetections(int imgWidth, int imgHeight, RawDetections rawDetections) {
-        Detections detections = new Detections();
+    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, RawDetections rawDetections) {
+        MaskRCNNDetections detections = new MaskRCNNDetections();
         detections.setBoundingBoxes(new ArrayList<>());
         detections.setContours(new ArrayList<>());
         detections.setProbabilities(new ArrayList<>());

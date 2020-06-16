@@ -19,27 +19,60 @@
 
 package com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN;
 
+import com.actelion.research.orbit.dal.IOrbitImage;
+import com.actelion.research.orbit.exceptions.OrbitImageServletException;
+import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.DLSegment;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
 import com.actelion.research.orbit.imageAnalysis.models.RectangleExt;
+import com.actelion.research.orbit.imageAnalysis.models.SegmentationResult;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitHelper;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitImagePlanar;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
+import ij.ImagePlus;
+import imageJ.BinaryOrbit;
+import imageJ.Colour_Deconvolution;
+import imageJ.ThresholderOrbit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 
+import javax.imageio.ImageIO;
+import javax.media.jai.PlanarImage;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static com.actelion.research.orbit.imageAnalysis.deeplearning.DLSegment.*;
 
 
 public class DLHelpers {
+    private static final Logger logger = LoggerFactory.getLogger(DLHelpers.class);
 
    // public static final int[] RPN_ANCHOR_SCALES = new int[]{8 , 16, 32, 64, 128};
-    public static final float[] MEAN_PIXEL = new float[]{123.7f, 116.8f, 103.9f};
+    public static final float[] MEAN_PIXEL = new float[]{170.20611747f, 172.00450216f, 177.19215462f}; //{123.7f, 116.8f, 103.9f};
     private static Random random = new Random();
     // anchors 1,65472,4
     public static transient Tensor<Float> anchors = null;
 
+    public static synchronized Tensor<Float> getAnchors(int img_size) {
+        if (anchors==null) {
+            float[] fArr = MaskRCNNAnchors.GenerateAnchors(img_size);
+            anchors = Tensor.create(new long[]{1,fArr.length/4,4}, FloatBuffer.wrap(fArr));
+        }
+        return anchors;
+    }
 
     public static RawDetections executeInceptionGraph(final Session s, final Tensor<Float> input, final int inputWidth, final int inputHeight, final int maxDetections, final int maskWidth, final int maskHeight) {
         // image metas
@@ -83,6 +116,36 @@ public class DLHelpers {
         return rawDetections;
     }
 
+    public static SegmentationResult segmentRaster(Raster inputTileRaster, OrbitTiledImageIOrbitImage orbitImage, Session s, OrbitModel segModel, boolean writeImg, MaskRCNNSegmentationSettings segmentationSettings) throws Exception {
+        BufferedImage segmented = maskRaster(inputTileRaster,orbitImage, s, writeImg, segmentationSettings);
+        return getSegmentationResult(segModel, segmented);
+    }
+
+
+    public static SegmentationResult segmentTile(int tileX, int tileY, OrbitTiledImageIOrbitImage orbitImage, Session s, OrbitModel segModel, boolean writeImg, MaskRCNNSegmentationSettings segmentationSettings) throws Exception {
+        // Read the tile.
+        Raster tileRaster = orbitImage.getTile(tileX, tileY);
+        BufferedImage maskOriginal = maskRaster(tileRaster,orbitImage, s, writeImg, segmentationSettings);
+
+        maskOriginal = getShiftedMask(orbitImage, s, tileRaster, maskOriginal, 0, 512, segmentationSettings);
+        maskOriginal = getShiftedMask(orbitImage, s, tileRaster, maskOriginal, 0, -512, segmentationSettings);
+        maskOriginal = getShiftedMask(orbitImage, s, tileRaster, maskOriginal, 512, 0, segmentationSettings);
+        maskOriginal = getShiftedMask(orbitImage, s, tileRaster, maskOriginal, -512, 0, segmentationSettings);
+        // maskOriginal = getShiftedMask(orbitImage, s, tileRaster, maskOriginal, factor, 0, 0, true);
+
+        //ImageIO.write(maskOriginal, "jpeg", new File(path + File.separator +"tile" + tileX + "x" + tileY + "_seg1.jpg"));
+        SegmentationResult segmentationResult = getSegmentationResult(segModel, maskOriginal);
+        return segmentationResult;
+    }
+
+    public static SegmentationResult getSegmentationResult(OrbitModel segModel, BufferedImage segmented) throws OrbitImageServletException {
+        IOrbitImage segimg = new OrbitImagePlanar(PlanarImage.wrapRenderedImage(segmented), "segmented");
+        RecognitionFrame rfSeg = new RecognitionFrame(segimg, "segmented");
+        List<Point> tl = new ArrayList<>();
+        tl.add(new Point(-1, -1));
+        SegmentationResult segRes = OrbitHelper.Segmentation(rfSeg, 0, segModel, tl, 1, false);
+        return segRes;
+    }
 
     public static Tensor<Float> convertBufferedImageToTensor(BufferedImage image, int targetWidth, int targetHeight) {
         //if (image.getWidth()!=DESIRED_SIZE || image.getHeight()!=DESIRED_SIZE)
@@ -113,8 +176,23 @@ public class DLHelpers {
         return Tensor.create(rgbArray, Float.class);
     }
 
+    /**
+     * See MaskRCNNSegment implementation.
+     * @param image
+     * @param detections
+     * @return
+     */
+    @Deprecated
+    public static BufferedImage augmentDetections(BufferedImage image, MaskRCNNDetections detections) {
+        AtomicReference<HashMap<Integer, Color>> maskClassColours = new AtomicReference<>(new HashMap<>());
 
-    public static BufferedImage augmentDetections(BufferedImage image, Detections detections) {
+        // Add keys and values (Country, City)
+        maskClassColours.get().put(1, Color.BLACK);
+        maskClassColours.get().put(2, Color.RED);
+        maskClassColours.get().put(3, Color.GREEN);
+        maskClassColours.get().put(4, Color.BLUE);
+        maskClassColours.get().put(5, Color.YELLOW);
+
         boolean drawBoundingBox = false;
         boolean drawContour = true;
         BufferedImage outImg = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
@@ -126,6 +204,7 @@ public class DLHelpers {
         int numObjects = detections.getBoundingBoxes().size();
         for (int i=0; i<numObjects; i++) {
             float probability = detections.getProbabilities().get(i);
+            int maskClass = detections.getMaskClasses().get(i);
             RectangleExt rect = detections.getBoundingBoxes().get(i);
             PolygonExt poly = detections.getContours().get(i);
 
@@ -135,7 +214,7 @@ public class DLHelpers {
             int height = rect.height;
             if (drawBoundingBox) {
                 g.setStroke(new BasicStroke(2));
-                g.setColor(Color.yellow);
+                g.setColor(maskClassColours.get().get(maskClass));
                 g.drawRect(x, y, width, height);
             }
 
@@ -152,13 +231,7 @@ public class DLHelpers {
         return outImg;
     }
 
-    public static synchronized Tensor<Float> getAnchors(int img_size) {
-        if (anchors==null) {
-            float[] fArr = MaskRCNNAnchors.GenerateAnchors(img_size);
-            anchors = Tensor.create(new long[]{1,fArr.length/4,4}, FloatBuffer.wrap(fArr));
-        }
-        return anchors;
-    }
+
 
 
     public static BufferedImage resize(BufferedImage img, int width, int height) {
@@ -209,5 +282,128 @@ public class DLHelpers {
                 else if (y < buf[x].length - 1 && buf[x][y + 1] == cf) res[x][y] = cf;
             }
         return res;
+    }
+
+
+    private static BufferedImage flipImage(BufferedImage bi) {
+        return new BufferedImage(bi.getColorModel(),(WritableRaster) flipRaster(bi.getData()),false,null);
+    }
+
+    private static Raster flipRaster(Raster r) {
+        int w = r.getWidth();
+        int h = r.getHeight();
+        WritableRaster rf = r.createCompatibleWritableRaster(r.getMinX(),r.getMinY(), w,h);
+        int[] p = new int[w*3];
+        for (int y=r.getMinY(); y<r.getMinY()+h; y++) {
+            p = r.getPixels(r.getMinX(),y,w,1,p);
+            rf.setPixels(r.getMinX(),r.getMinY()+h-(y-r.getMinY())-1,w,1,p);
+        }
+        return rf;
+    }
+
+    protected static BufferedImage getShiftedMask(OrbitTiledImageIOrbitImage orbitImage, Session s, Raster tileRaster, BufferedImage maskOriginal, int dx, int dy, MaskRCNNSegmentationSettings segmentationSettings) {
+        Rectangle rect = tileRaster.getBounds();
+        rect.translate(dx,dy);
+        if (!orbitImage.getBounds().contains(rect)) {
+            return maskOriginal;
+        }
+        try {
+            Raster shiftraster = orbitImage.getData(rect);
+            if (segmentationSettings.getAugmentationSettings().getFlip()) {
+                shiftraster = flipRaster(shiftraster);
+            }
+            BufferedImage mask2 = maskRaster(shiftraster, orbitImage, s, false, segmentationSettings);
+            if (segmentationSettings.getAugmentationSettings().getFlip()) {
+                mask2 = flipImage(mask2);
+            }
+            maskOriginal = combineMasks(maskOriginal, mask2, dx / segmentationSettings.getAugmentationSettings().getScaleFactor(), dy / segmentationSettings.getAugmentationSettings().getScaleFactor());
+        } catch (Exception e) {
+            logger.warn("Could not shift raster, returning original image (rect="+rect+" img.bounds="+orbitImage.getBounds()+")", e);
+        }
+        return maskOriginal;
+    }
+
+    private static BufferedImage combineMasks(BufferedImage m1, BufferedImage m2, int dx, int dy) {
+        BufferedImage combined = new BufferedImage(m1.getWidth(),m1.getHeight(),m1.getType());
+        combined.getGraphics().drawImage(m1,0,0,null);
+        int fg = Color.white.getRGB();
+        Raster r2 = m2.getRaster();
+        int minX = Math.max(-dx, 0);
+        int minY = Math.max(-dy, 0);
+        int maxX = Math.min(m2.getWidth() - dx, m2.getWidth());
+        int maxY = Math.min(m2.getHeight() - dy, m2.getHeight());
+
+        for (int x=minX; x<maxX; x++)
+            for (int y=minY; y<maxY; y++) {
+                if (r2.getSample(x,y,0)>0) {
+                    combined.setRGB(x+dx,y+dy,fg);
+                }
+            }
+        return combined;
+    }
+
+    //
+    public static BufferedImage shrink(BufferedImage bi,AbstractSegmentationSettings settings) {
+        BufferedImage bi2 = new BufferedImage(settings.getImageWidth(), settings.getImageHeight(),BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = (Graphics2D) bi2.getGraphics();
+        g.drawImage(bi,0,0,settings.getImageWidth(),settings.getImageHeight(),null);
+        g.dispose();
+        return bi2;
+    }
+
+    /**
+     *
+     * @param inputTileRaster
+     * @param orbitImage
+     * @param s
+     * @param writeImg
+     * @param segmentationSettings
+     * @return
+     */
+    public static BufferedImage maskRaster(Raster inputTileRaster, OrbitTiledImageIOrbitImage orbitImage, Session s, boolean writeImg, MaskRCNNSegmentationSettings segmentationSettings) {
+        WritableRaster tileRaster = (WritableRaster) inputTileRaster.createTranslatedChild(0, 0);
+        BufferedImage ori = new BufferedImage(orbitImage.getColorModel(), tileRaster, false, null);
+        ori = shrink(ori, segmentationSettings);
+
+        // color-deconvolution
+        if (segmentationSettings.getDeconvolution()) {
+            ori = Colour_Deconvolution.getProcessedImage(ori, segmentationSettings.getDeconvolutionName(), segmentationSettings.getDeconvolutionChannel() - 1, ori);
+        }
+
+        int tx = orbitImage.XToTileX(inputTileRaster.getMinX());
+        int ty = orbitImage.YToTileY(inputTileRaster.getMinY());
+        // TODO: Move this to a test.
+        if (writeImg) {
+            try {
+                ImageIO.write(ori, "jpeg", new File(debugImagePath + File.separator + "tile" + tx + "x" + ty + ".jpg"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        Tensor<Float> inputTensor = DLSegment.convertBufferedImageToTensor(ori);
+        long startt = System.currentTimeMillis();
+        BufferedImage segmented = DLSegment.segmentInput(inputTensor, s, Color.black, Color.white);
+
+        long usedt = System.currentTimeMillis()-startt;
+        System.out.println("segment time (s): "+usedt/1000d);
+
+//        if (false) {
+//            ImagePlus ip = new ImagePlus("img", segmented);
+//            ip.getProcessor().setBinaryThreshold();
+//            ThresholderOrbit thresh = new ThresholderOrbit();
+//            thresh.applyThreshold(ip);
+//            BinaryOrbit binaryOrbit = new BinaryOrbit();
+//            binaryOrbit.setup("close", ip);
+//            binaryOrbit.run(ip.getProcessor().convertToByte(false));
+//            binaryOrbit.setup("fill Holes", ip);
+//            binaryOrbit.run(ip.getProcessor().convertToByte(false));
+//            ip.getProcessor().invert();
+//            ip = new ImagePlus("img", ip.getProcessor().convertToRGB());
+//            segmented = ip.getBufferedImage();
+//        }
+
+        //ImageIO.write(segmented, "jpeg", new File(path + File.separator +"tile" + tx + "x" + ty + "_seg.jpg"));
+
+        return segmented;
     }
 }
