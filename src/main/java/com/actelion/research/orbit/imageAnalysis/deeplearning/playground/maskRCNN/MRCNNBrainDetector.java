@@ -131,9 +131,7 @@ public class MRCNNBrainDetector implements Closeable {
 
     public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, RawDetections rawDetections) {
         MaskRCNNDetections detections = new MaskRCNNDetections();
-        detections.setBoundingBoxes(new ArrayList<>());
-        detections.setContours(new ArrayList<>());
-        detections.setProbabilities(new ArrayList<>());
+
         float[][] objects = rawDetections.objectBB[0]; // only one image      y1,x1,y2,x2,class_id,probability (ordered desc)
         for (int i=0; i<objects.length; i++) {
             float[] bb = objects[i];  // y1,x1,y2,x2,class_id,probability
@@ -215,9 +213,7 @@ public class MRCNNBrainDetector implements Closeable {
                         ypoints[j] = (int)(y + ((contour.get(j).getY()-pad) * 1f));
                     }
                     PolygonExt polygon = new PolygonExt(new Polygon(xpoints,ypoints, xpoints.length));
-                    detections.getProbabilities().add(probability);
-                    detections.getBoundingBoxes().add(boundingBox);
-                    detections.getContours().add(polygon);
+                    detections.addDetection(polygon,boundingBox,probability);
                 }
 
 

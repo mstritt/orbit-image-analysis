@@ -131,6 +131,7 @@ public class ExclusionMapGen {
         return rFrame;
     }
 
+
     public void generateMap() throws OrbitImageServletException {
         logger.trace("generateMap start");
         isGenerated = false;

@@ -296,7 +296,7 @@ public class OrbitHelper {
 
 
     /**
-     * Segmentaiton on resolution based on scale factor.
+     * Segmentation on resolution based on scale factor.
      * Currently only works with lower resolution level images (<=10000x10000 pixel) (for WSI scale factor of around 0.02).
      */
     public static SegmentationResult Segmentation(RecognitionFrame rf, int rdfId, final OrbitModel model, List<Point> tiles, int numThreads, boolean newMipRf, IScaleableShape roi, double scaleFactor) throws OrbitImageServletException {

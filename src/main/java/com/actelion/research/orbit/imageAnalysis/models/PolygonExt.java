@@ -171,6 +171,21 @@ public class PolygonExt extends Polygon implements IScaleableShape, Cloneable {
         bufRaster = null;
     }
 
+    /**
+     * Convenience method for getScaledInstance(double currentScale, Point currentOffset).
+     * @param currentScale The scale
+     * @return A scaled instance of the PolygonExt.
+     */
+    public PolygonExt getScaledInstance(double currentScale) {
+        return getScaledInstance(currentScale, new Point(0,0));
+    }
+
+    /**
+     * Get a scaled instance of PolygonExt.
+     * @param currentScale The scale
+     * @param currentOffset Currently not used.
+     * @return A scaled instance of the PolygonExt.
+     */
     public PolygonExt getScaledInstance(double currentScale, Point currentOffset) {
         //return this;
 
@@ -197,7 +212,6 @@ public class PolygonExt extends Polygon implements IScaleableShape, Cloneable {
 
         for (int i = 0; i < npoints; i++) {
             np.addPoint((int) (xpoints[i] * scaleFactor), (int) (ypoints[i] * scaleFactor));
-
         }
         //np.translate((int)trConj.getTranslateX(),(int)trConj.getTranslateY());
 
@@ -212,8 +226,8 @@ public class PolygonExt extends Polygon implements IScaleableShape, Cloneable {
     /**
      * Returns a scaled version of the polygon (real-scaling). The new scale-factor will remain!
      *
-     * @param factor
-     * @return
+     * @param factor The scale factor (in percent).
+     * @return The scaled polygon.
      */
     public PolygonExt scale(double factor, Point2D center) {
         double scaleFactor = (factor / scale);

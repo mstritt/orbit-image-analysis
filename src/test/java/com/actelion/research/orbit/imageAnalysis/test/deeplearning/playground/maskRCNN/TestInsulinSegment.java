@@ -1,5 +1,6 @@
 package com.actelion.research.orbit.imageAnalysis.test.deeplearning.playground.maskRCNN;
 
+import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.*;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
@@ -32,13 +33,9 @@ public class TestInsulinSegment {
     public void testSegmentation() throws Exception {
         File INPUT_IMAGE = new File("D:/insulin/testdata/12886016_tile19x4.jpg");
         File OUTPUT_IMAGE = new File("D:/insulin/testdata/12886016_tile19x4-output.jpg");
+        File maskRCNNModel = new File("D:/insulin/models/insulin_009.pb");
 
-//        int maskWidth = 56;
-//        int maskHeight = 56;
-//        int size = 512;
-//        int MAX_DETECTIONS = 10;
-        MaskRCNNSegment segmentationModel = new MaskRCNNSegment();
-
+        MaskRCNNSegment segmentationModel = new MaskRCNNSegment(maskRCNNModel, MaskRCNNSegment.PostProcessMethod.STANDARD);
 
         OrbitModel segModel = OrbitModel.LoadFromInputStream(
                 this.getClass().getResourceAsStream("/resource/testmodels/dlsegmentsplit.omo"));
@@ -47,7 +44,6 @@ public class TestInsulinSegment {
         System.out.println("using Tensorflow "+ TensorFlow.version());
 
         Date startDate = new Date();
-        //MRCNNPancreasIslets maskRCNN = new MRCNNPancreasIslets();
 
         BufferedImage originalImage = ImageIO.read(INPUT_IMAGE);
         long startt = System.currentTimeMillis();
@@ -72,10 +68,9 @@ public class TestInsulinSegment {
         //int[] images = {12885943}; // either orbitIDs or load via query // 1318936, 1318968
         int[] images = {12886016};
         boolean storeAnnotations = true;
+        File maskRCNNModel = new File("D:/insulin/models/insulin_009.pb");
 
-        MaskRCNNSegment segmentationModel = new MaskRCNNSegment();
-
-        //Session s = DLSegment.buildSession("D:/insulin/models/insulin_009.pb");
+        MaskRCNNSegment segmentationModel = new MaskRCNNSegment(maskRCNNModel, MaskRCNNSegment.PostProcessMethod.CUSTOM);
 
         OrbitModel segModel = OrbitModel.LoadFromInputStream(
                 this.getClass().getResourceAsStream("/resource/testmodels/dlsegmentsplit.omo"));
@@ -83,6 +78,12 @@ public class TestInsulinSegment {
 
         // Don't use an exclusion model.
         OrbitModel modelContainingExclusionModel = null;
+        try {
+            // Load an exclusion model.
+            modelContainingExclusionModel = OrbitModel.LoadFromOrbit(2462612);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // Time execution.
         Date startDate = new Date();

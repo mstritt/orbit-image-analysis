@@ -29,22 +29,109 @@ import java.util.stream.Collectors;
 
 
 public class MaskRCNNDetections {
-    private List<PolygonExt> contours;
-    private List<RectangleExt> boundingBoxes;
-    private List<Float> probabilities;
-    private List<Integer> maskClasses;
+    private final List<Detection> detections;
+
+    public MaskRCNNDetections() {
+        this.detections = new ArrayList<>();
+    }
+
+    public void addDetection(PolygonExt contour, RectangleExt boundingBox, Float classProbability, Integer maskClass, Point tileOffset) {
+        this.detections.add(new Detection(contour, boundingBox, classProbability, maskClass, tileOffset));
+    }
+
+    public void addDetection(PolygonExt contour, RectangleExt boundingBox, Float classProbability) {
+        this.detections.add(new Detection(contour, boundingBox, classProbability));
+    }
+
+    public List<PolygonExt> getContours() {
+        return this.detections
+                .stream()
+                .map(e -> e.contour)
+                .collect(Collectors.toList());
+    }
+
+
+    public List<Shape> getContourShapes() {
+        return this.detections
+                .stream()
+                .map(e -> (Shape) e.contour)
+                .collect(Collectors.toList());
+    }
+
+    public List<Integer> getMaskClasses() {
+        return this.detections
+                .stream()
+                .map(e -> e.maskClass)
+                .collect(Collectors.toList());
+    }
+
+    public List<RectangleExt> getBoundingBoxes() {
+        return this.detections
+                .stream()
+                .map(e -> e.boundingBox)
+                .collect(Collectors.toList());
+    }
+
+
+    public List<Float> getProbabilities() {
+        return this.detections
+                .stream()
+                .map(e -> e.classProbability)
+                .collect(Collectors.toList());
+    }
+
+
+    public List<Point> getTileOffset() {
+        return this.detections
+                .stream()
+                .map(e -> e.tileOffset)
+                .collect(Collectors.toList());
+    }
+
+    public Detection getDetection(int i) {
+        // TODO: e.g. contours may not always be defined.
+        return detections.get(i);
+    }
+
+    public List<Detection> getDetections() {
+        return detections;
+    }
+
+    public String toString() {
+
+        return "Detections Object Details: " +
+                "\n" +
+                "Contours: " +
+                getContours().toString() +
+                "\n" +
+                "Bounding Boxes: " +
+                getBoundingBoxes().toString() +
+                "\n" +
+                "Probabilities: " +
+                getProbabilities().toString() +
+                "\n" +
+                "Mask Classes: " +
+                getMaskClasses().toString() +
+                "\n";
+    }
 
     public class Detection {
         private final PolygonExt contour;
         private final RectangleExt boundingBox;
         private final Float classProbability;
         private final Integer maskClass;
+        private final Point tileOffset;
 
-        private Detection(PolygonExt contour, RectangleExt boundingBox, Float classProbability, Integer maskClass) {
+        private Detection(PolygonExt contour, RectangleExt boundingBox, Float classProbability, Integer maskClass, Point tileOffset) {
             this.contour = contour;
             this.boundingBox = boundingBox;
             this.classProbability = classProbability;
             this.maskClass = maskClass;
+            this.tileOffset = tileOffset;
+        }
+
+        private Detection(PolygonExt contour, RectangleExt boundingBox, Float classProbability) {
+            this(contour, boundingBox, classProbability, null, null);
         }
 
         public PolygonExt getContour() {
@@ -65,73 +152,7 @@ public class MaskRCNNDetections {
             return maskClass;
         }
 
-    }
+        public Point getTileOffset() { return tileOffset; }
 
-    public List<PolygonExt> getContours() {
-        return contours;
-    }
-
-    public void setContours(List<PolygonExt> contours) {
-        this.contours = contours;
-    }
-
-    public List<Shape> getContourShapes() {
-        return this.contours
-                .stream()
-                .map(e -> (Shape) e)
-                .collect(Collectors.toList());
-    }
-
-    public List<Integer> getMaskClasses() { return maskClasses; }
-
-    public void setMaskClasses(List<Integer> classes) {
-        this.maskClasses = classes;
-    }
-
-    public List<RectangleExt> getBoundingBoxes() {
-        return boundingBoxes;
-    }
-
-    public void setBoundingBoxes(List<RectangleExt> boundingBoxes) {
-        this.boundingBoxes = boundingBoxes;
-    }
-
-    public List<Float> getProbabilities() {
-        return probabilities;
-    }
-
-    public void setProbabilities(List<Float> probabilities) {
-        this.probabilities = probabilities;
-    }
-
-    public Detection getDetection(int i) {
-        // TODO: e.g. contours may not always be defined.
-        return new Detection(contours.get(i), boundingBoxes.get(i), probabilities.get(i), maskClasses.get(i));
-    }
-
-    public List<Detection> getDetections() {
-        ArrayList<Detection> detections = new ArrayList<>();
-        for (int i = 0; i < boundingBoxes.size(); i++) {
-            detections.add(new Detection(contours.get(i), boundingBoxes.get(i), probabilities.get(i), maskClasses.get(i)));
-        }
-        return detections;
-    }
-
-    public String toString() {
-
-        return "Detections Object Details: " +
-                "\n" +
-                "Contours: " +
-                contours.toString() +
-                "\n" +
-                "Bounding Boxes: " +
-                boundingBoxes.toString() +
-                "\n" +
-                "Probabilities: " +
-                probabilities.toString() +
-                "\n" +
-                "Mask Classes: " +
-                maskClasses.toString() +
-                "\n";
     }
 }

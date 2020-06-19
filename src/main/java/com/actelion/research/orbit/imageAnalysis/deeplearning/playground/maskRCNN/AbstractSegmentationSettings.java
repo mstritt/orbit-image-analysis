@@ -11,6 +11,8 @@ public abstract class AbstractSegmentationSettings {
     private final int trainingImageTileWidth;
     private final int trainingImageTileHeight;
 
+    private final int tileScaleFactor;
+
     /**
      * Setup and store the settings used for abstract segmentation model training and inference.
      * @param imageWidth The width in px of the training images.
@@ -23,6 +25,7 @@ public abstract class AbstractSegmentationSettings {
         this.imageHeight = imageHeight;
         this.trainingImageTileWidth = imageWidth * tileScaleFactor;
         this.trainingImageTileHeight = imageHeight * tileScaleFactor;
+        this.tileScaleFactor = tileScaleFactor;
         this.augmentationSettings = new AugmentationSettings();
     }
 
@@ -55,6 +58,14 @@ public abstract class AbstractSegmentationSettings {
 
     public int getTrainingImageTileWidth() {
         return trainingImageTileWidth;
+    }
+
+    public int getTileScaleFactor() {
+        return tileScaleFactor;
+    }
+
+    public double getTileScaleFactorPercent() {
+        return tileScaleFactor * 100.0d;
     }
 
     public int getTrainingImageTileHeight() {

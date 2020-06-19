@@ -1,13 +1,17 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning.playground;
 
 import com.actelion.research.orbit.beans.RawDataFile;
+import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.IDLSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.AbstractSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.MaskRCNNDetections;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.RawDetections;
 import com.actelion.research.orbit.imageAnalysis.models.*;
+import com.actelion.research.orbit.imageAnalysis.utils.PolygonMetrics;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Map;
 
@@ -39,11 +43,27 @@ public abstract class AbstractSegment implements IDLSegment {
 
     @Override
     public void storeShapes(MaskRCNNDetections detections, String basename, AbstractSegmentationSettings settings, int rdfId, String user) throws Exception {
+        //TODO: The translation parts should be moved out of this to the detections methods.
         for (MaskRCNNDetections.Detection detection: detections.getDetections()) {
             int maskClass = detection.getMaskClass();
-            System.out.println("Storing annotation...");
-            storeShape(detection.getContourShape(), basename+settings.getClassName(maskClass), settings.getAnnotationColor(maskClass), rdfId, user);
+            // The shapes stored in the detection object won't be scaled correctly for the image database,
+            // so need to be rescaled based on the difference between the training set image, and the
+            // image tile size.
+            PolygonExt scaleShape = (PolygonExt) detection.getContourShape();
+            PolygonMetrics polyMetrics = new PolygonMetrics(scaleShape);
+
+            // Rescale the shape.
+            scaleShape = scaleShape.scale(settings.getTileScaleFactorPercent(), new Point());
+
+            // Translate the image based on it's location in the whole slide image.
+            scaleShape.translate(detection.getTileOffset().x, detection.getTileOffset().y);
+            // TODO: Is this translation correct?
+            Point2D center = polyMetrics.getCentroid(false); //.getCenter();
+            scaleShape.translate((int) center.getX(), (int) center.getY());
+            storeShape(scaleShape, basename+settings.getClassName(maskClass), settings.getAnnotationColor(maskClass), rdfId, user);
         }
     }
 
+    @Override
+    public abstract MaskRCNNDetections processDetections(SegmentationResult segRes, Point tileOffset);
 }

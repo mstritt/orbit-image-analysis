@@ -4,10 +4,8 @@ import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.AbstractSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.MaskRCNNDetections;
-import com.actelion.research.orbit.imageAnalysis.models.CellDetectionAnnotation;
-import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
-import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
-import com.actelion.research.orbit.imageAnalysis.models.SpotAnnotation;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.RawDetections;
+import com.actelion.research.orbit.imageAnalysis.models.*;
 import org.tensorflow.Session;
 
 import java.awt.*;
@@ -25,4 +23,7 @@ public interface IDLSegment {
     void storeShapes(List<Shape> shapes, String basename, int rdfId, String user) throws Exception;
 
     void storeShapes(MaskRCNNDetections detections, String basename, AbstractSegmentationSettings settings, int rdfId, String user) throws Exception;
+
+    MaskRCNNDetections processDetections(SegmentationResult segRes, Point tileOffset);
+
 }

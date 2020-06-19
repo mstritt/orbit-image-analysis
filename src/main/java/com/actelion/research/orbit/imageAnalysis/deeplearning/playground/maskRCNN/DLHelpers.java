@@ -30,12 +30,14 @@ import com.actelion.research.orbit.imageAnalysis.models.SegmentationResult;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitHelper;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitImagePlanar;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import ij.ImagePlus;
 import imageJ.BinaryOrbit;
 import imageJ.Colour_Deconvolution;
 import imageJ.ThresholderOrbit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tensorflow.Graph;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 
@@ -47,7 +49,11 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.FloatBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,6 +78,33 @@ public class DLHelpers {
             anchors = Tensor.create(new long[]{1,fArr.length/4,4}, FloatBuffer.wrap(fArr));
         }
         return anchors;
+    }
+
+    private static byte[] readAllBytesOrExit(Path path) {
+        try {
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            System.err.println("Failed to read [" + path + "]: " + e.getMessage());
+            System.exit(1);
+        }
+        return null;
+    }
+
+    public static Session buildSession(String fileName) {
+        byte[] graphDef = readAllBytesOrExit(Paths.get(fileName));
+        return buildSessionBytes(graphDef);
+    }
+
+    public static Session buildSession(URL modelUrl) {
+        byte[] graphDef = OrbitUtils.getContentBytes(modelUrl);
+        return buildSessionBytes(graphDef);
+    }
+
+    public static Session buildSessionBytes(byte[] graphDef) {
+        Graph g = new Graph();
+        g.importGraphDef(graphDef);
+        Session s = new Session(g);
+        return s;
     }
 
     public static RawDetections executeInceptionGraph(final Session s, final Tensor<Float> input, final int inputWidth, final int inputHeight, final int maxDetections, final int maskWidth, final int maskHeight) {
@@ -285,11 +318,11 @@ public class DLHelpers {
     }
 
 
-    private static BufferedImage flipImage(BufferedImage bi) {
+    static BufferedImage flipImage(BufferedImage bi) {
         return new BufferedImage(bi.getColorModel(),(WritableRaster) flipRaster(bi.getData()),false,null);
     }
 
-    private static Raster flipRaster(Raster r) {
+    static Raster flipRaster(Raster r) {
         int w = r.getWidth();
         int h = r.getHeight();
         WritableRaster rf = r.createCompatibleWritableRaster(r.getMinX(),r.getMinY(), w,h);
@@ -323,7 +356,7 @@ public class DLHelpers {
         return maskOriginal;
     }
 
-    private static BufferedImage combineMasks(BufferedImage m1, BufferedImage m2, int dx, int dy) {
+    static BufferedImage combineMasks(BufferedImage m1, BufferedImage m2, int dx, int dy) {
         BufferedImage combined = new BufferedImage(m1.getWidth(),m1.getHeight(),m1.getType());
         combined.getGraphics().drawImage(m1,0,0,null);
         int fg = Color.white.getRGB();
@@ -342,7 +375,12 @@ public class DLHelpers {
         return combined;
     }
 
-    //
+    /**
+     * Shrink an image from the input size to the size used for training the Deep Learning model.
+     * @param bi The image to shrink.
+     * @param settings The settings containing the size to shrink to.
+     * @return The shrunk image.
+     */
     public static BufferedImage shrink(BufferedImage bi,AbstractSegmentationSettings settings) {
         BufferedImage bi2 = new BufferedImage(settings.getImageWidth(), settings.getImageHeight(),BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) bi2.getGraphics();
@@ -380,9 +418,9 @@ public class DLHelpers {
                 e.printStackTrace();
             }
         }
-        Tensor<Float> inputTensor = DLSegment.convertBufferedImageToTensor(ori);
+        Tensor<Float> inputTensor = convertBufferedImageToTensor(ori, segmentationSettings.getImageWidth(), segmentationSettings.getImageHeight());
         long startt = System.currentTimeMillis();
-        BufferedImage segmented = DLSegment.segmentInput(inputTensor, s, Color.black, Color.white);
+        BufferedImage segmented = segmentInput(inputTensor, s, Color.black, Color.white);
 
         long usedt = System.currentTimeMillis()-startt;
         System.out.println("segment time (s): "+usedt/1000d);
