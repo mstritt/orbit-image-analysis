@@ -27,7 +27,7 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
      * @param maskHeight The height of the mask used to train the model (px).
      * @param numClasses The number of classes in the trained model.
      */
-    public MaskRCNNSegmentationSettings(int imageWidth, int imageHeight, int tileScaleFactor, int maxDetections, int maskWidth, int maskHeight, int numClasses) {
+    public MaskRCNNSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactor, int maxDetections, int maskWidth, int maskHeight, int numClasses) {
         super(imageWidth, imageHeight, tileScaleFactor);
         this.maxDetections = maxDetections;
         this.maskWidth = maskWidth;

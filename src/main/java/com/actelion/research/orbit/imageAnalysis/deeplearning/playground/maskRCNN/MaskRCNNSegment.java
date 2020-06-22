@@ -43,7 +43,7 @@ import static com.actelion.research.orbit.imageAnalysis.deeplearning.playground.
  */
 public class MaskRCNNSegment extends AbstractSegment {
     private static final Logger logger = LoggerFactory.getLogger(MaskRCNNSegment.class);
-    private final MaskRCNNSegmentationSettings segmentationSettings = new MaskRCNNSegmentationSettings(512,512, 16,10,56,56,5);
+    private MaskRCNNSegmentationSettings segmentationSettings = null;
     private final static Random random = new Random();
     private final Session s;
     private final PostProcessMethod postProcess;
@@ -55,11 +55,16 @@ public class MaskRCNNSegment extends AbstractSegment {
     private transient Tensor<Float> anchors = null;
 
     /**
-     * MaskRCNNSegment object constructor.
+     * MaskRCNNSegment object constructor with default segmentation settings.
      */
     public MaskRCNNSegment(File maskRCNNModelPB, PostProcessMethod ppm) {
+        this(maskRCNNModelPB, ppm, new MaskRCNNSegmentationSettings(512,512, 16.0f,10,56,56,5));
+    }
+
+    public MaskRCNNSegment(File maskRCNNModelPB, PostProcessMethod ppm, MaskRCNNSegmentationSettings settings) {
         s = DLHelpers.buildSession(maskRCNNModelPB.getAbsolutePath());
         postProcess = ppm;
+        segmentationSettings = settings;
     }
 
     /**
@@ -344,7 +349,7 @@ public class MaskRCNNSegment extends AbstractSegment {
                     // Test if the tile is in the ROI, and not exclusively part of the exclusion map.
                     // if (!(tile.x==15 && tile.y==12)) continue;   // for testing: just on one tile
                     // TODO: Remove this testing line.
-                    if (!(tile.x == 1 && tile.y == 2)) continue;
+                    //if (!(tile.x == 1 && tile.y == 2)) continue;
                     if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
                         // Calculate Tile Offset for translating annotations.
                         Point tileOffset = new Point(orbitImage.tileXToX(tile.x), orbitImage.tileYToY(tile.y));
@@ -456,6 +461,8 @@ public class MaskRCNNSegment extends AbstractSegment {
                     }
                     if (maxClassProbability > backgroundProbability && maxClassProbability > 0.95f)
                         // TODO: This logic is probably wrong since could mix a class 1 and class 2 prediction to make a bigger area.
+                        // TODO: Should probabilities sum to 1?
+                        // So we need to output one roi per class...
                     //if (mask[yr][xr][1]>0.45f)
                         // TODO: Test other thresholds for foreground vs. background.
                     // if (mask[yr][xr][0]<mask[yr][xr][1])
@@ -555,6 +562,7 @@ public class MaskRCNNSegment extends AbstractSegment {
     }
 
 
+    // TODO: Rename method.
     public BufferedImage augmentDetections(BufferedImage image, MaskRCNNDetections detections) {
 
         boolean drawBoundingBox = false;
@@ -713,7 +721,7 @@ public class MaskRCNNSegment extends AbstractSegment {
                         ypoints[j] = (int)(y + ((contour.get(j).getY()-pad) * 1f));
                     }
                     PolygonExt polygon = new PolygonExt(new Polygon(xpoints,ypoints, xpoints.length));
-
+                    polygon = polygon.scale(segmentationSettings.getTileScaleFactorPercent(), new Point(0,0));
                     detections.addDetection(polygon, boundingBox, probability, maskClass, tileOffset);
 
                 }

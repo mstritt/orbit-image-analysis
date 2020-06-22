@@ -53,13 +53,13 @@ public abstract class AbstractSegment implements IDLSegment {
             PolygonMetrics polyMetrics = new PolygonMetrics(scaleShape);
 
             // Rescale the shape.
-            scaleShape = scaleShape.scale(settings.getTileScaleFactorPercent(), new Point());
+            //scaleShape = scaleShape.scale(settings.getTileScaleFactorPercent(), new Point());
 
             // Translate the image based on it's location in the whole slide image.
-            scaleShape.translate(detection.getTileOffset().x, detection.getTileOffset().y);
+            //scaleShape.translate(detection.getTileOffset().x, detection.getTileOffset().y);
             // TODO: Is this translation correct?
-            Point2D center = polyMetrics.getCentroid(false); //.getCenter();
-            scaleShape.translate((int) center.getX(), (int) center.getY());
+            //Point2D center = polyMetrics.getCentroid(false); //.getCenter();
+            //scaleShape.translate((int) center.getX(), (int) center.getY());
             storeShape(scaleShape, basename+settings.getClassName(maskClass), settings.getAnnotationColor(maskClass), rdfId, user);
         }
     }

@@ -31,9 +31,9 @@ public class TestInsulinSegment {
 
     @Test
     public void testSegmentation() throws Exception {
-        File INPUT_IMAGE = new File("D:/insulin/testdata/12886016_tile19x4.jpg");
-        File OUTPUT_IMAGE = new File("D:/insulin/testdata/12886016_tile19x4-output.jpg");
-        File maskRCNNModel = new File("D:/insulin/models/insulin_009.pb");
+        File INPUT_IMAGE = new File("D:/deeplearning/insulin/testdata/12886016_tile19x4.jpg");
+        File OUTPUT_IMAGE = new File("D:/deeplearning/insulin/testdata/12886016_tile19x4-output.jpg");
+        File maskRCNNModel = new File("D:/deeplearning/insulin/models/insulin_009.pb");
 
         MaskRCNNSegment segmentationModel = new MaskRCNNSegment(maskRCNNModel, MaskRCNNSegment.PostProcessMethod.STANDARD);
 
@@ -68,7 +68,7 @@ public class TestInsulinSegment {
         //int[] images = {12885943}; // either orbitIDs or load via query // 1318936, 1318968
         int[] images = {12886016};
         boolean storeAnnotations = true;
-        File maskRCNNModel = new File("D:/insulin/models/insulin_009.pb");
+        File maskRCNNModel = new File("D:/deeplearning/insulin/models/insulin_009.pb");
 
         MaskRCNNSegment segmentationModel = new MaskRCNNSegment(maskRCNNModel, MaskRCNNSegment.PostProcessMethod.CUSTOM);
 
