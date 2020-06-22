@@ -13,9 +13,8 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -64,13 +63,18 @@ public class TestInsulinSegment {
     }
 
     @Test
-    public void testSegmentationAnnotations() {
-        //int[] images = {12885943}; // either orbitIDs or load via query // 1318936, 1318968
-        int[] images = {12886016};
+    public void testSegmentationAnnotations() throws Exception {
+        int[] images = {12885943}; // either orbitIDs or load via query // 1318936, 1318968
+        //int[] images = {12886016};
+
         boolean storeAnnotations = true;
         File maskRCNNModel = new File("D:/deeplearning/insulin/models/insulin_009.pb");
 
-        MaskRCNNSegment segmentationModel = new MaskRCNNSegment(maskRCNNModel, MaskRCNNSegment.PostProcessMethod.CUSTOM);
+        MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings(512, 512, 16f, 10, 56, 56, 5, "Islet");
+        ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW));
+        ArrayList<String> classNames = new ArrayList<>(Arrays.asList("Background", "g0", "g1", "g2", "g3"));
+        settings.setCustomClassNames(colors, classNames);
+        MaskRCNNSegment segmentationModel = new MaskRCNNSegment(maskRCNNModel, MaskRCNNSegment.PostProcessMethod.CUSTOM, settings);
 
         OrbitModel segModel = OrbitModel.LoadFromInputStream(
                 this.getClass().getResourceAsStream("/resource/testmodels/dlsegmentsplit.omo"));

@@ -21,12 +21,17 @@ package com.actelion.research.orbit.imageAnalysis.models;
 
 import com.actelion.research.orbit.beans.RawAnnotation;
 
+import java.awt.*;
 import java.io.IOException;
 
 
 public class MaskRCNNAnnotation extends SpotAnnotation {
     private static final long serialVersionUID = 1L;
+    // TODO: This isn't used currently.
     public static final int SPOT_TYPE_ISLET = 5;
+    public static final int SPOT_TYPE_NUCLEUS = 6;
+    public static final int SPOT_TYPE_CORPUS_CALLOSUM = 7;
+
     // TODO: Archive model settings?
 
     public MaskRCNNAnnotation() {
@@ -34,6 +39,7 @@ public class MaskRCNNAnnotation extends SpotAnnotation {
 
     public MaskRCNNAnnotation(String text, ClassShape shape) {
         super(text, shape);
+        shape.setColor(new Color(shape.getColor().getRGB()));
     }
 
     public MaskRCNNAnnotation(RawAnnotation ra) throws IOException, ClassNotFoundException {

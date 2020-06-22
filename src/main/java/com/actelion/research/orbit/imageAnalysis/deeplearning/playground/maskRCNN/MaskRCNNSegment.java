@@ -58,10 +58,11 @@ public class MaskRCNNSegment extends AbstractSegment {
      * MaskRCNNSegment object constructor with default segmentation settings.
      */
     public MaskRCNNSegment(File maskRCNNModelPB, PostProcessMethod ppm) {
-        this(maskRCNNModelPB, ppm, new MaskRCNNSegmentationSettings(512,512, 16.0f,10,56,56,5));
+        this(maskRCNNModelPB, ppm, new MaskRCNNSegmentationSettings(512,512, 16.0f,10,56,56,5, "Default_"));
     }
 
     public MaskRCNNSegment(File maskRCNNModelPB, PostProcessMethod ppm, MaskRCNNSegmentationSettings settings) {
+        super();
         s = DLHelpers.buildSession(maskRCNNModelPB.getAbsolutePath());
         postProcess = ppm;
         segmentationSettings = settings;
@@ -224,7 +225,6 @@ public class MaskRCNNSegment extends AbstractSegment {
     }
 
 
-
     /**
      * Convenience method to call the generic generateSegmentationAnnotations() method.
      * @param images list of rdfIds for images to be segmented using MaskRCNN.
@@ -346,10 +346,11 @@ public class MaskRCNNSegment extends AbstractSegment {
                 for (Point tile : tiles) {
                     tileNr++;
                     logger.info("tile " + tileNr + " of " + tiles.length);
+                    logger.info("tileX: "+tile.x+" tileY: "+tile.y);
                     // Test if the tile is in the ROI, and not exclusively part of the exclusion map.
                     // if (!(tile.x==15 && tile.y==12)) continue;   // for testing: just on one tile
                     // TODO: Remove this testing line.
-                    //if (!(tile.x == 1 && tile.y == 2)) continue;
+                    //if (!(tile.x == 4 && tile.y == 3)) continue;
                     if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
                         // Calculate Tile Offset for translating annotations.
                         Point tileOffset = new Point(orbitImage.tileXToX(tile.x), orbitImage.tileYToY(tile.y));
@@ -395,9 +396,9 @@ public class MaskRCNNSegment extends AbstractSegment {
                                 // If running in GUI mode force user to login, else use a hardcoded user.
                                 if (!ScaleoutMode.SCALEOUTMODE.get()) {
                                     OrbitImageAnalysis.getInstance().forceLogin();
-                                    this.storeShapes(detections, "Islet_", segmentationSettings, rdfId, "ScriptUser");
+                                    this.storeShapes(detections, "Islet_", segmentationSettings, rdfId, "AutomatedAnnotation");
                                 } else {
-                                    this.storeShapes(detections, "Islet_", segmentationSettings, rdfId, "ScriptUser");
+                                    this.storeShapes(detections, "Islet_", segmentationSettings, rdfId, "AutomatedAnnotation");
                                 }
                             } catch (Exception e) {
                                 logger.error(e.getLocalizedMessage());
@@ -721,7 +722,17 @@ public class MaskRCNNSegment extends AbstractSegment {
                         ypoints[j] = (int)(y + ((contour.get(j).getY()-pad) * 1f));
                     }
                     PolygonExt polygon = new PolygonExt(new Polygon(xpoints,ypoints, xpoints.length));
+
+                    // The polygon must be scaled correctly now, so that it is stored correctly later.
                     polygon = polygon.scale(segmentationSettings.getTileScaleFactorPercent(), new Point(0,0));
+
+                    PolygonMetrics polyMetrics = new PolygonMetrics(polygon);
+
+                    // Translate the image based on it's location in the whole slide image.
+                    polygon.translate(tileOffset.x, tileOffset.y);
+//                    Point2D center = polyMetrics.getCentroid(false); //.getCenter();
+//                    polygon.translate((int) center.getX(), (int) center.getY());
+
                     detections.addDetection(polygon, boundingBox, probability, maskClass, tileOffset);
 
                 }

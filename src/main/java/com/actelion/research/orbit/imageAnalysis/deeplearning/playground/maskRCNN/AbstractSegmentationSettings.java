@@ -12,6 +12,7 @@ public abstract class AbstractSegmentationSettings {
     private final int trainingImageTileHeight;
 
     private final float tileScaleFactor;
+    private final String annotationPrefix;
 
     /**
      * Setup and store the settings used for abstract segmentation model training and inference.
@@ -20,13 +21,21 @@ public abstract class AbstractSegmentationSettings {
      * @param tileScaleFactor The scale factor that was used to generate the test dataset (e.g. if image tiles were
      *                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
      */
-    public AbstractSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactor) {
+    public AbstractSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactor, String annotationPrefix) {
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.trainingImageTileWidth = (int) (imageWidth * tileScaleFactor);
         this.trainingImageTileHeight = (int) (imageHeight * tileScaleFactor);
         this.tileScaleFactor = tileScaleFactor;
         this.augmentationSettings = new AugmentationSettings();
+        this.annotationPrefix = annotationPrefix;
+    }
+
+    /**
+     * Return the annotation prefix to use when storing annotations.
+     */
+    public String getAnnotationPrefix() {
+        return annotationPrefix;
     }
 
     public int getImageWidth() {

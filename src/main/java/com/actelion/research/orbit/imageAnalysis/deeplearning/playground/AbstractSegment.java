@@ -21,7 +21,6 @@ public abstract class AbstractSegment implements IDLSegment {
 
     public abstract Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations);
 
-
     @Override
     public void storeShape(Shape shape, String name, Color color, int rdfId, String user) throws Exception {
         ClassShape classShape = new ClassShape(name, color, ClassShape.SHAPETYPE_POLYGONEXT);
@@ -42,25 +41,27 @@ public abstract class AbstractSegment implements IDLSegment {
     }
 
     @Override
-    public void storeShapes(MaskRCNNDetections detections, String basename, AbstractSegmentationSettings settings, int rdfId, String user) throws Exception {
+    public void storeShapes(MaskRCNNDetections detections, String basename, AbstractSegmentationSettings settings,
+                            int rdfId, String user) throws Exception {
         //TODO: The translation parts should be moved out of this to the detections methods.
+        int i=1;
         for (MaskRCNNDetections.Detection detection: detections.getDetections()) {
             int maskClass = detection.getMaskClass();
-            // The shapes stored in the detection object won't be scaled correctly for the image database,
-            // so need to be rescaled based on the difference between the training set image, and the
-            // image tile size.
+
             PolygonExt scaleShape = (PolygonExt) detection.getContourShape();
-            PolygonMetrics polyMetrics = new PolygonMetrics(scaleShape);
+//            PolygonMetrics polyMetrics = new PolygonMetrics(scaleShape);
 
             // Rescale the shape.
             //scaleShape = scaleShape.scale(settings.getTileScaleFactorPercent(), new Point());
 
             // Translate the image based on it's location in the whole slide image.
             //scaleShape.translate(detection.getTileOffset().x, detection.getTileOffset().y);
-            // TODO: Is this translation correct?
             //Point2D center = polyMetrics.getCentroid(false); //.getCenter();
             //scaleShape.translate((int) center.getX(), (int) center.getY());
-            storeShape(scaleShape, basename+settings.getClassName(maskClass), settings.getAnnotationColor(maskClass), rdfId, user);
+            storeShape(scaleShape,
+                    settings.getAnnotationPrefix()+"_"+settings.getClassName(maskClass),
+                    settings.getAnnotationColor(maskClass), rdfId, user);
+            i++;
         }
     }
 

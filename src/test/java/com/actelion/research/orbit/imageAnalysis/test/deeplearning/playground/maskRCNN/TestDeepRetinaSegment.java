@@ -36,7 +36,7 @@ public class TestDeepRetinaSegment {
 
         File maskRCNNModel = new File("D:/deeplearning/deepretina/deepretina_final.pb");
 
-        MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings(512, 512, 0.5f, 512, 28, 28, 2);
+        MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings(512, 512, 0.5f, 512, 28, 28, 2, "Nuclei");
         MaskRCNNSegment segmentationModel = new MaskRCNNSegment(maskRCNNModel, MaskRCNNSegment.PostProcessMethod.CUSTOM, settings);
 
         // Time execution.
@@ -45,7 +45,7 @@ public class TestDeepRetinaSegment {
 
         // Apply the MaskRCNN segmentation models to a list of images.
         Map<Integer, List<Shape>> segmentationsPerImage = segmentationModel.generateSegmentationAnnotations(
-                images, null, null, false);
+                images, null, null, true);
 
         long used = System.currentTimeMillis()-startt;
 
