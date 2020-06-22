@@ -1321,6 +1321,7 @@ public class OrbitMenu extends JRibbonFrame {
      * @param ribbon The radiance JRibbon component.
      */
     private void configureKeyboardShortcuts(JRibbon ribbon) {
+        // F-keys
         KeyStroke f1KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0);
         KeyStroke f2KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0);
         KeyStroke f3KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0);
@@ -1333,6 +1334,11 @@ public class OrbitMenu extends JRibbonFrame {
         KeyStroke f10KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F10, 0);
         KeyStroke f11KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0);
         KeyStroke f12KeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0);
+
+        // Other keys
+        KeyStroke toggleLabelsKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_L, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 
         KeyStroke copyImageKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
                 ? KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK)
@@ -1418,8 +1424,7 @@ public class OrbitMenu extends JRibbonFrame {
         ribbon.registerKeyboardAction(oia.nextClassAction, nextClassKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
         ribbon.registerKeyboardAction(oia.zoomInAction, zoomInKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
         ribbon.registerKeyboardAction(oia.zoomOutAction, zoomOutKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-
+        ribbon.registerKeyboardAction(oia.showLabelsAction, toggleLabelsKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
     /**

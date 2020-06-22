@@ -3738,7 +3738,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         showGauge = !showGauge;
         desktop.repaint();
     };
-    final CommandAction ShowLabelsCommandAction = e -> {
+
+    private void showLabels() {
         showAnnotationLabels = !showAnnotationLabels;
         if (getIFrames() != null) {
             for (ImageFrame iFrame : getIFrames()) {
@@ -3746,7 +3747,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 iFrame.recognitionFrame.repaint();
             }
         }
-    };
+    }
+
+    final CommandAction ShowLabelsCommandAction = e -> showLabels();
+    final ActionListener showLabelsAction = e -> showLabels();
+
     final CommandAction ShowCenterCrossCommandAction = e -> {
         showCenterCross = !showCenterCross;
         renderGrid.setShowCross(showCenterCross);
