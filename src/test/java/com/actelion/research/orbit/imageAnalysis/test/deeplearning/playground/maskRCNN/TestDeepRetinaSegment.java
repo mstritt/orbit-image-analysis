@@ -31,13 +31,47 @@ public class TestDeepRetinaSegment {
     }
 
     @Test
-    public void testSegmentationAnnotations() {
+    public void testSegmentationAnnotationsCustom() {
         int[] images = {19339831};
 
         File maskRCNNModel = new File("D:/deeplearning/deepretina/deepretina_final.pb");
 
-        MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings(512, 512, 0.5f, 512, 28, 28, 2, "Nuclei");
+        MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings(512, 512, 0.5f, 512, 28, 28, 2, "NucleiC");
         MaskRCNNSegment segmentationModel = new MaskRCNNSegment(maskRCNNModel, MaskRCNNSegment.PostProcessMethod.CUSTOM, settings);
+
+        // Time execution.
+        Date startDate = new Date();
+        long startt = System.currentTimeMillis();
+
+        // Apply the MaskRCNN segmentation models to a list of images.
+        Map<Integer, List<Shape>> segmentationsPerImage = segmentationModel.generateSegmentationAnnotations(
+                images, null, null, true);
+
+        long used = System.currentTimeMillis()-startt;
+
+        System.out.println("time used: "+used/1000d);
+
+        long elapsedTimeInSec = (new Date().getTime() - startDate.getTime()) / 1000;
+        System.out.println(String.format("Ended in %ds .", elapsedTimeInSec));
+
+        for (int annoNum: segmentationsPerImage.keySet()){
+            System.out.println("Image "+annoNum+": number of objects segmented: "+segmentationsPerImage.get(annoNum).size());
+        }
+
+        // There should be 44 objects detected in the test image: D:\deeplearning\deepretina\training-data\stage1_test\0a849e0eb15faa8a6d7329c3dd66aabe9a294cccb52ed30a90c8ca99092ae732\images\0a849e0eb15faa8a6d7329c3dd66aabe9a294cccb52ed30a90c8ca99092ae732.png
+        assertEquals(segmentationsPerImage.get(images[0]).size(), 44);
+        // Check the bounding box for the first image (should confirm that the scaling and translation has been done correctly).
+        assertEquals(segmentationsPerImage.get(images[0]).get(0).getBounds(),new Rectangle(105,110, 19, 22));
+    }
+
+    @Test
+    public void testSegmentationAnnotationsStandard() {
+        int[] images = {19339831};
+
+        File maskRCNNModel = new File("D:/deeplearning/deepretina/deepretina_final.pb");
+
+        MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings(512, 512, 0.5f, 512, 28, 28, 2, "NucleiS");
+        MaskRCNNSegment segmentationModel = new MaskRCNNSegment(maskRCNNModel, MaskRCNNSegment.PostProcessMethod.STANDARD, settings);
 
         // Time execution.
         Date startDate = new Date();

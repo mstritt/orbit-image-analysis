@@ -224,6 +224,30 @@ public class MaskRCNNSegment extends AbstractSegment {
         return Tensor.create(rgbArray, Float.class);
     }
 
+    /**
+     * Convenience method to call the generic generateSegmentationAnnotations() method.
+     * @param images list of rdfIds for images to be segmented using MaskRCNN.
+     * @param segModel Segmentation Model?
+     * @param modelContainingExclusionModel An exclusion model, used to focus on only the area of interest (e.g.
+     *                                      ignore artifacts, blank area) and (probably) speed up the calculation
+     *                                      by ignoring uninteresting areas.
+     * @param storeAnnotations Should the annotations be stored back to the Orbit DB?
+     * @param tile The tile coordinates for processing a specific image tile only.
+     * @return Map with RdfId as key and annotations as List<Shape> (segmentationsPerImage).
+     */
+    @Override
+    public Map<Integer, List<Shape>> generateSegmentationAnnotations(int[] images, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations, Point tile) {
+        List<RawDataFile> rdfList = new ArrayList<>(images.length);
+        try {
+            for (int image : images) {
+                rdfList.add(DALConfig.getImageProvider().LoadRawDataFile(image));
+            }
+        } catch (Exception ex) {
+            logger.error("Could not read Raw Data File");
+            logger.error(ex.getLocalizedMessage());
+        }
+        return generateSegmentationAnnotations(rdfList,segModel,modelContainingExclusionModel,storeAnnotations, tile);
+    }
 
     /**
      * Convenience method to call the generic generateSegmentationAnnotations() method.
@@ -236,16 +260,7 @@ public class MaskRCNNSegment extends AbstractSegment {
      * @return Map with RdfId as key and annotations as List<Shape> (segmentationsPerImage).
      */
     public Map<Integer, java.util.List<Shape>> generateSegmentationAnnotations(int[] images, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations) {
-        List<RawDataFile> rdfList = new ArrayList<>(images.length);
-        try {
-            for (int image : images) {
-                rdfList.add(DALConfig.getImageProvider().LoadRawDataFile(image));
-            }
-        } catch (Exception ex) {
-            logger.error("Could not read Raw Data File");
-            logger.error(ex.getLocalizedMessage());
-        }
-        return generateSegmentationAnnotations(rdfList,segModel,modelContainingExclusionModel,storeAnnotations);
+        return generateSegmentationAnnotations(images,segModel,modelContainingExclusionModel,storeAnnotations, null);
     }
 
     /**
@@ -258,7 +273,7 @@ public class MaskRCNNSegment extends AbstractSegment {
      * @param storeAnnotations Should the annotations be stored back to the Orbit DB?
      * @return Map with RdfId as key and annotations as List<Shape> (segmentationsPerImage).
      */
-    public Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations) {
+    public Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations, Point tileOnly) {
 
         Map<Integer, List<Shape>> segmentationsPerImage = new HashMap<>();
         // Loop over images.
@@ -349,8 +364,9 @@ public class MaskRCNNSegment extends AbstractSegment {
                     logger.info("tileX: "+tile.x+" tileY: "+tile.y);
                     // Test if the tile is in the ROI, and not exclusively part of the exclusion map.
                     // if (!(tile.x==15 && tile.y==12)) continue;   // for testing: just on one tile
-                    // TODO: Remove this testing line.
-                    //if (!(tile.x == 4 && tile.y == 3)) continue;
+                    if (tileOnly != null) {
+                        if (!(tile.x==tileOnly.x && tile.y==tileOnly.y)) continue;
+                    }
                     if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
                         // Calculate Tile Offset for translating annotations.
                         Point tileOffset = new Point(orbitImage.tileXToX(tile.x), orbitImage.tileYToY(tile.y));
@@ -460,7 +476,7 @@ public class MaskRCNNSegment extends AbstractSegment {
                             maxClassProbability = mask[yr][xr][classes];
                         }
                     }
-                    if (maxClassProbability > backgroundProbability && maxClassProbability > 0.95f)
+                    if (maxClassProbability > backgroundProbability && maxClassProbability > 0.5f)
                         // TODO: This logic is probably wrong since could mix a class 1 and class 2 prediction to make a bigger area.
                         // TODO: Should probabilities sum to 1?
                         // So we need to output one roi per class...
@@ -476,7 +492,7 @@ public class MaskRCNNSegment extends AbstractSegment {
         }
 
         // Resize the 'mask' to the 'image' size.
-        roi = resize(roi);
+        ////roi = resize(roi);
 
         long usedt = System.currentTimeMillis()-startt;
         logger.info("segment time (s): "+usedt/1000d);
@@ -540,9 +556,9 @@ public class MaskRCNNSegment extends AbstractSegment {
         int xShift = 4096; //segmentationSettings.getImageWidth()/2;
         int yShift = 4096; //segmentationSettings.getImageHeight()/2;
         maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, 0, yShift, segmentationSettings);
-//        maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, 0, -yShift, segmentationSettings);
-//        maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, xShift, 0, segmentationSettings);
-//        maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, -xShift, 0, segmentationSettings);
+        maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, 0, -yShift, segmentationSettings);
+        maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, xShift, 0, segmentationSettings);
+        maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, -xShift, 0, segmentationSettings);
 
         MaskRCNNDetections detections = null;
         try {
@@ -726,12 +742,8 @@ public class MaskRCNNSegment extends AbstractSegment {
                     // The polygon must be scaled correctly now, so that it is stored correctly later.
                     polygon = polygon.scale(segmentationSettings.getTileScaleFactorPercent(), new Point(0,0));
 
-                    PolygonMetrics polyMetrics = new PolygonMetrics(polygon);
-
                     // Translate the image based on it's location in the whole slide image.
                     polygon.translate(tileOffset.x, tileOffset.y);
-//                    Point2D center = polyMetrics.getCentroid(false); //.getCenter();
-//                    polygon.translate((int) center.getX(), (int) center.getY());
 
                     detections.addDetection(polygon, boundingBox, probability, maskClass, tileOffset);
 
@@ -756,6 +768,12 @@ public class MaskRCNNSegment extends AbstractSegment {
         for (Shape shape : shapes) {
             PolygonExt polygon = (PolygonExt) shape;
             polygon.setClosed(true);
+
+            // Rescale the shape to display properly on the whole slide image.
+            polygon = polygon.scale(segmentationSettings.getTileScaleFactorPercent(), new Point(0,0));
+
+            // Translate the image based on it's location in the whole slide image.
+            polygon.translate(tileOffset.x, tileOffset.y);
 
             detections.addDetection(polygon,null,null,1, tileOffset);
         }
