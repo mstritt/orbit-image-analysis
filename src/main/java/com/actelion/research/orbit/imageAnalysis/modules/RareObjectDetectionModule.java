@@ -71,118 +71,93 @@ public class RareObjectDetectionModule extends AbstractSpotModule {
 
         list.addKeyListener(new SpotModuleKeyListener());
 
-        list.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                for (int i = 0; i < list.getModel().getSize(); i++) {
-                    SpotAnnotation sa = (SpotAnnotation) list.getModel().getElementAt(i);
-                    sa.setSelected(false);
-                }
-                if (list.getSelectedValue() != null) {
-                    SpotAnnotation annotation = (SpotAnnotation) (list.getSelectedValue());
-                    annotation.setSelected(true);
-                }
+        list.addListSelectionListener(e -> {
+            for (int i = 0; i < list.getModel().getSize(); i++) {
+                SpotAnnotation sa = (SpotAnnotation) list.getModel().getElementAt(i);
+                sa.setSelected(false);
+            }
+            if (list.getSelectedValue() != null) {
+                SpotAnnotation annotation = (SpotAnnotation) (list.getSelectedValue());
+                annotation.setSelected(true);
             }
         });
 
-        btnGenerateSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                //OrbitImageAnalysis.getInstance().forceLogin();
-                //if (OrbitImageAnalysis.loginOk) {
-                generateSpots(true);
-                OrbitImageAnalysis.getInstance().getIFrame().getRecognitionFrame().repaint();
-                //}
-            }
+        btnGenerateSpots.addActionListener(e -> {
+            //OrbitImageAnalysis.getInstance().forceLogin();
+            //if (OrbitImageAnalysis.loginOk) {
+            generateSpots(true);
+            OrbitImageAnalysis.getInstance().getIFrame().getRecognitionFrame().repaint();
+            //}
         });
 
-        btnShowStatistics.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                final OrbitModel model = OrbitImageAnalysis.getInstance().getModel();
-                final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
-                //OrbitImageAnalysis.getInstance().forceLogin();
-                //if (OrbitImageAnalysis.loginOk) {
-                StringBuilder sb = new StringBuilder("Available Spots: " + list.getModel().getSize() + "\n\n");
-                sb.append("Absolute Counts:\n\n");
-                int[] counts = computeCounts();
-                for (int i = 0; i < counts.length; i++) {
-                    sb.append(model.getClassShapes().get(i).getName() + ": " + counts[i] + "\n");
-                }
-                if (model.getClassShapes().size() > 2) {
-                    sb.append("\n\nRelative Counts (class / all without last class):\n\n");
-                    for (int i = 0; i < counts.length - 1; i++) {
-                        double rel = counts[i];
-                        double sum = 0d;
-                        for (int j = 0; j < counts.length - 1; j++) {
-                            sum += counts[j];
-                        }
-                        if (sum > 0) {
-                            rel /= sum;
-                            sb.append(model.getClassShapes().get(i).getName() + ": " + String.format("%1$.4f", rel) + "\n");
-                        }
+        btnShowStatistics.addActionListener(e -> {
+            final OrbitModel model = OrbitImageAnalysis.getInstance().getModel();
+            final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
+            //OrbitImageAnalysis.getInstance().forceLogin();
+            //if (OrbitImageAnalysis.loginOk) {
+            StringBuilder sb = new StringBuilder("Available Spots: " + list.getModel().getSize() + "\n\n");
+            sb.append("Absolute Counts:\n\n");
+            int[] counts = computeCounts();
+            for (int i = 0; i < counts.length; i++) {
+                sb.append(model.getClassShapes().get(i).getName() + ": " + counts[i] + "\n");
+            }
+            if (model.getClassShapes().size() > 2) {
+                sb.append("\n\nRelative Counts (class / all without last class):\n\n");
+                for (int i = 0; i < counts.length - 1; i++) {
+                    double rel = counts[i];
+                    double sum = 0d;
+                    for (int j = 0; j < counts.length - 1; j++) {
+                        sum += counts[j];
+                    }
+                    if (sum > 0) {
+                        rel /= sum;
+                        sb.append(model.getClassShapes().get(i).getName() + ": " + String.format("%1$.4f", rel) + "\n");
                     }
                 }
-                ResultFrame result = new ResultFrame(sb.toString(), "Rare Object Detection Statistics");
-                oia.addInternalFrame(result);
-                //}
             }
+            ResultFrame result = new ResultFrame(sb.toString(), "Rare Object Detection Statistics");
+            oia.addInternalFrame(result);
+            //}
         });
 
-        btnShuffleSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                shuffle();
-            }
+        btnShuffleSpots.addActionListener(e -> shuffle());
+
+        btnShowHelp.addActionListener(e -> showHelp());
+
+        btnSaveSpots.addActionListener(e -> {
+            saveSpots(true);
+            repaintFrameAndList();
         });
 
-        btnShowHelp.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showHelp();
-            }
+        btnLoadSpots.addActionListener(e -> {
+            loadSpots();
+            repaintFrameAndList();
         });
 
-        btnSaveSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                saveSpots(true);
-            }
+        btnRemSpots.addActionListener(e -> {
+            removeSpots();
+            repaintFrameAndList();
         });
 
-        btnLoadSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                loadSpots();
-            }
+        btnRemSpotsROI.addActionListener(e -> {
+            removeSpotsInROI();
+            repaintFrameAndList();
         });
 
-        btnRemSpots.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                removeSpots();
-                repaintFrameAndList();
+        list.addListSelectionListener(e -> {
+            final ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+            if (list.getSelectedValue() != null && iFrame != null) {
+                ImageAnnotation ann = (ImageAnnotation) list.getSelectedValue();
+                ann.setSelected(true);
+                PolygonExt shape = (PolygonExt) ann.getShape().getShapeList().get(0);
+                Rectangle bb = shape.getScaledInstance(100, new Point(0, 0)).getBounds();
+                double sc = iFrame.recognitionFrame.getScale() / 100d;
+                final Point targetP = new Point((int) (bb.getCenterX() * sc) - iFrame.recognitionFrame.getWidth() / 2, (int) (bb.getCenterY() * sc) - iFrame.recognitionFrame.getHeight() / 2);
+                //final Point currentP = new Point((int)(iFrame.recognitionFrame.getViewPortOffset().x*sc),(int)(iFrame.recognitionFrame.getViewPortOffset().y*sc));
+
+                iFrame.setViewPortPositionAndAdjust(targetP);
             }
-        });
-
-        btnRemSpotsROI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                removeSpotsInROI();
-                repaintFrameAndList();
-            }
-        });
-
-        //list.addMouseListener(new MouseAdapter() {
-        list.addListSelectionListener(new ListSelectionListener() {
-                                          //public void mousePressed(java.awt.event.MouseEvent e) {
-                                          public void valueChanged(ListSelectionEvent e) {
-                                              final ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-                                              if (list.getSelectedValue() != null && iFrame != null) {
-                                                  ImageAnnotation ann = (ImageAnnotation) list.getSelectedValue();
-                                                  ann.setSelected(true);
-                                                  PolygonExt shape = (PolygonExt) ann.getShape().getShapeList().get(0);
-                                                  Rectangle bb = shape.getScaledInstance(100, new Point(0, 0)).getBounds();
-                                                  double sc = iFrame.recognitionFrame.getScale() / 100d;
-                                                  final Point targetP = new Point((int) (bb.getCenterX() * sc) - iFrame.recognitionFrame.getWidth() / 2, (int) (bb.getCenterY() * sc) - iFrame.recognitionFrame.getHeight() / 2);
-                                                  //final Point currentP = new Point((int)(iFrame.recognitionFrame.getViewPortOffset().x*sc),(int)(iFrame.recognitionFrame.getViewPortOffset().y*sc));
-
-                                                  iFrame.setViewPortPositionAndAdjust(targetP);
-                                              }
-                                          }
-                                      }
+        }
         );
 
         // layout
@@ -283,54 +258,52 @@ public class RareObjectDetectionModule extends AbstractSpotModule {
         final ProgressPanel progressPanel = new ProgressPanel(oia.getTitle(), "Object Detection", segWorker);
         oia.addAndExecuteTask(progressPanel, true);
 
-        new Thread() {
-            public void run() {
-                oia.waitForWorker(segWorker);
-                // segmentation done, nuclei should be marked in the recognitionFrame
-                List<Shape> shapes = iFrame.recognitionFrame.getObjectSegmentationList();
-                if (shapes == null) {
-                    logger.error("No shapelist found.");
-                    return;
-                }
-                if (shapes.size() == 0) {
-                    logger.info("No object found.");
-                    if (withGui)
-                        JOptionPane.showMessageDialog(RareObjectDetectionModule.this, "No object found in selected region of interest", "No object found", JOptionPane.INFORMATION_MESSAGE);
-                    return;
-                }
-                // shuffle shape list to be unbiased for manual classification
-                Collections.shuffle(shapes);
-                final DefaultListModel listModel = new DefaultListModel();
-                if (addOldFin) {
-                    for (int i = 0; i < list.getModel().getSize(); i++) {
-                        listModel.addElement(list.getModel().getElementAt(i));
-                    }
-                }
-                for (Shape shape : shapes) {
-                    // at FOV to list
-                    ClassShape cs = new ClassShape("Object", Color.white, ClassShape.SHAPETYPE_POLYGONEXT);
-                    PolygonExt pe = new PolygonExt((Polygon) shape);
-                    cs.getShapeList().add(pe);
-                    SpotAnnotation annotation = new RareEventAnnotation(SpotAnnotation.LABEL_UNIDENTIFIED, cs);
-                    annotation.setRawDataFileId(rdfId);
-                    annotation.setUserId(DEFAULT_USER);
-                    listModel.addElement(annotation);
-                    iFrame.getRecognitionFrame().getAnnotations().add(annotation);
-                }
-                if (iFrame.recognitionFrame.getObjectSegmentationList() != null)
-                    iFrame.recognitionFrame.getObjectSegmentationList().clear();
-                try {
-                    SwingUtilities.invokeAndWait(new Runnable() {
-                        public void run() {
-                            list.setModel(listModel);
-                        }
-                    });
-                } catch (Exception e) {
-                    logger.error("error updating spot list", e);
-                    e.printStackTrace();
+        new Thread(() -> {
+            oia.waitForWorker(segWorker);
+            // segmentation done, nuclei should be marked in the recognitionFrame
+            List<Shape> shapes = iFrame.recognitionFrame.getObjectSegmentationList();
+            if (shapes == null) {
+                logger.error("No shapelist found.");
+                return;
+            }
+            if (shapes.size() == 0) {
+                logger.info("No object found.");
+                if (withGui)
+                    JOptionPane.showMessageDialog(RareObjectDetectionModule.this, "No object found in selected region of interest", "No object found", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            // shuffle shape list to be unbiased for manual classification
+            Collections.shuffle(shapes);
+            final DefaultListModel listModel = new DefaultListModel();
+            if (addOldFin) {
+                for (int i = 0; i < list.getModel().getSize(); i++) {
+                    listModel.addElement(list.getModel().getElementAt(i));
                 }
             }
-        }.start();
+            for (Shape shape : shapes) {
+                // at FOV to list
+                ClassShape cs = new ClassShape("Object", Color.white, ClassShape.SHAPETYPE_POLYGONEXT);
+                PolygonExt pe = new PolygonExt((Polygon) shape);
+                cs.getShapeList().add(pe);
+                SpotAnnotation annotation = new RareEventAnnotation(SpotAnnotation.LABEL_UNIDENTIFIED, cs);
+                annotation.setRawDataFileId(rdfId);
+                annotation.setUserId(DEFAULT_USER);
+                listModel.addElement(annotation);
+                iFrame.getRecognitionFrame().getAnnotations().add(annotation);
+            }
+            if (iFrame.recognitionFrame.getObjectSegmentationList() != null)
+                iFrame.recognitionFrame.getObjectSegmentationList().clear();
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    public void run() {
+                        list.setModel(listModel);
+                    }
+                });
+            } catch (Exception e) {
+                logger.error("error updating spot list", e);
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     /**
@@ -428,6 +401,7 @@ public class RareObjectDetectionModule extends AbstractSpotModule {
                 logger.error("Error saving spots", e);
             }
         } // loginOk
+        repaintFrameAndList();
     }
 
 
