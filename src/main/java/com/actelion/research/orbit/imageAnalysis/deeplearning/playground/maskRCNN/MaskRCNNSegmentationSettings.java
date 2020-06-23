@@ -13,6 +13,10 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
     private final int maskHeight;
     private final int numClasses;
 
+    private final float minimumAreaThreshold = 1E-5f;
+    private final float boundingBoxProbabilityThreshold = 0.1f;
+    private final float pixelProbabilityThreshold = 0.45f;
+
     private static final float[] meanPixel = new float[]{170.20611747f, 172.00450216f, 177.19215462f};
 
     private final HashMap<Integer, Color> defaultAnnotationClassColours = new HashMap<>();
@@ -45,6 +49,26 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
         // Set annotation colours
         generateClassNames(numClasses);
 
+    }
+
+    /**
+     * The minimum area that a bounding box has to enclose for a detection to be considered.
+     * @return The minimum area to be considered.
+     */
+    public float getMinimumAreaThreshold() {
+        return minimumAreaThreshold;
+    }
+
+    /**
+     * The probability threshold for a bounding box to be considered a detection.
+     * @return The probability threshold [0,1].
+     */
+    public float getBoundingBoxProbabilityThreshold() {
+        return boundingBoxProbabilityThreshold;
+    }
+
+    public float getPixelProbabilityThreshold() {
+        return pixelProbabilityThreshold;
     }
 
     public void setCustomClassNames(List<Color> colors, List<String> labels) throws Exception {

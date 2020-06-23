@@ -4,6 +4,7 @@ import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.*;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
@@ -16,6 +17,7 @@ import java.io.File;
 import java.util.*;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class TestInsulinSegment {
@@ -28,7 +30,9 @@ public class TestInsulinSegment {
         s.close();
     }
 
+    // Marked as ignore since uses local files for testing (not currently available Open Source).
     @Test
+    @Ignore
     public void testSegmentation() throws Exception {
         File INPUT_IMAGE = new File("D:/deeplearning/insulin/testdata/12886016_tile19x4.jpg");
         File OUTPUT_IMAGE = new File("D:/deeplearning/insulin/testdata/12886016_tile19x4-output.jpg");
@@ -70,7 +74,7 @@ public class TestInsulinSegment {
         // To test only one tile, set a value here.
         Point tile = new Point(4, 3);
 
-        boolean storeAnnotations = true;
+        boolean storeAnnotations = false;
         File maskRCNNModel = new File("D:/deeplearning/insulin/models/insulin_009.pb");
 
         MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings(512, 512, 16f, 10, 56, 56, 5, "IsletC");
@@ -109,17 +113,21 @@ public class TestInsulinSegment {
         for (int annoNum: segmentationsPerImage.keySet()){
             System.out.println("Image "+annoNum+": number of objects segmented: "+segmentationsPerImage.get(annoNum).size());
         }
+
+        // There should be 2 objects detected in the test tile.
+        assertEquals(segmentationsPerImage.get(images[0]).size(), 3);
+        // Check the bounding box for the first image (should confirm that the scaling and translation has been done correctly).
+        assertEquals(segmentationsPerImage.get(images[0]).get(0).getBounds(),new Rectangle(36368,31680, 992, 960));
     }
 
     @Test
     public void testSegmentationAnnotationsStandard() throws Exception {
-        int[] images = {12885943}; // either orbitIDs or load via query // 1318936, 1318968
-        //int[] images = {12886016};
+        int[] images = {12885943};
 
         // To test only one tile, set a value here.
         Point tile = new Point(4, 3);
 
-        boolean storeAnnotations = true;
+        boolean storeAnnotations = false;
         File maskRCNNModel = new File("D:/deeplearning/insulin/models/insulin_009.pb");
 
         MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings(512, 512, 16f, 10, 56, 56, 5, "IsletS");
@@ -158,6 +166,11 @@ public class TestInsulinSegment {
         for (int annoNum: segmentationsPerImage.keySet()){
             System.out.println("Image "+annoNum+": number of objects segmented: "+segmentationsPerImage.get(annoNum).size());
         }
+
+        // There should be 2 objects detected in the test tile.
+        assertEquals(segmentationsPerImage.get(images[0]).size(), 2);
+        // Check the bounding box for the first image (should confirm that the scaling and translation has been done correctly).
+        assertEquals(segmentationsPerImage.get(images[0]).get(0).getBounds(),new Rectangle(34256,29136, 192, 176));
     }
 
 }

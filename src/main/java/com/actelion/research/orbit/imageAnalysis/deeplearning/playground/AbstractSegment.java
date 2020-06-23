@@ -1,17 +1,13 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning.playground;
 
 import com.actelion.research.orbit.beans.RawDataFile;
-import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.IDLSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.AbstractSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.MaskRCNNDetections;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.RawDetections;
 import com.actelion.research.orbit.imageAnalysis.models.*;
-import com.actelion.research.orbit.imageAnalysis.utils.PolygonMetrics;
 
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Map;
 

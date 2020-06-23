@@ -3,6 +3,7 @@ package com.actelion.research.orbit.imageAnalysis.test.deeplearning.playground.m
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.MaskRCNNSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.MaskRCNNSegmentationSettings;
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import org.junit.Test;
 import org.tensorflow.Session;
 
@@ -70,6 +71,10 @@ public class TestDeepRetinaSegment {
 
         File maskRCNNModel = new File("D:/deeplearning/deepretina/deepretina_final.pb");
 
+        OrbitModel segModel = OrbitModel.LoadFromInputStream(
+                this.getClass().getResourceAsStream("/resource/testmodels/dlsegmentsplit.omo"));
+        assertNotNull(segModel);
+
         MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings(512, 512, 0.5f, 512, 28, 28, 2, "NucleiS");
         MaskRCNNSegment segmentationModel = new MaskRCNNSegment(maskRCNNModel, MaskRCNNSegment.PostProcessMethod.STANDARD, settings);
 
@@ -79,7 +84,7 @@ public class TestDeepRetinaSegment {
 
         // Apply the MaskRCNN segmentation models to a list of images.
         Map<Integer, List<Shape>> segmentationsPerImage = segmentationModel.generateSegmentationAnnotations(
-                images, null, null, true);
+                images, segModel, null, true);
 
         long used = System.currentTimeMillis()-startt;
 
@@ -92,9 +97,9 @@ public class TestDeepRetinaSegment {
             System.out.println("Image "+annoNum+": number of objects segmented: "+segmentationsPerImage.get(annoNum).size());
         }
 
-        // There should be 44 objects detected in the test image: D:\deeplearning\deepretina\training-data\stage1_test\0a849e0eb15faa8a6d7329c3dd66aabe9a294cccb52ed30a90c8ca99092ae732\images\0a849e0eb15faa8a6d7329c3dd66aabe9a294cccb52ed30a90c8ca99092ae732.png
-        assertEquals(segmentationsPerImage.get(images[0]).size(), 44);
+        // There should be 39 objects detected in the test image: D:\deeplearning\deepretina\training-data\stage1_test\0a849e0eb15faa8a6d7329c3dd66aabe9a294cccb52ed30a90c8ca99092ae732\images\0a849e0eb15faa8a6d7329c3dd66aabe9a294cccb52ed30a90c8ca99092ae732.png
+        assertEquals(segmentationsPerImage.get(images[0]).size(), 38);
         // Check the bounding box for the first image (should confirm that the scaling and translation has been done correctly).
-        assertEquals(segmentationsPerImage.get(images[0]).get(0).getBounds(),new Rectangle(105,110, 19, 22));
+        assertEquals(segmentationsPerImage.get(images[0]).get(0).getBounds(),new Rectangle(0,190, 9, 19));
     }
 }

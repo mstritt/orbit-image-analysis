@@ -19,7 +19,55 @@
 
 package com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN;
 
+//TODO: Move this to detections class?
+
+import com.actelion.research.orbit.imageAnalysis.models.RectangleExt;
+
+/**
+ * MaskRCNNRawDetections. Stores the objectBB (Bounding Box) and the detection masks.
+ * Object Bound Box has one array entry, with maxDetections arrays containing: y1, x1, y2, x2, class_id, probability
+ * Masks has one array entry, with maxDetections arrays containing, the mask width x mask height with a probability of
+ * background[0] and then the probability for each class[1:numClasses].
+ */
 public class RawDetections  {
-    float[][][] objectBB; // y1,x1,y2,x2,class_id,probability (ordered desc)
-    float[][][][][] masks;  // float[1][512][28][28][2] max 512 instances, for each a 28x28 mask x probability foreground/background
+    float[][][] objectBB; // float[imageNumber][maxDetection][y1,x1,y2,x2,class_id,probability (ordered desc)]
+    float[][][][][] masks;  // float[imageNumber][maxDetections][maskwidth][maskheight][numClasses] for each mask -> probability class membership.
+
+    int getNumBoundingBoxes() {
+        return objectBB[0].length;
+    }
+
+    float getBoundingBoxProbability(int i) {
+        return objectBB[0][i][5];
+    }
+
+    int getBoundingBoxClass(int i) {
+        return (int) objectBB[0][i][4];
+    }
+
+    float getBoundingBoxArea(int i) {
+        return (objectBB[0][i][3]-objectBB[0][i][1])*(objectBB[0][i][2]-objectBB[0][i][0]);
+    }
+
+    RectangleExt getRescaledBoundingBox(int i, int imgWidth, int imgHeight) {
+        int x = (int)(objectBB[0][i][1] * imgWidth);
+        int y = (int)(objectBB[0][i][0] * imgHeight);
+        int width = (int)((objectBB[0][i][3]-objectBB[0][i][1])*imgWidth);
+        int height = (int)((objectBB[0][i][2]-objectBB[0][i][0])*imgHeight);
+        return new RectangleExt(x,y,width,height);
+    }
+
+    int getMaskWidth(int i) {
+        return masks[0][i][0].length;
+    }
+
+    int getMaskHeight(int i) {
+        return masks[0][i].length;
+    }
+
+    float getMaskPixelProbability(int i, int maskX, int maskY, int classNum) {
+        // Note the x and y axis...
+        return masks[0][i][maskY][maskX][classNum];
+    }
+
 }

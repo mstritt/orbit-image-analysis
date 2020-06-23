@@ -1,12 +1,9 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
 import com.actelion.research.orbit.beans.RawDataFile;
-import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.AbstractSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.MaskRCNNDetections;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.RawDetections;
 import com.actelion.research.orbit.imageAnalysis.models.*;
-import org.tensorflow.Session;
 
 import java.awt.*;
 import java.util.List;

@@ -454,63 +454,66 @@ public class MaskRCNNSegment extends AbstractSegment {
         Tensor<Float> inputTensor = DLHelpers.convertBufferedImageToTensor(ori,segmentationSettings.getImageWidth(),segmentationSettings.getImageHeight());
         long startt = System.currentTimeMillis();
 
-        // TODO: Extract this from the method?
         // Apply MaskRCNN model.
         RawDetections rawDetections = this.getMaskRCNNRawDetections(inputTensor);
 
         // Convert the Raw Detections into a black and white image, with foreground objects coloured white.
         BufferedImage roi = null;
+        BufferedImage detections = new BufferedImage(segmentationSettings.getImageWidth(),segmentationSettings.getImageHeight(),BufferedImage.TYPE_INT_RGB);
         if (ori != null) {
-            // masks    [1][512][28][28][2]
-            float[][][] mask = rawDetections.masks[0][0];
-            int rw = mask[0].length;
-            int rh = mask.length;
+            for (int i = 0; i < rawDetections.getNumBoundingBoxes(); i++) {
+                if (rawDetections.getBoundingBoxProbability(i) > segmentationSettings.getBoundingBoxProbabilityThreshold() && (rawDetections.getBoundingBoxArea(i) > segmentationSettings.getMinimumAreaThreshold())) {
+                    // Rescale the bounding box to the tile.
+                    RectangleExt boundingBox = rawDetections.getRescaledBoundingBox(i, segmentationSettings.getImageWidth(), segmentationSettings.getImageHeight());
 
-            roi = new BufferedImage(rw,rh,BufferedImage.TYPE_INT_RGB);
-            for (int xr=0; xr<rw; xr++) {
-                for (int yr=0; yr<rh; yr++) {
-                    float backgroundProbability = mask[yr][xr][0];
-                    float maxClassProbability = 0;
-                    for (int classes=1; classes<segmentationSettings.getNumClasses(); classes++) {
-                        if (maxClassProbability < mask[yr][xr][classes]) {
-                            maxClassProbability = mask[yr][xr][classes];
+                    int rw = rawDetections.getMaskWidth(i);
+                    int rh = rawDetections.getMaskHeight(i);
+
+                    roi = new BufferedImage(rw, rh, BufferedImage.TYPE_INT_ARGB);
+                    for (int xr = 0; xr < rw; xr++) {
+                        for (int yr = 0; yr < rh; yr++) {
+                            float backgroundProbability = rawDetections.getMaskPixelProbability(i, xr, yr, 0);
+
+                            float pixelProbability = rawDetections.getMaskPixelProbability(i, xr, yr, rawDetections.getBoundingBoxClass(i));
+                            if (pixelProbability > backgroundProbability && pixelProbability > 0.5f) {
+                                roi.setRGB(xr, yr, Color.WHITE.getRGB());//segmentationSettings.getAnnotationColor(rawDetections.getBoundingBoxClass(i)).getRGB());
+                            }
                         }
                     }
-                    if (maxClassProbability > backgroundProbability && maxClassProbability > 0.5f)
-                        // TODO: This logic is probably wrong since could mix a class 1 and class 2 prediction to make a bigger area.
-                        // TODO: Should probabilities sum to 1?
-                        // So we need to output one roi per class...
-                    //if (mask[yr][xr][1]>0.45f)
-                        // TODO: Test other thresholds for foreground vs. background.
-                    // if (mask[yr][xr][0]<mask[yr][xr][1])
-                    //if (mask[yr][xr][0]<mask[yr][xr][1] && mask[yr][xr][1]>0.5f)
-                    {
-                        roi.setRGB(xr,yr,Color.WHITE.getRGB());
+                    // scale mask to bb size
+                    BufferedImage roiScaled = new BufferedImage(boundingBox.width,boundingBox.height,BufferedImage.TYPE_INT_RGB);
+                    Graphics2D roiG = roiScaled.createGraphics();
+                    roiG.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                    roiG.drawImage(roi,0,0,boundingBox.width,boundingBox.height,null);
+                    roiG.dispose();
+
+                    Graphics2D roiG2 = detections.createGraphics();
+                    roiG2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                    roiG2.drawImage(roiScaled,boundingBox.x,boundingBox.y,null);
+                    roiG2.dispose();
+                }
+
+
+
+                long usedt = System.currentTimeMillis() - startt;
+                logger.info("segment time (s): " + usedt / 1000d);
+
+                // TODO: Move this to a test.
+                if (writeImg) {
+                    try {
+                        int tx = orbitImage.XToTileX(inputTileRaster.getMinX());
+                        int ty = orbitImage.YToTileY(inputTileRaster.getMinY());
+                        // Write the input image to temp file.
+                        ImageIO.write(Objects.requireNonNull(ori), "jpeg", File.createTempFile(String.format("orbit-debug-image%s-tile%dx%d", File.separator, tx, ty), ".jpg"));
+                        // Write the segmented mask to temp file.
+                        ImageIO.write(Objects.requireNonNull(roi), "jpeg", File.createTempFile(String.format("orbit-debug-image%s-tile%dx%d-roi", File.separator, tx, ty), ".jpg"));
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }
         }
-
-        // Resize the 'mask' to the 'image' size.
-        ////roi = resize(roi);
-
-        long usedt = System.currentTimeMillis()-startt;
-        logger.info("segment time (s): "+usedt/1000d);
-
-        // TODO: Move this to a test.
-        if (writeImg) {
-            try {
-                int tx = orbitImage.XToTileX(inputTileRaster.getMinX());
-                int ty = orbitImage.YToTileY(inputTileRaster.getMinY());
-                // Write the input image to temp file.
-                ImageIO.write(Objects.requireNonNull(ori), "jpeg", File.createTempFile(String.format("orbit-debug-image%s-tile%dx%d", File.separator, tx, ty),".jpg"));
-                // Write the segmented mask to temp file.
-                ImageIO.write(Objects.requireNonNull(roi), "jpeg", File.createTempFile(String.format("orbit-debug-image%s-tile%dx%d-roi", File.separator, tx, ty),".jpg"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return roi;
+        return detections;
     }
 
     protected BufferedImage getShiftedMask(OrbitTiledImageIOrbitImage orbitImage, Raster tileRaster, BufferedImage maskOriginal, int dx, int dy, MaskRCNNSegmentationSettings segmentationSettings) {
@@ -528,7 +531,6 @@ public class MaskRCNNSegment extends AbstractSegment {
             if (segmentationSettings.getAugmentationSettings().getFlip()) {
                 mask2 = flipImage(mask2);
             }
-//            maskOriginal = combineMasks(maskOriginal, mask2, dx / segmentationSettings.getAugmentationSettings().getScaleFactor(), dy / segmentationSettings.getAugmentationSettings().getScaleFactor());
             maskOriginal = combineMasks(maskOriginal, mask2, dx, dy );
         } catch (Exception e) {
             logger.warn("Could not shift raster, returning original image (rect="+rect+" img.bounds="+orbitImage.getBounds()+")", e);
@@ -553,8 +555,8 @@ public class MaskRCNNSegment extends AbstractSegment {
         BufferedImage maskOriginal = maskRaster(tileRaster,orbitImage, writeImg, segmentationSettings);
 
         // Shift the tile half the tile width up, down, left and right.
-        int xShift = 4096; //segmentationSettings.getImageWidth()/2;
-        int yShift = 4096; //segmentationSettings.getImageHeight()/2;
+        int xShift = (int) (segmentationSettings.getImageWidth() * segmentationSettings.getTileScaleFactor()/2); //4096; //segmentationSettings.getImageWidth()/2;
+        int yShift = (int) (segmentationSettings.getImageHeight() * segmentationSettings.getTileScaleFactor()/2); //4096; //segmentationSettings.getImageHeight()/2;
         maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, 0, yShift, segmentationSettings);
         maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, 0, -yShift, segmentationSettings);
         maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, xShift, 0, segmentationSettings);
@@ -647,6 +649,8 @@ public class MaskRCNNSegment extends AbstractSegment {
      * Method for processing detections an image from MaskRCNN.
      * This method is broadly similar to the techniques used in:
      * https://github.com/matterport/Mask_RCNN
+     * Used by the CUSTOM segmentation method. Applies Marching
+     * Squares to define contours to define the annotations.
      * @param imgWidth Width of image being processed (px).
      * @param imgHeight Height of image being processed (px).
      * @param rawDetections Raw detections from MaskRCNN.
@@ -656,27 +660,22 @@ public class MaskRCNNSegment extends AbstractSegment {
     public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, RawDetections rawDetections, Point tileOffset) {
         MaskRCNNDetections detections = new MaskRCNNDetections();
 
-        float[][] objects = rawDetections.objectBB[0]; // only one image      y1,x1,y2,x2,class_id,probability (ordered desc)
-        for (int i=0; i<objects.length; i++) {
-            float[] bb = objects[i];  // y1,x1,y2,x2,class_id,probability
-            if (bb[5]>0.1 && ((bb[3]-bb[1])*(bb[2]-bb[0])>1E-5))  {    // probability > 0.8 and area > 1E-5
-                float probability = bb[5];
-                int maskClass = (int) bb[4];
-                int x = (int)(bb[1] * imgWidth);
-                int y = (int)(bb[0] * imgHeight);
-                int width = (int)((bb[3]-bb[1])*imgWidth);
-                int height = (int)((bb[2]-bb[0])*imgHeight);
-                RectangleExt boundingBox = new RectangleExt(x,y,width,height);
+        for (int i=0; i<rawDetections.getNumBoundingBoxes(); i++) {
+            if (rawDetections.getBoundingBoxProbability(i)>segmentationSettings.getBoundingBoxProbabilityThreshold() && (rawDetections.getBoundingBoxArea(i)>segmentationSettings.getMinimumAreaThreshold()))  {    // probability > 0.8 and area > 1E-5
+                // Set probability and class of detection
+                float probability = rawDetections.getBoundingBoxProbability(i);
+                int maskClass = rawDetections.getBoundingBoxClass(i);
 
-                // masks    [1][512][28][28][2]
-                float[][][] mask = rawDetections.masks[0][i];
-                int rw = mask[0].length;
-                int rh = mask.length;
+                // Rescale the bounding box to the tile.
+                RectangleExt boundingBox = rawDetections.getRescaledBoundingBox(i, imgWidth, imgHeight);
+
+                int rw = rawDetections.getMaskWidth(i);
+                int rh = rawDetections.getMaskHeight(i);
 
                 BufferedImage roi = new BufferedImage(rw,rh,BufferedImage.TYPE_INT_ARGB);
                 for (int xr=0; xr<rw; xr++) {
                     for (int yr=0; yr<rh; yr++) {
-                        if (mask[yr][xr][1]>0.45f)
+                        if (rawDetections.getMaskPixelProbability(i, xr, yr, rawDetections.getBoundingBoxClass(i)) > segmentationSettings.getPixelProbabilityThreshold())
                         // if (mask[yr][xr][0]<mask[yr][xr][1])
                         //if (mask[yr][xr][0]<mask[yr][xr][1] && mask[yr][xr][1]>0.5f)
                         {
@@ -685,10 +684,10 @@ public class MaskRCNNSegment extends AbstractSegment {
                     }
                 }
                 // scale mask to bb size
-                BufferedImage roiScaled = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
+                BufferedImage roiScaled = new BufferedImage(boundingBox.width,boundingBox.height,BufferedImage.TYPE_INT_RGB);
                 Graphics2D roiG = roiScaled.createGraphics();
                 roiG.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                roiG.drawImage(roi,0,0,width,height,null);
+                roiG.drawImage(roi,0,0,boundingBox.width,boundingBox.height,null);
                 roiG.dispose();
 
                 // blur
@@ -734,8 +733,8 @@ public class MaskRCNNSegment extends AbstractSegment {
                     int[] xpoints = new int[contour.size()];
                     int[] ypoints = new int[contour.size()];
                     for (int j=0; j<contour.size(); j++) {
-                        xpoints[j] = (int)(x + ((contour.get(j).getX()-pad) * 1f));
-                        ypoints[j] = (int)(y + ((contour.get(j).getY()-pad) * 1f));
+                        xpoints[j] = (int)(boundingBox.x + ((contour.get(j).getX()-pad) * 1f));
+                        ypoints[j] = (int)(boundingBox.y + ((contour.get(j).getY()-pad) * 1f));
                     }
                     PolygonExt polygon = new PolygonExt(new Polygon(xpoints,ypoints, xpoints.length));
 
@@ -775,6 +774,7 @@ public class MaskRCNNSegment extends AbstractSegment {
             // Translate the image based on it's location in the whole slide image.
             polygon.translate(tileOffset.x, tileOffset.y);
 
+            // TODO: Assign the correct bounding box, probability and class.
             detections.addDetection(polygon,null,null,1, tileOffset);
         }
         return detections;
