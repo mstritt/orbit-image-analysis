@@ -21,7 +21,7 @@ public interface IDLSegment {
 
     void storeShapes(List<Shape> shapes, String basename, int rdfId, String user) throws Exception;
 
-    void storeShapes(MaskRCNNDetections detections, String basename, AbstractSegmentationSettings settings, int rdfId, String user) throws Exception;
+    void storeShapes(MaskRCNNDetections detections, AbstractSegmentationSettings settings, int rdfId, String user) throws Exception;
 
     MaskRCNNDetections processDetections(SegmentationResult segRes, Point tileOffset);
 

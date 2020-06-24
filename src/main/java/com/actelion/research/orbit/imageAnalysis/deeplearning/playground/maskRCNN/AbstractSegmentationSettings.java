@@ -20,6 +20,7 @@ public abstract class AbstractSegmentationSettings {
      * @param imageHeight The height in px of the training images.
      * @param tileScaleFactor The scale factor that was used to generate the test dataset (e.g. if image tiles were
      *                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
+     * @param annotationPrefix The prefix used to store annotations.
      */
     public AbstractSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactor, String annotationPrefix) {
         this.imageWidth = imageWidth;

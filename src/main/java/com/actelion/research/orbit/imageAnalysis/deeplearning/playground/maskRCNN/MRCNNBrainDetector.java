@@ -107,7 +107,7 @@ public class MRCNNBrainDetector implements Closeable {
         System.out.println(String.format("Ended in %ds .", elapsedTimeInSec));
     }
 
-    public List<DetectorResult> detectBrains(final BufferedImage smallImage, BufferedImage image512) throws IOException {
+    public List<DetectorResult> detectBrains(final BufferedImage smallImage, BufferedImage image512) {
         List<DetectorResult> resList = new ArrayList<>();
         Tensor<Float> input = DLHelpers.convertBufferedImageToTensor(image512,512,512);
         if (input != null) {

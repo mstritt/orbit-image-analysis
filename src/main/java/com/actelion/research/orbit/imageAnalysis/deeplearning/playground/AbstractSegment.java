@@ -39,7 +39,7 @@ public abstract class AbstractSegment implements IDLSegment {
     }
 
     @Override
-    public void storeShapes(MaskRCNNDetections detections, String basename, AbstractSegmentationSettings settings,
+    public void storeShapes(MaskRCNNDetections detections, AbstractSegmentationSettings settings,
                             int rdfId, String user) throws Exception {
         //TODO: The translation parts should be moved out of this to the detections methods.
         int i=1;

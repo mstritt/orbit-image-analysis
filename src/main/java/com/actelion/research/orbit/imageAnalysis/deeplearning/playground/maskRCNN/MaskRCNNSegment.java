@@ -412,9 +412,9 @@ public class MaskRCNNSegment extends AbstractSegment {
                                 // If running in GUI mode force user to login, else use a hardcoded user.
                                 if (!ScaleoutMode.SCALEOUTMODE.get()) {
                                     OrbitImageAnalysis.getInstance().forceLogin();
-                                    this.storeShapes(detections, "Islet_", segmentationSettings, rdfId, "AutomatedAnnotation");
+                                    this.storeShapes(detections, segmentationSettings, rdfId, "AutomatedAnnotation");
                                 } else {
-                                    this.storeShapes(detections, "Islet_", segmentationSettings, rdfId, "AutomatedAnnotation");
+                                    this.storeShapes(detections, segmentationSettings, rdfId, "AutomatedAnnotation");
                                 }
                             } catch (Exception e) {
                                 logger.error(e.getLocalizedMessage());
