@@ -50,18 +50,22 @@ public class TestCorpusCallosumSegment {
     public void testSegmentationAnnotationsCustom() throws Exception {
         int[] images = {19340922};
 
-        File maskRCNNBrainModel = new File("D:/deeplearning/corpus_callosum/finalbrainDetect2.pb");
-        File maskRCNNCorpusCallosumModel = new File("D:/deeplearning/corpus_callosum/finalbrain15-56b.pb");
-
-        MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings(512, 512, 1f, 1, 28, 28, 2, "Brain");
-        MaskRCNNSegmentationSettings corpusCallosumSettings = new MaskRCNNSegmentationSettings(1024, 1024, 1f, 1, 56, 56, 2, "Corpus_Callosum");
-
-        MaskRCNNSegment brainModel = new MaskRCNNSegment(maskRCNNBrainModel, MaskRCNNSegment.PostProcessMethod.CUSTOM, brainSettings);
-
         // Do a 'low-res' segmentation.
         RawDataFile rdf = DALConfig.getImageProvider().LoadRawDataFile(19340922);
         RecognitionFrame rf = new RecognitionFrame(rdf);
         BufferedImage smallImage = rf.bimg.getMipMaps()[rf.bimg.getMipMaps().length-1].getImage().getAsBufferedImage();
+        //noinspection IntegerDivisionInFloatingPointContext
+        float imageScale = rf.bimg.getWidth() / 1024;//smallImage.getWidth();
+
+        File maskRCNNBrainModel = new File("D:/deeplearning/corpus_callosum/finalbrainDetect2.pb");
+        File maskRCNNCorpusCallosumModel = new File("D:/deeplearning/corpus_callosum/finalbrain15-56b.pb");
+
+        MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings(512, 512, 1f, 1, 28, 28, 2, "Brain");
+        MaskRCNNSegmentationSettings corpusCallosumSettings = new MaskRCNNSegmentationSettings(1024, 1024, imageScale, 1, 56, 56, 2, "Corpus_Callosum");
+
+        MaskRCNNSegment brainModel = new MaskRCNNSegment(maskRCNNBrainModel, MaskRCNNSegment.PostProcessMethod.CUSTOM, brainSettings);
+
+
         float xScale = smallImage.getWidth()/512f;
         float yScale = smallImage.getHeight()/512f;
 

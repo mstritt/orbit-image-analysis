@@ -274,7 +274,7 @@ public class MaskRCNNSegment extends AbstractSegment {
      * @return Map with RdfId as key and annotations as List<Shape> (segmentationsPerImage).
      */
     public Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations, Point tileOnly) {
-
+        // TODO: roiGenerator - analagous to exMapGen - returns list of ROIs.
         Map<Integer, List<Shape>> segmentationsPerImage = new HashMap<>();
         // Loop over images.
         for (RawDataFile rdf : rdfList) {
