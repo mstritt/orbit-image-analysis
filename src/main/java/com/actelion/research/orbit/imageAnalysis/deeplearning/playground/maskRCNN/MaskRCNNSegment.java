@@ -148,10 +148,13 @@ public class MaskRCNNSegment extends AbstractSegment {
                 inputWidth,inputHeight,3,
                 0,0,inputWidth,inputHeight,
                 1,
-                0,0,0,0,0
+                0
         });
-        // TODO: metas needs to be dynamic with numclasses, and so does meta_data...
-        final Tensor<Float> meta_data = Tensor.create(new long[]{1,17},metas);
+        for (int i=0; i<numClasses; i++) {
+            metas.put(0);
+        }
+        int metaLength = 12 + numClasses;
+        final Tensor<Float> meta_data = Tensor.create(new long[]{1,metaLength},metas);
 
         List<Tensor<?>> res = s
                 .runner()

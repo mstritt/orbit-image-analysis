@@ -55,19 +55,24 @@ public class TestCorpusCallosumSegment {
         RecognitionFrame rf = new RecognitionFrame(rdf);
         BufferedImage smallImage = rf.bimg.getMipMaps()[rf.bimg.getMipMaps().length-1].getImage().getAsBufferedImage();
         //noinspection IntegerDivisionInFloatingPointContext
-        float imageScale = rf.bimg.getWidth() / 1024;//smallImage.getWidth();
+        Point brainImgDims = new Point(512, 512);
+        Point ccImgDims = new Point(1024, 1024);
+
+        float imageScaleX = (float) rf.bimg.getWidth() / ccImgDims.x;
+        float imageScaleY = (float) rf.bimg.getWidth() / ccImgDims.y;
 
         File maskRCNNBrainModel = new File("D:/deeplearning/corpus_callosum/finalbrainDetect2.pb");
         File maskRCNNCorpusCallosumModel = new File("D:/deeplearning/corpus_callosum/finalbrain15-56b.pb");
 
-        MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings(512, 512, 1f, 1, 28, 28, 2, "Brain");
-        MaskRCNNSegmentationSettings corpusCallosumSettings = new MaskRCNNSegmentationSettings(1024, 1024, imageScale, 1, 56, 56, 2, "Corpus_Callosum");
+
+
+        MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings(brainImgDims.x, brainImgDims.y, 1f, 1, 28, 28, 2, "Brain");
+        MaskRCNNSegmentationSettings corpusCallosumSettings = new MaskRCNNSegmentationSettings(ccImgDims.x, ccImgDims.y, imageScaleX, imageScaleY, 1, 56, 56, 2, "Corpus_Callosum");
 
         MaskRCNNSegment brainModel = new MaskRCNNSegment(maskRCNNBrainModel, MaskRCNNSegment.PostProcessMethod.CUSTOM, brainSettings);
 
 
-        float xScale = smallImage.getWidth()/512f;
-        float yScale = smallImage.getHeight()/512f;
+
 
         BufferedImage image512 = DLHelpers.resize(smallImage,brainSettings.getImageWidth(),brainSettings.getImageHeight());
 
@@ -81,10 +86,13 @@ public class TestCorpusCallosumSegment {
 
         Rectangle brainBB = brainz.getBoundingBoxes().get(0);
 
+        float xScale = (float) smallImage.getWidth()/brainImgDims.x;
+        float yScale = (float) smallImage.getHeight()/brainImgDims.y;
+
         BufferedImage brainImg = smallImage.getSubimage((int) (xScale * brainBB.x), (int) (yScale*brainBB.y),(int) (brainBB.width*xScale),(int) (brainBB.height*yScale));
         // Works but resolution loss...
         //BufferedImage brainImg = image512.getSubimage(brainBB.x, brainBB.y, brainBB.width, brainBB.height);
-        brainImg = DLHelpers.resize(brainImg, 1024, 1024);
+        brainImg = DLHelpers.resize(brainImg, brainImgDims.x, brainImgDims.y);
 
         MaskRCNNSegment ccModel = new MaskRCNNSegment(maskRCNNCorpusCallosumModel, MaskRCNNSegment.PostProcessMethod.CUSTOM, corpusCallosumSettings);
 
