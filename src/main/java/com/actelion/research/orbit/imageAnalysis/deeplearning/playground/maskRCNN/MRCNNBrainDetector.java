@@ -49,12 +49,12 @@ import java.util.List;
 public class MRCNNBrainDetector implements Closeable {
 
     private static final Logger logger = LoggerFactory.getLogger(MRCNNBrainDetector.class);
-    private static final String MODEL_FN = "D:\\dl\\models\\finalbrainDetect2.pb";
-    private static final String INPUT_IMAGE = "d:/dl/images/detect/train2/10743897.jpg";
-    private static final String OUTPUT_IMAGE = "D:/dl/images/detect/out4/10743897-roi.png";
+    private static final String MODEL_FN = "D:/deeplearning/corpus_callosum/finalbrainDetect2.pb";
+    private static final String INPUT_IMAGE = "d:/tmp/10743897.jpg";
+    private static final String OUTPUT_IMAGE = "D:/tmp/10743897-roi.png";
 
     public static final int MAX_DETECTIONS = 1;
-    public static final int size = 1024;
+    public static final int size = 512;
 
     private Graph g;
     private Session s;
@@ -199,7 +199,7 @@ public class MRCNNBrainDetector implements Closeable {
                               bi.setRGB(x1,y1,area[x1][y1]>0?fg:bg);
                         }
                     }
-                    ImageIO.write(bi,"png", new File("D:\\NoBackup\\brains\\detect\\out2\\10743897-1-roi-mask.png"));
+                    ImageIO.write(bi,"png", new File("D:\\tmp\\10743897-1-roi-mask.png"));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

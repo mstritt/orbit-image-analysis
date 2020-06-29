@@ -47,17 +47,17 @@ import java.util.Date;
 public class MRCNNCorpusCallosum implements Closeable {
 
     private static final Logger logger = LoggerFactory.getLogger(MRCNNCorpusCallosum.class);
-    private static final String MODEL_FN = "D:\\dl\\models\\finalbrain15-56b.pb";
+    private static final String MODEL_FN = "D:/deeplearning/corpus_callosum/finalbrain15-56b.pb";
     
-    private static final String INPUT_IMAGE = "D:\\NoBackup\\brains\\3\\test-roi.png";
-    private static final String OUTPUT_IMAGE = "D:\\NoBackup\\brains\\3\\test-roi-seg.png";
+    private static final String INPUT_IMAGE = "D:\\tmp\\test-roi.png";
+    private static final String OUTPUT_IMAGE = "D:\\tmp\\test-roi-seg.png";
 
     public static final int MAX_DETECTIONS = 1;
 //    public static int maskWidth = 28;
 //    public static int maskHeight = 28;
     public static int maskWidth = 56;
     public static int maskHeight = 56;
-    public static int size = 1024;
+    public static int size = 512;
 
     
     
