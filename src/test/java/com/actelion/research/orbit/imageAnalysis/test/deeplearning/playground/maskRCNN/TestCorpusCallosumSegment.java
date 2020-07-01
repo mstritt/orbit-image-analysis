@@ -11,6 +11,7 @@ import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Date;
@@ -96,15 +97,17 @@ public class TestCorpusCallosumSegment {
         // rescale it so the bounding box is the same scale as the whole slide image.
         // and then chop out a sub-image that covers the brain from the whole slide image.
         int pad = 20;
-        Rectangle bbScaled = new Rectangle((int) ((brainBB.x-pad) * xScale), (int) ((brainBB.y-pad) * yScale), (int) ((brainBB.width+pad*2) * xScale), (int) ((brainBB.height+pad*2) * yScale));
+        Rectangle brainBBPadded = new Rectangle(brainBB.x - pad, brainBB.y - pad, brainBB.width + pad*2, brainBB.height + pad*2);
+
+        Rectangle bbScaled = new Rectangle((int) ((brainBBPadded.x) * xScale), (int) ((brainBBPadded.y) * yScale), (int) ((brainBBPadded.width) * xScale), (int) ((brainBBPadded.height) * yScale));
         bbScaled = new Rectangle(smallImage.getMinX(),smallImage.getMinY(),smallImage.getWidth(),smallImage.getHeight()).intersection(bbScaled);
         BufferedImage brainImg = smallImage.getSubimage(bbScaled.x,bbScaled.y,(int)bbScaled.getWidth(),(int)bbScaled.getHeight());
         brainImg = DLHelpers.resize(brainImg, ccImgDims.x, ccImgDims.y);
 
         // Determine the rescaling factor for the area of interest (brain + padding) compared to the desired size
         // of the image for detecting the Corpus Callosum.
-        float brainScaleX = (float) (brainBB.width + pad*2) / (float) ccImgDims.x;
-        float brainScaleY = (float) (brainBB.height+ pad*2) / (float) ccImgDims.y;
+        float brainScaleX = (float) brainBBPadded.width / (float) ccImgDims.x;
+        float brainScaleY = (float) brainBBPadded.height / (float) ccImgDims.y;
 
         // Settings for Corpus Callosum detection.
         MaskRCNNSegmentationSettings corpusCallosumSettings = new MaskRCNNSegmentationSettings(ccImgDims.x, ccImgDims.y, brainScaleX, brainScaleY, 1, 56, 56, 2, "Corpus_Callosum");
@@ -123,7 +126,9 @@ public class TestCorpusCallosumSegment {
         float imageScaleY = (float) rf.bimg.getHeight() / (float) brainImgDims.y;
 
         // Extract the detections for annotations.
-        MaskRCNNDetections cc = ccModel.processDetections(corpusCallosumSettings.getImageWidth(), corpusCallosumSettings.getImageHeight(),rawCC, new Point((int) imageScaleX, (int) imageScaleY));
+        // TODO: This method is currently being abused... (point being used for scaling, not translation...)
+        Point2D scaleFactor = new Point2D.Float(imageScaleX, imageScaleY);
+        MaskRCNNDetections cc = ccModel.processDetections(corpusCallosumSettings.getImageWidth(), corpusCallosumSettings.getImageHeight(),rawCC, brainBBPadded, scaleFactor, new Point(0,0));
 
         // Store annotations.
         ccModel.storeShapes(cc, corpusCallosumSettings, 19340922, "AutomatedAnnotation");
@@ -131,7 +136,7 @@ public class TestCorpusCallosumSegment {
         // Expect one Corpus Callosum
         assertEquals(cc.getDetections().size(), 1);
         // Expect Bounding Box:
-        assertEquals(cc.getDetections().get(0).getBoundingBox().getBounds(),new Rectangle(464,164, 214, 699));
+        assertEquals(cc.getDetections().get(0).getBoundingBox().getBounds(),new Rectangle(20787,10238, 3173, 18283));
 
     }
 

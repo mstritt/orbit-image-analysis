@@ -650,6 +650,11 @@ public class MaskRCNNSegment extends AbstractSegment {
         return processDetections(imgWidth, imgHeight, rawDetections, tileOffset);
     }
 
+
+    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, RawDetections rawDetections, Point tileOffset) {
+        return processDetections(imgWidth, imgHeight, rawDetections, new Rectangle(), new Point2D.Float(0f,0f), tileOffset);
+    }
+
     /**
      * Method for processing detections an image from MaskRCNN.
      * This method is broadly similar to the techniques used in:
@@ -659,10 +664,12 @@ public class MaskRCNNSegment extends AbstractSegment {
      * @param imgWidth Width of image being processed (px).
      * @param imgHeight Height of image being processed (px).
      * @param rawDetections Raw detections from MaskRCNN.
+     * @param subImageBoundingBox
+     * @param scaleFactor
      * @param tileOffset The offset
      * @return Processed detections.
      */
-    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, RawDetections rawDetections, Point tileOffset) {
+    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, RawDetections rawDetections, Rectangle subImageBoundingBox, Point2D scaleFactor, Point tileOffset) {
         MaskRCNNDetections detections = new MaskRCNNDetections();
 
         for (int i=0; i<rawDetections.getNumBoundingBoxes(); i++) {
@@ -758,10 +765,12 @@ public class MaskRCNNSegment extends AbstractSegment {
                         //polyScaled.setScale(polygon.getScale());
                         for (int k = 0; k < polygon.npoints; k++) {
 //                            polyScaled.addPoint((int) ((polygon.xpoints[k] * segmentationSettings.getTileScaleFactorX()+boundingBox.x)*tileOffset.x), (int) (((polygon.ypoints[k] * segmentationSettings.getTileScaleFactorY()+boundingBox.y)*tileOffset.y)));
-                            polyScaled.addPoint((int) ((polygon.xpoints[k] * segmentationSettings.getTileScaleFactorX()+184)*tileOffset.x), (int) (((polygon.ypoints[k] * segmentationSettings.getTileScaleFactorY()+62)*tileOffset.y)));
+                            polyScaled.addPoint(
+                                    (int) ((polygon.xpoints[k] * segmentationSettings.getTileScaleFactorX() + subImageBoundingBox.x) * scaleFactor.getX()),
+                                    (int) ((polygon.ypoints[k] * segmentationSettings.getTileScaleFactorY() + subImageBoundingBox.y) * scaleFactor.getY()));
 
                         }
-                        //polyScaled.translate(tileOffset.x, tileOffset.y);
+                        polyScaled.translate(tileOffset.x, tileOffset.y);
                         polyScaled.setClosed(true);
                         polyScaled.setOnlyPoints(false);
                         RectangleExt pBB = new RectangleExt(polyScaled.getBounds().x, polyScaled.getBounds().y, polyScaled.getBounds().width, polyScaled.getBounds().height);
@@ -777,7 +786,6 @@ public class MaskRCNNSegment extends AbstractSegment {
         }
         return detections;
     }
-
 
     /**
      * Method for processing detections using in-built Orbit functionality to process a mask from MaskRCNN.
