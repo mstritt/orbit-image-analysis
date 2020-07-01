@@ -16,6 +16,7 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
     private final float minimumAreaThreshold = 1E-5f;
     private final float boundingBoxProbabilityThreshold = 0.1f;
     private final float pixelProbabilityThreshold = 0.45f;
+    private final float marchingSquaresContourThreshold = 0.5f;
 
     private static final float[] meanPixel = new float[]{170.20611747f, 172.00450216f, 177.19215462f};
 
@@ -27,10 +28,11 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
 
 
     /**
-     * Setup and store the settings used for MaskRCNN training and inference.
+     * Convenience constructor. Setup and store the settings used for MaskRCNN training and inference.
      * @param imageWidth The width in px of the training images.
      * @param imageHeight The height in px of the training images.
-     * @param tileScaleFactor The scale factor that was used to generate the test dataset (e.g. if image tiles were
+     * @param tileScaleFactor The scale factor (when x and y scales are equal) that was used to generate the
+     *                        test dataset (e.g. if image tiles were
      *                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
      * @param maxDetections The maximum number of predictions to return.
      * @param maskWidth The width of the mask used to train the model (px).
@@ -40,7 +42,29 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
      */
     public MaskRCNNSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactor, int maxDetections,
                                         int maskWidth, int maskHeight, int numClasses, String annotationPrefix) {
-        super(imageWidth, imageHeight, tileScaleFactor, annotationPrefix);
+        this(imageWidth, imageHeight, tileScaleFactor, tileScaleFactor, maxDetections,
+                maskWidth, maskHeight, numClasses, annotationPrefix);
+    }
+
+    /**
+     * Setup and store the settings used for MaskRCNN training and inference.
+     * @param imageWidth The width in px of the training images.
+     * @param imageHeight The height in px of the training images.
+     * @param tileScaleFactorX The scale factor in the x-axis that was used to generate the test dataset (e.g. if
+     *                         image tiles were size 8192 px, and training images were output at 512 px,
+     *                         then tileScaleFactor=16.
+     * @param tileScaleFactorY The scale factor in the y-axis that was used to generate the test dataset (e.g. if
+     *                         image tiles were size 8192 px, and training images were output at 512 px,
+     *                         then tileScaleFactor=16.
+     * @param maxDetections The maximum number of predictions to return.
+     * @param maskWidth The width of the mask used to train the model (px).
+     * @param maskHeight The height of the mask used to train the model (px).
+     * @param numClasses The number of classes in the trained model (Background + other classes).
+     *                   e.g. for classes: Background, g0, g1, g2, g3 -> numClasses = 5.
+     */
+    public MaskRCNNSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, int maxDetections,
+                                        int maskWidth, int maskHeight, int numClasses, String annotationPrefix) {
+        super(imageWidth, imageHeight, tileScaleFactorX, tileScaleFactorY, annotationPrefix);
         this.maxDetections = maxDetections;
         this.maskWidth = maskWidth;
         this.maskHeight = maskHeight;
@@ -48,7 +72,6 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
 
         // Set annotation colours
         generateClassNames(numClasses);
-
     }
 
     /**
@@ -69,6 +92,10 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
 
     public float getPixelProbabilityThreshold() {
         return pixelProbabilityThreshold;
+    }
+
+    public float getMarchingSquaresContourThreshold() {
+        return marchingSquaresContourThreshold;
     }
 
     public void setCustomClassNames(List<Color> colors, List<String> labels) throws Exception {

@@ -48,76 +48,91 @@ public class TestCorpusCallosumSegment {
 
     @Test
     public void testSegmentationAnnotationsCustom() throws Exception {
+        // Test image (Orbit/RDF ID).
         int[] images = {19340922};
 
         // Do a 'low-res' segmentation.
-        RawDataFile rdf = DALConfig.getImageProvider().LoadRawDataFile(19340922);
+        RawDataFile rdf = DALConfig.getImageProvider().LoadRawDataFile(images[0]);
         RecognitionFrame rf = new RecognitionFrame(rdf);
+
+        // Whole slide image containing a brain (at top-level of image pyramid - lowest resolution).
         BufferedImage smallImage = rf.bimg.getMipMaps()[rf.bimg.getMipMaps().length-1].getImage().getAsBufferedImage();
-        //noinspection IntegerDivisionInFloatingPointContext
+
+        // Size of image to use for brain detection.
         Point brainImgDims = new Point(512, 512);
-        Point ccImgDims = new Point(1024, 1024);
+        // Size of image to use for Corpus Callosum detection.
+        Point ccImgDims = new Point(512, 512);
 
-        float imageScaleX = (float) rf.bimg.getWidth() / ccImgDims.x;
-        float imageScaleY = (float) rf.bimg.getWidth() / ccImgDims.y;
-
+        // Load MaskRCNN models.
         File maskRCNNBrainModel = new File("D:/deeplearning/corpus_callosum/finalbrainDetect2.pb");
         File maskRCNNCorpusCallosumModel = new File("D:/deeplearning/corpus_callosum/finalbrain15-56b.pb");
 
 
-
+        // Setup the brain detector.
         MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings(brainImgDims.x, brainImgDims.y, 1f, 1, 28, 28, 2, "Brain");
-        MaskRCNNSegmentationSettings corpusCallosumSettings = new MaskRCNNSegmentationSettings(ccImgDims.x, ccImgDims.y, imageScaleX, imageScaleY, 1, 56, 56, 2, "Corpus_Callosum");
 
         MaskRCNNSegment brainModel = new MaskRCNNSegment(maskRCNNBrainModel, MaskRCNNSegment.PostProcessMethod.CUSTOM, brainSettings);
 
-
-
-
+        // Resize the whole slide image to low-res for the MaskRCNN brain detection.
         BufferedImage image512 = DLHelpers.resize(smallImage,brainSettings.getImageWidth(),brainSettings.getImageHeight());
 
         Tensor<Float> input = DLHelpers.convertBufferedImageToTensor(image512, brainSettings.getImageWidth(), brainSettings.getImageHeight());
 
+        // Detect, and process the detected brain.
         RawDetections rawBrain = brainModel.getMaskRCNNRawDetections(input);
         MaskRCNNDetections brainz = brainModel.processDetections(brainSettings.getImageWidth(), brainSettings.getImageHeight(),rawBrain);
 
         // Should only find one brain.
         assertEquals(brainz.getDetections().size(), 1);
 
+        // Bounding box that covers the brain.
         Rectangle brainBB = brainz.getBoundingBoxes().get(0);
 
-        float xScale = (float) smallImage.getWidth()/brainImgDims.x;
-        float yScale = (float) smallImage.getHeight()/brainImgDims.y;
+        // Scaling factor to rescale the bounding box to the whole slide image.
+        float xScale = (float) smallImage.getWidth()/ (float) brainImgDims.x;
+        float yScale = (float) smallImage.getHeight()/ (float) brainImgDims.y;
 
-        BufferedImage brainImg = smallImage.getSubimage((int) (xScale * brainBB.x), (int) (yScale*brainBB.y),(int) (brainBB.width*xScale),(int) (brainBB.height*yScale));
-        // Works but resolution loss...
-        //BufferedImage brainImg = image512.getSubimage(brainBB.x, brainBB.y, brainBB.width, brainBB.height);
-        brainImg = DLHelpers.resize(brainImg, brainImgDims.x, brainImgDims.y);
+        // Create a border padding around the bounding box,
+        // rescale it so the bounding box is the same scale as the whole slide image.
+        // and then chop out a sub-image that covers the brain from the whole slide image.
+        int pad = 20;
+        Rectangle bbScaled = new Rectangle((int) ((brainBB.x-pad) * xScale), (int) ((brainBB.y-pad) * yScale), (int) ((brainBB.width+pad*2) * xScale), (int) ((brainBB.height+pad*2) * yScale));
+        bbScaled = new Rectangle(smallImage.getMinX(),smallImage.getMinY(),smallImage.getWidth(),smallImage.getHeight()).intersection(bbScaled);
+        BufferedImage brainImg = smallImage.getSubimage(bbScaled.x,bbScaled.y,(int)bbScaled.getWidth(),(int)bbScaled.getHeight());
+        brainImg = DLHelpers.resize(brainImg, ccImgDims.x, ccImgDims.y);
 
+        // Determine the rescaling factor for the area of interest (brain + padding) compared to the desired size
+        // of the image for detecting the Corpus Callosum.
+        float brainScaleX = (float) (brainBB.width + pad*2) / (float) ccImgDims.x;
+        float brainScaleY = (float) (brainBB.height+ pad*2) / (float) ccImgDims.y;
+
+        // Settings for Corpus Callosum detection.
+        MaskRCNNSegmentationSettings corpusCallosumSettings = new MaskRCNNSegmentationSettings(ccImgDims.x, ccImgDims.y, brainScaleX, brainScaleY, 1, 56, 56, 2, "Corpus_Callosum");
+
+        // Setup the Corpus Callosum segmentation model.
         MaskRCNNSegment ccModel = new MaskRCNNSegment(maskRCNNCorpusCallosumModel, MaskRCNNSegment.PostProcessMethod.CUSTOM, corpusCallosumSettings);
 
+        // Create tensor from brain image.
         Tensor<Float> input2 = DLHelpers.convertBufferedImageToTensor(brainImg, corpusCallosumSettings.getImageWidth(), corpusCallosumSettings.getImageHeight());
 
+        // Apply Corpus Callosum Model
         RawDetections rawCC = ccModel.getMaskRCNNRawDetections(input2);
-        MaskRCNNDetections cc = ccModel.processDetections(corpusCallosumSettings.getImageWidth(), corpusCallosumSettings.getImageHeight(),rawCC);
 
+        // Scaling factor for the whole slide image relative to the brain image used for Corpus Callosum detection.
+        float imageScaleX = (float) rf.bimg.getWidth() / (float) brainImgDims.x;
+        float imageScaleY = (float) rf.bimg.getHeight() / (float) brainImgDims.y;
+
+        // Extract the detections for annotations.
+        MaskRCNNDetections cc = ccModel.processDetections(corpusCallosumSettings.getImageWidth(), corpusCallosumSettings.getImageHeight(),rawCC, new Point((int) imageScaleX, (int) imageScaleY));
+
+        // Store annotations.
         ccModel.storeShapes(cc, corpusCallosumSettings, 19340922, "AutomatedAnnotation");
-//        OrbitModel segModel = OrbitModel.LoadFromInputStream(
-//                this.getClass().getResourceAsStream("/resource/testmodels/dlsegmentsplit.omo"));
-//        assertNotNull(segModel);
-//        Map<Integer, List<Shape>> segmentationsPerImage = ccModel.generateSegmentationAnnotations(
-//                images, segModel, null, true);
 
         // Expect one Corpus Callosum
         assertEquals(cc.getDetections().size(), 1);
         // Expect Bounding Box:
         assertEquals(cc.getDetections().get(0).getBoundingBox().getBounds(),new Rectangle(464,164, 214, 699));
 
-
-        // There should be 44 objects detected in the test image: D:\deeplearning\deepretina\training-data\stage1_test\0a849e0eb15faa8a6d7329c3dd66aabe9a294cccb52ed30a90c8ca99092ae732\images\0a849e0eb15faa8a6d7329c3dd66aabe9a294cccb52ed30a90c8ca99092ae732.png
-//        assertEquals(segmentationsPerImage.get(images[0]).size(), 44);
-        // Check the bounding box for the first image (should confirm that the scaling and translation has been done correctly).
-//        assertEquals(segmentationsPerImage.get(images[0]).get(0).getBounds(),new Rectangle(105,110, 19, 22));
     }
 
 }

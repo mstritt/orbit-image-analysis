@@ -11,10 +11,12 @@ public abstract class AbstractSegmentationSettings {
     private final int trainingImageTileWidth;
     private final int trainingImageTileHeight;
 
-    private final float tileScaleFactor;
+    private final float tileScaleFactorX;
+    private final float tileScaleFactorY;
     private final String annotationPrefix;
 
     /**
+     * Convenience method when scale factor is equal in both dimensions.
      * Setup and store the settings used for abstract segmentation model training and inference.
      * @param imageWidth The width in px of the training images.
      * @param imageHeight The height in px of the training images.
@@ -23,11 +25,26 @@ public abstract class AbstractSegmentationSettings {
      * @param annotationPrefix The prefix used to store annotations.
      */
     public AbstractSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactor, String annotationPrefix) {
+        this(imageWidth, imageHeight, tileScaleFactor, tileScaleFactor, annotationPrefix);
+    }
+
+    /**
+     * Setup and store the settings used for abstract segmentation model training and inference.
+     * @param imageWidth The width in px of the training images.
+     * @param imageHeight The height in px of the training images.
+     * @param tileScaleFactorX The scale factor in x-axis that was used to generate the test dataset (e.g. if image tiles were
+     *                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
+     * @param tileScaleFactorY The scale factor in y-axis that was used to generate the test dataset (e.g. if image tiles were
+     *                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
+     * @param annotationPrefix The prefix used to store annotations.
+     */
+    public AbstractSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, String annotationPrefix) {
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
-        this.trainingImageTileWidth = (int) (imageWidth * tileScaleFactor);
-        this.trainingImageTileHeight = (int) (imageHeight * tileScaleFactor);
-        this.tileScaleFactor = tileScaleFactor;
+        this.trainingImageTileWidth = (int) (imageWidth * tileScaleFactorX);
+        this.trainingImageTileHeight = (int) (imageHeight * tileScaleFactorY);
+        this.tileScaleFactorX = tileScaleFactorX;
+        this.tileScaleFactorY = tileScaleFactorY;
         this.augmentationSettings = new AugmentationSettings();
         this.annotationPrefix = annotationPrefix;
     }
@@ -70,12 +87,38 @@ public abstract class AbstractSegmentationSettings {
         return trainingImageTileWidth;
     }
 
-    public float getTileScaleFactor() {
-        return tileScaleFactor;
+    @Deprecated
+    public float getTileScaleFactor() throws Exception {
+        if (tileScaleFactorX == tileScaleFactorY) {
+            return tileScaleFactorX;
+        } else {
+            throw new Exception("Tiles have different scales in X and Y.");
+        }
     }
 
-    public double getTileScaleFactorPercent() {
-        return tileScaleFactor * 100.0d;
+    public float getTileScaleFactorX() {
+        return tileScaleFactorX;
+    }
+
+    public float getTileScaleFactorY() {
+        return tileScaleFactorY;
+    }
+
+    @Deprecated
+    public double getTileScaleFactorPercent() throws Exception {
+        if (tileScaleFactorX == tileScaleFactorY) {
+            return tileScaleFactorX;
+        } else {
+            throw new Exception("Tiles have different scales in X and Y.");
+        }
+    }
+
+    public double getTileScaleFactorXPercent() {
+        return tileScaleFactorX * 100.0d;
+    }
+
+    public double getTileScaleFactorYPercent() {
+        return tileScaleFactorY * 100.0d;
     }
 
     public int getTrainingImageTileHeight() {

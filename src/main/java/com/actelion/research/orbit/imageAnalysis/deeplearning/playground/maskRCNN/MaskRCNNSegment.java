@@ -142,18 +142,20 @@ public class MaskRCNNSegment extends AbstractSegment {
         //        [scale[0]] +                     # size=1 NO LONGER, I dont have time to correct this properly so take only the first element
         //        list(active_class_ids)        # size=num_classes
         //    )
-        final FloatBuffer metas = FloatBuffer.wrap(new float[]{
+        int metaLength = 12 + numClasses;
+        FloatBuffer metas = FloatBuffer.allocate(metaLength);
+        metas.put(new float[]{
                 0,
                 inputWidth,inputHeight,3,
                 inputWidth,inputHeight,3,
                 0,0,inputWidth,inputHeight,
-                1,
-                0
+                1
         });
-        for (int i=0; i<numClasses; i++) {
-            metas.put(0);
+        for(int i=0; i<numClasses; i++) {
+            metas.put(0f);
         }
-        int metaLength = 12 + numClasses;
+        metas.rewind();
+
         final Tensor<Float> meta_data = Tensor.create(new long[]{1,metaLength},metas);
 
         List<Tensor<?>> res = s
@@ -558,8 +560,8 @@ public class MaskRCNNSegment extends AbstractSegment {
         BufferedImage maskOriginal = maskRaster(tileRaster,orbitImage, writeImg, segmentationSettings);
 
         // Shift the tile half the tile width up, down, left and right.
-        int xShift = (int) (segmentationSettings.getImageWidth() * segmentationSettings.getTileScaleFactor()/2); //4096; //segmentationSettings.getImageWidth()/2;
-        int yShift = (int) (segmentationSettings.getImageHeight() * segmentationSettings.getTileScaleFactor()/2); //4096; //segmentationSettings.getImageHeight()/2;
+        int xShift = (int) (segmentationSettings.getImageWidth() * segmentationSettings.getTileScaleFactorX()/2); //4096; //segmentationSettings.getImageWidth()/2;
+        int yShift = (int) (segmentationSettings.getImageHeight() * segmentationSettings.getTileScaleFactorY()/2); //4096; //segmentationSettings.getImageHeight()/2;
         maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, 0, yShift, segmentationSettings);
         maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, 0, -yShift, segmentationSettings);
         maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, xShift, 0, segmentationSettings);
@@ -732,7 +734,7 @@ public class MaskRCNNSegment extends AbstractSegment {
 //                }
 
                 final ArrayList<Point2D> contour = new ArrayList<>();
-                if (MarchingSquares.calculateContour(contour, area, 1, 0.5f)) {
+                if (MarchingSquares.calculateContour(contour, area, 1, segmentationSettings.getMarchingSquaresContourThreshold())) {
                     int[] xpoints = new int[contour.size()];
                     int[] ypoints = new int[contour.size()];
                     for (int j=0; j<contour.size(); j++) {
@@ -740,14 +742,33 @@ public class MaskRCNNSegment extends AbstractSegment {
                         ypoints[j] = (int)(boundingBox.y + ((contour.get(j).getY()-pad) * 1f));
                     }
                     PolygonExt polygon = new PolygonExt(new Polygon(xpoints,ypoints, xpoints.length));
+                    PolygonExt polyScaled =  new PolygonExt();
 
                     // The polygon must be scaled correctly now, so that it is stored correctly later.
-                    polygon = polygon.scale(segmentationSettings.getTileScaleFactorPercent(), new Point(0,0));
+                    if (segmentationSettings.getTileScaleFactorX() == segmentationSettings.getTileScaleFactorY()) {
+                        polygon = polygon.scale(segmentationSettings.getTileScaleFactorXPercent(), new Point(0,0));
 
-                    // Translate the image based on it's location in the whole slide image.
-                    polygon.translate(tileOffset.x, tileOffset.y);
+                        // Translate the image based on it's location in the whole slide image.
+                        polygon.translate(tileOffset.x, tileOffset.y);
+                        polygon.setClosed(true);
+                        polygon.setOnlyPoints(false);
+                        RectangleExt pBB = new RectangleExt(polygon.getBounds().x, polygon.getBounds().y, polygon.getBounds().width, polygon.getBounds().height);
+                        detections.addDetection(polygon, pBB, probability, maskClass, tileOffset);
+                    } else {
+                        //polyScaled.setScale(polygon.getScale());
+                        for (int k = 0; k < polygon.npoints; k++) {
+//                            polyScaled.addPoint((int) ((polygon.xpoints[k] * segmentationSettings.getTileScaleFactorX()+boundingBox.x)*tileOffset.x), (int) (((polygon.ypoints[k] * segmentationSettings.getTileScaleFactorY()+boundingBox.y)*tileOffset.y)));
+                            polyScaled.addPoint((int) ((polygon.xpoints[k] * segmentationSettings.getTileScaleFactorX()+184)*tileOffset.x), (int) (((polygon.ypoints[k] * segmentationSettings.getTileScaleFactorY()+62)*tileOffset.y)));
 
-                    detections.addDetection(polygon, boundingBox, probability, maskClass, tileOffset);
+                        }
+                        //polyScaled.translate(tileOffset.x, tileOffset.y);
+                        polyScaled.setClosed(true);
+                        polyScaled.setOnlyPoints(false);
+                        RectangleExt pBB = new RectangleExt(polyScaled.getBounds().x, polyScaled.getBounds().y, polyScaled.getBounds().width, polyScaled.getBounds().height);
+                        detections.addDetection(polyScaled, pBB, probability, maskClass, tileOffset);
+                    }
+
+
 
                 }
 
@@ -772,7 +793,7 @@ public class MaskRCNNSegment extends AbstractSegment {
             polygon.setClosed(true);
 
             // Rescale the shape to display properly on the whole slide image.
-            polygon = polygon.scale(segmentationSettings.getTileScaleFactorPercent(), new Point(0,0));
+            polygon = polygon.scale(segmentationSettings.getTileScaleFactorXPercent(), new Point(0,0));
 
             // Translate the image based on it's location in the whole slide image.
             polygon.translate(tileOffset.x, tileOffset.y);
