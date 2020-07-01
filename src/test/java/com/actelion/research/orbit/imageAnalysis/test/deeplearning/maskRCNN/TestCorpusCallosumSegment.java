@@ -1,11 +1,15 @@
-package com.actelion.research.orbit.imageAnalysis.test.deeplearning.playground.maskRCNN;
+package com.actelion.research.orbit.imageAnalysis.test.deeplearning.maskRCNN;
 
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLSegment;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegment;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNRawDetections;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.*;
-import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
@@ -14,9 +18,6 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -41,6 +42,8 @@ public class TestCorpusCallosumSegment {
 
     }
 
+    @Deprecated
+    @Ignore
     @Test
     public void testCorpusCallosumDetector() throws Exception {
         CorpusCallosumAnnotator annotator = new CorpusCallosumAnnotator();
@@ -80,7 +83,7 @@ public class TestCorpusCallosumSegment {
         Tensor<Float> input = DLHelpers.convertBufferedImageToTensor(image512, brainSettings.getImageWidth(), brainSettings.getImageHeight());
 
         // Detect, and process the detected brain.
-        RawDetections rawBrain = brainModel.getMaskRCNNRawDetections(input);
+        MaskRCNNRawDetections rawBrain = brainModel.getMaskRCNNRawDetections(input);
         MaskRCNNDetections brainz = brainModel.processDetections(brainSettings.getImageWidth(), brainSettings.getImageHeight(),rawBrain);
 
         // Should only find one brain.
@@ -119,7 +122,7 @@ public class TestCorpusCallosumSegment {
         Tensor<Float> input2 = DLHelpers.convertBufferedImageToTensor(brainImg, corpusCallosumSettings.getImageWidth(), corpusCallosumSettings.getImageHeight());
 
         // Apply Corpus Callosum Model
-        RawDetections rawCC = ccModel.getMaskRCNNRawDetections(input2);
+        MaskRCNNRawDetections rawCC = ccModel.getMaskRCNNRawDetections(input2);
 
         // Scaling factor for the whole slide image relative to the brain image used for Corpus Callosum detection.
         float imageScaleX = (float) rf.bimg.getWidth() / (float) brainImgDims.x;

@@ -17,7 +17,7 @@
  *
  */
 
-package com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN;
+package com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN;
 
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
 import com.actelion.research.orbit.imageAnalysis.models.RectangleExt;

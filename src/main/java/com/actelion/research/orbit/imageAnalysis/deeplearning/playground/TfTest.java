@@ -24,6 +24,7 @@ import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
 
+@Deprecated
 public class TfTest {
     public static void main(String[] args) throws Exception {
         try (Graph g = new Graph()) {

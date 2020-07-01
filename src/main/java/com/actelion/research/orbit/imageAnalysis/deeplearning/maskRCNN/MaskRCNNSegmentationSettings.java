@@ -1,10 +1,10 @@
-package com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN;
+package com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN;
+
+import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegmentationSettings;
 
 import java.awt.*;
-import java.io.InvalidObjectException;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
 

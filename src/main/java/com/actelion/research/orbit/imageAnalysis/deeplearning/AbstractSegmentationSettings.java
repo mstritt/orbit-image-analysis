@@ -1,4 +1,4 @@
-package com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN;
+package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
 import java.awt.*;
 

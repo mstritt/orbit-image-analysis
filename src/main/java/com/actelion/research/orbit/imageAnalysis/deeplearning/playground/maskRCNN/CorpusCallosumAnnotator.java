@@ -23,6 +23,7 @@ import com.actelion.research.orbit.beans.RawAnnotation;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
 import com.actelion.research.orbit.imageAnalysis.models.ImageAnnotation;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
 
@@ -33,7 +34,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 
-
+@Deprecated
 public class CorpusCallosumAnnotator {
 
     public static int size = 512;

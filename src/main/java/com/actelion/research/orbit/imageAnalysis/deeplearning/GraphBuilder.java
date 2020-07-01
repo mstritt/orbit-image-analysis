@@ -25,6 +25,7 @@ import org.tensorflow.Output;
 import org.tensorflow.Tensor;
 import org.tensorflow.types.UInt8;
 
+@Deprecated
 public class GraphBuilder {
 
 	// In the fullness of time, equivalents of the methods of this class should

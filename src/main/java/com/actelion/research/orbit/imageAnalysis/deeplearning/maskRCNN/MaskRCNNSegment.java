@@ -1,4 +1,4 @@
-package com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN;
+package com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN;
 
 import com.actelion.research.orbit.beans.RawAnnotation;
 import com.actelion.research.orbit.beans.RawDataFile;
@@ -7,7 +7,8 @@ import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.AbstractSegment;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegment;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.DLHelpers;
 import com.actelion.research.orbit.imageAnalysis.imaging.TileSizeWrapper;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
@@ -34,7 +35,7 @@ import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.List;
 
-import static com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.DLHelpers.*;
+import static com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers.*;
 
 /**
  * MaskRCNNSegment class for applying MaskRCNN Segmentation models, and keeping track of the
@@ -86,7 +87,7 @@ public class MaskRCNNSegment extends AbstractSegment {
      * @param input Tensorflow tensor representation of image for object detection.
      * @return RawDetections from MaskRCNN model.
      */
-    public RawDetections getMaskRCNNRawDetections(final Tensor<Float> input) {
+    public MaskRCNNRawDetections getMaskRCNNRawDetections(final Tensor<Float> input) {
         return getMaskRCNNRawDetections(
                 input,
                 this.segmentationSettings.getImageWidth(),
@@ -103,7 +104,7 @@ public class MaskRCNNSegment extends AbstractSegment {
      * @param orbitImage Orbit Image to apply MaskRCNN to.
      * @return RawDetections from MaskRCNN model.
      */
-    public RawDetections getMaskRCNNRawDetections(final Point tileCoords, OrbitTiledImageIOrbitImage orbitImage) {
+    public MaskRCNNRawDetections getMaskRCNNRawDetections(final Point tileCoords, OrbitTiledImageIOrbitImage orbitImage) {
 
         Raster tileRaster = orbitImage.getTile(tileCoords.x, tileCoords.y);
         WritableRaster writeableTileRaster = (WritableRaster) tileRaster.createTranslatedChild(0, 0);
@@ -132,7 +133,7 @@ public class MaskRCNNSegment extends AbstractSegment {
      * @param numClasses The number of classes to detect (must match the exported model included in the TensorFlow session object.
      * @return a RawDetections object.
      */
-    public RawDetections getMaskRCNNRawDetections(final Tensor<Float> inputTensor, final int inputWidth, final int inputHeight, final int maxDetections, final int maskWidth, final int maskHeight, final int numClasses) {
+    public MaskRCNNRawDetections getMaskRCNNRawDetections(final Tensor<Float> inputTensor, final int inputWidth, final int inputHeight, final int maxDetections, final int maskWidth, final int maskHeight, final int numClasses) {
         // image metas
         //  meta = np.array(
         //        [image_id] +                  # size=1
@@ -175,7 +176,7 @@ public class MaskRCNNSegment extends AbstractSegment {
         mrcnn_detection.copyTo(res_detection);
         mrcnn_mask.copyTo(res_mask);
 
-        RawDetections rawDetections = new RawDetections();
+        MaskRCNNRawDetections rawDetections = new MaskRCNNRawDetections();
         rawDetections.objectBB = res_detection;
         rawDetections.masks = res_mask;
         return rawDetections;
@@ -400,7 +401,7 @@ public class MaskRCNNSegment extends AbstractSegment {
                                 break;
                             case CUSTOM:
                                 // Apply MaskRCNN raw detection model to tile.
-                                RawDetections rawDetections = this.getMaskRCNNRawDetections(tile, orbitImage);
+                                MaskRCNNRawDetections rawDetections = this.getMaskRCNNRawDetections(tile, orbitImage);
                                 detections = this.processDetections(rawDetections, tileOffset);
                                 logger.info(detections.toString());
                                 break;
@@ -460,7 +461,7 @@ public class MaskRCNNSegment extends AbstractSegment {
         long startt = System.currentTimeMillis();
 
         // Apply MaskRCNN model.
-        RawDetections rawDetections = this.getMaskRCNNRawDetections(inputTensor);
+        MaskRCNNRawDetections rawDetections = this.getMaskRCNNRawDetections(inputTensor);
 
         // Convert the Raw Detections into a black and white image, with foreground objects coloured white.
         BufferedImage roi = null;
@@ -633,7 +634,7 @@ public class MaskRCNNSegment extends AbstractSegment {
      * @param tileOffset The offset
      * @return Processed detections.
      */
-    public MaskRCNNDetections processDetections(RawDetections rawDetections, Point tileOffset) {
+    public MaskRCNNDetections processDetections(MaskRCNNRawDetections rawDetections, Point tileOffset) {
         return processDetections(segmentationSettings.getImageWidth(), segmentationSettings.getImageHeight(), rawDetections, tileOffset);
     }
 
@@ -645,13 +646,13 @@ public class MaskRCNNSegment extends AbstractSegment {
      * @param rawDetections Raw detections from MaskRCNN.
      * @return Processed detections.
      */
-    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, RawDetections rawDetections) {
+    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, MaskRCNNRawDetections rawDetections) {
         Point tileOffset = new Point(0,0);
         return processDetections(imgWidth, imgHeight, rawDetections, tileOffset);
     }
 
 
-    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, RawDetections rawDetections, Point tileOffset) {
+    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, MaskRCNNRawDetections rawDetections, Point tileOffset) {
         return processDetections(imgWidth, imgHeight, rawDetections, new Rectangle(), new Point2D.Float(0f,0f), tileOffset);
     }
 
@@ -669,7 +670,7 @@ public class MaskRCNNSegment extends AbstractSegment {
      * @param tileOffset The offset
      * @return Processed detections.
      */
-    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, RawDetections rawDetections, Rectangle subImageBoundingBox, Point2D scaleFactor, Point tileOffset) {
+    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, MaskRCNNRawDetections rawDetections, Rectangle subImageBoundingBox, Point2D scaleFactor, Point tileOffset) {
         MaskRCNNDetections detections = new MaskRCNNDetections();
 
         for (int i=0; i<rawDetections.getNumBoundingBoxes(); i++) {

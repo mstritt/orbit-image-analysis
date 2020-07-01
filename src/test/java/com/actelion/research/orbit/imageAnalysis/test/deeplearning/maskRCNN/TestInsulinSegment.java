@@ -1,7 +1,10 @@
-package com.actelion.research.orbit.imageAnalysis.test.deeplearning.playground.maskRCNN;
+package com.actelion.research.orbit.imageAnalysis.test.deeplearning.maskRCNN;
 
-import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLSegment;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegment;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNRawDetections;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.*;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import org.junit.Ignore;
@@ -52,7 +55,7 @@ public class TestInsulinSegment {
         long startt = System.currentTimeMillis();
         Tensor<Float> input = DLHelpers.convertBufferedImageToTensor(originalImage, segmentationModel.getSegmentationSettings().getImageWidth(), segmentationModel.getSegmentationSettings().getImageHeight());
 
-        RawDetections rawDetections = segmentationModel.getMaskRCNNRawDetections(input);
+        MaskRCNNRawDetections rawDetections = segmentationModel.getMaskRCNNRawDetections(input);
         MaskRCNNDetections detections = segmentationModel.processDetections(segmentationModel.getSegmentationSettings().getImageWidth(), segmentationModel.getSegmentationSettings().getImageHeight(),rawDetections);
         BufferedImage outputImage = segmentationModel.augmentDetections(originalImage, detections);
         ImageIO.write(outputImage, "png", OUTPUT_IMAGE);

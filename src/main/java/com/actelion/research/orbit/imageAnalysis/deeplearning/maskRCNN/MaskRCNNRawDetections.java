@@ -17,7 +17,7 @@
  *
  */
 
-package com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN;
+package com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN;
 
 //TODO: Move this to detections class?
 
@@ -29,9 +29,10 @@ import com.actelion.research.orbit.imageAnalysis.models.RectangleExt;
  * Masks has one array entry, with maxDetections arrays containing, the mask width x mask height with a probability of
  * background[0] and then the probability for each class[1:numClasses].
  */
-public class RawDetections  {
-    float[][][] objectBB; // float[imageNumber][maxDetection][y1,x1,y2,x2,class_id,probability (ordered desc)]
-    float[][][][][] masks;  // float[imageNumber][maxDetections][maskwidth][maskheight][numClasses] for each mask -> probability class membership.
+public class MaskRCNNRawDetections {
+    // TODO: Set back to package private.
+    public float[][][] objectBB; // float[imageNumber][maxDetection][y1,x1,y2,x2,class_id,probability (ordered desc)]
+    public float[][][][][] masks;  // float[imageNumber][maxDetections][maskwidth][maskheight][numClasses] for each mask -> probability class membership.
 
     int getNumBoundingBoxes() {
         return objectBB[0].length;

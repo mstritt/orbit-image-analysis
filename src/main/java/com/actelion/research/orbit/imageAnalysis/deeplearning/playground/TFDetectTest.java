@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 
+@Deprecated
 public class TFDetectTest {
 
     private static final String MODEL_DIR = "D:\\data\\glomeruli\\";

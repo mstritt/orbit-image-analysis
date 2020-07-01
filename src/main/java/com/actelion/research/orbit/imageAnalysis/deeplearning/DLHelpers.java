@@ -17,12 +17,11 @@
  *
  */
 
-package com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN;
+package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.*;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
@@ -60,14 +59,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.actelion.research.orbit.imageAnalysis.deeplearning.DLSegment.*;
 
-/**
- * Moved to deeplearning package (and simplified).
- */
-@Deprecated
+
 public class DLHelpers {
     private static final Logger logger = LoggerFactory.getLogger(DLHelpers.class);
 
-   // public static final int[] RPN_ANCHOR_SCALES = new int[]{8 , 16, 32, 64, 128};
+    // public static final int[] RPN_ANCHOR_SCALES = new int[]{8 , 16, 32, 64, 128};
     public static final float[] MEAN_PIXEL = new float[]{170.20611747f, 172.00450216f, 177.19215462f}; //{123.7f, 116.8f, 103.9f};
     private static Random random = new Random();
     // anchors 1,65472,4
@@ -319,11 +315,11 @@ public class DLHelpers {
     }
 
 
-    static BufferedImage flipImage(BufferedImage bi) {
+    public static BufferedImage flipImage(BufferedImage bi) {
         return new BufferedImage(bi.getColorModel(),(WritableRaster) flipRaster(bi.getData()),false,null);
     }
 
-    static Raster flipRaster(Raster r) {
+    public static Raster flipRaster(Raster r) {
         int w = r.getWidth();
         int h = r.getHeight();
         WritableRaster rf = r.createCompatibleWritableRaster(r.getMinX(),r.getMinY(), w,h);
@@ -357,7 +353,7 @@ public class DLHelpers {
         return maskOriginal;
     }
 
-    static BufferedImage combineMasks(BufferedImage m1, BufferedImage m2, int dx, int dy) {
+    public static BufferedImage combineMasks(BufferedImage m1, BufferedImage m2, int dx, int dy) {
         BufferedImage combined = new BufferedImage(m1.getWidth(),m1.getHeight(),m1.getType());
         combined.getGraphics().drawImage(m1,0,0,null);
         int fg = Color.white.getRGB();

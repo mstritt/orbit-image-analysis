@@ -17,10 +17,9 @@
  *
  */
 
-package com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN;
+package com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -44,15 +43,13 @@ public class MaskRCNNAnchors {
      * img_size should be either 512 or 1024.
      */
     public static float[] GenerateAnchors(int img_size) {
-        int img_width = img_size;
-        int img_height = img_size;
-        int[][] feature_shapes = img_width==1024 ? feature_shapes1024 : feature_shapes512;
-        List<Float> list = new ArrayList<>(img_width==1024 ? 1047552 : 261888);
+        int[][] feature_shapes = img_size ==1024 ? feature_shapes1024 : feature_shapes512;
+        List<Float> list = new ArrayList<>(img_size ==1024 ? 1047552 : 261888);
         for (int i=0; i<scales.length; i++) {
-            float[][] anchors = GenerateAnchorsPerScale(scales[i], ratios, feature_shapes[i], feature_strides[i], anchor_stride, img_width, img_height);
-            for (int r=0; r<anchors.length; r++) {
-                for (int c=0; c<anchors[r].length; c++) {
-                    list.add(anchors[r][c]);
+            float[][] anchors = GenerateAnchorsPerScale(scales[i], ratios, feature_shapes[i], feature_strides[i], anchor_stride, img_size, img_size);
+            for (float[] anchor : anchors) {
+                for (float v : anchor) {
+                    list.add(v);
                 }
             }
         }
@@ -118,11 +115,11 @@ public class MaskRCNNAnchors {
     }
 
 
-    public static void main(String[] args) {
-        float[] arr = MaskRCNNAnchors.GenerateAnchors(1024);
-        System.out.println("anchors: "+ Arrays.toString(arr));
-        System.out.println("size: "+ arr.length);
-        System.out.println("last element: "+arr[arr.length-1]);
-    }
+//    public static void main(String[] args) {
+//        float[] arr = MaskRCNNAnchors.GenerateAnchors(1024);
+//        System.out.println("anchors: "+ Arrays.toString(arr));
+//        System.out.println("size: "+ arr.length);
+//        System.out.println("last element: "+arr[arr.length-1]);
+//    }
 
 }

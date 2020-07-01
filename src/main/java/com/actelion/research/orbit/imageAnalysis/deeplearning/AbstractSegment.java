@@ -1,10 +1,8 @@
-package com.actelion.research.orbit.imageAnalysis.deeplearning.playground;
+package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.IDLSegment;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.AbstractSegmentationSettings;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.MaskRCNNDetections;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 
 import java.awt.*;
@@ -46,17 +44,9 @@ public abstract class AbstractSegment implements IDLSegment {
         for (MaskRCNNDetections.Detection detection: detections.getDetections()) {
             int maskClass = detection.getMaskClass();
 
-            PolygonExt scaleShape = (PolygonExt) detection.getContourShape();
-//            PolygonMetrics polyMetrics = new PolygonMetrics(scaleShape);
+            PolygonExt shape = (PolygonExt) detection.getContourShape();
 
-            // Rescale the shape.
-            //scaleShape = scaleShape.scale(settings.getTileScaleFactorPercent(), new Point());
-
-            // Translate the image based on it's location in the whole slide image.
-            //scaleShape.translate(detection.getTileOffset().x, detection.getTileOffset().y);
-            //Point2D center = polyMetrics.getCentroid(false); //.getCenter();
-            //scaleShape.translate((int) center.getX(), (int) center.getY());
-            storeShape(scaleShape,
+            storeShape(shape,
                     settings.getAnnotationPrefix()+"_"+settings.getClassName(maskClass),
                     settings.getAnnotationColor(maskClass), rdfId, user);
             i++;

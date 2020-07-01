@@ -19,7 +19,7 @@
 
 package com.actelion.research.orbit.imageAnalysis.deeplearning.playground;
 
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.MaskRCNNAnchors;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNAnchors;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
 import com.actelion.research.orbit.imageAnalysis.models.RectangleExt;
 import com.actelion.research.orbit.imageAnalysis.utils.MarchingSquares;
@@ -48,6 +48,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Deprecated
 public class InstSegMaskRCNN {
 
     private static final Logger logger = LoggerFactory.getLogger(InstSegMaskRCNN.class);

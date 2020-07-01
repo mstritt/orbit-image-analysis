@@ -19,6 +19,8 @@
 
 package com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN;
 
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNRawDetections;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
 import com.actelion.research.orbit.imageAnalysis.models.RectangleExt;
 import com.actelion.research.orbit.imageAnalysis.utils.MarchingSquares;
@@ -44,6 +46,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 
+@Deprecated
 public class MRCNNCorpusCallosum implements Closeable {
 
     private static final Logger logger = LoggerFactory.getLogger(MRCNNCorpusCallosum.class);
@@ -86,7 +89,7 @@ public class MRCNNCorpusCallosum implements Closeable {
             long startt = System.currentTimeMillis();
             Tensor<Float> input = DLHelpers.convertBufferedImageToTensor(originalImage, size, size);
             if (input != null) {
-                RawDetections rawDetections = DLHelpers.executeInceptionGraph(s, input, size, size, MAX_DETECTIONS, maskWidth, maskHeight);
+                MaskRCNNRawDetections rawDetections = DLHelpers.executeInceptionGraph(s, input, size, size, MAX_DETECTIONS, maskWidth, maskHeight);
                 MaskRCNNDetections detections = maskRCNN.processDetections(size,size,rawDetections);
                 BufferedImage outputImage = DLHelpers.augmentDetections(originalImage, detections);
                 ImageIO.write(outputImage, "png", new File(OUTPUT_IMAGE));
@@ -102,7 +105,7 @@ public class MRCNNCorpusCallosum implements Closeable {
     public MaskRCNNDetections detectCorpusCallosum(BufferedImage image512) {
         Tensor<Float> input = DLHelpers.convertBufferedImageToTensor(image512, size, size);
         if (input != null) {
-            RawDetections rawDetections = DLHelpers.executeInceptionGraph(s, input, size, size, MAX_DETECTIONS, maskWidth, maskHeight);
+            MaskRCNNRawDetections rawDetections = DLHelpers.executeInceptionGraph(s, input, size, size, MAX_DETECTIONS, maskWidth, maskHeight);
             MaskRCNNDetections detections = processDetections(size,size,rawDetections);
             //BufferedImage outputImage = DLHelpers.augmentDetections(image512, detections);
             //ImageIO.write(outputImage, "jpeg", new File("d:/test-seg.jpg"));
@@ -111,7 +114,7 @@ public class MRCNNCorpusCallosum implements Closeable {
         return null;
     }
 
-    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, RawDetections rawDetections) {
+    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, MaskRCNNRawDetections rawDetections) {
         MaskRCNNDetections detections = new MaskRCNNDetections();
 
         float[][] objects = rawDetections.objectBB[0]; // only one image      y1,x1,y2,x2,class_id,probability (ordered desc)

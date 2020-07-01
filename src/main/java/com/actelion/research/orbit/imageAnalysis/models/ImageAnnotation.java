@@ -20,7 +20,6 @@
 package com.actelion.research.orbit.imageAnalysis.models;
 
 import com.actelion.research.orbit.beans.RawAnnotation;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.MaskRCNNSegment;
 import com.freedomotic.util.SerialClone.SerialClone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

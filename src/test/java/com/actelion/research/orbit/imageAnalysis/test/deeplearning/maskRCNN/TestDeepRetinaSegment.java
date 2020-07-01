@@ -1,8 +1,8 @@
-package com.actelion.research.orbit.imageAnalysis.test.deeplearning.playground.maskRCNN;
+package com.actelion.research.orbit.imageAnalysis.test.deeplearning.maskRCNN;
 
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLSegment;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.MaskRCNNSegment;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.MaskRCNNSegmentationSettings;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegment;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import org.junit.Test;
 import org.tensorflow.Session;

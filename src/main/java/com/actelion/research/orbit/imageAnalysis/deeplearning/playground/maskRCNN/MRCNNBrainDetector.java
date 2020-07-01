@@ -19,6 +19,8 @@
 
 package com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN;
 
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNRawDetections;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
 import com.actelion.research.orbit.imageAnalysis.models.RectangleExt;
 import com.actelion.research.orbit.imageAnalysis.utils.MarchingSquares;
@@ -46,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Deprecated
 public class MRCNNBrainDetector implements Closeable {
 
     private static final Logger logger = LoggerFactory.getLogger(MRCNNBrainDetector.class);
@@ -80,7 +83,7 @@ public class MRCNNBrainDetector implements Closeable {
             long startt = System.currentTimeMillis();
             Tensor<Float> input = DLHelpers.convertBufferedImageToTensor(originalImage,512,512);
             if (input != null) {
-                RawDetections rawDetections = DLHelpers.executeInceptionGraph(s, input, 512, 512, MAX_DETECTIONS,28,28);
+                MaskRCNNRawDetections rawDetections = DLHelpers.executeInceptionGraph(s, input, 512, 512, MAX_DETECTIONS,28,28);
                 MaskRCNNDetections detections = maskRCNN.processDetections(512,512,rawDetections);
 
                 BufferedImage bigger = ImageIO.read(new File(INPUT_IMAGE.replaceAll(".jpg", "_ori.jpg")));
@@ -111,7 +114,7 @@ public class MRCNNBrainDetector implements Closeable {
         List<DetectorResult> resList = new ArrayList<>();
         Tensor<Float> input = DLHelpers.convertBufferedImageToTensor(image512,512,512);
         if (input != null) {
-            RawDetections rawDetections = DLHelpers.executeInceptionGraph(s, input, 512, 512, MAX_DETECTIONS,28,28);
+            MaskRCNNRawDetections rawDetections = DLHelpers.executeInceptionGraph(s, input, 512, 512, MAX_DETECTIONS,28,28);
             MaskRCNNDetections detections = processDetections(512,512,rawDetections);
             double scaleW = smallImage.getWidth()/(double)image512.getWidth();
             double scaleH = smallImage.getHeight()/(double)image512.getHeight();
@@ -129,7 +132,7 @@ public class MRCNNBrainDetector implements Closeable {
         return resList;
     }
 
-    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, RawDetections rawDetections) {
+    public MaskRCNNDetections processDetections(int imgWidth, int imgHeight, MaskRCNNRawDetections rawDetections) {
         MaskRCNNDetections detections = new MaskRCNNDetections();
 
         float[][] objects = rawDetections.objectBB[0]; // only one image      y1,x1,y2,x2,class_id,probability (ordered desc)

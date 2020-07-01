@@ -1,8 +1,7 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
 import com.actelion.research.orbit.beans.RawDataFile;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.AbstractSegmentationSettings;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.MaskRCNNDetections;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 
 import java.awt.*;
