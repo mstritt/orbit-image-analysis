@@ -8,7 +8,7 @@ import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegment;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.DLHelpers;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
 import com.actelion.research.orbit.imageAnalysis.imaging.TileSizeWrapper;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
@@ -17,7 +17,6 @@ import com.actelion.research.orbit.imageAnalysis.utils.*;
 import ij.ImagePlus;
 import ij.plugin.filter.GaussianBlur;
 import imageJ.Colour_Deconvolution;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
@@ -43,8 +42,7 @@ import static com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers.*
  * We assume an implementation of MaskRCNN similar to: https://github.com/matterport/Mask_RCNN
  */
 public class MaskRCNNSegment extends AbstractSegment {
-    private static final Logger logger = LoggerFactory.getLogger(MaskRCNNSegment.class);
-    private MaskRCNNSegmentationSettings segmentationSettings = null;
+    private final MaskRCNNSegmentationSettings segmentationSettings;
     private final static Random random = new Random();
     private final Session s;
     private final PostProcessMethod postProcess;
@@ -64,6 +62,7 @@ public class MaskRCNNSegment extends AbstractSegment {
 
     public MaskRCNNSegment(File maskRCNNModelPB, PostProcessMethod ppm, MaskRCNNSegmentationSettings settings) {
         super();
+        logger = LoggerFactory.getLogger(MaskRCNNSegment.class);
         s = DLHelpers.buildSession(maskRCNNModelPB.getAbsolutePath());
         postProcess = ppm;
         segmentationSettings = settings;
@@ -231,45 +230,6 @@ public class MaskRCNNSegment extends AbstractSegment {
     }
 
     /**
-     * Convenience method to call the generic generateSegmentationAnnotations() method.
-     * @param images list of rdfIds for images to be segmented using MaskRCNN.
-     * @param segModel Segmentation Model?
-     * @param modelContainingExclusionModel An exclusion model, used to focus on only the area of interest (e.g.
-     *                                      ignore artifacts, blank area) and (probably) speed up the calculation
-     *                                      by ignoring uninteresting areas.
-     * @param storeAnnotations Should the annotations be stored back to the Orbit DB?
-     * @param tile The tile coordinates for processing a specific image tile only.
-     * @return Map with RdfId as key and annotations as List<Shape> (segmentationsPerImage).
-     */
-    @Override
-    public Map<Integer, List<Shape>> generateSegmentationAnnotations(int[] images, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations, Point tile) {
-        List<RawDataFile> rdfList = new ArrayList<>(images.length);
-        try {
-            for (int image : images) {
-                rdfList.add(DALConfig.getImageProvider().LoadRawDataFile(image));
-            }
-        } catch (Exception ex) {
-            logger.error("Could not read Raw Data File");
-            logger.error(ex.getLocalizedMessage());
-        }
-        return generateSegmentationAnnotations(rdfList,segModel,modelContainingExclusionModel,storeAnnotations, tile);
-    }
-
-    /**
-     * Convenience method to call the generic generateSegmentationAnnotations() method.
-     * @param images list of rdfIds for images to be segmented using MaskRCNN.
-     * @param segModel Segmentation Model?
-     * @param modelContainingExclusionModel An exclusion model, used to focus on only the area of interest (e.g.
-     *                                      ignore artifacts, blank area) and (probably) speed up the calculation
-     *                                      by ignoring uninteresting areas.
-     * @param storeAnnotations Should the annotations be stored back to the Orbit DB?
-     * @return Map with RdfId as key and annotations as List<Shape> (segmentationsPerImage).
-     */
-    public Map<Integer, java.util.List<Shape>> generateSegmentationAnnotations(int[] images, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations) {
-        return generateSegmentationAnnotations(images,segModel,modelContainingExclusionModel,storeAnnotations, null);
-    }
-
-    /**
      * Create annotations that can optionally be written to Orbit DB.
      * @param rdfList List of images (RDFs) to be processed.
      * @param segModel Segmentation model?
@@ -375,37 +335,7 @@ public class MaskRCNNSegment extends AbstractSegment {
                     }
                     if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
                         // Calculate Tile Offset for translating annotations.
-                        Point tileOffset = new Point(orbitImage.tileXToX(tile.x), orbitImage.tileYToY(tile.y));
-
-                        // TODO: Should return the same types at the end.
-                        MaskRCNNDetections detections = null;
-                        SegmentationResult segRes = null;
-
-                        switch (this.postProcess) {
-                            case STANDARD:
-                                // Apply segmentation model to the tile image.
-                                try {
-                                    detections = this.segmentTile(tile.x, tile.y, orbitImage, segModel, false, tileOffset);
-                                    //detections = this.processDetections(segRes);
-                                    //List<Shape> shapes = segRes.getShapeList();
-                                    logger.info(detections.toString());
-                                } catch (Exception e) {
-                                    logger.error(e.getLocalizedMessage());
-                                }
-
-                                if (segRes != null) {
-                                    logger.info("ObjectCount: " + Objects.requireNonNull(segRes).getObjectCount() + " for tile " + tile.x + " x " + tile.y);
-                                } else {
-                                    logger.info("Segmentation model not defined, not applying segmentation model.");
-                                }
-                                break;
-                            case CUSTOM:
-                                // Apply MaskRCNN raw detection model to tile.
-                                MaskRCNNRawDetections rawDetections = this.getMaskRCNNRawDetections(tile, orbitImage);
-                                detections = this.processDetections(rawDetections, tileOffset);
-                                logger.info(detections.toString());
-                                break;
-                        }
+                        MaskRCNNDetections detections = segmentationImplementation(segModel, orbitImage, tile);
 
                         logger.info("shapes before filtering: " + detections.getDetections().size());
                         // TODO: Re-enable
@@ -434,6 +364,33 @@ public class MaskRCNNSegment extends AbstractSegment {
             }
         }
         return segmentationsPerImage;
+    }
+
+    @Override
+    public MaskRCNNDetections segmentationImplementation(OrbitModel segModel, OrbitTiledImageIOrbitImage orbitImage, Point tile) {
+        Point tileOffset = new Point(orbitImage.tileXToX(tile.x), orbitImage.tileYToY(tile.y));
+
+        MaskRCNNDetections detections = null;
+
+        switch (this.postProcess) {
+            case STANDARD:
+                // Apply segmentation model to the tile image.
+                try {
+                    detections = this.segmentTile(tile.x, tile.y, orbitImage, segModel, false, tileOffset);
+                    logger.info(detections.toString());
+                } catch (Exception e) {
+                    logger.error(e.getLocalizedMessage());
+                }
+
+                break;
+            case CUSTOM:
+                // Apply MaskRCNN raw detection model to tile.
+                MaskRCNNRawDetections rawDetections = this.getMaskRCNNRawDetections(tile, orbitImage);
+                detections = this.processDetections(rawDetections, tileOffset);
+                logger.info(detections.toString());
+                break;
+        }
+        return detections;
     }
 
 
@@ -587,46 +544,7 @@ public class MaskRCNNSegment extends AbstractSegment {
     }
 
 
-    // TODO: Rename method.
-    public BufferedImage augmentDetections(BufferedImage image, MaskRCNNDetections detections) {
 
-        boolean drawBoundingBox = false;
-        boolean drawContour = true;
-        BufferedImage outImg = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
-        Graphics2D g = outImg.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-        g.drawImage(image,0,0,null);
-        int numObjects = detections.getBoundingBoxes().size();
-        for (int i=0; i<numObjects; i++) {
-            //float probability = detections.getProbabilities().get(i);
-            int maskClass = detections.getMaskClasses().get(i);
-            RectangleExt rect = detections.getBoundingBoxes().get(i);
-            PolygonExt poly = detections.getContours().get(i);
-
-            int x = rect.x;
-            int y = rect.y;
-            int width = rect.width;
-            int height = rect.height;
-            if (drawBoundingBox) {
-                g.setStroke(new BasicStroke(2));
-                g.setColor(segmentationSettings.getAnnotationColor(maskClass));
-                g.drawRect(x, y, width, height);
-            }
-
-            // draw contour
-            if (drawContour) {
-                g.setStroke(new BasicStroke(2));
-                Color color = Color.getHSBColor(random.nextFloat(),1f,1f);
-                g.setColor(color);
-                g.drawPolygon(poly);
-            }
-        }
-
-        g.dispose();
-        return outImg;
-    }
 
     /**
      * Convenience method for processing detections from a tile-based image server.

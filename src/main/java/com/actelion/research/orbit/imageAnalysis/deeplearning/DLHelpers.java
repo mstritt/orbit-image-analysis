@@ -206,37 +206,37 @@ public class DLHelpers {
         return Tensor.create(rgbArray, Float.class);
     }
 
+    // TODO: Remove dependency on MaskRCNNSettings...
     /**
-     * See MaskRCNNSegment implementation.
-     * @param image
-     * @param detections
-     * @return
+     * Take an image, detection and settings and return an image with the bounding box drawn onto it.
+     * @param image Input image.
+     * @param contours List of contours.
+     * @param detectionClasses List of classes for each detection.
+     * @param segmentationSettings Segmentation Settings.
+     * @param drawBoundingBox Whether or not to draw the bounding box on the image.
+     * @param drawContour Whether or not to draw the contour on the image.
+     * @return The rendered image with the detections added.
      */
-    @Deprecated
-    public static BufferedImage augmentDetections(BufferedImage image, MaskRCNNDetections detections) {
-        AtomicReference<HashMap<Integer, Color>> maskClassColours = new AtomicReference<>(new HashMap<>());
+    public static BufferedImage detectionToImage(BufferedImage image,
+                                                 List<RectangleExt> boundingBox,
+                                                 List<PolygonExt> contours,
+                                                 List<Integer> detectionClasses,
+                                                 MaskRCNNSegmentationSettings segmentationSettings,
+                                                 boolean drawBoundingBox,
+                                                 boolean drawContour) {
 
-        // Add keys and values (Country, City)
-        maskClassColours.get().put(1, Color.BLACK);
-        maskClassColours.get().put(2, Color.RED);
-        maskClassColours.get().put(3, Color.GREEN);
-        maskClassColours.get().put(4, Color.BLUE);
-        maskClassColours.get().put(5, Color.YELLOW);
-
-        boolean drawBoundingBox = false;
-        boolean drawContour = true;
         BufferedImage outImg = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
         Graphics2D g = outImg.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         g.drawImage(image,0,0,null);
-        int numObjects = detections.getBoundingBoxes().size();
+        int numObjects = boundingBox.size();
         for (int i=0; i<numObjects; i++) {
-            float probability = detections.getProbabilities().get(i);
-            int maskClass = detections.getMaskClasses().get(i);
-            RectangleExt rect = detections.getBoundingBoxes().get(i);
-            PolygonExt poly = detections.getContours().get(i);
+            //float probability = detections.getProbabilities().get(i);
+            int maskClass = detectionClasses.get(i);
+            RectangleExt rect = boundingBox.get(i);
+            PolygonExt poly = contours.get(i);
 
             int x = rect.x;
             int y = rect.y;
@@ -244,7 +244,7 @@ public class DLHelpers {
             int height = rect.height;
             if (drawBoundingBox) {
                 g.setStroke(new BasicStroke(2));
-                g.setColor(maskClassColours.get().get(maskClass));
+                g.setColor(segmentationSettings.getAnnotationColor(maskClass));
                 g.drawRect(x, y, width, height);
             }
 
@@ -260,9 +260,6 @@ public class DLHelpers {
         g.dispose();
         return outImg;
     }
-
-
-
 
     public static BufferedImage resize(BufferedImage img, int width, int height) {
         //int type = img.getType()>0?img.getType():BufferedImage.TYPE_INT_RGB;

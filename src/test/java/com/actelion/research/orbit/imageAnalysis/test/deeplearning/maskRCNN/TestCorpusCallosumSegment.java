@@ -134,7 +134,7 @@ public class TestCorpusCallosumSegment {
         MaskRCNNDetections cc = ccModel.processDetections(corpusCallosumSettings.getImageWidth(), corpusCallosumSettings.getImageHeight(),rawCC, brainBBPadded, scaleFactor, new Point(0,0));
 
         // Store annotations.
-        ccModel.storeShapes(cc, corpusCallosumSettings, 19340922, "AutomatedAnnotation");
+        //ccModel.storeShapes(cc, corpusCallosumSettings, 19340922, "AutomatedAnnotation");
 
         // Expect one Corpus Callosum
         assertEquals(cc.getDetections().size(), 1);

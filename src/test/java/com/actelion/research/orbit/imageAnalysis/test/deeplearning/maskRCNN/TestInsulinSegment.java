@@ -5,7 +5,7 @@ import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNND
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNRawDetections;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.*;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -57,7 +57,11 @@ public class TestInsulinSegment {
 
         MaskRCNNRawDetections rawDetections = segmentationModel.getMaskRCNNRawDetections(input);
         MaskRCNNDetections detections = segmentationModel.processDetections(segmentationModel.getSegmentationSettings().getImageWidth(), segmentationModel.getSegmentationSettings().getImageHeight(),rawDetections);
-        BufferedImage outputImage = segmentationModel.augmentDetections(originalImage, detections);
+
+        BufferedImage outputImage = DLHelpers.detectionToImage(originalImage, detections.getBoundingBoxes(),
+                detections.getContours(), detections.getDetectionClasses(),
+                segmentationModel.getSegmentationSettings(), false, true);
+
         ImageIO.write(outputImage, "png", OUTPUT_IMAGE);
 
         // TODO: Check that a certain number of pixels are identical
