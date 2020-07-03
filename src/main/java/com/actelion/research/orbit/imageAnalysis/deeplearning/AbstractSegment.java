@@ -23,17 +23,11 @@ import java.util.List;
 public abstract class AbstractSegment<T extends AbstractDetections<? extends AbstractDetection>,U extends AbstractSegmentationSettings<U>> implements IDLSegment<T> {
 
     protected static Logger logger = LoggerFactory.getLogger(AbstractSegment.class);
-    public final U segmentationSettings;
+    protected final U segmentationSettings;
 
     protected AbstractSegment(U segmentationSettings) {
         this.segmentationSettings = segmentationSettings;
     }
-
-//    protected abstract T me();
-//
-//    public T baz() {
-//        return me();
-//    }
 
     /**
      * Convenience method to call the generic generateSegmentationAnnotations() method.
@@ -250,5 +244,5 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
     }
 
     @Override
-    public abstract MaskRCNNDetections processDetections(SegmentationResult segRes, Point tileOffset);
+    public abstract T processDetections(SegmentationResult segRes, Point tileOffset);
 }

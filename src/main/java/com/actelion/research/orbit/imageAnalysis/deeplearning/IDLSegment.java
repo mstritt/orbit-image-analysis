@@ -22,6 +22,6 @@ public interface IDLSegment<T> {
 
     void storeShapes(T detections, AbstractSegmentationSettings<T> settings, int rdfId, String user) throws Exception;
 
-    MaskRCNNDetections processDetections(SegmentationResult segRes, Point tileOffset);
+    T processDetections(SegmentationResult segRes, Point tileOffset);
 
 }
