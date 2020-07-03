@@ -19,17 +19,17 @@
 
 package com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN;
 
-import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractDetection;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractDetections;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
 import com.actelion.research.orbit.imageAnalysis.models.RectangleExt;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
-public class MaskRCNNDetections extends AbstractDetections {
+public class MaskRCNNDetections extends AbstractDetections<MaskRCNNDetection> {
 
     public void addDetection(PolygonExt contour, RectangleExt boundingBox, Float classProbability, Integer maskClass, Point tileOffset) {
         this.detections.add(new MaskRCNNDetection(contour, boundingBox, classProbability, maskClass, tileOffset));
@@ -42,8 +42,8 @@ public class MaskRCNNDetections extends AbstractDetections {
     public List<RectangleExt> getBoundingBoxes() {
         return this.detections
                 .stream()
-                .filter(e -> e instanceof MaskRCNNDetection)
-                .map(e -> ((MaskRCNNDetection) e).boundingBox)
+                .filter(Objects::nonNull)
+                .map(e -> e.boundingBox)
                 .collect(Collectors.toList());
     }
 
@@ -51,8 +51,7 @@ public class MaskRCNNDetections extends AbstractDetections {
     public List<MaskRCNNDetection> getDetections() {
         return this.detections
                 .stream()
-                .filter(e -> e instanceof MaskRCNNDetection)
-                .map(e -> ((MaskRCNNDetection) e))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 

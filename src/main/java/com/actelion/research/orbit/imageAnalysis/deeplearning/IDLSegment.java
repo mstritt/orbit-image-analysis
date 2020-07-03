@@ -20,7 +20,7 @@ public interface IDLSegment<T> {
 
     void storeShapes(List<Shape> shapes, String basename, int rdfId, String user) throws Exception;
 
-    void storeShapes(MaskRCNNDetections detections, AbstractSegmentationSettings<T> settings, int rdfId, String user) throws Exception;
+    void storeShapes(T detections, AbstractSegmentationSettings<T> settings, int rdfId, String user) throws Exception;
 
     MaskRCNNDetections processDetections(SegmentationResult segRes, Point tileOffset);
 

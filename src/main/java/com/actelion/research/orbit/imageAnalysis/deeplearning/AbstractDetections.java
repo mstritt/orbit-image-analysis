@@ -6,8 +6,8 @@ import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class AbstractDetections {
-    protected List<AbstractDetection> detections = null;
+public abstract class AbstractDetections<T> {
+    protected List<T> detections = null;
 
     protected AbstractDetections() {
 
@@ -16,44 +16,49 @@ public abstract class AbstractDetections {
     public List<PolygonExt> getContours() {
         return this.detections
                 .stream()
-                .map(e -> e.contour)
+                .filter(e -> e instanceof AbstractDetection)
+                .map(e -> ((AbstractDetection) e).contour)
                 .collect(Collectors.toList());
     }
 
     public List<Shape> getContourShapes() {
         return this.detections
                 .stream()
-                .map(e -> (Shape) e.contour)
+                .filter(e -> e instanceof AbstractDetection)
+                .map(e -> (Shape) ((AbstractDetection) e).contour)
                 .collect(Collectors.toList());
     }
 
     public List<Integer> getDetectionClasses() {
         return this.detections
                 .stream()
-                .map(e -> e.detectionClass)
+                .filter(e -> e instanceof AbstractDetection)
+                .map(e -> ((AbstractDetection) e).detectionClass)
                 .collect(Collectors.toList());
     }
 
     public List<Float> getProbabilities() {
         return this.detections
                 .stream()
-                .map(e -> e.classProbability)
+                .filter(e -> e instanceof AbstractDetection)
+                .map(e -> ((AbstractDetection) e).classProbability)
                 .collect(Collectors.toList());
     }
 
     public List<Point> getTileOffset() {
         return this.detections
                 .stream()
-                .map(e -> e.tileOffset)
+                .filter(e -> e instanceof AbstractDetection)
+                .map(e -> ((AbstractDetection) e).tileOffset)
                 .collect(Collectors.toList());
     }
 
-    public AbstractDetection getDetection(int i) {
+    public T getDetection(int i) {
         // TODO: e.g. contours may not always be defined.
         return detections.get(i);
     }
 
-    public abstract List<? extends AbstractDetection> getDetections();
+    public abstract List<T> getDetections();
 
     public String toString() {
 

@@ -20,12 +20,12 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
-public abstract class AbstractSegment<T extends AbstractSegmentationSettings<T>> implements IDLSegment<T> {
+public abstract class AbstractSegment<T extends AbstractDetections<? extends AbstractDetection>,U extends AbstractSegmentationSettings<U>> implements IDLSegment<T> {
 
     protected static Logger logger = LoggerFactory.getLogger(AbstractSegment.class);
-    public final T segmentationSettings;
+    public final U segmentationSettings;
 
-    protected AbstractSegment(T segmentationSettings) {
+    protected AbstractSegment(U segmentationSettings) {
         this.segmentationSettings = segmentationSettings;
     }
 
@@ -75,7 +75,7 @@ public abstract class AbstractSegment<T extends AbstractSegmentationSettings<T>>
 
     public abstract Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations, Point tile);
 
-    public abstract MaskRCNNDetections segmentationImplementation(OrbitModel segModel, OrbitTiledImageIOrbitImage orbitImage, Point tile);
+    public abstract T segmentationImplementation(OrbitModel segModel, OrbitTiledImageIOrbitImage orbitImage, Point tile);
 
     /**
      * Create annotations that can optionally be written to Orbit DB.
@@ -183,7 +183,7 @@ public abstract class AbstractSegment<T extends AbstractSegmentationSettings<T>>
                     }
                     if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
                         // Calculate Tile Offset for translating annotations.
-                        MaskRCNNDetections detections = segmentationImplementation(segModel, orbitImage, tile);
+                        T detections = segmentationImplementation(segModel, orbitImage, tile);
 
                         logger.info("shapes before filtering: " + detections.getDetections().size());
                         // TODO: Re-enable

@@ -1,6 +1,7 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101;
 
 import com.actelion.research.orbit.beans.RawDataFile;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractDetections;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
@@ -30,7 +31,7 @@ public class DLR101Segment extends AbstractSegment {
     }
 
     @Override
-    public MaskRCNNDetections segmentationImplementation(OrbitModel segModel, OrbitTiledImageIOrbitImage orbitImage, Point tile) {
+    public AbstractDetections segmentationImplementation(OrbitModel segModel, OrbitTiledImageIOrbitImage orbitImage, Point tile) {
         return null;
     }
 
