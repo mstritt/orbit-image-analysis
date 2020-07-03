@@ -6,7 +6,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
+public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings<MaskRCNNSegmentationSettings> {
 
     private final int maxDetections;
     private final int maskWidth;

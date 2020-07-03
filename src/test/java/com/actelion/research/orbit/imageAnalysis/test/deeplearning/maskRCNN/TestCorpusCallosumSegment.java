@@ -8,8 +8,7 @@ import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNND
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNRawDetections;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.maskRCNN.*;
-import org.junit.Ignore;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
 import org.junit.Test;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
@@ -40,14 +39,6 @@ public class TestCorpusCallosumSegment {
     @Test
     public void testBrainDetector() {
 
-    }
-
-    @Deprecated
-    @Ignore
-    @Test
-    public void testCorpusCallosumDetector() throws Exception {
-        CorpusCallosumAnnotator annotator = new CorpusCallosumAnnotator();
-        annotator.annotate(19340922);
     }
 
     @Test

@@ -52,10 +52,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.actelion.research.orbit.imageAnalysis.deeplearning.DLSegment.*;
 
@@ -375,7 +373,7 @@ public class DLHelpers {
      * @param settings The settings containing the size to shrink to.
      * @return The shrunk image.
      */
-    public static BufferedImage shrink(BufferedImage bi, AbstractSegmentationSettings settings) {
+    public static <T> BufferedImage shrink(BufferedImage bi, AbstractSegmentationSettings<T> settings) {
         BufferedImage bi2 = new BufferedImage(settings.getImageWidth(), settings.getImageHeight(),BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) bi2.getGraphics();
         g.drawImage(bi,0,0,settings.getImageWidth(),settings.getImageHeight(),null);

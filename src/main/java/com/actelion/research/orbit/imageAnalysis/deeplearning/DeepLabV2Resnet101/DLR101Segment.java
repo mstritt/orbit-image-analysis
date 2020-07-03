@@ -6,6 +6,7 @@ import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.SegmentationResult;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
 import org.tensorflow.Session;
 
 import java.awt.*;
@@ -15,18 +16,21 @@ import java.util.Map;
 
 public class DLR101Segment extends AbstractSegment {
 
-    private final DLR101SegmentationSettings segmentationSettings;
     private final Session s;
 
     public DLR101Segment(File maskRCNNModelPB, DLR101SegmentationSettings settings) {
-        super();
+        super(settings);
         this.s = DLHelpers.buildSession(maskRCNNModelPB.getAbsolutePath());
-        this.segmentationSettings = settings;
     }
 
 
     @Override
     public Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations, Point tile) {
+        return null;
+    }
+
+    @Override
+    public MaskRCNNDetections segmentationImplementation(OrbitModel segModel, OrbitTiledImageIOrbitImage orbitImage, Point tile) {
         return null;
     }
 
