@@ -4,6 +4,7 @@ import com.actelion.research.orbit.imageAnalysis.deeplearning.DLSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
+import com.actelion.research.orbit.imageAnalysis.test.OrbitTestOS;
 import org.junit.Test;
 import org.tensorflow.Session;
 
@@ -22,7 +23,7 @@ import static org.junit.Assert.assertNotNull;
  * Models can be found here: http://www.orbit.bio/deep-learning-models/
  * Train/test data can be found here: https://data.broadinstitute.org/bbbc/BBBC038/
  */
-public class TestDeepRetinaSegment {
+public class TestDeepRetinaSegment extends OrbitTestOS {
 
     @Test
     public void testSessionLoad() {

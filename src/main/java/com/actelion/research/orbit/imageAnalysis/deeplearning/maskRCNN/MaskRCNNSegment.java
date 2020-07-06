@@ -1,8 +1,5 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN;
 
-import com.actelion.research.orbit.dal.IOrbitImage;
-import com.actelion.research.orbit.exceptions.OrbitImageServletException;
-import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
 import com.actelion.research.orbit.imageAnalysis.models.*;
@@ -16,7 +13,6 @@ import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 
 import javax.imageio.ImageIO;
-import javax.media.jai.PlanarImage;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -27,8 +23,6 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.List;
-
-import static com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers.*;
 
 /**
  * MaskRCNNSegment class for applying MaskRCNN Segmentation models, and keeping track of the
@@ -220,18 +214,6 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
         return Tensor.create(rgbArray, Float.class);
     }
 
-//    @Override
-//    public Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations, Point tile) {
-//        super.g
-//    }
-
-
-//    @Override
-//    public Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations, Point tile) {
-//        return null;
-//    }
-
-
     @Override
     public MaskRCNNDetections segmentationImplementation(OrbitModel segModel,
                                                          OrbitTiledImageIOrbitImage orbitImage,
@@ -267,12 +249,11 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
      * @param inputTileRaster Image to detect objects.
      * @param orbitImage Orbit Image for extracting color model.
      * @param writeImg Optionally write a test image for debugging purposes.
-     * @param segmentationSettings The settings used for the MaskRCNN segmentation.
      * @return BufferedImage.TYPE_INT_RGB black and white image, with black as background, and white as foreground
      *          (i.e. detected objects). Size should be the same as the input images for training
      *          (see segmentationSettings imageWidth x imageHeight).
      */
-    public BufferedImage maskRaster(Raster inputTileRaster, OrbitTiledImageIOrbitImage orbitImage, boolean writeImg, MaskRCNNSegmentationSettings segmentationSettings) {
+    protected BufferedImage maskRaster(Raster inputTileRaster, OrbitTiledImageIOrbitImage orbitImage, boolean writeImg) {
         WritableRaster tileRaster = (WritableRaster) inputTileRaster.createTranslatedChild(0, 0);
         BufferedImage ori = new BufferedImage(orbitImage.getColorModel(), tileRaster, false, null);
         ori = DLHelpers.shrink(ori, segmentationSettings);
@@ -346,67 +327,6 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
         }
         return detections;
     }
-
-    protected BufferedImage getShiftedMask(OrbitTiledImageIOrbitImage orbitImage, Raster tileRaster, BufferedImage maskOriginal, int dx, int dy, MaskRCNNSegmentationSettings segmentationSettings) {
-        Rectangle rect = tileRaster.getBounds();
-        rect.translate(dx,dy);
-        if (!orbitImage.getBounds().contains(rect)) {
-            return maskOriginal;
-        }
-        try {
-            Raster shiftraster = orbitImage.getData(rect);
-            if (segmentationSettings.getAugmentationSettings().getFlip()) {
-                shiftraster = flipRaster(shiftraster);
-            }
-            BufferedImage mask2 = maskRaster(shiftraster, orbitImage, false, segmentationSettings);
-            if (segmentationSettings.getAugmentationSettings().getFlip()) {
-                mask2 = flipImage(mask2);
-            }
-            maskOriginal = combineMasks(maskOriginal, mask2, dx, dy );
-        } catch (Exception e) {
-            logger.warn("Could not shift raster, returning original image (rect="+rect+" img.bounds="+orbitImage.getBounds()+")", e);
-        }
-        return maskOriginal;
-    }
-
-
-    /**
-     * Apply segmentation model to a tile.
-     * First extract the current tile as a raster and
-     * @param tileX Tile number in x-direction.
-     * @param tileY Tile number in y-direction.
-     * @param orbitImage The Orbit Image tile that should be segmented.
-     * @param segModel The Orbit Segmentation model to use for refining the image masks.
-     * @param writeImg Optionally write a test image to a temporary location (for debugging purposes).
-     * @return SegmentationResult describing the segmentation.
-     */
-    public MaskRCNNDetections segmentTile(int tileX, int tileY, OrbitTiledImageIOrbitImage orbitImage, OrbitModel segModel, boolean writeImg, Point tileOffset) {
-        // Read the tile. (8192 x 8192...)
-        Raster tileRaster = orbitImage.getTile(tileX, tileY);
-        BufferedImage maskOriginal = maskRaster(tileRaster,orbitImage, writeImg, segmentationSettings);
-
-        // Shift the tile half the tile width up, down, left and right.
-        int xShift = (int) (segmentationSettings.getImageWidth() * segmentationSettings.getTileScaleFactorX()/2); //4096; //segmentationSettings.getImageWidth()/2;
-        int yShift = (int) (segmentationSettings.getImageHeight() * segmentationSettings.getTileScaleFactorY()/2); //4096; //segmentationSettings.getImageHeight()/2;
-        maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, 0, yShift, segmentationSettings);
-        maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, 0, -yShift, segmentationSettings);
-        maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, xShift, 0, segmentationSettings);
-        maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, -xShift, 0, segmentationSettings);
-
-        MaskRCNNDetections detections = null;
-        try {
-            SegmentationResult segmentationResult = this.getSegmentationResult(segModel, maskOriginal);
-            detections = processDetections(segmentationResult, tileOffset);
-        } catch (OrbitImageServletException e) {
-            logger.error(e.getLocalizedMessage());
-        }
-        return detections;
-    }
-
-
-
-
-
 
     /**
      * Convenience method for processing detections from a tile-based image server.
@@ -500,26 +420,9 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
                         argb = raster.getPixel(x1,y1,argb);
                         long sum = argb[1]+argb[2]+argb[0];
 
-                        area[x1+pad][y1+pad] = sum>180L? 1:0 /*sum / (double)(3*256)*/;
+                        area[x1+pad][y1+pad] = sum>180L? 1:0;
                     }
                 }
-                // fill holes
-                //area = dilate(area);
-                //area = erode(area);
-
-//                try {
-//                    int fg = Color.white.getRGB();
-//                    int bg = Color.blue.getRGB();
-//                    BufferedImage bi = new BufferedImage(roiScaled.getWidth(),roiScaled.getHeight(),BufferedImage.TYPE_INT_RGB);
-//                    for (int x1=0; x1<roiScaled.getWidth(); x1++) {
-//                        for (int y1 = 0; y1 < roiScaled.getHeight(); y1++) {
-//                              bi.setRGB(x1,y1,area[x1][y1]>0?fg:bg);
-//                        }
-//                    }
-//                    ImageIO.write(bi,"png", new File("D:\\NoBackup\\brains\\detect\\out2\\10743897-1-roi-mask.png"));
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
 
                 final ArrayList<Point2D> contour = new ArrayList<>();
                 if (MarchingSquares.calculateContour(contour, area, 1, segmentationSettings.getMarchingSquaresContourThreshold())) {
@@ -543,13 +446,10 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
                         RectangleExt pBB = new RectangleExt(polygon.getBounds().x, polygon.getBounds().y, polygon.getBounds().width, polygon.getBounds().height);
                         detections.addDetection(polygon, pBB, probability, maskClass, tileOffset);
                     } else {
-                        //polyScaled.setScale(polygon.getScale());
                         for (int k = 0; k < polygon.npoints; k++) {
-//                            polyScaled.addPoint((int) ((polygon.xpoints[k] * segmentationSettings.getTileScaleFactorX()+boundingBox.x)*tileOffset.x), (int) (((polygon.ypoints[k] * segmentationSettings.getTileScaleFactorY()+boundingBox.y)*tileOffset.y)));
                             polyScaled.addPoint(
                                     (int) ((polygon.xpoints[k] * segmentationSettings.getTileScaleFactorX() + subImageBoundingBox.x) * scaleFactor.getX()),
                                     (int) ((polygon.ypoints[k] * segmentationSettings.getTileScaleFactorY() + subImageBoundingBox.y) * scaleFactor.getY()));
-
                         }
                         polyScaled.translate(tileOffset.x, tileOffset.y);
                         polyScaled.setClosed(true);
@@ -557,18 +457,11 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
                         RectangleExt pBB = new RectangleExt(polyScaled.getBounds().x, polyScaled.getBounds().y, polyScaled.getBounds().width, polyScaled.getBounds().height);
                         detections.addDetection(polyScaled, pBB, probability, maskClass, tileOffset);
                     }
-
-
-
                 }
-
-
             }
         }
         return detections;
     }
-
-
 
     /**
      * Method for processing detections using in-built Orbit functionality to process a mask from MaskRCNN.

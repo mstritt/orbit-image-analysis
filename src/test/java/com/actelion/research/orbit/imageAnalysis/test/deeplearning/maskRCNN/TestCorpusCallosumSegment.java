@@ -9,6 +9,7 @@ import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNS
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNRawDetections;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
+import com.actelion.research.orbit.imageAnalysis.test.OrbitTestOS;
 import org.junit.Test;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
@@ -27,7 +28,7 @@ import static org.junit.Assert.assertNotNull;
  * Models can be found here: http://www.orbit.bio/deep-learning-models/
  * Train/test data can be found here: https://data.broadinstitute.org/bbbc/BBBC038/
  */
-public class TestCorpusCallosumSegment {
+public class TestCorpusCallosumSegment extends OrbitTestOS {
 
     @Test
     public void testSessionLoad() {

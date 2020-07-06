@@ -1,10 +1,7 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101;
 
-import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
 import com.actelion.research.orbit.imageAnalysis.models.SegmentationResult;
@@ -32,35 +29,13 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
     public DLR101Detections segmentationImplementation(OrbitModel segModel,
                                                        OrbitTiledImageIOrbitImage orbitImage,
                                                        Point tile) {
-        DLR101Detections detections = null;
         Point tileOffset = new Point(orbitImage.tileXToX(tile.x), orbitImage.tileYToY(tile.y));
 
-//        detections = getDLR101RawDetections();
-//        decodeLabels(detections.getResult());
-        detections = segmentTile(tile.x, tile.y, orbitImage, segModel, false, tileOffset);
-
-        return detections;
+        return segmentTile(tile.x, tile.y, orbitImage, segModel, false, tileOffset);
     }
 
-    private DLR101Detections segmentTile(int tileX, int tileY, OrbitTiledImageIOrbitImage orbitImage, OrbitModel segModel, boolean writeImage, Point tileOffset) {
-        // Read the tile. (8192 x 8192...)
-        Raster tileRaster = orbitImage.getTile(tileX, tileY);
-        BufferedImage maskOriginal = maskRaster(tileRaster,orbitImage, false, segmentationSettings);
-
-        // TODO: Image shifts...
-
-        DLR101Detections detections = null;
-        try {
-            SegmentationResult segmentationResult = getSegmentationResult(segModel, maskOriginal);
-            detections = processDetections(segmentationResult, tileOffset);
-        } catch (OrbitImageServletException e) {
-            logger.error(e.getLocalizedMessage());
-        }
-        return detections;
-    }
-
-    private BufferedImage maskRaster(Raster inputTileRaster, OrbitTiledImageIOrbitImage orbitImage,
-                                     boolean writeImg, DLR101SegmentationSettings segmentationSettings) {
+    protected BufferedImage maskRaster(Raster inputTileRaster, OrbitTiledImageIOrbitImage orbitImage,
+                                     boolean writeImg) {
         WritableRaster tileRaster = (WritableRaster) inputTileRaster.createTranslatedChild(0, 0);
         BufferedImage ori = new BufferedImage(orbitImage.getColorModel(), tileRaster, false, null);
         ori = DLHelpers.shrink(ori, segmentationSettings);
@@ -157,7 +132,7 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < image.getWidth(); y++) {
             for (int x = 0; x < image.getHeight(); x++) {
-                Color color = label_mask[y][x]==0 ? Color.black : Color.green;
+                Color color = label_mask[y][x]==0 ? Color.black : Color.white;
                 image.setRGB(x, y, color.getRGB());
             }
         }

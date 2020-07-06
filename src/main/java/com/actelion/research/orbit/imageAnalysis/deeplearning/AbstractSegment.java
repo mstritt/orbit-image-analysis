@@ -7,41 +7,35 @@ import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetection;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNRawDetections;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.imaging.TileSizeWrapper;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
 import com.actelion.research.orbit.imageAnalysis.utils.*;
-import imageJ.Colour_Deconvolution;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tensorflow.Tensor;
 
-import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
 // TODO: Consider moving boilerplate to interface using default implementation functionality.
-public abstract class AbstractSegment<T extends AbstractDetections<? extends AbstractDetection>,U extends AbstractSegmentationSettings<U>> implements IDLSegment<T, U> {
+public abstract class AbstractSegment<D extends AbstractDetections<? extends AbstractDetection>,S extends AbstractSegmentationSettings<S>> implements IDLSegment<D, S> {
 
     protected static Logger logger = LoggerFactory.getLogger(AbstractSegment.class);
-    protected final U segmentationSettings;
+    protected final S segmentationSettings;
 
-    protected AbstractSegment(U segmentationSettings) {
+    protected AbstractSegment(S segmentationSettings) {
         this.segmentationSettings = segmentationSettings;
     }
 
-    public abstract T segmentationImplementation(OrbitModel orbitSegModel, OrbitTiledImageIOrbitImage orbitImage, Point tile);
+    public abstract D segmentationImplementation(OrbitModel orbitSegModel, OrbitTiledImageIOrbitImage orbitImage, Point tile);
 
     /**
      * Convenience method to call the generic generateSegmentationAnnotations() method. Uses the default
@@ -95,7 +89,7 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
      * @return Map with RdfId as key and annotations as List<Shape> (segmentationsPerImage).
      */
     public Map<Integer, List<Shape>> generateSegmentationAnnotations(int[] images,
-                                                                     U segmentationSettings,
+                                                                     S segmentationSettings,
                                                                      OrbitModel orbitSegModel,
                                                                      OrbitModel modelContainingExclusionModel,
                                                                      Point tileOnly,
@@ -126,7 +120,7 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
      * @return Map with RdfId as key and annotations as List<Shape> (segmentationsPerImage).
      */
     public Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList,
-                                                                     U segmentationSettings,
+                                                                     S segmentationSettings,
                                                                      OrbitModel orbitSegModel,
                                                                      OrbitModel modelContainingExclusionModel,
                                                                      Point tileOnly,
@@ -187,16 +181,16 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
             // Apply the Exclusion map.
             ExclusionMapGen exclusionMapGen = null;
             // TODO: Re-enable when JAI issue is fixed.
-//            if (modelContainingExclusionModel != null && modelContainingExclusionModel.getExclusionModel() != null) {
-//                exclusionMapGen = ExclusionMapGen.constructExclusionMap(rdf, rf, modelContainingExclusionModel);
-//                if (exclusionMapGen != null) {
-//                    try {
-//                        exclusionMapGen.generateMap();
-//                    } catch (OrbitImageServletException e) {
-//                        logger.error(e.getLocalizedMessage());
-//                    }
-//                }
-//            }
+            if (modelContainingExclusionModel != null && modelContainingExclusionModel.getExclusionModel() != null) {
+                exclusionMapGen = ExclusionMapGen.constructExclusionMap(rdf, rf, modelContainingExclusionModel);
+                if (exclusionMapGen != null) {
+                    try {
+                        exclusionMapGen.generateMap();
+                    } catch (OrbitImageServletException e) {
+                        logger.error(e.getLocalizedMessage());
+                    }
+                }
+            }
 
             // For existing ROI annotations (from Orbit DB) define a roiDef and add it to a list of all roiDefs.
             List<Shape> roiDefList = new ArrayList<>();
@@ -226,7 +220,7 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
                     }
                     if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
                         // Calculate Tile Offset for translating annotations.
-                        T detections = segmentationImplementation(orbitSegModel, orbitImage, tile);
+                        D detections = segmentationImplementation(orbitSegModel, orbitImage, tile);
 
                         logger.info("shapes before filtering: " + detections.getDetections().size());
                         // TODO: Re-enable
@@ -266,7 +260,7 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
         DALConfig.getImageProvider().InsertRawAnnotation(spot);
     }
 
-    public void storeShapes(T detections, U settings,
+    public void storeShapes(D detections, S settings,
                             int rdfId, String user) throws Exception {
         for (AbstractDetection detection: detections.getDetections()) {
             int maskClass = detection.getDetectionClass();
@@ -279,6 +273,40 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
         }
     }
 
+    /**
+     * Apply segmentation model to a tile.
+     * First extract the current tile as a raster and
+     * @param tileX Tile number in x-direction.
+     * @param tileY Tile number in y-direction.
+     * @param orbitImage The Orbit Image tile that should be segmented.
+     * @param segModel The Orbit Segmentation model to use for refining the image masks.
+     * @param writeImg Optionally write a test image to a temporary location (for debugging purposes).
+     * @return SegmentationResult describing the segmentation.
+     */
+    public D segmentTile(int tileX, int tileY, OrbitTiledImageIOrbitImage orbitImage, OrbitModel segModel, boolean writeImg, Point tileOffset) {
+        // Read the tile. (8192 x 8192...)
+        Raster tileRaster = orbitImage.getTile(tileX, tileY);
+        BufferedImage maskOriginal = maskRaster(tileRaster,orbitImage, writeImg);
+
+        // Shift the tile half the tile width up, down, left and right.
+        int factor = 2;
+        int xShift = (int) (segmentationSettings.getImageWidth() * segmentationSettings.getTileScaleFactorX()/2); //4096; //segmentationSettings.getImageWidth()/2;
+        int yShift = (int) (segmentationSettings.getImageHeight() * segmentationSettings.getTileScaleFactorY()/2); //4096; //segmentationSettings.getImageHeight()/2;
+        maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, factor,0, yShift, false);
+        maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, factor,0, -yShift, false);
+        maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, factor, xShift, 0, false);
+        maskOriginal = getShiftedMask(orbitImage, tileRaster, maskOriginal, factor, -xShift, 0, false);
+
+        D detections = null;
+        try {
+            SegmentationResult segmentationResult = this.getSegmentationResult(segModel, maskOriginal);
+            detections = processDetections(segmentationResult, tileOffset);
+        } catch (OrbitImageServletException e) {
+            logger.error(e.getLocalizedMessage());
+        }
+        return detections;
+    }
+    
     public SegmentationResult getSegmentationResult(OrbitModel segModel, BufferedImage segmented) throws OrbitImageServletException {
         IOrbitImage segimg = new OrbitImagePlanar(PlanarImage.wrapRenderedImage(segmented), "segmented");
         RecognitionFrame rfSeg = new RecognitionFrame(segimg, "segmented");
@@ -286,7 +314,68 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
         tl.add(new Point(-1, -1));
         return OrbitHelper.Segmentation(rfSeg, 0, segModel, tl, 1, false);
     }
+    
+    protected abstract BufferedImage maskRaster(Raster inputTileRaster,
+                                                OrbitTiledImageIOrbitImage orbitImage,
+                                                boolean writeImg);
+
+    protected BufferedImage getShiftedMask(OrbitTiledImageIOrbitImage orbitImage, Raster tileRaster, BufferedImage maskOriginal, int factor, int dx, int dy, boolean flip) {
+        Rectangle rect = tileRaster.getBounds();
+        rect.translate(dx,dy);
+        if (!orbitImage.getBounds().contains(rect)) {
+            return maskOriginal;
+        }
+        try {
+            Raster shiftraster = orbitImage.getData(rect);
+            if (flip) {
+                shiftraster = flipRaster(shiftraster);
+            }
+            BufferedImage mask2 = maskRaster(shiftraster, orbitImage, false);
+            if (flip) {
+                mask2 = flipImage(mask2);
+            }
+            maskOriginal = combineMasks(maskOriginal, mask2, dx / factor, dy / factor);
+        } catch (Exception e) {
+            logger.warn("Could not shift raster, returning original image (rect="+rect+" img.bounds="+orbitImage.getBounds()+")", e);
+        }
+        return maskOriginal;
+    }
+
+    protected static BufferedImage flipImage(BufferedImage bi) {
+        return new BufferedImage(bi.getColorModel(),(WritableRaster) flipRaster(bi.getData()),false,null);
+    }
+
+    protected static Raster flipRaster(Raster r) {
+        int w = r.getWidth();
+        int h = r.getHeight();
+        WritableRaster rf = r.createCompatibleWritableRaster(r.getMinX(),r.getMinY(), w,h);
+        int[] p = new int[w*3];
+        for (int y=r.getMinY(); y<r.getMinY()+h; y++) {
+            p = r.getPixels(r.getMinX(),y,w,1,p);
+            rf.setPixels(r.getMinX(),r.getMinY()+h-(y-r.getMinY())-1,w,1,p);
+        }
+        return rf;
+    }
+
+    protected static BufferedImage combineMasks(BufferedImage m1, BufferedImage m2, int dx, int dy) {
+        BufferedImage combined = new BufferedImage(m1.getWidth(),m1.getHeight(),m1.getType());
+        combined.getGraphics().drawImage(m1,0,0,null);
+        int fg = Color.white.getRGB();
+        Raster r2 = m2.getRaster();
+        int minX = Math.max(-dx, 0);
+        int minY = Math.max(-dy, 0);
+        int maxX = Math.min(m2.getWidth() - dx, m2.getWidth());
+        int maxY = Math.min(m2.getHeight() - dy, m2.getHeight());
+
+        for (int x=minX; x<maxX; x++)
+            for (int y=minY; y<maxY; y++) {
+                if (r2.getSample(x,y,0)>0) {
+                    combined.setRGB(x+dx,y+dy,fg);
+                }
+            }
+        return combined;
+    }
 
     @Override
-    public abstract T processDetections(SegmentationResult segRes, Point tileOffset);
+    public abstract D processDetections(SegmentationResult segRes, Point tileOffset);
 }

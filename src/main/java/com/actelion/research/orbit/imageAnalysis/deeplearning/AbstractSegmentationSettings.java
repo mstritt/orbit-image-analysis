@@ -2,7 +2,7 @@ package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
 import java.awt.*;
 
-public abstract class AbstractSegmentationSettings<T> {
+public abstract class AbstractSegmentationSettings<S> {
 
     private final int imageWidth;
     private final int imageHeight;

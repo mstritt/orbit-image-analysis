@@ -1,10 +1,11 @@
 package com.actelion.research.orbit.imageAnalysis.test.deeplearning.maskRCNN;
 
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNAnchors;
+import com.actelion.research.orbit.imageAnalysis.test.OrbitTestOS;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
-public class TestAnchorGenerator {
+public class TestAnchorGenerator extends OrbitTestOS {
     @Test
     void TestGenerateAnchors() {
         // Generate anchors for 1024 images.

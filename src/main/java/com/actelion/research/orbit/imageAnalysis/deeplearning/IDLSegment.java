@@ -8,7 +8,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
-public interface IDLSegment<T, U> {
+public interface IDLSegment<D, S> {
 
     Map<Integer, List<Shape>> generateSegmentationAnnotations(int[] images,
                                                               OrbitModel orbitSegModel,
@@ -22,25 +22,25 @@ public interface IDLSegment<T, U> {
                                                               boolean storeAnnotations);
 
     Map<Integer, List<Shape>> generateSegmentationAnnotations(int[] images,
-                                                              U segmentationSettings,
+                                                              S segmentationSettings,
                                                               OrbitModel orbitSegModel,
                                                               OrbitModel modelContainingExclusionModel,
                                                               Point tileOnly,
                                                               boolean storeAnnotations);
 
     Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList,
-                                                              U segmentationSettings,
+                                                              S segmentationSettings,
                                                               OrbitModel orbitSegModel,
                                                               OrbitModel modelContainingExclusionModel,
                                                               Point tile,
                                                               boolean storeAnnotations);
 
-    T segmentationImplementation(OrbitModel segModel, OrbitTiledImageIOrbitImage orbitImage, Point tile);
+    D segmentationImplementation(OrbitModel segModel, OrbitTiledImageIOrbitImage orbitImage, Point tile);
 
     void storeShape(Shape shape, String name, Color color, int rdfId, String user) throws Exception;
 
-    void storeShapes(T detections, U settings, int rdfId, String user) throws Exception;
+    void storeShapes(D detections, S settings, int rdfId, String user) throws Exception;
 
-    T processDetections(SegmentationResult segRes, Point tileOffset);
+    D processDetections(SegmentationResult segRes, Point tileOffset);
 
 }

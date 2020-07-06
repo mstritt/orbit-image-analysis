@@ -14,6 +14,6 @@ public class DLR101SegmentationSettings extends AbstractSegmentationSettings<DLR
 
     @Override
     public String getClassName(int classNum) {
-        return "Glomeruli";
+        return "DLR101";
     }
 }
