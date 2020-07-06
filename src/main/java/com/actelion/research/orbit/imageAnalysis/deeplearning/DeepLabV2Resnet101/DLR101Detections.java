@@ -30,6 +30,14 @@ public class DLR101Detections extends AbstractDetections<DLR101Detection> {
 
     private long[] result;
 
+    DLR101Detections() {
+        super();
+    }
+
+    DLR101Detections(long[] mask) {
+        super();
+        this.setRawDetections(mask);
+    }
 
     protected void setRawDetections(long[] result) {
         this.result = result;

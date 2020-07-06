@@ -8,14 +8,23 @@ import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetection;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNRawDetections;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.imaging.TileSizeWrapper;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
 import com.actelion.research.orbit.imageAnalysis.utils.*;
+import imageJ.Colour_Deconvolution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tensorflow.Tensor;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -176,16 +185,16 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
             // Apply the Exclusion map.
             ExclusionMapGen exclusionMapGen = null;
             // TODO: Re-enable when JAI issue is fixed.
-//            if (modelContainingExclusionModel != null && modelContainingExclusionModel.getExclusionModel() != null) {
-//                exclusionMapGen = ExclusionMapGen.constructExclusionMap(rdf, rf, modelContainingExclusionModel);
-//                if (exclusionMapGen != null) {
-//                    try {
-//                        exclusionMapGen.generateMap();
-//                    } catch (OrbitImageServletException e) {
-//                        logger.error(e.getLocalizedMessage());
-//                    }
-//                }
-//            }
+            if (modelContainingExclusionModel != null && modelContainingExclusionModel.getExclusionModel() != null) {
+                exclusionMapGen = ExclusionMapGen.constructExclusionMap(rdf, rf, modelContainingExclusionModel);
+                if (exclusionMapGen != null) {
+                    try {
+                        exclusionMapGen.generateMap();
+                    } catch (OrbitImageServletException e) {
+                        logger.error(e.getLocalizedMessage());
+                    }
+                }
+            }
 
             // For existing ROI annotations (from Orbit DB) define a roiDef and add it to a list of all roiDefs.
             List<Shape> roiDefList = new ArrayList<>();

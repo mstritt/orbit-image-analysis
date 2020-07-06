@@ -2,6 +2,8 @@ package com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet10
 
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.SegmentationResult;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
@@ -11,6 +13,7 @@ import org.tensorflow.Tensor;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.io.File;
 
 public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101SegmentationSettings> {
@@ -23,8 +26,41 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
     }
 
     @Override
-    public DLR101Detections segmentationImplementation(OrbitModel segModel, OrbitTiledImageIOrbitImage orbitImage, Point tile) {
-        return null;
+    public DLR101Detections segmentationImplementation(OrbitModel segModel,
+                                                       OrbitTiledImageIOrbitImage orbitImage,
+                                                       Point tile) {
+        DLR101Detections detections = null;
+        Point tileOffset = new Point(orbitImage.tileXToX(tile.x), orbitImage.tileYToY(tile.y));
+
+//        detections = getDLR101RawDetections();
+//        decodeLabels(detections.getResult());
+        detections = segmentTile(tile.x, tile.y, orbitImage, segModel, false, tileOffset);
+
+        return detections;
+    }
+
+    private DLR101Detections segmentTile(int tileX, int tileY, OrbitTiledImageIOrbitImage orbitImage, OrbitModel segModel, boolean writeImage, Point tileOffset) {
+        // Read the tile. (8192 x 8192...)
+        Raster tileRaster = orbitImage.getTile(tileX, tileY);
+        BufferedImage maskOriginal = maskRaster(tileRaster,orbitImage, false, segmentationSettings);
+
+
+        DLR101Detections detections = null;
+
+        return detections;
+    }
+
+    private BufferedImage maskRaster(Raster inputTileRaster, OrbitTiledImageIOrbitImage orbitImage,
+                                     boolean writeImg, DLR101SegmentationSettings segmentationSettings) {
+        WritableRaster tileRaster = (WritableRaster) inputTileRaster.createTranslatedChild(0, 0);
+        BufferedImage ori = new BufferedImage(orbitImage.getColorModel(), tileRaster, false, null);
+        ori = DLHelpers.shrink(ori, segmentationSettings);
+
+        Tensor<Float> inputTensor = DLR101Segment.convertBufferedImageToTensor(ori);
+
+        DLR101Detections detections = getDLR101RawDetections(inputTensor);
+
+        return decodeLabels(detections.getResult());
     }
 
     @Override
@@ -37,52 +73,50 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
         return null;
     }
 
-    public DLR101Detections getDLR101RawDetections(final Tensor<Long> inputTensor) {
+    public DLR101Detections getDLR101RawDetections(final Tensor<Float> inputTensor) {
 
         Tensor<Long> res = s
-                         .runner()
-                         .feed("image_batch", inputTensor)
-                         .fetch("predictions")
-                         .run().get(0).expect(Long.class);
+                .runner()
+                .feed("image_batch", inputTensor)
+                .fetch("predictions")
+                .run().get(0).expect(Long.class);
 
-        DLR101Detections detections = new DLR101Detections();
+        long[] mask = res.copyTo(new long[res.numElements()]);
 
-        detections.setRawDetections(res.copyTo(new long[res.numElements()]));
-
-        return detections;
+        return new DLR101Detections(mask);
     }
 
-    public static Tensor<Long> convertBufferedImageToTensor(BufferedImage image, int targetWidth, int targetHeight) {
-        //if (image.getWidth()!=DESIRED_SIZE || image.getHeight()!=DESIRED_SIZE)
-        {
-            // also make it an RGB image
-            image = DLHelpers.resize(image, targetWidth, targetHeight);
-            // image = resize(image,image.getWidth(), image.getHeight());
-        }
+    /**
+     * Convert an image into a tensor format suitable for DeepLabV2-Resnet101
+     * @param image The image that you want to do inference on.
+     * @return The tensor to use for inference.
+     */
+    public static Tensor<Float> convertBufferedImageToTensor(BufferedImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
-        Raster r = image.getRaster();
-        int[] rgb = new int[3];
-        //int[] data = new int[width * height];
-        //image.getRGB(0, 0, width, height, data, 0, width);
+        int[] data = new int[width * height];
+        image.getRGB(0, 0, width, height, data, 0, width);
         float[][][][] rgbArray = new float[1][height][width][3];
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                //Color color = new Color(data[i * width + j]);
-//                rgbArray[0][i][j][0] = color.getRed() - MEAN_PIXEL[0];
-//                rgbArray[0][i][j][1] = color.getGreen() - MEAN_PIXEL[1];
-//                rgbArray[0][i][j][2] = color.getBlue() - MEAN_PIXEL[2];
-                rgb = r.getPixel(j,i,rgb);
-                rgbArray[0][i][j][0] = rgb[0] - 170f;
-                rgbArray[0][i][j][1] = rgb[1] - 170f;
-                rgbArray[0][i][j][2] = rgb[2] - 170f;
+                Color color = new Color(data[i * width + j]);
+                rgbArray[0][i][j][0] = color.getRed();
+                rgbArray[0][i][j][1] = color.getGreen();
+                rgbArray[0][i][j][2] = color.getBlue();
             }
         }
-        return Tensor.create(rgbArray, Long.class);
+        return Tensor.create(rgbArray, Float.class);
     }
 
-    public static int[][] convert1DVectorTo2D(long[] values, int rows, int cols) {
-        int[][] array = new int[rows][cols];
+    /**
+     * Change a long[] to a long[][] that matches the image shape.
+     * @param values long[]
+     * @return long[][]
+     */
+    public int[][] convert1DVectorTo2D(long[] values) {
+        int rows = segmentationSettings.getImageWidth();
+        int cols = segmentationSettings.getImageHeight();
+        int[][] array = new int[rows][];
         for (int j = 0; j < rows; j++) {
             for (int i = 0; i < cols; i++) {
                 array[j][i] = (int) values[j * cols + i];
@@ -91,19 +125,20 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
         return array;
     }
 
-    public BufferedImage decodeLabels(long[] mask, Color bg, Color fg) {
-//		int[][] label_colours = {
-//				new int[] { 0, 0, 0 },
-//				new int[] { 255, 255, 255 } //Glomeruli
-//				};
-        int[][] label_mask = convert1DVectorTo2D(mask, segmentationSettings.getImageWidth(), segmentationSettings.getImageHeight());
-        BufferedImage image = new BufferedImage(segmentationSettings.getImageWidth(), segmentationSettings.getImageHeight(), BufferedImage.TYPE_INT_RGB);
+    /**
+     * Take DeepLabV2-Resnet101 raw detections and convert them to a buffered image
+     * with black background, and green foreground.
+     * @param mask Raw detections.
+     * @return Image with detections.
+     */
+    public BufferedImage decodeLabels(long[] mask) {
+        int width = segmentationSettings.getImageWidth();
+        int height = segmentationSettings.getImageHeight();
+        int[][] label_mask = convert1DVectorTo2D(mask);
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < image.getWidth(); y++) {
             for (int x = 0; x < image.getHeight(); x++) {
-//				Color color = new Color(label_colours[label_mask[y][x]][0],
-//						label_colours[label_mask[y][x]][1],
-//						label_colours[label_mask[y][x]][2]);
-                Color color = label_mask[y][x]==0? bg : fg;
+                Color color = label_mask[y][x]==0 ? Color.black : Color.green;
                 image.setRGB(x, y, color.getRGB());
             }
         }

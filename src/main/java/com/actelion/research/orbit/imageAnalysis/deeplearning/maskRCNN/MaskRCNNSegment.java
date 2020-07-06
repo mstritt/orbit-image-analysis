@@ -233,7 +233,9 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
 
 
     @Override
-    public MaskRCNNDetections segmentationImplementation(OrbitModel segModel, OrbitTiledImageIOrbitImage orbitImage, Point tile) {
+    public MaskRCNNDetections segmentationImplementation(OrbitModel segModel,
+                                                         OrbitTiledImageIOrbitImage orbitImage,
+                                                         Point tile) {
         Point tileOffset = new Point(orbitImage.tileXToX(tile.x), orbitImage.tileYToY(tile.y));
 
         MaskRCNNDetections detections = null;

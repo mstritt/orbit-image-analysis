@@ -500,6 +500,12 @@ public class DLSegment {
                 .run().get(0).expect(Long.class);
 
         long[] mask = outputTensor.copyTo(new long[outputTensor.numElements()]);
+        for (long l : mask) {
+            if (l > 0) {
+                System.out.println(l);
+            }
+
+        }
         BufferedImage bufferedImage = decodeLabels(mask,bg,fg);
         return bufferedImage;
     }
@@ -520,19 +526,21 @@ public class DLSegment {
      * Demo main methods for testing
      */
 
-    private static final String DEMO_MODEL_NAME = "D:\\data\\glomeruli\\20180202_glomeruli_detection_noquant.pb";
-    private static final String INPUT_IMAGE = "D:\\data\\glomeruli\\input5c.jpg";
-    private static final String DEMO_OUTPUT_IMAGE = INPUT_IMAGE.replaceAll(".jpg","_seg.jpg");
+//    private static final String DEMO_MODEL_NAME = "D:\\data\\glomeruli\\20180202_glomeruli_detection_noquant.pb";
+//    private static final String INPUT_IMAGE = "D:\\data\\glomeruli\\input5c.jpg";
+    private static final String DEMO_MODEL_NAME = "D:/deeplearning/glomeruli/20180202_glomeruli_detection_noquant.pb";
+    private static final String INPUT_IMAGE = "D:/deeplearning/glomeruli/test2.png";
+    private static final String DEMO_OUTPUT_IMAGE = INPUT_IMAGE.replaceAll(".png","_seg.jpg");
 
-    public static void main3(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
         Session s = DLSegment.buildSession(DEMO_MODEL_NAME);
 
         BufferedImage sourceImage = ImageIO.read(new File(INPUT_IMAGE));
         BufferedImage bi1 = new BufferedImage(1024,1024,BufferedImage.TYPE_INT_RGB);
         bi1.getGraphics().drawImage(sourceImage,0,0,null);
-        bi1.getGraphics().drawImage(sourceImage,512,0,null);
-        bi1.getGraphics().drawImage(sourceImage,0,512,null);
-        bi1.getGraphics().drawImage(sourceImage,512,512,null);
+//        bi1.getGraphics().drawImage(sourceImage,512,0,null);
+//        bi1.getGraphics().drawImage(sourceImage,0,512,null);
+//        bi1.getGraphics().drawImage(sourceImage,512,512,null);
         BufferedImage bi2 = new BufferedImage(512,512,BufferedImage.TYPE_INT_RGB);
         bi2.getGraphics().drawImage(bi1,0,0,512,512,null);
         sourceImage = bi2;
@@ -561,7 +569,7 @@ public class DLSegment {
 
 
 
-    public static void main(String[] args) {
+    public static void main4(String[] args) {
         List<Shape> shapes = new ArrayList<>();
         PolygonExt p = new PolygonExt();
         p.addPoint(0,0);
