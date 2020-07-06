@@ -39,8 +39,6 @@ public interface IDLSegment<T, U> {
 
     void storeShape(Shape shape, String name, Color color, int rdfId, String user) throws Exception;
 
-    void storeShapes(List<Shape> shapes, String basename, int rdfId, String user) throws Exception;
-
     void storeShapes(T detections, U settings, int rdfId, String user) throws Exception;
 
     T processDetections(SegmentationResult segRes, Point tileOffset);

@@ -403,13 +403,7 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
         return detections;
     }
 
-    public SegmentationResult getSegmentationResult(OrbitModel segModel, BufferedImage segmented) throws OrbitImageServletException {
-        IOrbitImage segimg = new OrbitImagePlanar(PlanarImage.wrapRenderedImage(segmented), "segmented");
-        RecognitionFrame rfSeg = new RecognitionFrame(segimg, "segmented");
-        List<Point> tl = new ArrayList<>();
-        tl.add(new Point(-1, -1));
-        return OrbitHelper.Segmentation(rfSeg, 0, segModel, tl, 1, false);
-    }
+
 
 
 

@@ -1,10 +1,12 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101;
 
+import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
+import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
 import com.actelion.research.orbit.imageAnalysis.models.SegmentationResult;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
 import org.tensorflow.Session;
@@ -15,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.io.File;
+import java.util.List;
 
 public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101SegmentationSettings> {
 
@@ -44,9 +47,15 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
         Raster tileRaster = orbitImage.getTile(tileX, tileY);
         BufferedImage maskOriginal = maskRaster(tileRaster,orbitImage, false, segmentationSettings);
 
+        // TODO: Image shifts...
 
         DLR101Detections detections = null;
-
+        try {
+            SegmentationResult segmentationResult = getSegmentationResult(segModel, maskOriginal);
+            detections = processDetections(segmentationResult, tileOffset);
+        } catch (OrbitImageServletException e) {
+            logger.error(e.getLocalizedMessage());
+        }
         return detections;
     }
 
@@ -64,13 +73,23 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
     }
 
     @Override
-    public void storeShapes(DLR101Detections detections, DLR101SegmentationSettings settings, int rdfId, String user) throws Exception {
-
-    }
-
-    @Override
     public DLR101Detections processDetections(SegmentationResult segRes, Point tileOffset) {
-        return null;
+        DLR101Detections detections = new DLR101Detections();
+        List<Shape> shapes = segRes.getShapeList();
+        for (Shape shape : shapes) {
+            PolygonExt polygon = (PolygonExt) shape;
+            polygon.setClosed(true);
+
+            // Rescale the shape to display properly on the whole slide image.
+            polygon = polygon.scale(segmentationSettings.getTileScaleFactorXPercent(), new Point(0,0));
+
+            // Translate the image based on it's location in the whole slide image.
+            polygon.translate(tileOffset.x, tileOffset.y);
+
+            // TODO: Assign the correct bounding box, probability and class.
+            detections.addDetection(polygon,1, tileOffset);
+        }
+        return detections;
     }
 
     public DLR101Detections getDLR101RawDetections(final Tensor<Float> inputTensor) {
@@ -116,7 +135,7 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
     public int[][] convert1DVectorTo2D(long[] values) {
         int rows = segmentationSettings.getImageWidth();
         int cols = segmentationSettings.getImageHeight();
-        int[][] array = new int[rows][];
+        int[][] array = new int[rows][cols];
         for (int j = 0; j < rows; j++) {
             for (int i = 0; i < cols; i++) {
                 array[j][i] = (int) values[j * cols + i];

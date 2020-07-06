@@ -36,13 +36,6 @@ public abstract class AbstractDetections<T extends AbstractDetection> {
                 .collect(Collectors.toList());
     }
 
-    public List<Float> getProbabilities() {
-        return this.detections
-                .stream()
-                .map(e -> e.classProbability)
-                .collect(Collectors.toList());
-    }
-
     public List<Point> getTileOffset() {
         return this.detections
                 .stream()
@@ -68,9 +61,6 @@ public abstract class AbstractDetections<T extends AbstractDetection> {
                 "\n" +
                 "Contours: " +
                 getContours().toString() +
-                "\n" +
-                "Probabilities: " +
-                getProbabilities().toString() +
                 "\n" +
                 "Detection Classes: " +
                 getDetectionClasses().toString() +

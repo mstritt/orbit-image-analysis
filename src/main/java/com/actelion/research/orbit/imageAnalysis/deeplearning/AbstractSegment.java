@@ -2,6 +2,7 @@ package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
 import com.actelion.research.orbit.beans.RawAnnotation;
 import com.actelion.research.orbit.beans.RawDataFile;
+import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.tensorflow.Tensor;
 
 import javax.imageio.ImageIO;
+import javax.media.jai.PlanarImage;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
@@ -185,16 +187,16 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
             // Apply the Exclusion map.
             ExclusionMapGen exclusionMapGen = null;
             // TODO: Re-enable when JAI issue is fixed.
-            if (modelContainingExclusionModel != null && modelContainingExclusionModel.getExclusionModel() != null) {
-                exclusionMapGen = ExclusionMapGen.constructExclusionMap(rdf, rf, modelContainingExclusionModel);
-                if (exclusionMapGen != null) {
-                    try {
-                        exclusionMapGen.generateMap();
-                    } catch (OrbitImageServletException e) {
-                        logger.error(e.getLocalizedMessage());
-                    }
-                }
-            }
+//            if (modelContainingExclusionModel != null && modelContainingExclusionModel.getExclusionModel() != null) {
+//                exclusionMapGen = ExclusionMapGen.constructExclusionMap(rdf, rf, modelContainingExclusionModel);
+//                if (exclusionMapGen != null) {
+//                    try {
+//                        exclusionMapGen.generateMap();
+//                    } catch (OrbitImageServletException e) {
+//                        logger.error(e.getLocalizedMessage());
+//                    }
+//                }
+//            }
 
             // For existing ROI annotations (from Orbit DB) define a roiDef and add it to a list of all roiDefs.
             List<Shape> roiDefList = new ArrayList<>();
@@ -255,7 +257,6 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
         return segmentationsPerImage;
     }
 
-    @Override
     public void storeShape(Shape shape, String name, Color color, int rdfId, String user) throws Exception {
         ClassShape classShape = new ClassShape(name, color, ClassShape.SHAPETYPE_POLYGONEXT);
         classShape.getShapeList().add(shape);
@@ -265,20 +266,9 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
         DALConfig.getImageProvider().InsertRawAnnotation(spot);
     }
 
-    @Override
-    public void storeShapes(List<Shape> shapes, String basename, int rdfId, String user) throws Exception {
-        int total = 0;
-        for (Shape shape: shapes) {
-            total++;
-            storeShape(shape,basename+"_"+total,Color.GREEN, rdfId,user);
-        }
-    }
-
-    public void storeShapes(MaskRCNNDetections detections, U settings,
+    public void storeShapes(T detections, U settings,
                             int rdfId, String user) throws Exception {
-        //TODO: The translation parts should be moved out of this to the detections methods.
-        int i=1;
-        for (MaskRCNNDetection detection: detections.getDetections()) {
+        for (AbstractDetection detection: detections.getDetections()) {
             int maskClass = detection.getDetectionClass();
 
             PolygonExt shape = (PolygonExt) detection.getContourShape();
@@ -286,8 +276,15 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
             storeShape(shape,
                     settings.getAnnotationPrefix()+"_"+settings.getClassName(maskClass),
                     settings.getAnnotationColor(maskClass), rdfId, user);
-            i++;
         }
+    }
+
+    public SegmentationResult getSegmentationResult(OrbitModel segModel, BufferedImage segmented) throws OrbitImageServletException {
+        IOrbitImage segimg = new OrbitImagePlanar(PlanarImage.wrapRenderedImage(segmented), "segmented");
+        RecognitionFrame rfSeg = new RecognitionFrame(segimg, "segmented");
+        List<Point> tl = new ArrayList<>();
+        tl.add(new Point(-1, -1));
+        return OrbitHelper.Segmentation(rfSeg, 0, segModel, tl, 1, false);
     }
 
     @Override

@@ -43,9 +43,19 @@ public class MaskRCNNDetections extends AbstractDetections<MaskRCNNDetection> {
                 .collect(Collectors.toList());
     }
 
+    public List<Float> getProbabilities() {
+        return this.detections
+                .stream()
+                .map(e -> e.classProbability)
+                .collect(Collectors.toList());
+    }
+
     public String toString() {
         return super.toString() +
-        "Bounding Boxes: " +
+            "Probabilities: " +
+                getProbabilities().toString() +
+            "\n" +
+            "Bounding Boxes: " +
                 getBoundingBoxes().toString() + "\n";
     }
 }
