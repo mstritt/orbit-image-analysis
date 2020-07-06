@@ -108,8 +108,9 @@ public class TestInsulinSegment {
         long startt = System.currentTimeMillis();
 
         // Apply the MaskRCNN segmentation models to a list of images.
+        // TODO: Check whether need to pass the settings object...
         Map<Integer, List<Shape>> segmentationsPerImage = segmentationModel.generateSegmentationAnnotations(
-                images, segModel, modelContainingExclusionModel, storeAnnotations, tile);
+                images, segModel, modelContainingExclusionModel, tile, storeAnnotations);
         long used = System.currentTimeMillis()-startt;
 
         System.out.println("time used: "+used/1000d);
@@ -162,7 +163,7 @@ public class TestInsulinSegment {
 
         // Apply the MaskRCNN segmentation models to a list of images.
         Map<Integer, List<Shape>> segmentationsPerImage = segmentationModel.generateSegmentationAnnotations(
-                images, segModel, modelContainingExclusionModel, storeAnnotations, tile);
+                images, segModel, modelContainingExclusionModel, tile, storeAnnotations);
         long used = System.currentTimeMillis()-startt;
 
         System.out.println("time used: "+used/1000d);

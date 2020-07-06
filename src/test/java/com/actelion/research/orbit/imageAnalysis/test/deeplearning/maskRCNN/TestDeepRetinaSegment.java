@@ -46,11 +46,11 @@ public class TestDeepRetinaSegment {
 
         // Apply the MaskRCNN segmentation models to a list of images.
         Map<Integer, List<Shape>> segmentationsPerImage = segmentationModel.generateSegmentationAnnotations(
-                images, null, null, true);
+                images, settings, null,null, null, false);
 
         long used = System.currentTimeMillis()-startt;
 
-        System.out.println("time used: "+used/1000d);
+        System.out.println("time used: " + used/1000d);
 
         long elapsedTimeInSec = (new Date().getTime() - startDate.getTime()) / 1000;
         System.out.println(String.format("Ended in %ds .", elapsedTimeInSec));

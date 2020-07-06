@@ -20,7 +20,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
-public abstract class AbstractSegment<T extends AbstractDetections<? extends AbstractDetection>,U extends AbstractSegmentationSettings<U>> implements IDLSegment<T> {
+// TODO: Consider moving boilerplate to interface using default implementation functionality.
+public abstract class AbstractSegment<T extends AbstractDetections<? extends AbstractDetection>,U extends AbstractSegmentationSettings<U>> implements IDLSegment<T, U> {
 
     protected static Logger logger = LoggerFactory.getLogger(AbstractSegment.class);
     protected final U segmentationSettings;
@@ -29,18 +30,65 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
         this.segmentationSettings = segmentationSettings;
     }
 
+    public abstract T segmentationImplementation(OrbitModel orbitSegModel, OrbitTiledImageIOrbitImage orbitImage, Point tile);
+
+    /**
+     * Convenience method to call the generic generateSegmentationAnnotations() method. Uses the default
+     * segmentation settings...
+     * @param images list of rdfIds for images to be segmented.
+     * @param orbitSegModel Segmentation Model?
+     * @param modelContainingExclusionModel An exclusion model, used to focus on only the area of interest (e.g.
+     *                                      ignore artifacts, blank area) and (probably) speed up the calculation
+     *                                      by ignoring uninteresting areas.
+     * @param tileOnly The tile coordinates (not the pixel coordinates) of the tile to be processed (don't process
+     *                 all tiles...).
+     * @param storeAnnotations Should the annotations be stored back to the Orbit DB?
+     * @return Map with RdfId as key and annotations as List<Shape> (segmentationsPerImage).
+     */
+    public Map<Integer, List<Shape>> generateSegmentationAnnotations(int[] images,
+                                                                     OrbitModel orbitSegModel,
+                                                                     OrbitModel modelContainingExclusionModel,
+                                                                     Point tileOnly,
+                                                                     boolean storeAnnotations) {
+        return generateSegmentationAnnotations(images,segmentationSettings,orbitSegModel,modelContainingExclusionModel, tileOnly, storeAnnotations);
+    }
+
     /**
      * Convenience method to call the generic generateSegmentationAnnotations() method.
      * @param images list of rdfIds for images to be segmented.
-     * @param segModel Segmentation Model?
+     * @param orbitSegModel Segmentation Model?
      * @param modelContainingExclusionModel An exclusion model, used to focus on only the area of interest (e.g.
      *                                      ignore artifacts, blank area) and (probably) speed up the calculation
      *                                      by ignoring uninteresting areas.
      * @param storeAnnotations Should the annotations be stored back to the Orbit DB?
-     * @param tile The tile coordinates for processing a specific image tile only.
      * @return Map with RdfId as key and annotations as List<Shape> (segmentationsPerImage).
      */
-    public Map<Integer, List<Shape>> generateSegmentationAnnotations(int[] images, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations, Point tile) {
+    public Map<Integer, List<Shape>> generateSegmentationAnnotations(int[] images,
+                                                                     OrbitModel orbitSegModel,
+                                                                     OrbitModel modelContainingExclusionModel,
+                                                                     boolean storeAnnotations) {
+        return generateSegmentationAnnotations(images,orbitSegModel,modelContainingExclusionModel,null, storeAnnotations);
+    }
+
+    /**
+     * Convenience method to call the generic generateSegmentationAnnotations() method.
+     * @param images list of rdfIds for images to be segmented.
+     * @param segmentationSettings Segmentation settings for the model.
+     * @param orbitSegModel Segmentation Model?
+     * @param modelContainingExclusionModel An exclusion model, used to focus on only the area of interest (e.g.
+     *                                      ignore artifacts, blank area) and (probably) speed up the calculation
+     *                                      by ignoring uninteresting areas.
+     * @param tileOnly The tile coordinates (not the pixel coordinates) of the tile to be processed (don't process
+     *                 all tiles...).
+     * @param storeAnnotations Should the annotations be stored back to the Orbit DB?
+     * @return Map with RdfId as key and annotations as List<Shape> (segmentationsPerImage).
+     */
+    public Map<Integer, List<Shape>> generateSegmentationAnnotations(int[] images,
+                                                                     U segmentationSettings,
+                                                                     OrbitModel orbitSegModel,
+                                                                     OrbitModel modelContainingExclusionModel,
+                                                                     Point tileOnly,
+                                                                     boolean storeAnnotations) {
         List<RawDataFile> rdfList = new ArrayList<>(images.length);
         try {
             for (int image : images) {
@@ -50,38 +98,28 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
             logger.error("Could not read Raw Data File");
             logger.error(ex.getLocalizedMessage());
         }
-        return generateSegmentationAnnotations(rdfList,segModel,modelContainingExclusionModel,storeAnnotations, tile);
+        return generateSegmentationAnnotations(rdfList, segmentationSettings, orbitSegModel, modelContainingExclusionModel, tileOnly, storeAnnotations);
     }
-
-    /**
-     * Convenience method to call the generic generateSegmentationAnnotations() method.
-     * @param images list of rdfIds for images to be segmented.
-     * @param segModel Segmentation Model?
-     * @param modelContainingExclusionModel An exclusion model, used to focus on only the area of interest (e.g.
-     *                                      ignore artifacts, blank area) and (probably) speed up the calculation
-     *                                      by ignoring uninteresting areas.
-     * @param storeAnnotations Should the annotations be stored back to the Orbit DB?
-     * @return Map with RdfId as key and annotations as List<Shape> (segmentationsPerImage).
-     */
-    public Map<Integer, List<Shape>> generateSegmentationAnnotations(int[] images, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations) {
-        return generateSegmentationAnnotations(images,segModel,modelContainingExclusionModel,storeAnnotations, null);
-    }
-
-    public abstract Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations, Point tile);
-
-    public abstract T segmentationImplementation(OrbitModel segModel, OrbitTiledImageIOrbitImage orbitImage, Point tile);
 
     /**
      * Create annotations that can optionally be written to Orbit DB.
      * @param rdfList List of images (RDFs) to be processed.
-     * @param segModel Segmentation model?
+     * @param segmentationSettings Segmentation settings for the model.
+     * @param orbitSegModel Segmentation model?
      * @param modelContainingExclusionModel An exclusion model, used to focus on only the area of interest (e.g.
      *                                      ignore artifacts, blank area) and (probably) speed up the calculation
      *                                      by ignoring uninteresting areas.
+     * @param tileOnly The tile coordinates (not the pixel coordinates) of the tile to be processed (don't process
+     *                 all tiles...).
      * @param storeAnnotations Should the annotations be stored back to the Orbit DB?
      * @return Map with RdfId as key and annotations as List<Shape> (segmentationsPerImage).
      */
-    public Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, OrbitModel segModel, AbstractSegmentationSettings<T> segmentationSettings, OrbitModel modelContainingExclusionModel, boolean storeAnnotations, Point tileOnly) {
+    public Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList,
+                                                                     U segmentationSettings,
+                                                                     OrbitModel orbitSegModel,
+                                                                     OrbitModel modelContainingExclusionModel,
+                                                                     Point tileOnly,
+                                                                     boolean storeAnnotations) {
         // TODO: roiGenerator - analagous to exMapGen - returns list of ROIs.
         Map<Integer, List<Shape>> segmentationsPerImage = new HashMap<>();
         // Loop over images.
@@ -177,7 +215,7 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
                     }
                     if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
                         // Calculate Tile Offset for translating annotations.
-                        T detections = segmentationImplementation(segModel, orbitImage, tile);
+                        T detections = segmentationImplementation(orbitSegModel, orbitImage, tile);
 
                         logger.info("shapes before filtering: " + detections.getDetections().size());
                         // TODO: Re-enable
@@ -227,7 +265,7 @@ public abstract class AbstractSegment<T extends AbstractDetections<? extends Abs
         }
     }
 
-    public void storeShapes(MaskRCNNDetections detections, AbstractSegmentationSettings<T> settings,
+    public void storeShapes(MaskRCNNDetections detections, U settings,
                             int rdfId, String user) throws Exception {
         //TODO: The translation parts should be moved out of this to the detections methods.
         int i=1;

@@ -35,23 +35,11 @@ public class MaskRCNNDetections extends AbstractDetections<MaskRCNNDetection> {
         this.detections.add(new MaskRCNNDetection(contour, boundingBox, classProbability, maskClass, tileOffset));
     }
 
-    public void addDetection(PolygonExt contour, RectangleExt boundingBox, Float classProbability) {
-        this.detections.add(new MaskRCNNDetection(contour, boundingBox, classProbability));
-    }
-
     public List<RectangleExt> getBoundingBoxes() {
         return this.detections
                 .stream()
                 .filter(Objects::nonNull)
                 .map(e -> e.boundingBox)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<MaskRCNNDetection> getDetections() {
-        return this.detections
-                .stream()
-                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 

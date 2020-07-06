@@ -15,10 +15,6 @@ public class MaskRCNNDetection extends AbstractDetection {
         this.boundingBox = boundingBox;
     }
 
-    MaskRCNNDetection(PolygonExt contour, RectangleExt boundingBox, Float classProbability) {
-        this(contour, boundingBox, classProbability, null, null);
-    }
-
     public RectangleExt getBoundingBox() {
         return boundingBox;
     }

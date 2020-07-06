@@ -23,7 +23,7 @@ import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.playground.InstSegMaskRCNN;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.InstSegMaskRCNN;
 import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTiled;
 import com.actelion.research.orbit.imageAnalysis.imaging.IJUtils;
 import com.actelion.research.orbit.imageAnalysis.models.*;

@@ -3,53 +3,50 @@ package com.actelion.research.orbit.imageAnalysis.deeplearning;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-public abstract class AbstractDetections<T> {
-    protected List<T> detections = null;
+public abstract class AbstractDetections<T extends AbstractDetection> {
+    protected List<T> detections;
 
     protected AbstractDetections() {
-
+        detections = new ArrayList<>();
     }
 
     public List<PolygonExt> getContours() {
         return this.detections
                 .stream()
-                .filter(e -> e instanceof AbstractDetection)
-                .map(e -> ((AbstractDetection) e).contour)
+                .map(e -> e.contour)
                 .collect(Collectors.toList());
     }
 
     public List<Shape> getContourShapes() {
         return this.detections
                 .stream()
-                .filter(e -> e instanceof AbstractDetection)
-                .map(e -> (Shape) ((AbstractDetection) e).contour)
+                .map(e -> (Shape) e.contour)
                 .collect(Collectors.toList());
     }
 
     public List<Integer> getDetectionClasses() {
         return this.detections
                 .stream()
-                .filter(e -> e instanceof AbstractDetection)
-                .map(e -> ((AbstractDetection) e).detectionClass)
+                .map(e -> e.detectionClass)
                 .collect(Collectors.toList());
     }
 
     public List<Float> getProbabilities() {
         return this.detections
                 .stream()
-                .filter(e -> e instanceof AbstractDetection)
-                .map(e -> ((AbstractDetection) e).classProbability)
+                .map(e -> e.classProbability)
                 .collect(Collectors.toList());
     }
 
     public List<Point> getTileOffset() {
         return this.detections
                 .stream()
-                .filter(e -> e instanceof AbstractDetection)
-                .map(e -> ((AbstractDetection) e).tileOffset)
+                .map(e -> e.tileOffset)
                 .collect(Collectors.toList());
     }
 
@@ -58,7 +55,12 @@ public abstract class AbstractDetections<T> {
         return detections.get(i);
     }
 
-    public abstract List<T> getDetections();
+    public List<T> getDetections() {
+        return this.detections
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
 
     public String toString() {
 

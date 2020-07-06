@@ -1,12 +1,9 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN;
 
-import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractDetections;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegment;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.utils.*;
@@ -39,7 +36,6 @@ import static com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers.*
  * We assume an implementation of MaskRCNN similar to: https://github.com/matterport/Mask_RCNN
  */
 public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCNNSegmentationSettings> {
-    private final static Random random = new Random();
     private final Session s;
     private final PostProcessMethod postProcess;
     public enum PostProcessMethod {
@@ -230,11 +226,10 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
 //    }
 
 
-    @Override
-    public Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations, Point tile) {
-        return null;
-    }
-
+//    @Override
+//    public Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations, Point tile) {
+//        return null;
+//    }
 
 
     @Override

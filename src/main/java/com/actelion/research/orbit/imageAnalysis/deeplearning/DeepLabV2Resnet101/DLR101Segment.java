@@ -1,8 +1,6 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101;
 
-import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegment;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.SegmentationResult;
@@ -12,9 +10,8 @@ import org.tensorflow.Tensor;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
 import java.io.File;
-import java.util.List;
-import java.util.Map;
 
 public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101SegmentationSettings> {
 
@@ -26,18 +23,13 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
     }
 
     @Override
-    public Map<Integer, List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations, Point tile) {
-        return null;
-    }
-
-    @Override
-    public void storeShapes(DLR101Detections detections, AbstractSegmentationSettings<DLR101Detections> settings, int rdfId, String user) throws Exception {
-
-    }
-
-    @Override
     public DLR101Detections segmentationImplementation(OrbitModel segModel, OrbitTiledImageIOrbitImage orbitImage, Point tile) {
         return null;
+    }
+
+    @Override
+    public void storeShapes(DLR101Detections detections, DLR101SegmentationSettings settings, int rdfId, String user) throws Exception {
+
     }
 
     @Override
@@ -58,6 +50,35 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
         detections.setRawDetections(res.copyTo(new long[res.numElements()]));
 
         return detections;
+    }
+
+    public static Tensor<Long> convertBufferedImageToTensor(BufferedImage image, int targetWidth, int targetHeight) {
+        //if (image.getWidth()!=DESIRED_SIZE || image.getHeight()!=DESIRED_SIZE)
+        {
+            // also make it an RGB image
+            image = DLHelpers.resize(image, targetWidth, targetHeight);
+            // image = resize(image,image.getWidth(), image.getHeight());
+        }
+        int width = image.getWidth();
+        int height = image.getHeight();
+        Raster r = image.getRaster();
+        int[] rgb = new int[3];
+        //int[] data = new int[width * height];
+        //image.getRGB(0, 0, width, height, data, 0, width);
+        float[][][][] rgbArray = new float[1][height][width][3];
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                //Color color = new Color(data[i * width + j]);
+//                rgbArray[0][i][j][0] = color.getRed() - MEAN_PIXEL[0];
+//                rgbArray[0][i][j][1] = color.getGreen() - MEAN_PIXEL[1];
+//                rgbArray[0][i][j][2] = color.getBlue() - MEAN_PIXEL[2];
+                rgb = r.getPixel(j,i,rgb);
+                rgbArray[0][i][j][0] = rgb[0] - 170f;
+                rgbArray[0][i][j][1] = rgb[1] - 170f;
+                rgbArray[0][i][j][2] = rgb[2] - 170f;
+            }
+        }
+        return Tensor.create(rgbArray, Long.class);
     }
 
     public static int[][] convert1DVectorTo2D(long[] values, int rows, int cols) {

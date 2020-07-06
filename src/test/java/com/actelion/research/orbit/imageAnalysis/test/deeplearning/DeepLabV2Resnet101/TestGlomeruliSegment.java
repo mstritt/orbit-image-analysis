@@ -1,13 +1,17 @@
 package com.actelion.research.orbit.imageAnalysis.test.deeplearning.DeepLabV2Resnet101;
 
+import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101Detections;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101Segment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101SegmentationSettings;
 import org.junit.jupiter.api.Test;
+import org.tensorflow.Tensor;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +36,27 @@ public class TestGlomeruliSegment {
 
         DLR101Segment glomeruliModel = new DLR101Segment(dLR101GlomeruliModel, glomeruliSettings);
 
-//        DLR101Detections detections = glomeruliModel.getDLR101RawDetections();
+        BufferedImage sourceImage = null;
+        Tensor<Long> inputTensor = null;
+        try {
+            sourceImage = ImageIO.read(new File("D:/deeplearning/glomeruli/test2.png"));
+            BufferedImage bi1 = new BufferedImage(1024,1024,BufferedImage.TYPE_INT_RGB);
+            bi1.getGraphics().drawImage(sourceImage,0,0,null);
+            bi1.getGraphics().drawImage(sourceImage,512,0,null);
+            bi1.getGraphics().drawImage(sourceImage,0,512,null);
+            bi1.getGraphics().drawImage(sourceImage,512,512,null);
+            BufferedImage bi2 = new BufferedImage(512,512,BufferedImage.TYPE_INT_RGB);
+            bi2.getGraphics().drawImage(bi1,0,0,512,512,null);
+            //sourceImage = bi2;
+            inputTensor = DLR101Segment.convertBufferedImageToTensor(bi2, 512, 512);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+        DLR101Detections detections = glomeruliModel.getDLR101RawDetections(inputTensor);
 //        BufferedImage bim = glomeruliModel.decodeLabels(detections.getResult(),Color.BLACK, Color.WHITE);
 //        bim.getWidth();
 //        
