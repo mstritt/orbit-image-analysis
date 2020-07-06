@@ -133,7 +133,6 @@ public abstract class AbstractSegment<D extends AbstractDetections<? extends Abs
             OrbitTiledImage2.resetTileCache();
             int rdfId = rdf.getRawDataFileId();
             logger.info("rdfid: " + rdfId);
-            List<Shape> segmentationShapes = new ArrayList<>();
 
             // Get annotations already existing for the image.
             List<RawAnnotation> annotations = null;

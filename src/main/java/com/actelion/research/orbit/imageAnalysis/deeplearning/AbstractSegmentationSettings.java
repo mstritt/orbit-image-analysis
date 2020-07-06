@@ -16,19 +16,6 @@ public abstract class AbstractSegmentationSettings<S> {
     private final String annotationPrefix;
 
     /**
-     * Convenience method when scale factor is equal in both dimensions.
-     * Setup and store the settings used for abstract segmentation model training and inference.
-     * @param imageWidth The width in px of the training images.
-     * @param imageHeight The height in px of the training images.
-     * @param tileScaleFactor The scale factor that was used to generate the test dataset (e.g. if image tiles were
-     *                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
-     * @param annotationPrefix The prefix used to store annotations.
-     */
-    public AbstractSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactor, String annotationPrefix) {
-        this(imageWidth, imageHeight, tileScaleFactor, tileScaleFactor, annotationPrefix);
-    }
-
-    /**
      * Setup and store the settings used for abstract segmentation model training and inference.
      * @param imageWidth The width in px of the training images.
      * @param imageHeight The height in px of the training images.
@@ -77,7 +64,6 @@ public abstract class AbstractSegmentationSettings<S> {
         return 1;
     }
 
-    // TODO: Remove this.
     @Deprecated
     public boolean getSegmentationRefinement() {
         return true;

@@ -1,12 +1,10 @@
 package com.actelion.research.orbit.imageAnalysis.test.deeplearning.DeepLabV2Resnet101;
 
-import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101Detections;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101Segment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101SegmentationSettings;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegment;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
+import com.actelion.research.orbit.imageAnalysis.test.OrbitTestOS;
 import org.junit.jupiter.api.Test;
 import org.tensorflow.Tensor;
 
@@ -21,7 +19,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class TestGlomeruliSegment {
+public class TestGlomeruliSegment extends OrbitTestOS {
 
     @Test
     void testGlomeruliSegment() {
@@ -90,13 +88,14 @@ public class TestGlomeruliSegment {
 
     @Test
     void testGlomeruliNDPISegment() {
-        int[] images = {4758050};
+        int[] images = {20037703};
 
         // To test only one tile, set a value here.
-//        Point tile = new Point(4, 3);
+        Point tile = new Point(21, 4);
+//        Point tile = null;
 
-        boolean storeAnnotations = false;
-        File dLR101GlomeruliModel = new File("D:/deeplearning/glomeruli/20180202_glomeruli_detection_noquant.pb");
+        boolean storeAnnotations = true;
+        File dLR101GlomeruliModel = new File("D:/deeplearning/glomeruli/glomeruli-410k.pb");
 
         DLR101SegmentationSettings glomeruliSettings = new DLR101SegmentationSettings(512, 512, 2, "Glomeruli");
 //        ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW));
@@ -110,12 +109,12 @@ public class TestGlomeruliSegment {
 
         // Don't use an exclusion model.
         OrbitModel modelContainingExclusionModel = null;
-//        try {
-//            // Load an exclusion model.
-//            modelContainingExclusionModel = OrbitModel.LoadFromOrbit(2462612);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        try {
+            // Load an exclusion model.
+            modelContainingExclusionModel = OrbitModel.LoadFromOrbit(2466568);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // Time execution.
         Date startDate = new Date();
@@ -123,7 +122,7 @@ public class TestGlomeruliSegment {
 
         // Apply the MaskRCNN segmentation models to a list of images.
         Map<Integer, List<Shape>> segmentationsPerImage = glomeruliModel.generateSegmentationAnnotations(
-                images, segModel, modelContainingExclusionModel, null, storeAnnotations);
+                images, segModel, modelContainingExclusionModel, tile, storeAnnotations);
         long used = System.currentTimeMillis()-startt;
 
         System.out.println("time used: "+used/1000d);
@@ -136,9 +135,8 @@ public class TestGlomeruliSegment {
         }
 
         // There should be 2 objects detected in the test tile.
-        assertEquals(segmentationsPerImage.get(images[0]).size(), 2);
+        assertEquals(segmentationsPerImage.get(images[0]).size(), 3);
         // Check the bounding box for the first image (should confirm that the scaling and translation has been done correctly).
-        assertEquals(segmentationsPerImage.get(images[0]).get(0).getBounds(),new Rectangle(34256,29136, 192, 176));
-
+        assertEquals(segmentationsPerImage.get(images[0]).get(0).getBounds(),new Rectangle(21506,4670, 138, 238));
     }
 }
