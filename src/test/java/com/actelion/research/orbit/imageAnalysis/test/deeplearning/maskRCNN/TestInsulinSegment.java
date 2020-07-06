@@ -7,6 +7,7 @@ import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNS
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNRawDetections;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
+import com.actelion.research.orbit.imageAnalysis.test.OrbitTestOS;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.tensorflow.Session;
@@ -23,7 +24,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class TestInsulinSegment {
+public class TestInsulinSegment extends OrbitTestOS {
 
 
     @Test
