@@ -2285,7 +2285,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 getIFrame().setTitle(rdf.getFileName());
                 getIFrame().setRdf(rdf);
             });
-            if (null != anomalyDetectionModule){
+            if (null != anomalyDetectionModule) {
                 anomalyDetectionModule.updateGUIFromProperties();
             }
         } else if (evt.getPropertyName().equals(ImageList.PROPERTY_DISPLAY_META)) {
@@ -2338,8 +2338,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             if (nerveDetectionModule != null) {
                 nerveDetectionModule.loadSpots(((ImageFrame) evt.getSource()));
             }
-            if (null != anomalyDetectionModule){
-                anomalyDetectionModule.updateGUIFromProperties();
+            if (null != anomalyDetectionModule) {
+                anomalyDetectionModule.handleFrameChange();
             }
 
         } else if (evt.getPropertyName().equals(ImageFrame.IFRAME_CLOSING)) {

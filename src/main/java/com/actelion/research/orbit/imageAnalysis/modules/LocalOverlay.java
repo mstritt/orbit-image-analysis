@@ -5,14 +5,14 @@ import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.dal.ImageProviderLocal;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -24,17 +24,26 @@ public class LocalOverlay {
     private final Properties props = new Properties();
 
     // Actual list of images from different levels of the pyramid
-    private final ArrayList<OrbitTiledImageIOrbitImage> overlayMipMaps = new ArrayList<OrbitTiledImageIOrbitImage>();
+    private final ArrayList<OrbitTiledImageIOrbitImage> overlayMipMaps = new ArrayList<>();
 
     public LocalOverlay(String associatedImageRdfId, String overlayPath) {
-        InputStream propertiesStream = LocalOverlay.class.getResourceAsStream("/overlay.properties");
-        try {
-            props.load(propertiesStream);
-        } catch (IOException e) {
-            logger.warn("Could not fetch default overlay properties: " + e.getMessage());
+        File overlayPropertiesFile = new File(getPropertiesFilePath(overlayPath));
+        boolean propertiesFileExists = false;
+        if (overlayPropertiesFile.exists()) {
+            try {
+                InputStream propertiesStream = new FileInputStream(overlayPropertiesFile.getPath());
+                loadPropertiesFromStream(propertiesStream);
+                propertiesFileExists = true;
+            } catch (FileNotFoundException e) {
+                logger.warn("Could not retrieve input stream, got exception: " + e.getMessage());
+            }
         }
-        props.setProperty("FilePath", overlayPath);
-        props.setProperty("AssociatedImageRdfId", associatedImageRdfId);
+        if (!propertiesFileExists) {
+            InputStream propertiesStream = LocalOverlay.class.getResourceAsStream("/overlay.properties");
+            loadPropertiesFromStream(propertiesStream);
+            props.setProperty("FilePath", overlayPath);
+            props.setProperty("AssociatedImageRdfId", associatedImageRdfId);
+        }
 
         load(overlayPath);
     }
@@ -93,17 +102,11 @@ public class LocalOverlay {
     }
 
     public String getFileName() {
-        String filePathStr = getFilePath();
-        Path filePath = Path.of(filePathStr);
-        return filePath.getFileName().toString();
+        return FilenameUtils.getBaseName(getFilePath());
     }
 
     public String getFilePath() {
         return props.getProperty("FilePath");
-    }
-
-    public String getAssociatedImageRdfId() {
-        return props.getProperty("AssociatedImageRdfId");
     }
 
     public String getAlphaMode() {
@@ -120,5 +123,43 @@ public class LocalOverlay {
 
     public void setOverlayColor(Color color) {
         props.setProperty("OverlayColor", String.format("#%06x", color.getRGB() & 0x00FFFFFF));
+    }
+
+    public void resetProperties() {
+        File overlayPropertiesFile = new File(getPropertiesFilePath(getFilePath()));
+        if (overlayPropertiesFile.exists()) {
+            try {
+                logger.info("Load properties file: " + overlayPropertiesFile.getPath());
+                InputStream propertiesStream = new FileInputStream(overlayPropertiesFile.getPath());
+                loadPropertiesFromStream(propertiesStream);
+            } catch (FileNotFoundException e) {
+                logger.warn("Could not retrieve input stream, got exception: " + e.getMessage());
+            }
+        }
+    }
+
+    public void saveProperties() {
+        String propertiesFilePath = getPropertiesFilePath(getFilePath());
+        try {
+            logger.info("Save properties file: " + propertiesFilePath);
+            FileOutputStream outputStream = new FileOutputStream(propertiesFilePath);
+            props.store(outputStream, null);
+        } catch (IOException e) {
+            logger.warn(e.getMessage());
+        }
+    }
+
+    private String getPropertiesFilePath(String overlayPath) {
+        String overlayFileNameStem = FilenameUtils.getBaseName(overlayPath);
+        String overlayDir = FilenameUtils.getFullPath(overlayPath);
+        return Paths.get(overlayDir, overlayFileNameStem + ".properties").toString();
+    }
+
+    private void loadPropertiesFromStream(InputStream propertiesStream) {
+        try {
+            props.load(propertiesStream);
+        } catch (IOException e) {
+            logger.warn("Could not fetch default overlay properties: " + e.getMessage());
+        }
     }
 }

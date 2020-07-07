@@ -24,17 +24,21 @@ import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImag
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.TiledImageWriter;
 import ij.gui.ColorChooser;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.color.ColorSpace;
+import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.*;
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
 public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
@@ -58,11 +62,12 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
     private final SpinnerNumberModel spinPixelSizeModel = new SpinnerNumberModel(0.0, 0.0, 1e6, 0.01);
     private final JSpinner spinPixelSize = new JSpinner(spinPixelSizeModel);
     private final JComboBox<LocalOverlay> mapSelectionBox = new JComboBox<>();
+    private final ItemListener mapSelectionListener = e -> handleNewMapSelection();
     private final JButton btnColorPicker = new JButton("Pick Color");
     private final RangeBar rangeBar = new RangeBar(0.0f, 1.0f);
-
-
     private final JComboBox<alphaModeEnum> alphaModeComboBox = new JComboBox<>(alphaModeEnum.values());
+    private final JButton btnResetProperties = new JButton("Reset");
+    private final JButton btnSaveProperties = new JButton("Save");
 
 
     // Processing
@@ -82,8 +87,8 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
     }
 
     public void createGUI() {
-        rangeBar.setLowValue(0.15f);
-        rangeBar.setHighValue(0.9f);
+        rangeBar.setLowValue(0.0f);
+        rangeBar.setHighValue(1.0f);
 
         // layout
         setLayout(new GridBagLayout());
@@ -111,12 +116,11 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 String displayName = "No overlay loaded";
                 if (null != value) {
-                    displayName = ((LocalOverlay) value).getFilePath();
+                    displayName = ((LocalOverlay) value).getFileName();
                 }
                 return super.getListCellRendererComponent(list, displayName, index, isSelected, cellHasFocus);
             }
         });
-        mapSelectionBox.addItemListener(e -> handleNewMapSelection());
 
         // Color Picker
         add(new JLabel("Overlay color:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 0));
@@ -146,10 +150,16 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         add(alphaModeComboBox, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, 0));
         alphaModeComboBox.addItemListener(e -> handleAlphaModeChanged());
 
+        // Reset / Save parameters
+        add(new JLabel("Parameters:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 5));
+        add(btnResetProperties, new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, 0));
+        btnResetProperties.addActionListener(e -> handleResetProperties());
+        add(btnSaveProperties, new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, 0));
+        btnSaveProperties.addActionListener(e -> handleSaveProperties());
+
         add(btnShowHelp, new GridBagConstraints(0, y, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 0));
         btnShowHelp.addActionListener(e -> showHelp());
     }
-
 
     protected void updateImageWriter() {
         OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
@@ -173,15 +183,18 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
                     // graphics.fillRect((int) (_vpOffsX / sc), (int) (_vpOffsY / sc), (int) (_vpWidth / sc), (int) (_vpHeight / sc));
 
                     if (null != overlay) {
-                        // The level of an overlay map can be different from the level of the underlying image
+                        double associatedImagePixelSize = iFrame.recognitionFrame.getMuMeterPerPixel();
+                        if (0.0 == associatedImagePixelSize) {
+                            associatedImagePixelSize = MU_METER_PER_PIXEL_40X;
+                        }
+                        // The level of an overlay map can be different from the level of the underlying image (and usually is)
                         // From the pixel size of the overlay map at the full resolution, we calculate the optimal pyramid level to use
-
-                        int closestLevel = (int) Math.floor(Math.log(MU_METER_PER_PIXEL_40X / overlay.getPixelSize() / sc) / Math.log(2.0d));
+                        int closestLevel = (int) Math.floor(Math.log(associatedImagePixelSize / overlay.getPixelSize() / sc) / Math.log(2.0d));
 
                         closestLevel = Math.max(closestLevel, 0);
                         closestLevel = Math.min(closestLevel, overlay.getNumberOfLevels() - 1);
 
-                        double levelFactor = Math.pow(2.0, closestLevel) * overlay.getPixelSize() / MU_METER_PER_PIXEL_40X;
+                        double levelFactor = Math.pow(2.0, closestLevel) * overlay.getPixelSize() / associatedImagePixelSize;
 
                         int xAnchor = (int) Math.max(_vpOffsX / sc, 0);
                         int yAnchor = (int) Math.max(_vpOffsY / sc, 0);
@@ -283,9 +296,9 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         oia.addInternalFrame(new ResultFrame(h, "Anomaly detection Module Help"));
     }
 
-    protected ImageFrame getCurrentFrame(){
+    protected ImageFrame getCurrentFrame() {
         ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-        if (null == iFrame){
+        if (null == iFrame) {
             logger.error("Could find an opened image to load an overlay");
         }
         return iFrame;
@@ -316,6 +329,23 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         refresh();
     }
 
+    protected void handleResetProperties() {
+        getCurrentOverlay().resetProperties();
+        updateGUIFromProperties();
+        refresh();
+    }
+
+    protected void handleSaveProperties() {
+        getCurrentOverlay().saveProperties();
+        updateGUIFromProperties();
+        refresh();
+    }
+
+    public void handleFrameChange() {
+        updateMapSelection();
+        updateGUIFromProperties();
+    }
+
     protected void refresh() {
         getCurrentFrame().getRecognitionFrame().repaint();
     }
@@ -326,34 +356,47 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         if (null != currentOverlay) {
             rangeBar.setLowAndHigh(currentOverlay.getDisplayRangeMin(), currentOverlay.getDisplayRangeMax(), true);
             spinPixelSize.setValue(currentOverlay.getPixelSize());
+            alphaModeComboBox.setSelectedItem(alphaModeEnum.valueOf(currentOverlay.getAlphaMode()));
         }
+    }
+
+    protected void updateMapSelection() {
+        mapSelectionBox.removeItemListener(mapSelectionListener);
+        mapSelectionBox.removeAllItems();
+        ArrayList<LocalOverlay> loadedOverlays = getCurrentFrame().getLoadedOverlays();
+        for (LocalOverlay loadedOverlay : loadedOverlays) {
+            mapSelectionBox.addItem(loadedOverlay);
+        }
+        mapSelectionBox.setSelectedItem(getCurrentOverlay());
+        mapSelectionBox.addItemListener(mapSelectionListener);
     }
 
     protected void loadOverlay(String overlayPath) {
         boolean overlayExist = getCurrentFrame().loadOverlay(overlayPath);
-        if (!overlayExist){
-            mapSelectionBox.addItem(getCurrentFrame().getLocalOverlay());
-            mapSelectionBox.setSelectedItem(getCurrentFrame().getLocalOverlay());
+        if (!overlayExist) {
+            updateMapSelection();
         }
     }
+
     protected void loadDefaultOverlayFiles() {
         String associatedImageDir = getCurrentFrame().getRdf().getDataPath();
         String associatedImageName = getCurrentFrame().getRdf().getFileName();
-        String[] extensionSplit = associatedImageName.split("\\.(?=[^.]+$)");
-        File[] possibleOverlays = findOverlayFiles(extensionSplit[0], new File(associatedImageDir));
+        String associatedImageNameStem = FilenameUtils.getBaseName(associatedImageName);
+        File[] possibleOverlays = findOverlayFiles(associatedImageNameStem, new File(associatedImageDir));
 
         for (File overlayFile : possibleOverlays) {
             String fullPath = Paths.get(associatedImageDir, overlayFile.getName()).toString();
+            updateMapSelection();
             loadOverlay(fullPath);
         }
 
         boolean foundAFile = possibleOverlays.length > 0;
         if (foundAFile) {
             // Set active the first element of the list
-            mapSelectionBox.setSelectedItem(getCurrentFrame().getLoadedOverlays().get(0));
+            getCurrentFrame().setLocalOverlay(getCurrentFrame().getLoadedOverlays().get(0));
             updateImageWriter();
         } else {
-            logger.error("Could not find any overlay image called \"" + extensionSplit[0] + "*overlay*.tif\" in \"" + associatedImageDir + "\"");
+            logger.error("Could not find any overlay image called \"" + associatedImageNameStem + "*overlay*.tif\" in \"" + associatedImageDir + "\"");
         }
     }
 
@@ -370,6 +413,7 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
             String filePath = fileChooser.getSelectedFile().getPath();
             try {
                 loadOverlay(filePath);
+                updateImageWriter();
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.error("Could not load this image as overlay");
@@ -386,9 +430,6 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         return findFilenamesMatchingRegex("^" + associatedImageNameStem + ".*overlay.*\\.tif$", dir);
     }
 
-    /**
-     * Finds files in the specified directory whose names match regex
-     */
     public static File[] findFilenamesMatchingRegex(String regex, File dir) {
         return dir.listFiles(file -> file.getName().matches(regex));
     }
