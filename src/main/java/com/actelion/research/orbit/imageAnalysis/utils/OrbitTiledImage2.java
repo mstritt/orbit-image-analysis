@@ -177,16 +177,6 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
             logger.warn("error reading tile "+tileX+" x "+tileY+" channelContributions: "+Arrays.toString(channelContributions));
         }
 
-        if (tile.getNumBands() == 1) {
-            BufferedImage bi = createImage(tile, null, grayColorModel.createCompatibleSampleModel(this.getWidth(), this.getHeight()), grayColorModel);
-            PlanarImage pi = PlanarImage.wrapRenderedImage(bi);
-            ParameterBlock pb = new ParameterBlock();
-            pb.addSource(pi); // r
-            pb.addSource(pi); // g
-            pb.addSource(pi); // b
-            pi = JAI.create("bandmerge", pb);
-            tile = pi.getData();
-        }
 
         BufferedImage bi = null;
 
@@ -394,6 +384,39 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
     }
 
+    private BufferedImage convertGrayImageToColorImage(BufferedImage grayImage) {
+        System.out.println("convertGrayImageToColorImage");
+        BufferedImage outputImage = new BufferedImage(grayImage.getWidth(), grayImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        outputImage.setData(convertGrayRasterToColorRaster(grayImage.getRaster()));
+        return outputImage;
+    }
+
+    private Raster convertGrayRasterToColorRaster(Raster singleChannelRaster) {
+        System.out.println("convertGrayRasterToColorRaster");
+        Raster returnedRaster = null;
+
+        if (1 == singleChannelRaster.getNumBands()) {
+            BufferedImage bi = createImage(singleChannelRaster,
+                    null,
+                    grayColorModel.createCompatibleSampleModel(singleChannelRaster.getWidth(),
+                            singleChannelRaster.getHeight()),
+                    grayColorModel);
+            PlanarImage pi = PlanarImage.wrapRenderedImage(bi);
+            ParameterBlock pb = new ParameterBlock();
+            pb.addSource(pi); // r
+            pb.addSource(pi); // g
+            pb.addSource(pi); // b
+            pi = JAI.create("bandmerge", pb);
+
+            returnedRaster = pi.getData();
+        } else {
+            logger.warn("Invalid input image: tried to convert a color image into a color image");
+        }
+
+
+        return returnedRaster;
+    }
+
     private RenderedOp convertColorToGray(PlanarImage src, double r, double g, double b) {
         final double[][] matrix = {
                 {r, g, b, 0d} // .114D, 0.587D, 0.299D
@@ -567,11 +590,21 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         double average = cachedParams.getContrastAverage();
 
         // Create the lookup table based on the average mean
-        byte[][] lut = new byte[3][256];
-        for (int i = 0; i < 256; i++) {
-            lut[0][i] = ManipulationUtils.clamp((int) ((average + (i - average) * contrast) + red + brightness));
-            lut[1][i] = ManipulationUtils.clamp((int) ((average + (i - average) * contrast) + green + brightness));
-            lut[2][i] = ManipulationUtils.clamp((int) ((average + (i - average) * contrast) + blue + brightness));
+        byte[][] lut = null;
+        if (1 == src.getNumBands()){
+            lut = new byte[1][256];
+            for (int i = 0; i < 256; i++) {
+                lut[0][i] = ManipulationUtils.clamp((int) ((average + (i - average) * contrast) + red + brightness));
+            }
+        } else if (3 == src.getNumBands()){
+            lut = new byte[3][256];
+            for (int i = 0; i < 256; i++) {
+                lut[0][i] = ManipulationUtils.clamp((int) ((average + (i - average) * contrast) + red + brightness));
+                lut[1][i] = ManipulationUtils.clamp((int) ((average + (i - average) * contrast) + green + brightness));
+                lut[2][i] = ManipulationUtils.clamp((int) ((average + (i - average) * contrast) + blue + brightness));
+            }
+        } else {
+            logger.info("Cannot adjust contrast for images with " + src.getNumBands() + " channels");
         }
 
 
@@ -680,10 +713,7 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
                 //this.tileHeight = AparUtils.TILE_SIZE;
 
                 numBands = 3; // always RGB!!!
-                if (numBands == 1) this.colorModel = grayColorModel;
-                else {
-                    this.colorModel = rgbColorModel;
-                }
+                this.colorModel = rgbColorModel;
                 this.sampleModel = colorModel.createCompatibleSampleModel(tileWidth, tileHeight);
             }
         }
@@ -726,6 +756,20 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         int result = filename != null ? filename.hashCode() : 0;
         result = 31 * result + level;
         return result;
+    }
+
+    @Override
+    public BufferedImage getAsBufferedImage() {
+        BufferedImage colorImage = null;
+        BufferedImage image = this.getAsBufferedImage((Rectangle) null, super.getColorModel());
+        if (1 == image.getRaster().getNumBands()){
+            colorImage = convertGrayImageToColorImage(image);
+        } else if (3 == image.getRaster().getNumBands()){
+            colorImage = image;
+        } else {
+            logger.warn("Unexpected number of bands: " + image.getRaster().getNumBands());
+        }
+        return colorImage;
     }
 
     public boolean isUseCache() {
