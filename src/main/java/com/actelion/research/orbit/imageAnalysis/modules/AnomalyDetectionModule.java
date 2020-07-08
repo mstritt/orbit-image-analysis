@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.color.ColorSpace;
@@ -353,11 +352,6 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         refresh();
     }
 
-    public void handleFrameChange() {
-        updateMapSelection();
-        updateGUIFromProperties();
-    }
-
     protected void refresh() {
         getCurrentFrame().getRecognitionFrame().repaint();
     }
@@ -369,6 +363,7 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
             rangeBar.setLowAndHigh(currentOverlay.getDisplayRangeMin(), currentOverlay.getDisplayRangeMax(), true);
             spinPixelSize.setValue(currentOverlay.getPixelSize());
             alphaModeComboBox.setSelectedItem(alphaModeEnum.valueOf(currentOverlay.getAlphaMode()));
+            updateMapSelection();
         }
     }
 
@@ -384,10 +379,7 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
     }
 
     protected void loadOverlay(String overlayPath) {
-        boolean overlayExist = getCurrentFrame().loadOverlay(overlayPath);
-        if (!overlayExist) {
-            updateMapSelection();
-        }
+        getCurrentFrame().loadOverlay(overlayPath);
         updateGUIFromProperties();
     }
 
@@ -399,7 +391,6 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
 
         for (File overlayFile : possibleOverlays) {
             String fullPath = Paths.get(associatedImageDir, overlayFile.getName()).toString();
-//            updateMapSelection();
             loadOverlay(fullPath);
         }
 
@@ -407,7 +398,7 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         if (foundAFile) {
             // Set active the first element of the list
             getCurrentFrame().setLocalOverlay(getCurrentFrame().getLoadedOverlays().get(0));
-            updateMapSelection();
+            updateGUIFromProperties();
             updateImageWriter();
         } else {
             logger.error("Could not find any overlay image called \"" + associatedImageNameStem + "*overlay*.tif\" in \"" + associatedImageDir + "\"");

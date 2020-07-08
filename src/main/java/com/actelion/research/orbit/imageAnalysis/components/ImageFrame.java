@@ -707,7 +707,7 @@ public class ImageFrame extends JInternalFrame implements ComponentListener, Pro
         selectedOverlay = overlay;
     }
 
-    public boolean loadOverlay(String overlayPath) {
+    public void loadOverlay(String overlayPath) {
         boolean overlayExists = false;
         for (LocalOverlay localOverlay : loadedOverlays) {
             if (overlayPath.equals(localOverlay.getFilePath())) {
@@ -721,7 +721,6 @@ public class ImageFrame extends JInternalFrame implements ComponentListener, Pro
             loadedOverlays.add(newOverlay);
             selectedOverlay = newOverlay;
         }
-        return overlayExists;
     }
 
 }
