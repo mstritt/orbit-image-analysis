@@ -7,7 +7,6 @@ import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101Detections;
 import com.actelion.research.orbit.imageAnalysis.imaging.TileSizeWrapper;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
@@ -28,7 +27,7 @@ import java.util.*;
 import java.util.List;
 
 // TODO: Consider moving boilerplate to interface using default implementation functionality.
-public abstract class AbstractSegment<D extends AbstractDetections<? extends AbstractDetection>,S extends AbstractSegmentationSettings<S>> implements IDLSegment<D, S> {
+public abstract class AbstractSegment<D extends AbstractDetections<? extends AbstractDetection>,S extends AbstractSegmentationSettings> implements IDLSegment<D, S> {
 
     protected static Logger logger = LoggerFactory.getLogger(AbstractSegment.class);
     protected final S segmentationSettings;
