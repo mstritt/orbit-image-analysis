@@ -108,6 +108,8 @@ public class TestGlomeruliSegment extends OrbitTestOS {
 
         OrbitModel segModel = OrbitModel.LoadFromInputStream(
                 this.getClass().getResourceAsStream("/resource/testmodels/dlsegmentsplit.omo"));
+        // Default path length for a detection is 10 but we know that Glomeruli are bigger...
+        segModel.getFeatureDescription().setMinSegmentationSize(100);
         assertNotNull(segModel);
 
         // Don't use an exclusion model.
