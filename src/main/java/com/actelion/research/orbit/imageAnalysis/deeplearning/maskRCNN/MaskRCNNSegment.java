@@ -292,7 +292,7 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
     protected BufferedImage maskRaster(Raster inputTileRaster, OrbitTiledImageIOrbitImage orbitImage, boolean writeImg) {
         WritableRaster tileRaster = (WritableRaster) inputTileRaster.createTranslatedChild(0, 0);
         BufferedImage ori = new BufferedImage(orbitImage.getColorModel(), tileRaster, false, null);
-        ori = DLHelpers.shrink(ori, segmentationSettings);
+        ori = shrink(ori, segmentationSettings);
 
         // color-deconvolution
         if (segmentationSettings.getDeconvolution()) {

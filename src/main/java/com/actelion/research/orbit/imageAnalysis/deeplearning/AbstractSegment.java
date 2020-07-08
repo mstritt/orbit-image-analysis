@@ -521,9 +521,24 @@ public abstract class AbstractSegment<D extends AbstractDetections<? extends Abs
         return combined;
     }
 
+    /**
+     * Shrink an image from the input size to the size used for training the Deep Learning model.
+     * @param bi The image to shrink.
+     * @param settings The settings containing the size to shrink to.
+     * @return The shrunk image.
+     */
+    public static BufferedImage shrink(BufferedImage bi, AbstractSegmentationSettings settings) {
+        BufferedImage bi2 = new BufferedImage(settings.getImageWidth(), settings.getImageHeight(),BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = (Graphics2D) bi2.getGraphics();
+        g.drawImage(bi,0,0,settings.getImageWidth(),settings.getImageHeight(),null);
+        g.dispose();
+        return bi2;
+    }
+
     @Override
     public abstract D processDetections(SegmentationResult segRes, Point tileOffset);
 
-//    @Override
-//    public abstract D processDetections(Point tileOffset);
+    public String toString() {
+        return segmentationSettings.toString();
+    }
 }

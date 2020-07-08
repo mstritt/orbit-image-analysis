@@ -62,7 +62,7 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
                                        boolean writeImg) {
         WritableRaster tileRaster = (WritableRaster) inputTileRaster.createTranslatedChild(0, 0);
         BufferedImage ori = new BufferedImage(orbitImage.getColorModel(), tileRaster, false, null);
-        ori = DLHelpers.shrink(ori, segmentationSettings);
+        ori = shrink(ori, segmentationSettings);
 
         Tensor<Float> inputTensor = DLR101Segment.convertBufferedImageToTensor(ori);
 

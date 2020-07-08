@@ -207,9 +207,9 @@ public class FeaturesAdminFrame extends JDialog {
         panelClassification.add(panel);
 
 
-        List<String> classList = new ArrayList<String>();
+        List<String> classList = new ArrayList<>();
         //classList.add("<ALL>");
-        String selected = "";
+        StringBuilder selected = new StringBuilder();
         OrbitModel model = OrbitImageAnalysis.getInstance().getModel();
         if (model != null) {
             OrbitModel classModel = model;
@@ -221,7 +221,7 @@ public class FeaturesAdminFrame extends JDialog {
                 if (featureDescription.getFeatureClasses() != null) {
                     for (int fc : featureDescription.getFeatureClasses()) {
                         if (i == fc) {
-                            selected += cleanCS + "; ";
+                            selected.append(cleanCS).append("; ");
                         }
                     }
                 }
@@ -230,7 +230,7 @@ public class FeaturesAdminFrame extends JDialog {
         }
 
         cbFeatureClasses = new JComboCheckBox(classList);
-        cbFeatureClasses.setText(selected);
+        cbFeatureClasses.setText(selected.toString());
         panel = new JPanel(new GridLayout(1, 2));
         lab = new JLabel("Classes for retrieving features/histograms:");
         panel.add(lab);
@@ -360,17 +360,14 @@ public class FeaturesAdminFrame extends JDialog {
         panel = new JPanel(new GridLayout(1, 2));
         cbMFS = new JCheckBox("Mumford-Shah segmentation (cell clusters):",featureDescription.isMumfordShahSegmentation());
         cbMFS.setToolTipText("enable mumford-shah segmentation (good for cell clusters)");
-        cbMFS.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (cbMFS.isSelected() && !cbDisableWatershed.isSelected()) {
-                    cbDisableWatershed.setSelected(true);
-                    JOptionPane.showMessageDialog(FeaturesAdminFrame.this,
-                            "Mumford-Shah segmentation has its own object splitting algorithm, thus the additional object splitting has been disabled.\n" +
-                                    "However, you can enable it again in addition and try if the additional splitting (watershed algorithm) gives better results.",
-                            "Additional object splitting has been disabled",
-                            JOptionPane.INFORMATION_MESSAGE);
-                }
+        cbMFS.addActionListener(e -> {
+            if (cbMFS.isSelected() && !cbDisableWatershed.isSelected()) {
+                cbDisableWatershed.setSelected(true);
+                JOptionPane.showMessageDialog(FeaturesAdminFrame.this,
+                        "Mumford-Shah segmentation has its own object splitting algorithm, thus the additional object splitting has been disabled.\n" +
+                                "However, you can enable it again in addition and try if the additional splitting (watershed algorithm) gives better results.",
+                        "Additional object splitting has been disabled",
+                        JOptionPane.INFORMATION_MESSAGE);
             }
         });
         panel.add(cbMFS);
@@ -482,7 +479,7 @@ public class FeaturesAdminFrame extends JDialog {
         setCompBounds(cbDeepLearning, frameWidth);
         panelDeepLearning.add(cbDeepLearning);
 
-        panel = new JPanel(new GridLayout(1, 2));
+        panel = new JPanel(new GridLayout(2, 2));
         lab = new JLabel("Deep Learning Model Path or URL:");
         panel.add(lab);
         JPanel pathPanel = new JPanel(new FlowLayout());
@@ -490,32 +487,33 @@ public class FeaturesAdminFrame extends JDialog {
         tfDeepLearningModelPath.setToolTipText("can be a full path to a model file or a URL");
         tfDeepLearningModelPath.setHorizontalAlignment(JTextField.LEFT);
         pathPanel.add(tfDeepLearningModelPath);
-
+        lab = new JLabel("Settings");
+        panel.add(lab);
+        JPanel dlSettings = new JPanel(new FlowLayout());
+        JTextField txt = new JTextField(featureDescription.getdLSegment().toString(),30);
+        dlSettings.add(txt);
 
 
         final JButton fileSelectBtn = new JButton("browse");
-        fileSelectBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                        "DL Segmentation Models (*.pb)", "pb");
-                fileChooser.setFileFilter(filter);
-                fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
-                String dir = prefs.get("OrbitImageAnalysis.OpenDeepLearningModelPath", null);
-                if (dir != null) {
-                    File cd = new File(dir);
-                    fileChooser.setCurrentDirectory(cd);
-                }
-                int returnVal = fileChooser.showSaveDialog(FeaturesAdminFrame.this);
+        fileSelectBtn.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "DL Segmentation Models (*.pb)", "pb");
+            fileChooser.setFileFilter(filter);
+            fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
+            String dir = prefs.get("OrbitImageAnalysis.OpenDeepLearningModelPath", null);
+            if (dir != null) {
+                File cd = new File(dir);
+                fileChooser.setCurrentDirectory(cd);
+            }
+            int returnVal = fileChooser.showSaveDialog(FeaturesAdminFrame.this);
 
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    prefs.put("OrbitImageAnalysis.OpenDeepLearningModelPath", fileChooser.getCurrentDirectory().getAbsolutePath());
-                    String fn = fileChooser.getSelectedFile().getAbsolutePath();
-                    File file = new File(fn);
-                    if (file.isDirectory()) return;
-                    tfDeepLearningModelPath.setText(file.getAbsolutePath());
-                }
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                prefs.put("OrbitImageAnalysis.OpenDeepLearningModelPath", fileChooser.getCurrentDirectory().getAbsolutePath());
+                String fn = fileChooser.getSelectedFile().getAbsolutePath();
+                File file = new File(fn);
+                if (file.isDirectory()) return;
+                tfDeepLearningModelPath.setText(file.getAbsolutePath());
             }
         });
         pathPanel.add(fileSelectBtn);
@@ -531,7 +529,7 @@ public class FeaturesAdminFrame extends JDialog {
         JPanel panelROI = new JPanel();
         panelROI.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
 
-        List<AnnotationGroupLabel> annotationGroups = new ArrayList<AnnotationGroupLabel>(12);
+        List<AnnotationGroupLabel> annotationGroups = new ArrayList<>(12);
         annotationGroups.add(new AnnotationGroupLabel(-1, "Ignore"));
         annotationGroups.add(new AnnotationGroupLabel(0, "All Groups"));
         for (int g = 1; g < (OrbitUtils.ANNOTATION_GROUPS + 1); g++)
@@ -659,7 +657,7 @@ public class FeaturesAdminFrame extends JDialog {
 
         setDeconvChannel(featureDescription.getDeconvChannel());
 
-        List<String> classList = new ArrayList<String>();
+        List<String> classList = new ArrayList<>();
         //classList.add("<ALL>");
         StringBuilder selected = new StringBuilder();
         OrbitModel model = OrbitImageAnalysis.getInstance().getModel();
@@ -855,7 +853,7 @@ public class FeaturesAdminFrame extends JDialog {
         featureDescription.setSkipBlue(!cbBlue.isSelected());
         featureDescription.setSegmentationScale(tfSegmentationScale.getDouble());
 
-        List<Integer> featureClasses = new ArrayList<Integer>();
+        List<Integer> featureClasses = new ArrayList<>();
         OrbitModel model = OrbitImageAnalysis.getInstance().getModel();
         if (model != null) {
             OrbitModel classModel = model;
