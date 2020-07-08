@@ -246,8 +246,37 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
 
     @Override
     public MaskRCNNDetections segmentationImplementation(OrbitModel orbitSegModel, OrbitTiledImageIOrbitImage orbitImage, Point tile, ExclusionMapGen exclusionMapGen, Shape roiDef) {
-        // TODO: to counter edge effects...
-        return null;
+        Point tileOffset = new Point(orbitImage.tileXToX(tile.x), orbitImage.tileYToY(tile.y));
+
+        MaskRCNNDetections detections = null;
+
+        switch (this.postProcess) {
+            case STANDARD:
+                // Apply segmentation model to the tile image.
+                try {
+                    detections = this.segmentTile(tile.x, tile.y, orbitImage, orbitSegModel, false, tileOffset);
+                    logger.info(detections.toString());
+
+                    if (segmentationSettings.isSegmentationRefinement()) {
+                        try {
+                            return segmentationRefinement(detections, orbitSegModel, orbitImage, exclusionMapGen, roiDef, tile);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error(e.getLocalizedMessage());
+                }
+
+                break;
+            case CUSTOM:
+                // Apply MaskRCNN raw detection model to tile.
+                MaskRCNNRawDetections rawDetections = this.getMaskRCNNRawDetections(tile, orbitImage);
+                detections = this.processDetections(rawDetections, tileOffset);
+                logger.info(detections.toString());
+                break;
+        }
+        return detections;
     }
 
 

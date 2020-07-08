@@ -21,6 +21,7 @@ package com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet10
 
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractDetections;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
+import com.actelion.research.orbit.imageAnalysis.models.RectangleExt;
 
 import java.awt.*;
 import java.util.List;
@@ -55,6 +56,11 @@ public class DLR101Detections extends AbstractDetections<DLR101Detection> {
                 .stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void addDetection(PolygonExt contour, RectangleExt boundingBox, Float classProbability, Integer maskClass, Point tileOffset) {
+        this.addDetection(contour, maskClass, tileOffset);
     }
 
     public void addDetection(PolygonExt contour,  Integer detectionClass, Point tileOffset) {

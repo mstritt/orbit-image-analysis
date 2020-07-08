@@ -7,6 +7,7 @@ import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101Detections;
 import com.actelion.research.orbit.imageAnalysis.imaging.TileSizeWrapper;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.media.jai.PlanarImage;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
 import java.awt.image.Raster;
@@ -314,7 +316,143 @@ public abstract class AbstractSegment<D extends AbstractDetections<? extends Abs
         }
         return detections;
     }
-    
+
+    /**
+     * Inference is often done on multiple tiles. Boundary effects mean that e.g. one object is segmented as two
+     * touching objects. This method refines those detections by applying the detections to tiles centered on the
+     * detection.
+     * @param detections The initial detections.
+     * @param segModel The segmentation model used to refine the detections.
+     * @param orbitImage The whole slide image (tiles).
+     * @param exclusionMapGen The exclusion map.
+     * @param roiDef The ROI used (exclusions and inclusions).
+     * @param tile The coordinates (tile number, not px) of the tile being analysed.
+     * @return The refined detections.
+     * @throws Exception
+     */
+    protected D segmentationRefinement(D detections,
+                                                    OrbitModel segModel,
+                                                    OrbitTiledImageIOrbitImage orbitImage,
+                                                    ExclusionMapGen exclusionMapGen,
+                                                    Shape roiDef,
+                                                    Point tile) throws Exception {
+
+        int tileSize = segmentationSettings.getTrainingImageTileWidth();
+        int halfTileSize = tileSize/2;
+        int minX = orbitImage.tileXToX(tile.x);
+        int minY = orbitImage.tileYToY(tile.y);
+
+        // Keep track of which 'original' detection is being processed (variable 'i').
+        int i = 0;
+        // Loop over all 'original' detections.
+        for (Shape segShape : detections.getSegmentationResult().getShapeList()) {
+            PolygonExt scaleShape = (PolygonExt) segShape;
+            PolygonMetrics polyMetrics = new PolygonMetrics(scaleShape);
+            scaleShape = scaleShape.scale(segmentationSettings.getTileScaleFactorXPercent(), polyMetrics.getCenter());
+            scaleShape.translate(minX, minY);
+            Point2D center = polyMetrics.getCenter();
+            scaleShape.translate((int) center.getX(), (int) center.getY());
+            PolygonMetrics pm2 = new PolygonMetrics(scaleShape);
+            // Find the center of the detected object.
+            center = pm2.getCenter();
+
+            // Re-center the tile around the detected object, ready for 'redetection'.
+            int startx = (int) (center.getX() - halfTileSize);
+            int starty = (int) (center.getY() - halfTileSize);
+            if (startx < 0) startx = 0;
+            if (starty < 0) starty = 0;
+            if (startx + tileSize >= orbitImage.getWidth()) startx = orbitImage.getWidth() - (tileSize+1);
+            if (starty + tileSize >= orbitImage.getHeight()) starty = orbitImage.getHeight() - (tileSize+1);
+            Rectangle rect = new Rectangle(startx, starty, tileSize, tileSize);
+            Raster rasterCenter = orbitImage.getData(rect);
+
+            // Do a 'new' detection on a tile centered on the original detection.
+            BufferedImage bim = maskRaster(rasterCenter, orbitImage, false);
+            SegmentationResult segCenter = getSegmentationResult(segModel, bim);
+
+            // If objects are detected, then decide whether to keep the 'original' or 'new' detections.
+            if (segCenter.getObjectCount() > 0) {
+                // find center shape
+                // TODO: What is this number?
+                Point centerP = new Point(256, 256);
+                Shape centerShape = segCenter.getShapeList().get(0);
+                double dist = tileSize;
+                for (Shape centeredDetection : segCenter.getShapeList()) {
+                    PolygonMetrics pm = new PolygonMetrics((Polygon) centeredDetection);
+                    double d = pm.getCenter().distance(centerP);
+                    if (d < dist) {
+                        centerShape = centeredDetection;
+                        dist = d;
+                    }
+                }
+                PolygonExt centeredContour = (PolygonExt) centerShape;
+                PolygonMetrics polyMetrics2 = new PolygonMetrics(centeredContour);
+                centeredContour = centeredContour.scale(segmentationSettings.getTileScaleFactorXPercent(), polyMetrics2.getCenter());
+                centeredContour.translate(startx, starty);
+                Point2D center2 = polyMetrics2.getCenter();
+                centeredContour.translate((int) center2.getX(), (int) center2.getY());
+
+                PolygonMetrics pm = new PolygonMetrics(centeredContour);
+                Point2D centerScaled = pm.getCenter();
+                if (OrbitUtils.isInROI((int) centerScaled.getX(), (int) centerScaled.getY(), roiDef, exclusionMapGen)) {
+                    // All objects below are 'shifted/scaled' so that they are in the same reference frame
+                    // (0,0,tileWidth,tileHeight).
+
+                    // Create a copy of the original detection
+                    PolygonExt originalContour = new PolygonExt(scaleShape); //(PolygonExt) segShape;
+                    originalContour.setClosed(true);
+                    originalContour.translate(-startx, -starty);
+                    PolygonMetrics originalMetrics = new PolygonMetrics(originalContour);
+
+                    // Create an expanded version of the original detection.
+                    PolygonExt expandOriginal = new PolygonExt(scaleShape); //(PolygonExt) segShape;
+                    expandOriginal.setClosed(true);
+                    expandOriginal.translate(-startx, -starty);
+                    PolygonMetrics expandOriginalMetrics = new PolygonMetrics(expandOriginal);
+                    expandOriginal = expandOriginal.scale(segmentationSettings.getDetectionToleranceScale(), expandOriginalMetrics.getCenter());
+
+                    // Create a copy of the 'new' detection.
+                    PolygonExt centeredContourCopy = new PolygonExt(centeredContour);
+                    centeredContourCopy.setClosed(true);
+                    centeredContourCopy.translate(-startx, -starty);
+
+                    // Create an expanded version of the 'new' detection.
+                    PolygonExt expandCentered = (PolygonExt) centerShape;
+                    expandCentered.setClosed(true);
+                    expandCentered.translate( (int) center2.getX(),  (int) center2.getY());
+                    expandCentered = expandCentered.scale(segmentationSettings.getTileScaleFactorXPercent(), polyMetrics2.getCenter());
+                    PolygonMetrics expandCenteredMetrics = new PolygonMetrics(expandCentered);
+                    expandCentered = expandCentered.scale(segmentationSettings.getDetectionToleranceScale(), expandCenteredMetrics.getCenter());
+
+                    originalContour.getBounds();
+                    expandOriginal.getBounds();
+
+                    centeredContourCopy.getBounds();
+                    expandCentered.getBounds();
+
+                    // TODO: Generalize this so that it works for DLR and MaskRCNN...
+                    if (expandCentered.contains(originalContour)) {
+                        PolygonMetrics centeredMetrics = new PolygonMetrics(centeredContour);
+
+                        if (expandOriginal.contains(centeredContourCopy)) {
+                            // if works both ways take the biggest.
+                            if (centeredMetrics.getArea() > originalMetrics.getArea()) {
+                                detections.addDetection(centeredContour, null, null, 1, tile);
+                                detections.removeDetection(i);
+                            }
+                        } else {
+                            // if only the 'centered' detection is biggest replace it.
+                            detections.addDetection(centeredContour, null, null, 1, tile);
+                            detections.removeDetection(i);
+                        }
+                    }
+                }
+            }
+            i++;
+        }
+        return detections;
+    }
+
     public SegmentationResult getSegmentationResult(OrbitModel segModel, BufferedImage segmented) throws OrbitImageServletException {
         IOrbitImage segimg = new OrbitImagePlanar(PlanarImage.wrapRenderedImage(segmented), "segmented");
         RecognitionFrame rfSeg = new RecognitionFrame(segimg, "segmented");

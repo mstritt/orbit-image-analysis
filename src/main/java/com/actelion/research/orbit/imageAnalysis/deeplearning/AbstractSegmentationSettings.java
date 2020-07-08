@@ -16,6 +16,7 @@ public abstract class AbstractSegmentationSettings<S> {
     private final String annotationPrefix;
 
     private final boolean segmentationRefinement;
+    protected final double detectionToleranceScale;
 
     /**
      * Setup and store the settings used for abstract segmentation model training and inference.
@@ -29,7 +30,7 @@ public abstract class AbstractSegmentationSettings<S> {
      * @param segmentationRefinement Whether or not to refine the segmentation result. e.g. to mitigate for tile boundary
      *                               effects.
      */
-    public AbstractSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, String annotationPrefix, boolean segmentationRefinement) {
+    public AbstractSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, String annotationPrefix, boolean segmentationRefinement, double detectionToleranceScale) {
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.trainingImageTileWidth = (int) (imageWidth * tileScaleFactorX);
@@ -39,6 +40,7 @@ public abstract class AbstractSegmentationSettings<S> {
         this.augmentationSettings = new AugmentationSettings();
         this.annotationPrefix = annotationPrefix;
         this.segmentationRefinement = segmentationRefinement;
+        this.detectionToleranceScale = detectionToleranceScale;
     }
 
     /**
@@ -124,6 +126,10 @@ public abstract class AbstractSegmentationSettings<S> {
 
     public boolean isSegmentationRefinement() {
         return segmentationRefinement;
+    }
+
+    public double getDetectionToleranceScale() {
+        return detectionToleranceScale;
     }
 
     public AugmentationSettings getAugmentationSettings() {

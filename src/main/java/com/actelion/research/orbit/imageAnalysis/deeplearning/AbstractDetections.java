@@ -1,6 +1,8 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetection;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
+import com.actelion.research.orbit.imageAnalysis.models.RectangleExt;
 import com.actelion.research.orbit.imageAnalysis.models.SegmentationResult;
 
 import java.awt.*;
@@ -107,6 +109,8 @@ public abstract class AbstractDetections<T extends AbstractDetection> {
         detections.remove(i);
         // TODO: Update the segmentation model result?
     }
+
+    public abstract void addDetection(PolygonExt contour, RectangleExt boundingBox, Float classProbability, Integer maskClass, Point tileOffset);
 
     /**
      * String representation of detections object.
