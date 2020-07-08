@@ -15,17 +15,21 @@ public abstract class AbstractSegmentationSettings<S> {
     private final float tileScaleFactorY;
     private final String annotationPrefix;
 
+    private final boolean segmentationRefinement;
+
     /**
      * Setup and store the settings used for abstract segmentation model training and inference.
      * @param imageWidth The width in px of the training images.
      * @param imageHeight The height in px of the training images.
      * @param tileScaleFactorX The scale factor in x-axis that was used to generate the test dataset (e.g. if image tiles were
-     *                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
+ *                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
      * @param tileScaleFactorY The scale factor in y-axis that was used to generate the test dataset (e.g. if image tiles were
-     *                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
+*                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
      * @param annotationPrefix The prefix used to store annotations.
+     * @param segmentationRefinement Whether or not to refine the segmentation result. e.g. to mitigate for tile boundary
+     *                               effects.
      */
-    public AbstractSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, String annotationPrefix) {
+    public AbstractSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, String annotationPrefix, boolean segmentationRefinement) {
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.trainingImageTileWidth = (int) (imageWidth * tileScaleFactorX);
@@ -34,6 +38,7 @@ public abstract class AbstractSegmentationSettings<S> {
         this.tileScaleFactorY = tileScaleFactorY;
         this.augmentationSettings = new AugmentationSettings();
         this.annotationPrefix = annotationPrefix;
+        this.segmentationRefinement = segmentationRefinement;
     }
 
     /**
@@ -115,6 +120,10 @@ public abstract class AbstractSegmentationSettings<S> {
 
     public Color getAnnotationColor(int classNum) {
         return Color.GREEN;
+    }
+
+    public boolean isSegmentationRefinement() {
+        return segmentationRefinement;
     }
 
     public AugmentationSettings getAugmentationSettings() {

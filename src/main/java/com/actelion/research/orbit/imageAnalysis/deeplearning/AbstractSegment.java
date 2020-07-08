@@ -35,7 +35,15 @@ public abstract class AbstractSegment<D extends AbstractDetections<? extends Abs
         this.segmentationSettings = segmentationSettings;
     }
 
-    public abstract D segmentationImplementation(OrbitModel orbitSegModel, OrbitTiledImageIOrbitImage orbitImage, Point tile);
+    public abstract D segmentationImplementation(OrbitModel orbitSegModel,
+                                                 OrbitTiledImageIOrbitImage orbitImage,
+                                                 Point tile);
+
+    public abstract D segmentationImplementation(OrbitModel orbitSegModel,
+                                                 OrbitTiledImageIOrbitImage orbitImage,
+                                                 Point tile,
+                                                 ExclusionMapGen exclusionMapGen,
+                                                 Shape roiDef);
 
     /**
      * Convenience method to call the generic generateSegmentationAnnotations() method. Uses the default
@@ -219,7 +227,8 @@ public abstract class AbstractSegment<D extends AbstractDetections<? extends Abs
                     }
                     if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
                         // Calculate Tile Offset for translating annotations.
-                        D detections = segmentationImplementation(orbitSegModel, orbitImage, tile);
+                        //D detections = segmentationImplementation(orbitSegModel, orbitImage, tile);
+                        D detections = segmentationImplementation(orbitSegModel, orbitImage, tile, exclusionMapGen, roiDef);
 
                         logger.info("shapes before filtering: " + detections.getDetections().size());
                         // TODO: Re-enable
@@ -377,4 +386,7 @@ public abstract class AbstractSegment<D extends AbstractDetections<? extends Abs
 
     @Override
     public abstract D processDetections(SegmentationResult segRes, Point tileOffset);
+
+//    @Override
+//    public abstract D processDetections(Point tileOffset);
 }

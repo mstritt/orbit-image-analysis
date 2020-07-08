@@ -1,6 +1,7 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
+import com.actelion.research.orbit.imageAnalysis.models.SegmentationResult;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -11,8 +12,18 @@ import java.util.stream.Collectors;
 public abstract class AbstractDetections<T extends AbstractDetection> {
     protected List<T> detections;
 
+    protected SegmentationResult segmentationResult;
+
     protected AbstractDetections() {
         detections = new ArrayList<>();
+    }
+
+    public SegmentationResult getSegmentationResult() {
+        return segmentationResult;
+    }
+
+    public void setSegmentationResult(SegmentationResult segmentationResult) {
+        this.segmentationResult = segmentationResult;
     }
 
     public List<PolygonExt> getContours() {

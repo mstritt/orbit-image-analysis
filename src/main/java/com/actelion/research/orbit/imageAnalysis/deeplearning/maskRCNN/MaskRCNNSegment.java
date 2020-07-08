@@ -3,6 +3,7 @@ package com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLHelpers;
 import com.actelion.research.orbit.imageAnalysis.models.*;
+import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
 import com.actelion.research.orbit.imageAnalysis.utils.*;
 
 import ij.ImagePlus;
@@ -43,7 +44,7 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
      * MaskRCNNSegment object constructor with default segmentation settings.
      */
     public MaskRCNNSegment(File maskRCNNModelPB, PostProcessMethod ppm) {
-        this(maskRCNNModelPB, ppm, new MaskRCNNSegmentationSettings(512,512, 16.0f,10,56,56,5, "Default_"));
+        this(maskRCNNModelPB, ppm, new MaskRCNNSegmentationSettings(512,512, 16.0f,10,56,56,5, "Default_", true));
     }
 
     public MaskRCNNSegment(File maskRCNNModelPB, PostProcessMethod ppm, MaskRCNNSegmentationSettings settings) {
@@ -241,6 +242,12 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
                 break;
         }
         return detections;
+    }
+
+    @Override
+    public MaskRCNNDetections segmentationImplementation(OrbitModel orbitSegModel, OrbitTiledImageIOrbitImage orbitImage, Point tile, ExclusionMapGen exclusionMapGen, Shape roiDef) {
+        // TODO: to counter edge effects...
+        return null;
     }
 
 

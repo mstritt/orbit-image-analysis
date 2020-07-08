@@ -43,4 +43,6 @@ public interface IDLSegment<D, S> {
 
     D processDetections(SegmentationResult segRes, Point tileOffset);
 
+    //D processDetections(Point tileOffset);
+
 }

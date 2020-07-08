@@ -41,9 +41,10 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings<M
      *                   e.g. for classes: Background, g0, g1, g2, g3 -> numClasses = 5.
      */
     public MaskRCNNSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactor, int maxDetections,
-                                        int maskWidth, int maskHeight, int numClasses, String annotationPrefix) {
+                                        int maskWidth, int maskHeight, int numClasses, String annotationPrefix,
+                                        boolean segmentationRefinement) {
         this(imageWidth, imageHeight, tileScaleFactor, tileScaleFactor, maxDetections,
-                maskWidth, maskHeight, numClasses, annotationPrefix);
+                maskWidth, maskHeight, numClasses, annotationPrefix, segmentationRefinement);
     }
 
     /**
@@ -62,9 +63,10 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings<M
      * @param numClasses The number of classes in the trained model (Background + other classes).
      *                   e.g. for classes: Background, g0, g1, g2, g3 -> numClasses = 5.
      */
-    public MaskRCNNSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, int maxDetections,
-                                        int maskWidth, int maskHeight, int numClasses, String annotationPrefix) {
-        super(imageWidth, imageHeight, tileScaleFactorX, tileScaleFactorY, annotationPrefix);
+    public MaskRCNNSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY,
+                                        int maxDetections, int maskWidth, int maskHeight, int numClasses,
+                                        String annotationPrefix, boolean segmentationRefinement) {
+        super(imageWidth, imageHeight, tileScaleFactorX, tileScaleFactorY, annotationPrefix, segmentationRefinement);
         this.maxDetections = maxDetections;
         this.maskWidth = maskWidth;
         this.maskHeight = maskHeight;

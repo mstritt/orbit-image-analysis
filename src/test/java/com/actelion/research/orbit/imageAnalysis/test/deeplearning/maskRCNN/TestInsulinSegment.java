@@ -85,7 +85,8 @@ public class TestInsulinSegment extends OrbitTestOS {
         boolean storeAnnotations = false;
         File maskRCNNModel = new File("D:/deeplearning/insulin/models/insulin_009.pb");
 
-        MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings(512, 512, 16f, 10, 56, 56, 5, "IsletC");
+        MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings(512, 512,
+                16f, 10, 56, 56, 5, "IsletC", true);
         ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW));
         ArrayList<String> classNames = new ArrayList<>(Arrays.asList("Background", "g0", "g1", "g2", "g3"));
         settings.setCustomClassNames(colors, classNames);
@@ -139,7 +140,8 @@ public class TestInsulinSegment extends OrbitTestOS {
         boolean storeAnnotations = false;
         File maskRCNNModel = new File("D:/deeplearning/insulin/models/insulin_009.pb");
 
-        MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings(512, 512, 16f, 10, 56, 56, 5, "IsletS");
+        MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings(512, 512,
+                16f, 10, 56, 56, 5, "IsletS", true);
         ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW));
         ArrayList<String> classNames = new ArrayList<>(Arrays.asList("Background", "g0", "g1", "g2", "g3"));
         settings.setCustomClassNames(colors, classNames);

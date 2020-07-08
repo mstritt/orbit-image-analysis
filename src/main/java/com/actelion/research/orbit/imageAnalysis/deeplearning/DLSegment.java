@@ -500,12 +500,12 @@ public class DLSegment {
                 .run().get(0).expect(Long.class);
 
         long[] mask = outputTensor.copyTo(new long[outputTensor.numElements()]);
-        for (long l : mask) {
-            if (l > 0) {
-                System.out.println(l);
-            }
-
-        }
+//        for (long l : mask) {
+//            if (l > 0) {
+//                System.out.println(l);
+//            }
+//
+//        }
         BufferedImage bufferedImage = decodeLabels(mask,bg,fg);
         return bufferedImage;
     }
