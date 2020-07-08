@@ -63,7 +63,7 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
     private final JSpinner spinPixelSize = new JSpinner(spinPixelSizeModel);
     private final JComboBox<LocalOverlay> mapSelectionBox = new JComboBox<>();
     private final ItemListener mapSelectionListener = e -> handleNewMapSelection();
-    private final JButton btnColorPicker = new JButton("Pick Color");
+    private final JButton btnColorPicker = new JButton("Pick overlay color");
     private final RangeBar rangeBar = new RangeBar(0.0f, 1.0f);
     private final JComboBox<alphaModeEnum> alphaModeComboBox = new JComboBox<>(alphaModeEnum.values());
     private final JButton btnResetProperties = new JButton("Reset");
@@ -87,31 +87,35 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
     }
 
     public void createGUI() {
+
+        JPanel nestedPanel = new JPanel();
+        nestedPanel.setLayout(new GridBagLayout());
+
         rangeBar.setLowValue(0.0f);
         rangeBar.setHighValue(1.0f);
 
         // layout
-        setLayout(new GridBagLayout());
         int columns = 2;
         int y = 0;
 
         Insets insetsCategory = new Insets(5, 0, 0, 5);
         Insets insetsItem = new Insets(0, 5, 0, 5);
+        int itemsPadY = 4;
 
         // Loading
-        add(btnLoadOverlay, new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 0));
+        nestedPanel.add(btnLoadOverlay, new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, itemsPadY));
         btnLoadOverlay.addActionListener(e -> loadDefaultOverlayFiles());
-        add(btnLoadDiskOverlay, new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 0));
+        nestedPanel.add(btnLoadDiskOverlay, new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, itemsPadY));
         btnLoadDiskOverlay.addActionListener(e -> selectOverlayFile());
 
         // Pixel size spin box
-        add(new JLabel("Pixel size (μm):"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 0));
-        add(spinPixelSize, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHEAST, GridBagConstraints.HORIZONTAL, insetsItem, 0, 0));
+        nestedPanel.add(new JLabel("Pixel size (μm):"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 0));
+        nestedPanel.add(spinPixelSize, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHEAST, GridBagConstraints.HORIZONTAL, insetsItem, 0, itemsPadY));
         spinPixelSize.addChangeListener(e -> handleNewPixelSize());
 
         // Map Selection
-        add(new JLabel("Overlay map:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 0));
-        add(mapSelectionBox, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, 0));
+        nestedPanel.add(new JLabel("Overlay map:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 0));
+        nestedPanel.add(mapSelectionBox, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, itemsPadY));
         mapSelectionBox.setRenderer(new DefaultListCellRenderer() {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 String displayName = "No overlay loaded";
@@ -122,43 +126,51 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
             }
         });
 
-        // Color Picker
-        add(new JLabel("Overlay color:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 0));
-        add(btnColorPicker, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, 0));
+        // Range Bar
+        nestedPanel.add(new JLabel("Display Range:"), new GridBagConstraints(0, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 5));
+        nestedPanel.add(rangeBar, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, 5));
+        rangeBar.addPruningBarListener(e -> handleAlphaModeChanged());
+
+
+        // Color Picker + Alpha mode
+        nestedPanel.add(new JLabel("Overlay color:"), new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 5));
+        nestedPanel.add(new JLabel("Transparency mode:"), new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 5));
+
+        nestedPanel.add(btnColorPicker, new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, itemsPadY));
         btnColorPicker.addActionListener(e -> changeOverlayColor());
 
-        // Range Bar
-        add(new JLabel("Display Range:"), new GridBagConstraints(0, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 5));
-        add(rangeBar, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, 5));
-        rangeBar.addPruningBarListener(e -> handleAlphaModeChanged());
-        add(new JLabel("Transparency mode:"), new GridBagConstraints(0, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 5));
-
-        // Alpha Mode
         alphaModeComboBox.setRenderer(new DefaultListCellRenderer() {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 String displayName = "ERROR";
                 if (alphaModeEnum.OPAQUE == value) {
                     displayName = "Opaque";
                 } else if (alphaModeEnum.SATURATION_AFTER_MAX == value) {
-                    displayName = "Saturate after range max";
+                    displayName = "Saturate after max";
                 } else if (alphaModeEnum.TRANSPARENT_AFTER_MAX == value) {
-                    displayName = "Transparent after range max";
+                    displayName = "Exclude after max";
                 }
                 return super.getListCellRendererComponent(list, displayName, index, isSelected, cellHasFocus);
             }
         });
-        add(alphaModeComboBox, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, 0));
+        nestedPanel.add(alphaModeComboBox, new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, itemsPadY));
         alphaModeComboBox.addItemListener(e -> handleAlphaModeChanged());
 
         // Reset / Save parameters
-        add(new JLabel("Parameters:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 5));
-        add(btnResetProperties, new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, 0));
+        nestedPanel.add(new JLabel("Parameters:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 5));
+        nestedPanel.add(btnResetProperties, new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, itemsPadY));
         btnResetProperties.addActionListener(e -> handleResetProperties());
-        add(btnSaveProperties, new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, 0));
+        nestedPanel.add(btnSaveProperties, new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, itemsPadY));
         btnSaveProperties.addActionListener(e -> handleSaveProperties());
 
-        add(btnShowHelp, new GridBagConstraints(0, y, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 0));
+        nestedPanel.add(btnShowHelp, new GridBagConstraints(0, y, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, itemsPadY));
         btnShowHelp.addActionListener(e -> showHelp());
+
+        JScrollPane scrollPane = new JScrollPane(nestedPanel);
+        scrollPane.setWheelScrollingEnabled(true);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        setLayout(new GridLayout());
+        add(scrollPane);
     }
 
     protected void updateImageWriter() {
@@ -376,6 +388,7 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         if (!overlayExist) {
             updateMapSelection();
         }
+        updateGUIFromProperties();
     }
 
     protected void loadDefaultOverlayFiles() {
@@ -386,7 +399,7 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
 
         for (File overlayFile : possibleOverlays) {
             String fullPath = Paths.get(associatedImageDir, overlayFile.getName()).toString();
-            updateMapSelection();
+//            updateMapSelection();
             loadOverlay(fullPath);
         }
 
@@ -394,6 +407,7 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         if (foundAFile) {
             // Set active the first element of the list
             getCurrentFrame().setLocalOverlay(getCurrentFrame().getLoadedOverlays().get(0));
+            updateMapSelection();
             updateImageWriter();
         } else {
             logger.error("Could not find any overlay image called \"" + associatedImageNameStem + "*overlay*.tif\" in \"" + associatedImageDir + "\"");

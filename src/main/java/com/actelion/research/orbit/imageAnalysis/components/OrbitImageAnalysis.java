@@ -2286,7 +2286,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 getIFrame().setRdf(rdf);
             });
             if (null != anomalyDetectionModule) {
-                anomalyDetectionModule.updateGUIFromProperties();
+                anomalyDetectionModule.handleFrameChange();
             }
         } else if (evt.getPropertyName().equals(ImageList.PROPERTY_DISPLAY_META)) {
             final RawDataFile rdf = (RawDataFile) evt.getNewValue();
