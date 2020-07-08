@@ -6,7 +6,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings<MaskRCNNSegmentationSettings> {
+public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
 
     private final int maxDetections;
     private final int maskWidth;
@@ -66,7 +66,7 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings<M
     public MaskRCNNSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY,
                                         int maxDetections, int maskWidth, int maskHeight, int numClasses,
                                         String annotationPrefix, boolean segmentationRefinement) {
-        super(imageWidth, imageHeight, tileScaleFactorX, tileScaleFactorY, annotationPrefix, segmentationRefinement);
+        super(imageWidth, imageHeight, tileScaleFactorX, tileScaleFactorY, annotationPrefix, segmentationRefinement, 120d);
         this.maxDetections = maxDetections;
         this.maskWidth = maskWidth;
         this.maskHeight = maskHeight;
