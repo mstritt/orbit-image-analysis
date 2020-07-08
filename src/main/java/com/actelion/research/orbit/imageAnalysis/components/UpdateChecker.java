@@ -63,8 +63,9 @@ public class UpdateChecker {
                 double version = Double.parseDouble(match);
                 logger.debug("latest version: " + version);
 
-                double currentVersion = OrbitUtils.getVersion();
+                double currentVersion = Double.parseDouble(OrbitUtils.getVersion());
                 if (version > currentVersion) {
+                    // TODO: consider e.g. https://github.com/vdurmont/semver4j
                     logger.info("new version found: " + version);
                     showUpdateNotification();
                 }

@@ -127,16 +127,31 @@ public class OrbitUtils {
 
     }
 
-    public final static double getVersion() {
+//    @Deprecated
+//    public final static double getVersion() {
+//        try (InputStreamReader in = new InputStreamReader(OrbitUtils.class.getResourceAsStream("/version.txt"));
+//             BufferedReader reader = new BufferedReader(in);) {
+//            String s = reader.readLine();
+//            s = s.trim();
+//            double version = Double.parseDouble(s);
+//            return version;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return 0;
+//        }
+//    }
+
+    public static String getVersion() {
         try (InputStreamReader in = new InputStreamReader(OrbitUtils.class.getResourceAsStream("/version.txt"));
              BufferedReader reader = new BufferedReader(in);) {
             String s = reader.readLine();
             s = s.trim();
-            double version = Double.parseDouble(s);
+            //double version = Double.parseDouble(s);
+            String version = s;
             return version;
         } catch (Exception e) {
             e.printStackTrace();
-            return 0;
+            return "Undefined";
         }
     }
 
