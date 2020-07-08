@@ -81,6 +81,7 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
         int minX = orbitImage.tileXToX(tile.x);
         int minY = orbitImage.tileYToY(tile.y);
 
+        int i = 0;
         for (Shape segShape : detections.getSegmentationResult().getShapeList()) {
             PolygonExt scaleShape = (PolygonExt) segShape;
             PolygonMetrics polyMetrics = new PolygonMetrics(scaleShape);
@@ -134,24 +135,35 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
                     //segmentationShapes.add(scaleShape2);
                     // TODO: Need to shift the 'centered' contour so that it is in the frame of the original
                     // detection. Also need to check whether in the tile frame or the image frame (x,y px).
-                    PolygonExt originalContour = scaleShape; //(PolygonExt) segShape;
+                    PolygonExt originalContour = new PolygonExt(scaleShape); //(PolygonExt) segShape;
+                    originalContour.setClosed(true);
                     originalContour.translate(-startx, -starty);
-                    PolygonExt expandOriginal = (PolygonExt) segShape;
                     PolygonMetrics originalMetrics = new PolygonMetrics(originalContour);
+
+                    PolygonExt expandOriginal = new PolygonExt(scaleShape); //(PolygonExt) segShape;
+                    expandOriginal.setClosed(true);
+                    expandOriginal.translate(-startx, -starty);
+                    PolygonMetrics expandOriginalMetrics = new PolygonMetrics(expandOriginal);
+                    expandOriginal = expandOriginal.scale(120d, expandOriginalMetrics.getCenter());
+
+                    PolygonExt centeredContourCopy = new PolygonExt(centeredContour);
+                    centeredContourCopy.setClosed(true);
+                    centeredContourCopy.translate(-startx, -starty);
+//                    PolygonMetrics centeredContourCopyMetrics = new PolygonMetrics(centeredContourCopy);
 
                     //expandOriginal.translate(startx, starty);
                     PolygonExt expandCentered = (PolygonExt) centerShape;
+                    expandCentered.setClosed(true);
                     expandCentered.translate( (int) center2.getX(),  (int) center2.getY());
-
                     expandCentered = expandCentered.scale(200d, polyMetrics2.getCenter());
-
                     PolygonMetrics expandCenteredMetrics = new PolygonMetrics(expandCentered);
-
                     expandCentered = expandCentered.scale(120d, expandCenteredMetrics.getCenter());
 
                     originalContour.getBounds();
+                    expandOriginal.getBounds();
+
+                    centeredContourCopy.getBounds();
                     expandCentered.getBounds();
-                    centeredContour.getBounds();
 
                     WritableRaster tileRaster = (WritableRaster) rasterCenter.createTranslatedChild(0, 0);
                     BufferedImage ori = new BufferedImage(orbitImage.getColorModel(), tileRaster, false, null);
@@ -164,31 +176,48 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
                     roiG.drawPolygon(originalContour);
                     roiG.setColor(Color.green);
                     roiG.drawPolygon(expandCentered);
-                    roiG.setColor(Color.blue);
-                    roiG.drawPolygon(centeredContour);
+
                     roiG.setColor(Color.yellow);
                     roiG.drawPolygon(expandOriginal);
+                    roiG.setColor(Color.blue);
+                    roiG.drawPolygon(centeredContourCopy);
+
                     roiG.setColor(Color.black);
                     roiG.dispose();
 
                     if (expandCentered.contains(originalContour)) {
                         PolygonMetrics centeredMetrics = new PolygonMetrics(centeredContour);
-                        expandCentered = expandCentered.scale(120d, centeredMetrics.getCenter());
 
                         // TODO: Expand original contour and compare against centered.
-                        if (expandOriginal.contains(centeredContour)) {
-                            System.out.println("here");
-                        }
-                        if (originalContour.contains(expandCentered)) {
-                            // take the bigger one
+                        if (expandOriginal.contains(centeredContourCopy)) {
+                            // if works both ways take the biggest.
                             if (centeredMetrics.getArea() > originalMetrics.getArea()) {
                                 detections.addDetection(centeredContour, 1, tile);
-                                // TODO: Remove the original detection?
+                                detections.removeDetection(i);
+                                List<PolygonExt> dup = detections.getContours();
+                                int idx = dup.indexOf(originalContour);
+                                System.out.println(idx);
+//                                // TODO: Remove the original detection...
                             }
+                        } else {
+                            // if only the 'centered' detection is biggest replace it.
+                            detections.addDetection(centeredContour, 1, tile);
+                            detections.removeDetection(i);
+                            // TODO: Remove the original detection...
                         }
+
+
+//                        if (originalContour.contains(expandCentered)) {
+//                            // take the bigger one
+//                            if (centeredMetrics.getArea() > originalMetrics.getArea()) {
+//                                detections.addDetection(centeredContour, 1, tile);
+//                                // TODO: Remove the original detection?
+//                            }
+//                        }
                     }
                 }
             }
+            i++;
         }
         return detections;
     }

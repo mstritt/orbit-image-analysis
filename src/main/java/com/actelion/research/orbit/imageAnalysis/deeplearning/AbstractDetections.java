@@ -14,18 +14,34 @@ public abstract class AbstractDetections<T extends AbstractDetection> {
 
     protected SegmentationResult segmentationResult;
 
+    /**
+     * Default constructor for the abstract class.
+     */
     protected AbstractDetections() {
         detections = new ArrayList<>();
     }
 
+    /**
+     * Get the segmentation result.
+     * @return Result from segmentation.
+     */
     public SegmentationResult getSegmentationResult() {
         return segmentationResult;
     }
 
+    /**
+     * Assign a segmentation result from an Orbit Model that has been applied to the detections
+     * in the object.
+     * @param segmentationResult Result from segmentation.
+     */
     public void setSegmentationResult(SegmentationResult segmentationResult) {
         this.segmentationResult = segmentationResult;
     }
 
+    /**
+     * List of contour PolygonExts for the detections.
+     * @return List of contour PolygonExts for the detections.
+     */
     public List<PolygonExt> getContours() {
         return this.detections
                 .stream()
@@ -33,6 +49,10 @@ public abstract class AbstractDetections<T extends AbstractDetection> {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * List of contour shapes for the detections.
+     * @return List of contour shapes for the detections.
+     */
     public List<Shape> getContourShapes() {
         return this.detections
                 .stream()
@@ -40,6 +60,10 @@ public abstract class AbstractDetections<T extends AbstractDetection> {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * List of class IDs for the detections.
+     * @return List of class IDs for the detections.
+     */
     public List<Integer> getDetectionClasses() {
         return this.detections
                 .stream()
@@ -54,11 +78,20 @@ public abstract class AbstractDetections<T extends AbstractDetection> {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get a specific detection.
+     * @param i Index of detection.
+     * @return The detection.
+     */
     public T getDetection(int i) {
         // TODO: e.g. contours may not always be defined.
         return detections.get(i);
     }
 
+    /**
+     * Get the list of detections.
+     * @return List of detections.
+     */
     public List<T> getDetections() {
         return this.detections
                 .stream()
@@ -66,6 +99,19 @@ public abstract class AbstractDetections<T extends AbstractDetection> {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Remove detection by index.
+     * @param i index of detection to remove.
+     */
+    public void removeDetection(int i) {
+        detections.remove(i);
+        // TODO: Update the segmentation model result?
+    }
+
+    /**
+     * String representation of detections object.
+     * @return String
+     */
     public String toString() {
 
         return "Detections Object Details: " +

@@ -140,6 +140,6 @@ public class TestGlomeruliSegment extends OrbitTestOS {
         // There should be 2 objects detected in the test tile.
         assertEquals(segmentationsPerImage.get(images[0]).size(), 3);
         // Check the bounding box for the first image (should confirm that the scaling and translation has been done correctly).
-        assertEquals(segmentationsPerImage.get(images[0]).get(0).getBounds(),new Rectangle(21506,4670, 138, 238));
+        assertEquals(segmentationsPerImage.get(images[0]).get(0).getBounds(),new Rectangle(22036,4524, 162, 160));
     }
 }
