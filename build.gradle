@@ -231,6 +231,9 @@ dependencies {
     implementation "org.pushing-pixels:radiance-neon:$radianceVersion"
     implementation "org.pushing-pixels:radiance-photon:$radianceVersion"
 
+    implementation ('org.apache.commons:commons-lang3:3.10') {
+        because("SerializationUtils")
+    }
     api 'com.google.guava:guava:28.2-jre'
     api 'org.apache.commons:commons-math3:3.6.1'
     api (group: 'com.googlecode.matrix-toolkits-java', name: 'mtj', version:'1.0.4') {

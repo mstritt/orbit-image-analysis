@@ -26,7 +26,7 @@ import com.actelion.research.orbit.imageAnalysis.models.ClassifierWrapper;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
 import com.actelion.research.orbit.imageAnalysis.models.TaskResult;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
-import com.freedomotic.util.SerialClone.SerialClone;
+import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import weka.core.DenseInstance;
@@ -72,7 +72,7 @@ public class ObjectClassificationWorker extends OrbitWorker implements PropertyC
         this.rf = rf;
         OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(),model.getFeatureDescription());
         if (classShapesToSet != null) {
-            oldClassShapes = SerialClone.clone(rf.getClassShapes()); // remember original classShales workaround (dirty fix...). Must be cloned because rf.setClassShapes will clear() and addAll() (next line).
+            oldClassShapes = SerializationUtils.clone((ArrayList) rf.getClassShapes()); // remember original classShales workaround (dirty fix...). Must be cloned because rf.setClassShapes will clear() and addAll() (next line).
             this.rf.setClassShapes(classShapesToSet);
         }
         this.model = new OrbitModel(model);

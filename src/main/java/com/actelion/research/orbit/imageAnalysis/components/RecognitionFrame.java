@@ -80,7 +80,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
     private RecognitionFrame negativeChannel = null;
     private String picName = "";
     private String originalName = "";
-    private final List<ClassShape> classShapes = Collections.synchronizedList(new ArrayList<ClassShape>());
+    private final List<ClassShape> classShapes = Collections.synchronizedList(new ArrayList<>());
     private final List<ImageAnnotation> annotations = Collections.synchronizedList(new ArrayList<ImageAnnotation>());
     private IScaleableShape ROI = null;
     private final HashMap<Integer, Byte> colorClassLookup = new HashMap<Integer, Byte>();

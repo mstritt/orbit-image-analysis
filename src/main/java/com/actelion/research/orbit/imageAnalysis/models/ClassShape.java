@@ -19,7 +19,7 @@
 
 package com.actelion.research.orbit.imageAnalysis.models;
 
-import com.freedomotic.util.SerialClone.SerialClone;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -111,7 +111,7 @@ public class ClassShape implements Serializable, Cloneable {
 
 
     public ClassShape clone() {
-        return SerialClone.clone(this);
+        return SerializationUtils.clone(this);
     }
 
 
