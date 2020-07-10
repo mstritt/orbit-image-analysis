@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 public class LocalOverlay {
-    protected static final Logger logger = LoggerFactory.getLogger(AnomalyDetectionModule.class);
+    protected static final Logger logger = LoggerFactory.getLogger(ImageOverlayModule.class);
     private static final ImageProviderLocal localImageProvider = new ImageProviderLocal();
 
     // Properties are linked to the overlay instance since we want the freedom to adjust the display range differently for each file

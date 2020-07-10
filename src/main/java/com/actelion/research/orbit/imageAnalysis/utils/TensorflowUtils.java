@@ -1,6 +1,5 @@
 package com.actelion.research.orbit.imageAnalysis.utils;
 
-import com.actelion.research.orbit.imageAnalysis.modules.AnomalyDetectionModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tensorflow.Tensor;

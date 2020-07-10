@@ -40,7 +40,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
-public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
+public class ImageOverlayModule extends AbstractOrbitRibbonModule {
 
     private enum alphaModeEnum {SATURATION_AFTER_MAX, TRANSPARENT_AFTER_MAX, OPAQUE}
 
@@ -49,8 +49,8 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
     public static final long serialVersionUID = 1L;
 
     // Static preferences
-    protected static Preferences prefs = Preferences.userNodeForPackage(AnomalyDetectionModule.class);
-    protected static final Logger logger = LoggerFactory.getLogger(AnomalyDetectionModule.class);
+    protected static Preferences prefs = Preferences.userNodeForPackage(ImageOverlayModule.class);
+    protected static final Logger logger = LoggerFactory.getLogger(ImageOverlayModule.class);
     private static final String prefsOverlayDir = "overlayDir";
 
     // User interface
@@ -77,7 +77,7 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
             DataBuffer.TYPE_BYTE);
     ColorConvertOp rgbaConverter = new ColorConvertOp(null);
 
-    public AnomalyDetectionModule(boolean withGui) {
+    public ImageOverlayModule(boolean withGui) {
         super();
         if (withGui) {
             createGUI();
@@ -328,7 +328,7 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
                 "</ul>" +
                 "</p>" +
                 "</body></html>";
-        oia.addInternalFrame(new ResultFrame(h, "Anomaly detection Module Help"));
+        oia.addInternalFrame(new ResultFrame(h, "Image Overlay Module Help"));
     }
 
     protected ImageFrame getCurrentFrame() {
@@ -510,7 +510,7 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
 
     @Override
     public String getName() {
-        return "Anomaly Detection";
+        return "Image Overlay";
     }
 
     @Override
