@@ -705,7 +705,7 @@ public class RecognitionFrame extends JComponent implements PropertyChangeListen
 			*/
 
             TiledImageWriter.timeOut.set(System.currentTimeMillis());
-            if ((classImage != null) && (opacity > 0) && classImage.getPainting().get() == false) {
+            if ((classImage != null) && (opacity > 0) && classImage.getPainting().get() == false && drawMarkup) {
                 AffineTransform af = g2d.getTransform();
                 g2d.scale(classImageScale, classImageScale);
                 Rectangle rbb = new Rectangle((int) viewPortOffset.getX(), (int) viewPortOffset.getY(), (int) vpWidth, (int) vpHeight);

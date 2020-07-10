@@ -75,8 +75,6 @@ public class ImageFrame extends JInternalFrame implements ComponentListener, Pro
     private int mipLayer = 0;
     private ImageIcon icon = null;
     private boolean channelContributionsLoaded = false;
-    private boolean overlayEnabled = true;
-    private float oldOpacity = 0.5f;
 
     private final ArrayList<LocalOverlay> loadedOverlays = new ArrayList<>();
     private LocalOverlay selectedOverlay;
@@ -147,18 +145,6 @@ public class ImageFrame extends JInternalFrame implements ComponentListener, Pro
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_O) {
-                    if (overlayEnabled) {
-                        // If enabled, then disable with opacity 0
-                        oldOpacity = ImageFrame.this.recognitionFrame.getOpacity();
-                        ImageFrame.this.recognitionFrame.setOpacity(0.0f);
-                        logger.info("Hide overlay");
-                    } else {
-                        // If disabled, then restore opacity
-                        ImageFrame.this.recognitionFrame.setOpacity(oldOpacity);
-                        logger.info("Show overlay");
-                    }
-                }
                 if (dragging) return;
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                     if (recognitionFrame.getMyListener() != null) {
@@ -717,10 +703,9 @@ public class ImageFrame extends JInternalFrame implements ComponentListener, Pro
             }
         }
         if (!overlayExists) {
-            LocalOverlay newOverlay = new LocalOverlay(getRdf().getMd5(), overlayPath);
+            LocalOverlay newOverlay = new LocalOverlay(recognitionFrame.bimg.getWidth(), getRdf().getMd5(), overlayPath);
             loadedOverlays.add(newOverlay);
             selectedOverlay = newOverlay;
         }
     }
-
 }

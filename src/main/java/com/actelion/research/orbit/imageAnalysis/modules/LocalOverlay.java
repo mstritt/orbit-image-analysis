@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.*;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -26,7 +25,7 @@ public class LocalOverlay {
     // Actual list of images from different levels of the pyramid
     private final ArrayList<OrbitTiledImageIOrbitImage> overlayMipMaps = new ArrayList<>();
 
-    public LocalOverlay(String associatedImageRdfId, String overlayPath) {
+    public LocalOverlay(int associatedImageWidth, String associatedRdfMd5, String overlayPath) {
         File overlayPropertiesFile = new File(getPropertiesFilePath(overlayPath));
         boolean propertiesFileExists = false;
         if (overlayPropertiesFile.exists()) {
@@ -42,10 +41,16 @@ public class LocalOverlay {
             InputStream propertiesStream = LocalOverlay.class.getResourceAsStream("/overlay.properties");
             loadPropertiesFromStream(propertiesStream);
             props.setProperty("FilePath", overlayPath);
-            props.setProperty("AssociatedImageRdfId", associatedImageRdfId);
+            props.setProperty("AssociatedImageRdfId", associatedRdfMd5);
         }
 
         load(overlayPath);
+
+        if (overlayMipMaps.size() > 0){
+            System.out.println("associatedImageWidth = " + associatedImageWidth);
+            System.out.println("overlayMipMaps.get(0).getWidth() = " + overlayMipMaps.get(0).getWidth());
+            props.setProperty("ResizeFactor", Double.toString(associatedImageWidth / (double) overlayMipMaps.get(0).getWidth()));
+        }
     }
 
     public void load(String overlayTifPath) {
@@ -77,12 +82,12 @@ public class LocalOverlay {
         return overlayMipMaps.size();
     }
 
-    public double getPixelSize() {
-        return Double.parseDouble(props.getProperty("PixelSize"));
+    public double getResizeFactor() {
+        return Double.parseDouble(props.getProperty("ResizeFactor"));
     }
 
-    public void setPixelSize(double value) {
-        props.setProperty("PixelSize", Double.toString(value));
+    public void setResizeFactor(double value) {
+        props.setProperty("ResizeFactor", Double.toString(value));
     }
 
     public double getDisplayRangeMin() {

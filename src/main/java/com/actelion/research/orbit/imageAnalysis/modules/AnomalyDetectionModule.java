@@ -46,7 +46,6 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
 
     // Constants
     // The pixel size is expected to be removed and be read from the input files
-    public static final double MU_METER_PER_PIXEL_40X = 0.23;
     public static final long serialVersionUID = 1L;
 
     // Static preferences
@@ -58,8 +57,8 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
     private final JButton btnLoadOverlay = new JButton("Load");
     private final JButton btnLoadDiskOverlay = new JButton("Load from disk");
     private final JButton btnShowHelp = new JButton("Help");
-    private final SpinnerNumberModel spinPixelSizeModel = new SpinnerNumberModel(0.0, 0.0, 1e6, 0.01);
-    private final JSpinner spinPixelSize = new JSpinner(spinPixelSizeModel);
+    private final SpinnerNumberModel spinResizeFactorModel = new SpinnerNumberModel(0.0, 0.0, 1e6, 1.0);
+    private final JSpinner spinResizeFactor = new JSpinner(spinResizeFactorModel);
     private final JComboBox<LocalOverlay> mapSelectionBox = new JComboBox<>();
     private final ItemListener mapSelectionListener = e -> handleNewMapSelection();
     private final JButton btnColorPicker = new JButton("Pick overlay color");
@@ -86,7 +85,6 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
     }
 
     public void createGUI() {
-
         JPanel nestedPanel = new JPanel();
         nestedPanel.setLayout(new GridBagLayout());
 
@@ -99,22 +97,23 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
 
         Insets insetsCategory = new Insets(5, 0, 0, 5);
         Insets insetsItem = new Insets(0, 5, 0, 5);
-        int itemsPadY = 4;
+        int padYCategory = 8;
+        int padYItem = 4;
 
         // Loading
-        nestedPanel.add(btnLoadOverlay, new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, itemsPadY));
+        nestedPanel.add(btnLoadOverlay, new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYItem));
         btnLoadOverlay.addActionListener(e -> loadDefaultOverlayFiles());
-        nestedPanel.add(btnLoadDiskOverlay, new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, itemsPadY));
+        nestedPanel.add(btnLoadDiskOverlay, new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYItem));
         btnLoadDiskOverlay.addActionListener(e -> selectOverlayFile());
 
-        // Pixel size spin box
-        nestedPanel.add(new JLabel("Pixel size (μm):"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 0));
-        nestedPanel.add(spinPixelSize, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHEAST, GridBagConstraints.HORIZONTAL, insetsItem, 0, itemsPadY));
-        spinPixelSize.addChangeListener(e -> handleNewPixelSize());
+        // Resize factor spin box
+        nestedPanel.add(new JLabel("Resize factor:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYCategory));
+        nestedPanel.add(spinResizeFactor, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHEAST, GridBagConstraints.HORIZONTAL, insetsItem, 0, padYItem));
+        spinResizeFactor.addChangeListener(e -> handleNewResizeFactor());
 
         // Map Selection
-        nestedPanel.add(new JLabel("Overlay map:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 0));
-        nestedPanel.add(mapSelectionBox, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, itemsPadY));
+        nestedPanel.add(new JLabel("Overlay map:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYCategory));
+        nestedPanel.add(mapSelectionBox, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, padYItem));
         mapSelectionBox.setRenderer(new DefaultListCellRenderer() {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 String displayName = "No overlay loaded";
@@ -126,16 +125,16 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         });
 
         // Range Bar
-        nestedPanel.add(new JLabel("Display Range:"), new GridBagConstraints(0, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 5));
+        nestedPanel.add(new JLabel("Display Range:"), new GridBagConstraints(0, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYCategory));
         nestedPanel.add(rangeBar, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, 5));
         rangeBar.addPruningBarListener(e -> handleAlphaModeChanged());
 
 
         // Color Picker + Alpha mode
-        nestedPanel.add(new JLabel("Overlay color:"), new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 5));
-        nestedPanel.add(new JLabel("Transparency mode:"), new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 5));
+        nestedPanel.add(new JLabel("Overlay color:"), new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYCategory));
+        nestedPanel.add(new JLabel("Transparency mode:"), new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYCategory));
 
-        nestedPanel.add(btnColorPicker, new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, itemsPadY));
+        nestedPanel.add(btnColorPicker, new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, padYItem));
         btnColorPicker.addActionListener(e -> changeOverlayColor());
 
         alphaModeComboBox.setRenderer(new DefaultListCellRenderer() {
@@ -151,17 +150,17 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
                 return super.getListCellRendererComponent(list, displayName, index, isSelected, cellHasFocus);
             }
         });
-        nestedPanel.add(alphaModeComboBox, new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, itemsPadY));
+        nestedPanel.add(alphaModeComboBox, new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, padYItem));
         alphaModeComboBox.addItemListener(e -> handleAlphaModeChanged());
 
         // Reset / Save parameters
-        nestedPanel.add(new JLabel("Parameters:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, 5));
-        nestedPanel.add(btnResetProperties, new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, itemsPadY));
+        nestedPanel.add(new JLabel("Parameters:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYCategory));
+        nestedPanel.add(btnResetProperties, new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, padYItem));
         btnResetProperties.addActionListener(e -> handleResetProperties());
-        nestedPanel.add(btnSaveProperties, new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, itemsPadY));
+        nestedPanel.add(btnSaveProperties, new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, padYItem));
         btnSaveProperties.addActionListener(e -> handleSaveProperties());
 
-        nestedPanel.add(btnShowHelp, new GridBagConstraints(0, y, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, itemsPadY));
+        nestedPanel.add(btnShowHelp, new GridBagConstraints(0, y, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, padYItem));
         btnShowHelp.addActionListener(e -> showHelp());
 
         JScrollPane scrollPane = new JScrollPane(nestedPanel);
@@ -194,18 +193,14 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
                     // graphics.fillRect((int) (_vpOffsX / sc), (int) (_vpOffsY / sc), (int) (_vpWidth / sc), (int) (_vpHeight / sc));
 
                     if (null != overlay) {
-                        double associatedImagePixelSize = iFrame.recognitionFrame.getMuMeterPerPixel();
-                        if (0.0 == associatedImagePixelSize) {
-                            associatedImagePixelSize = MU_METER_PER_PIXEL_40X;
-                        }
                         // The level of an overlay map can be different from the level of the underlying image (and usually is)
                         // From the pixel size of the overlay map at the full resolution, we calculate the optimal pyramid level to use
-                        int closestLevel = (int) Math.floor(Math.log(associatedImagePixelSize / overlay.getPixelSize() / sc) / Math.log(2.0d));
+                        int closestLevel = (int) Math.floor(Math.log(1 / overlay.getResizeFactor() / sc) / Math.log(2.0d));
 
                         closestLevel = Math.max(closestLevel, 0);
                         closestLevel = Math.min(closestLevel, overlay.getNumberOfLevels() - 1);
 
-                        double levelFactor = Math.pow(2.0, closestLevel) * overlay.getPixelSize() / associatedImagePixelSize;
+                        double levelFactor = Math.pow(2.0, closestLevel) * overlay.getResizeFactor();
 
                         int xAnchor = (int) Math.max(_vpOffsX / sc, 0);
                         int yAnchor = (int) Math.max(_vpOffsY / sc, 0);
@@ -225,8 +220,12 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
 
                             // Scale up the read image to remap on the reference grid at 100% zoom
                             AffineTransform mapTransform = AffineTransform.getTranslateInstance(xAnchor, yAnchor);
+                            // Scale after the translation to get the right anchor
                             mapTransform.scale(levelFactor, levelFactor);
 
+                            // Draw with an additional transform instead of changing it with graphics.setTransform()
+                            // It has not been tested if only one scaling is done at the rendering or if this implementation
+                            // creates two renderings.
                             graphics.drawImage(rgbaOverlay, mapTransform, null);
                         }
                     } else {
@@ -308,11 +307,7 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
     }
 
     protected ImageFrame getCurrentFrame() {
-        ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-        if (null == iFrame) {
-            logger.error("Could find an opened image to load an overlay");
-        }
-        return iFrame;
+        return OrbitImageAnalysis.getInstance().getIFrame();
     }
 
     protected LocalOverlay getCurrentOverlay() {
@@ -329,8 +324,8 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         refresh();
     }
 
-    protected void handleNewPixelSize() {
-        getCurrentOverlay().setPixelSize((Double) spinPixelSize.getValue());
+    protected void handleNewResizeFactor() {
+        getCurrentOverlay().setResizeFactor((Double) spinResizeFactor.getValue());
         refresh();
     }
 
@@ -361,10 +356,19 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         LocalOverlay currentOverlay = getCurrentOverlay();
         if (null != currentOverlay) {
             rangeBar.setLowAndHigh(currentOverlay.getDisplayRangeMin(), currentOverlay.getDisplayRangeMax(), true);
-            spinPixelSize.setValue(currentOverlay.getPixelSize());
+            spinResizeFactor.setValue(currentOverlay.getResizeFactor());
             alphaModeComboBox.setSelectedItem(alphaModeEnum.valueOf(currentOverlay.getAlphaMode()));
             updateMapSelection();
         }
+    }
+
+    public void resetGUI(){
+        rangeBar.setLowAndHigh(0.0, 1.0, true);
+        spinResizeFactor.setValue(1.0);
+        alphaModeComboBox.setSelectedItem(alphaModeEnum.SATURATION_AFTER_MAX);
+        mapSelectionBox.removeItemListener(mapSelectionListener);
+        mapSelectionBox.removeAllItems();
+        mapSelectionBox.addItemListener(mapSelectionListener);
     }
 
     protected void updateMapSelection() {
