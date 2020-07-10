@@ -30,12 +30,14 @@ public class HueColorChooser extends JDialog implements ChangeListener {
 
     private float[] hsb = new float[3];   // For holding HSB color components.
     private JSlider hueSlider;
+    private JCheckBox grayScaleCb = new JCheckBox("Grayscale (e.g. phase contrast)",false);
     private JLabel hueLabel, wavelengthLabel;
     private JPanel colorCanvas;  // Color patch for displaying the color.
     private JButton btnOk = new JButton("ok");
     private JButton btnCancel = new JButton("cancel");
 
     private float selectedHue = 0f;
+    private float oldHue = 0f;
     private int returnValue = JOptionPane.CANCEL_OPTION;
 
     public HueColorChooser(float initialHue) {
@@ -45,19 +47,37 @@ public class HueColorChooser extends JDialog implements ChangeListener {
         setResizable(false);
         setModal(true);
 
+
         selectedHue = initialHue;
         hsb[0] = initialHue;
         hsb[1] = 1f;
         hsb[2] = 1f;
-        hueSlider = new JSlider(0,255,(int)(255*hsb[0]));
+        hueSlider = new JSlider(0,255,(int)(255*(hsb[0]<=1f?hsb[0]:oldHue)));
         hueLabel = new JLabel(String.format(" Hue = %1.5f", hsb[0]));
         wavelengthLabel = new JLabel(String.format(" Wavelength = %1.5f", hsb[1]));
         hueSlider.addChangeListener(this);
+        grayScaleCb.setSelected(initialHue>1);
+        hueSlider.setEnabled(!grayScaleCb.isSelected());
 
+        float saturation = hsb[0]>1 ? 0 : hsb[1];
         colorCanvas = new JPanel();
-        colorCanvas.setBackground(Color.getHSBColor(hsb[0],hsb[1],hsb[2]));
+        colorCanvas.setBackground(Color.getHSBColor(hsb[0],saturation,hsb[2]));
         colorCanvas.setPreferredSize(new Dimension(200,200));
         colorCanvas.setOpaque(true);
+
+        grayScaleCb.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (grayScaleCb.isSelected()) {
+                    oldHue = hsb[0];
+                    hsb[0] = 2f; // can be anything > 1
+                } else {
+                    hsb[0] = oldHue;
+                }
+                hueSlider.setEnabled(hsb[0]<=1);
+                stateChanged(null);
+            }
+        });
 
         btnCancel.addActionListener(new ActionListener() {
             @Override
@@ -80,9 +100,10 @@ public class HueColorChooser extends JDialog implements ChangeListener {
         setLayout(new BorderLayout());
         add(colorCanvas,BorderLayout.WEST);
 
-        JPanel centerPanel = new JPanel(new GridLayout(3,1));
+        JPanel centerPanel = new JPanel(new GridLayout(4,1));
         centerPanel.add(hueLabel);
         centerPanel.add(hueSlider);
+        centerPanel.add(grayScaleCb);
 
         JPanel btnPanel = new JPanel(new FlowLayout());
         btnPanel.add(btnOk);
@@ -102,17 +123,19 @@ public class HueColorChooser extends JDialog implements ChangeListener {
 
 
     public void stateChanged(ChangeEvent evt) {
-        JSlider source = (JSlider)evt.getSource();
-        if ( ! source.getValueIsAdjusting() ) {
-            return;
-        }
+        JSlider source = hueSlider;
+//        if ( ! source.getValueIsAdjusting() ) {
+//            return;
+//        }
         hsb[0] = hueSlider.getValue()/255.0F;
+        if (grayScaleCb.isSelected()) hsb[0] = 2f;
         hsb[1] = 1f;
         hsb[2] = 1f;
         selectedHue = hsb[0];
         hueLabel.setText(String.format(" Hue = %1.5f", hsb[0]));
         wavelengthLabel.setText(String.format(" Wavelength = %1.5f", hue2nm(hsb[0])));
-        colorCanvas.setBackground(Color.getHSBColor(hsb[0],hsb[1],hsb[2]));
+        float saturation = hsb[0]>1 ? 0 : hsb[1];
+        colorCanvas.setBackground(Color.getHSBColor(hsb[0],saturation,hsb[2]));
         colorCanvas.repaint();  
     }
 

@@ -194,8 +194,8 @@ configurations {
 
 dependencies {
     implementation 'com.actelion.research:lib-orbit-common:1.2.12'
-    implementation ('com.actelion.research:image-provider-omero:1.7.2') {
-        because('Version 1.7.1 supports Omero 5.6.x')
+    implementation ('com.actelion.research:image-provider-omero:1.7.3') {
+        because('Version 1.7.3 supports Omero 5.6.x with Websockets')
 //        exclude (group:'com.amazonaws', module: 'aws-java-sdk-core')
 //        exclude (group:'com.amazonaws', module: 'aws-java-sdk-s3')
 //        exclude (group:'com.amazonaws', module: 'aws-java-sdk-kms')
@@ -287,12 +287,14 @@ dependencies {
  * parameters like inputDirectory were initialized at the wrong time.
  */
 task generateIcons {
-    ignite {
-        inputDirectory = file('src/main/resources/resource/svg')
-        outputDirectory = file('src/main/java/com/actelion/research/orbit/imageAnalysis/components/icons')
-        outputLanguage = 'java'
-        outputPackageName = 'com.actelion.research.orbit.imageAnalysis.components.icons'
-        useResizableTemplate = true
-        transcode()
+    doLast {
+        ignite {
+            inputDirectory = file('src/main/resources/resource/svg')
+            outputDirectory = file('src/main/java/com/actelion/research/orbit/imageAnalysis/components/icons')
+            outputLanguage = 'java'
+            outputPackageName = 'com.actelion.research.orbit.imageAnalysis.components.icons'
+            useResizableTemplate = true
+            transcode()
+        }
     }
 }

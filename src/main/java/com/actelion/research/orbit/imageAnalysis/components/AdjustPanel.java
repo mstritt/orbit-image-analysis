@@ -571,7 +571,8 @@ public class AdjustPanel extends JPanel {
                                     final int channelNr = c;
                                     final String channelName = oim.getChannelNames()[c];
                                     final float hue = ChannelToHue.getHue(channelName);
-                                    final Color channelColor = Color.getHSBColor(hue,1f,1f);
+                                    float saturation = hue>1? 0f : 1f;
+                                    final Color channelColor = Color.getHSBColor(hue,saturation,1f);
                                     final DoubleClickSlider slider = new DoubleClickSlider(0,200, 100, true);
                                     if (oim.getChannelContributions()!=null) {
                                         slider.setValue((int)(oim.getChannelContributions()[c]/multiplier)); // restore values
@@ -603,7 +604,8 @@ public class AdjustPanel extends JPanel {
                                                 HueColorChooser hcc = new HueColorChooser(hue);
                                                 hcc.setVisible(true);
                                                 if (hcc.getReturnValue() == JOptionPane.OK_OPTION) {
-                                                    colorPicker.setColor(Color.getHSBColor(hcc.getSelectedHue(),1f,1f));
+                                                    float saturation = hcc.getSelectedHue()>1? 0f : 1f;
+                                                    colorPicker.setColor(Color.getHSBColor(hcc.getSelectedHue(),saturation,1f));
                                                     colorPicker.repaint();
                                                     ChannelToHue.userHueMap.put(channelName.toLowerCase(), hcc.getSelectedHue());
                                                     ChannelToHue.hueMap.put(channelName.toLowerCase(), hcc.getSelectedHue());
