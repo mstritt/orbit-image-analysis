@@ -57,10 +57,10 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
     private final JButton btnLoadOverlay = new JButton("Load");
     private final JButton btnLoadDiskOverlay = new JButton("Load from disk");
     private final JButton btnShowHelp = new JButton("Help");
-    private final SpinnerNumberModel spinResizeFactorModel = new SpinnerNumberModel(0.0, 0.0, 1e6, 1.0);
-    private final JSpinner spinResizeFactor = new JSpinner(spinResizeFactorModel);
     private final JComboBox<LocalOverlay> mapSelectionBox = new JComboBox<>();
     private final ItemListener mapSelectionListener = e -> handleNewMapSelection();
+    private final SpinnerNumberModel spinResizeFactorModel = new SpinnerNumberModel(0.0, 0.0, 1e6, 1.0);
+    private final JSpinner spinResizeFactor = new JSpinner(spinResizeFactorModel);
     private final JButton btnColorPicker = new JButton("Pick overlay color");
     private final RangeBar rangeBar = new RangeBar(0.0f, 1.0f);
     private final JComboBox<alphaModeEnum> alphaModeComboBox = new JComboBox<>(alphaModeEnum.values());
@@ -106,11 +106,6 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         nestedPanel.add(btnLoadDiskOverlay, new GridBagConstraints(1, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYItem));
         btnLoadDiskOverlay.addActionListener(e -> selectOverlayFile());
 
-        // Resize factor spin box
-        nestedPanel.add(new JLabel("Resize factor:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYCategory));
-        nestedPanel.add(spinResizeFactor, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHEAST, GridBagConstraints.HORIZONTAL, insetsItem, 0, padYItem));
-        spinResizeFactor.addChangeListener(e -> handleNewResizeFactor());
-
         // Map Selection
         nestedPanel.add(new JLabel("Overlay map:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYCategory));
         nestedPanel.add(mapSelectionBox, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, padYItem));
@@ -123,6 +118,11 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
                 return super.getListCellRendererComponent(list, displayName, index, isSelected, cellHasFocus);
             }
         });
+
+        // Resize factor spin box
+        nestedPanel.add(new JLabel("Resize factor:"), new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYCategory));
+        nestedPanel.add(spinResizeFactor, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHEAST, GridBagConstraints.HORIZONTAL, insetsItem, 0, padYItem));
+        spinResizeFactor.addChangeListener(e -> handleNewResizeFactor());
 
         // Range Bar
         nestedPanel.add(new JLabel("Display Range:"), new GridBagConstraints(0, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYCategory));
@@ -297,9 +297,34 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
         String color = OrbitUtils.DARKUI ? " color=white" : "";
         String h = "<html><body" + color + ">" +
-                "<h1>Anomaly Detection Module</h1>" +
+                "<h1>Image Overlay Module</h1>" +
+                "<h2>Loading an overlay</h2>" +
                 "<ul>" +
-                "<li></li>" +
+                    "<li><b>Load:</b> This option looks for available overlays on the disk with a file pattern as FileName*overlay*.tif. </li>" +
+                    "<li><b>Load from disk:</b> Manually select the file to overlay. </li>" +
+                    "<li><b>Overlay map:</b> Select the overlay among the open ones. </li>" +
+                    "<p>When the image is loaded, it is automatically displayed over the RGB image. <br>" +
+                    "The file name appears in the combo box below to select which map to display. <br>" +
+                    "Only pyramidal tiff files can be used as overlay. <br>" +
+                    "If the image is a RGB image, only the red channel is used as a single channel image.</p>" +
+                "</ul>" +
+                "<h2>Display parameters: </h2>" +
+                "<ul>" +
+                    "<li><b>Resize factor:</b> The overlay might not be at the same size than the slide underneath. <br>" +
+                    "This factor can be used to restore the proper pixel size. </li>" +
+                    "<li><b>Display range:</b> This range allows to select the pixels to display in the overlay based on their value. " +
+                    "At the lowest bound, the pixels are transparent and at the higher bound, the pixels are completely opaque and colored. </li>" +
+                    "<li><b>Overlay color:</b> Allows to select the color at the higher bound. </li>" +
+                    "<li><b>Transparency mode:</b> depending on the settings, the rendering is different." +
+                    "<ul>" +
+                    "<li><b>Saturate after max:</b> The values that are out of range are saturated and displayed with a fully opaque color." +
+                    "<li><b>Exclude after max:</b> The values that are out of range are transparent to exclude too high values from display." +
+                    "<li><b>Opaque:</b> The overlay is opaque, low values are displayed in black. " +
+                    "In such case, the slider below the image should be used to blend the overlay with the image.</li></ul>" +
+                "</ul>" +
+                "<h2>Shortcuts</h2>" +
+                "<ul>" +
+                    "<li><b>F5:</b> Use F5 to Show and Hide the overlay.</li>" +
                 "</ul>" +
                 "</p>" +
                 "</body></html>";
