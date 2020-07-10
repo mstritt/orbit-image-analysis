@@ -25,6 +25,14 @@ import com.actelion.research.orbit.gui.DoubleTextField;
 import com.actelion.research.orbit.gui.IntInputVerifier;
 import com.actelion.research.orbit.gui.IntegerTextField;
 import com.actelion.research.orbit.imageAnalysis.components.legacy.JComboCheckBox;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractDetection;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractDetections;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegment;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegmentationSettings;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101Segment;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101SegmentationSettings;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegment;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
 import com.actelion.research.orbit.imageAnalysis.models.FeatureDescription;
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
@@ -32,17 +40,19 @@ import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import imageJ.Colour_Deconvolution;
+import org.pushingpixels.substance.api.SubstanceCortex;
+import org.pushingpixels.substance.api.skin.GraphiteGlassSkin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -63,7 +73,7 @@ public class FeaturesAdminFrame extends JDialog {
     private JTextField tfFixedROI = null;
     private JTextField tfROIX = null;
     private JTextField tfROIY = null;
-    private JComboBox cbAnnotationROI = null;
+    private JComboBox<? extends AnnotationGroupLabel> cbAnnotationROI = null;
     private JCheckBox cbRed = null;
     private JCheckBox cbGreen = null;
     private JCheckBox cbBlue = null;
@@ -78,7 +88,7 @@ public class FeaturesAdminFrame extends JDialog {
     private final JRadioButton deconvChannel1 = new JRadioButton("Stain 1", false);
     private final JRadioButton deconvChannel2 = new JRadioButton("Stain 2", false);
     private final JRadioButton deconvChannel3 = new JRadioButton("Comp", false);
-    private JComboBox cbDeconvName = null;
+    private JComboBox<? extends String> cbDeconvName = null;
 
     private JCheckBox cbMFS = null;
     private IntegerTextField tfMFSAlpha = null;
@@ -171,7 +181,7 @@ public class FeaturesAdminFrame extends JDialog {
         panelClassification.add(panel);
 
 
-        cbDeconvName = new JComboBox(Colour_Deconvolution.stainings);
+        cbDeconvName = new JComboBox<>(Colour_Deconvolution.stainings);
         cbDeconvName.setSelectedIndex(0);
         if (featureDescription.getDeconvName() != null && featureDescription.getDeconvName().length() > 0 && (!featureDescription.getDeconvName().equals(Colour_Deconvolution.DECONV_NONE)))
             setDeconvName(featureDescription.getDeconvName());
@@ -487,11 +497,11 @@ public class FeaturesAdminFrame extends JDialog {
         tfDeepLearningModelPath.setToolTipText("can be a full path to a model file or a URL");
         tfDeepLearningModelPath.setHorizontalAlignment(JTextField.LEFT);
         pathPanel.add(tfDeepLearningModelPath);
-        lab = new JLabel("Settings");
-        panel.add(lab);
-        JPanel dlSettings = new JPanel(new FlowLayout());
-        JTextField txt = new JTextField(featureDescription.getdLSegment().toString(),30);
-        dlSettings.add(txt);
+
+        //JPanel dlSettings = new JPanel(new FlowLayout());
+
+//        ArrayList<AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>,? extends AbstractSegmentationSettings>>
+//                dLSegmentMethods = new ArrayList<>();
 
 
         final JButton fileSelectBtn = new JButton("browse");
@@ -519,6 +529,41 @@ public class FeaturesAdminFrame extends JDialog {
         pathPanel.add(fileSelectBtn);
 
         panel.add(pathPanel);
+
+        lab = new JLabel("Predefined Model");
+        panel.add(lab);
+        MaskRCNNSegment nuclei = new MaskRCNNSegment(new File("D:/deeplearning/deepretina/deepretina_final.pb"),
+                MaskRCNNSegment.PostProcessMethod.STANDARD,
+                new MaskRCNNSegmentationSettings("Nuclei", 512, 512,
+                        0.5f, 512, 28, 28, 2,
+                        "NucleiS", false));
+        MaskRCNNSegment insulin = new MaskRCNNSegment(new File("D:/deeplearning/insulin/models/insulin_009.pb"),
+                MaskRCNNSegment.PostProcessMethod.STANDARD,
+                new MaskRCNNSegmentationSettings("Pancreas Islets", 512, 512,
+                        16f, 10, 56, 56, 5,
+                        "IsletC", true));
+        DLR101Segment glomeruli = new DLR101Segment(new File("D:/deeplearning/glomeruli/glomeruli-410k.pb"),
+                new DLR101SegmentationSettings("Glomeruli", 512, 512,
+                        2, "Glomeruli", true));
+        // Since this is a two-step method it needs a different approach...
+        //MaskRCNNSegment corpus_callosum = new MaskRCNNSegment(new File("D:/deeplearning/insulin/models/insulin_009.pb"), MaskRCNNSegment.PostProcessMethod.STANDARD);
+
+//        dLSegmentMethods.add(nuclei);
+//        dLSegmentMethods.add(insulin);
+//        dLSegmentMethods.add(glomeruli);
+
+        AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>,? extends AbstractSegmentationSettings>[] dLSegmentArray = new AbstractSegment[]{nuclei, insulin, glomeruli};
+        DLSegmentModelComboBoxModel dlSegmentMethodsModel =
+                new DLSegmentModelComboBoxModel(dLSegmentArray);
+
+        JComboBox<AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>,? extends AbstractSegmentationSettings>>
+                dLMethodComboBox = new JComboBox<>(dlSegmentMethodsModel);
+
+        panel.add(dLMethodComboBox);
+
+
+        featureDescription.setDLSegment(dLSegmentArray[0]);
+
         setCompBounds(panel, frameWidth - 50);
         panelDeepLearning.add(panel);
 
@@ -534,7 +579,7 @@ public class FeaturesAdminFrame extends JDialog {
         annotationGroups.add(new AnnotationGroupLabel(0, "All Groups"));
         for (int g = 1; g < (OrbitUtils.ANNOTATION_GROUPS + 1); g++)
             annotationGroups.add(new AnnotationGroupLabel(g, "Group " + g));
-        cbAnnotationROI = new JComboBox(annotationGroups.toArray(new AnnotationGroupLabel[0]));
+        cbAnnotationROI = new JComboBox<>(annotationGroups.toArray(new AnnotationGroupLabel[0]));
         cbAnnotationROI.setSelectedIndex(0);
         int groupIdx = OrbitImageAnalysis.getInstance().getModel().getAnnotationGroup() + 1; // +1 because 'ignore' is -1
         if (cbAnnotationROI.getItemCount() > groupIdx)
@@ -915,6 +960,24 @@ public class FeaturesAdminFrame extends JDialog {
         this.dispose();
     }
 
+    /**
+     * Used to quickly test the frame layout.
+     * @param args No args are required.
+     */
+    public static void main(String... args) {
+
+        SwingUtilities.invokeLater(() -> {
+            JDialog.setDefaultLookAndFeelDecorated(true);
+            SubstanceCortex.GlobalScope.setSkin(new GraphiteGlassSkin());
+            OrbitModel model = new OrbitModel();
+            FeaturesAdminFrame fAFrame = new FeaturesAdminFrame(model.getFeatureDescription(), 0);
+            //fAFrame.pack();
+            fAFrame.setAlwaysOnTop(true);
+            fAFrame.setVisible(true);
+            fAFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        });
+    }
+
     public static class AnnotationGroupLabel implements Serializable {
         private static final long serialVersionUID = 1L;
         private int num;
@@ -947,4 +1010,15 @@ public class FeaturesAdminFrame extends JDialog {
         }
     }
 
+    static class DLSegmentModelComboBoxModel extends DefaultComboBoxModel<AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>, ? extends AbstractSegmentationSettings>> {
+        public DLSegmentModelComboBoxModel(AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>, ? extends AbstractSegmentationSettings>[] items) {
+            super(items);
+        }
+
+        @Override
+        public AbstractSegment<?, ?> getSelectedItem() {
+
+            return (AbstractSegment<?,?>) super.getSelectedItem();
+        }
+    }
 }

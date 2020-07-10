@@ -65,7 +65,7 @@ public class TestCorpusCallosumSegment extends OrbitTestOS {
 
 
         // Setup the brain detector.
-        MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings(brainImgDims.x, brainImgDims.y,
+        MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings("Brain", brainImgDims.x, brainImgDims.y,
                 1f, 1, 28, 28, 2, "Brain", false);
 
         MaskRCNNSegment brainModel = new MaskRCNNSegment(maskRCNNBrainModel, MaskRCNNSegment.PostProcessMethod.CUSTOM, brainSettings);
@@ -106,7 +106,7 @@ public class TestCorpusCallosumSegment extends OrbitTestOS {
         float brainScaleY = (float) brainBBPadded.height / (float) ccImgDims.y;
 
         // Settings for Corpus Callosum detection.
-        MaskRCNNSegmentationSettings corpusCallosumSettings = new MaskRCNNSegmentationSettings(ccImgDims.x, ccImgDims.y,
+        MaskRCNNSegmentationSettings corpusCallosumSettings = new MaskRCNNSegmentationSettings("Corpus Callosum", ccImgDims.x, ccImgDims.y,
                 brainScaleX, brainScaleY, 1, 56, 56, 2, "Corpus_Callosum", false);
 
         // Setup the Corpus Callosum segmentation model.

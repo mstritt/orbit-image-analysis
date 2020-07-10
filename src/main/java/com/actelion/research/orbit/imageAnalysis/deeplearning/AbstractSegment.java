@@ -23,11 +23,12 @@ import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
 // TODO: Consider moving boilerplate to interface using default implementation functionality.
-public abstract class AbstractSegment<D extends AbstractDetections<? extends AbstractDetection>,S extends AbstractSegmentationSettings> implements IDLSegment<D, S> {
+public abstract class AbstractSegment<D extends AbstractDetections<? extends AbstractDetection>,S extends AbstractSegmentationSettings> implements IDLSegment<D, S>, Serializable {
 
     protected static Logger logger = LoggerFactory.getLogger(AbstractSegment.class);
     protected final S segmentationSettings;

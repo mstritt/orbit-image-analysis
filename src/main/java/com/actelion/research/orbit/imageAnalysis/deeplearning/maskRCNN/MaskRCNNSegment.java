@@ -43,8 +43,9 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
     /**
      * MaskRCNNSegment object constructor with default segmentation settings.
      */
+    @Deprecated
     public MaskRCNNSegment(File maskRCNNModelPB, PostProcessMethod ppm) {
-        this(maskRCNNModelPB, ppm, new MaskRCNNSegmentationSettings(512,512, 16.0f,10,56,56,5, "Default_", true));
+        this(maskRCNNModelPB, ppm, new MaskRCNNSegmentationSettings("Default",512,512, 16.0f,10,56,56,5, "Default_", true));
     }
 
     public MaskRCNNSegment(File maskRCNNModelPB, PostProcessMethod ppm, MaskRCNNSegmentationSettings settings) {
