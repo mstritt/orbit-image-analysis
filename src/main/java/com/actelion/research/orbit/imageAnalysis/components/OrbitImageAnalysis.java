@@ -2353,9 +2353,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 } catch (PropertyVetoException e) {
                     e.printStackTrace();
                 }
-                if (null != anomalyDetectionModule) {
-                    anomalyDetectionModule.resetGUI();
-                }
                 oldFrame.dispose();
             }
 

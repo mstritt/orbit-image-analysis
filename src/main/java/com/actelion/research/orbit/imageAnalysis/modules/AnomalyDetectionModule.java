@@ -96,8 +96,8 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         int y = 0;
 
         Insets insetsCategory = new Insets(5, 0, 0, 5);
-        Insets insetsItem = new Insets(0, 5, 0, 5);
-        int padYCategory = 8;
+        Insets insetsItem = new Insets(5, 5, 0, 5);
+        int padYCategory = 4;
         int padYItem = 4;
 
         // Loading
@@ -311,44 +311,65 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
     }
 
     protected LocalOverlay getCurrentOverlay() {
-        return getCurrentFrame().getLocalOverlay();
+        if (null != getCurrentFrame()) {
+            return getCurrentFrame().getLocalOverlay();
+        } else {
+            return null;
+        }
     }
 
     protected void handleAlphaModeChanged() {
-        getCurrentOverlay().setDisplayRangeMin(rangeBar.getLowValue());
-        getCurrentOverlay().setDisplayRangeMax(rangeBar.getHighValue());
-        Object alphaModeObject = alphaModeComboBox.getSelectedItem();
-        if (null != alphaModeObject) {
-            getCurrentOverlay().setAlphaMode(alphaModeObject.toString());
+        LocalOverlay currentOverlay = getCurrentOverlay();
+        if (null != currentOverlay) {
+            currentOverlay.setDisplayRangeMin(rangeBar.getLowValue());
+            currentOverlay.setDisplayRangeMax(rangeBar.getHighValue());
+            Object alphaModeObject = alphaModeComboBox.getSelectedItem();
+            if (null != alphaModeObject) {
+                currentOverlay.setAlphaMode(alphaModeObject.toString());
+            }
+            refresh();
         }
-        refresh();
     }
 
     protected void handleNewResizeFactor() {
-        getCurrentOverlay().setResizeFactor((Double) spinResizeFactor.getValue());
-        refresh();
+        LocalOverlay currentOverlay = getCurrentOverlay();
+        if (null != currentOverlay) {
+            currentOverlay.setResizeFactor((Double) spinResizeFactor.getValue());
+            refresh();
+        }
     }
 
     protected void handleNewMapSelection() {
-        getCurrentFrame().setLocalOverlay((LocalOverlay) mapSelectionBox.getSelectedItem());
-        updateGUIFromProperties();
-        refresh();
+        LocalOverlay currentOverlay = getCurrentOverlay();
+        if (null != currentOverlay) {
+            getCurrentFrame().setLocalOverlay((LocalOverlay) mapSelectionBox.getSelectedItem());
+            updateGUIFromProperties();
+            refresh();
+        }
     }
 
     protected void handleResetProperties() {
-        getCurrentOverlay().resetProperties();
-        updateGUIFromProperties();
-        refresh();
+        LocalOverlay currentOverlay = getCurrentOverlay();
+        if (null != currentOverlay) {
+            currentOverlay.resetProperties();
+            updateGUIFromProperties();
+            refresh();
+        }
     }
 
     protected void handleSaveProperties() {
-        getCurrentOverlay().saveProperties();
-        updateGUIFromProperties();
-        refresh();
+        LocalOverlay currentOverlay = getCurrentOverlay();
+        if (null != currentOverlay) {
+            currentOverlay.saveProperties();
+            updateGUIFromProperties();
+            refresh();
+        }
     }
 
     protected void refresh() {
-        getCurrentFrame().getRecognitionFrame().repaint();
+        if (null != getCurrentFrame()) {
+            getCurrentFrame().getRecognitionFrame().repaint();
+        }
     }
 
     public void updateGUIFromProperties() {
@@ -359,16 +380,29 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
             spinResizeFactor.setValue(currentOverlay.getResizeFactor());
             alphaModeComboBox.setSelectedItem(alphaModeEnum.valueOf(currentOverlay.getAlphaMode()));
             updateMapSelection();
+
+            rangeBar.setEnabled(true);
+            spinResizeFactor.setEnabled(true);
+            alphaModeComboBox.setEnabled(true);
+            btnSaveProperties.setEnabled(true);
+            btnResetProperties.setEnabled(true);
+            btnColorPicker.setEnabled(true);
+        } else {
+            resetGUI();
+            rangeBar.setEnabled(false);
+            spinResizeFactor.setEnabled(false);
+            alphaModeComboBox.setEnabled(false);
+            btnSaveProperties.setEnabled(false);
+            btnResetProperties.setEnabled(false);
+            btnColorPicker.setEnabled(false);
         }
     }
 
-    public void resetGUI(){
+    public void resetGUI() {
         rangeBar.setLowAndHigh(0.0, 1.0, true);
         spinResizeFactor.setValue(1.0);
         alphaModeComboBox.setSelectedItem(alphaModeEnum.SATURATION_AFTER_MAX);
-        mapSelectionBox.removeItemListener(mapSelectionListener);
         mapSelectionBox.removeAllItems();
-        mapSelectionBox.addItemListener(mapSelectionListener);
     }
 
     protected void updateMapSelection() {
@@ -378,7 +412,10 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
         for (LocalOverlay loadedOverlay : loadedOverlays) {
             mapSelectionBox.addItem(loadedOverlay);
         }
-        mapSelectionBox.setSelectedItem(getCurrentOverlay());
+        LocalOverlay currentOverlay = getCurrentOverlay();
+        if (null != currentOverlay) {
+            mapSelectionBox.setSelectedItem(currentOverlay);
+        }
         mapSelectionBox.addItemListener(mapSelectionListener);
     }
 
@@ -431,8 +468,11 @@ public class AnomalyDetectionModule extends AbstractOrbitRibbonModule {
     }
 
     protected void changeOverlayColor() {
-        ColorChooser colorChooser = new ColorChooser("Overlay color", getCurrentOverlay().getOverlayColor(), true);
-        getCurrentOverlay().setOverlayColor(colorChooser.getColor());
+        LocalOverlay currentOverlay = getCurrentOverlay();
+        if (null != currentOverlay) {
+            ColorChooser colorChooser = new ColorChooser("Overlay color", currentOverlay.getOverlayColor(), true);
+            currentOverlay.setOverlayColor(colorChooser.getColor());
+        }
     }
 
     public static File[] findOverlayFiles(String associatedImageNameStem, File dir) {

@@ -47,8 +47,6 @@ public class LocalOverlay {
         load(overlayPath);
 
         if (overlayMipMaps.size() > 0){
-            System.out.println("associatedImageWidth = " + associatedImageWidth);
-            System.out.println("overlayMipMaps.get(0).getWidth() = " + overlayMipMaps.get(0).getWidth());
             props.setProperty("ResizeFactor", Double.toString(associatedImageWidth / (double) overlayMipMaps.get(0).getWidth()));
         }
     }
