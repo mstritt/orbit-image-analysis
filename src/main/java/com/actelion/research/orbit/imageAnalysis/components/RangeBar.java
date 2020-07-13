@@ -108,8 +108,17 @@ public class RangeBar extends JPanel implements PruningBarListener {
         updateLables();
     }
 
+    public void setLowAndHigh(double min, double max, boolean silent) {
+        pruningBar.setLowAndHigh((float) min, (float) max, silent);
+        updateLables();
+    }
+
     public void setMinAndMax(double min, double max) {
         pruningBar.setMinAndMax((float) min, (float) max);
         updateLables();
+    }
+
+    public void addPruningBarListener(PruningBarListener listener){
+        pruningBar.addPruningBarListener(listener);
     }
 }

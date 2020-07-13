@@ -216,6 +216,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private NerveDetectionModule nerveDetectionModule = null;
     private ManualClassificationModule manualClassificationModule = null;
     private ManualBoxCountModule manualBoxCountModule = null;
+    private ImageOverlayModule imageOverlayModule = null;
     private ThresholdModule thresholdModule = null;
     // TODO: can be removed?
     private MihcModule mihcModule = null;
@@ -847,6 +848,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //        enabledModules.add(getManualClassificationModule());
 //        enabledModules.add(getManualBoxCountModule());
         enabledModules.add(getThresholdModule());
+        enabledModules.add(getImageOverlayModule());
     }
 
     private void zoomIn() {
@@ -2283,6 +2285,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 getIFrame().setTitle(rdf.getFileName());
                 getIFrame().setRdf(rdf);
             });
+            if (null != imageOverlayModule) {
+                imageOverlayModule.resetGUI();
+            }
         } else if (evt.getPropertyName().equals(ImageList.PROPERTY_DISPLAY_META)) {
             final RawDataFile rdf = (RawDataFile) evt.getNewValue();
             SwingUtilities.invokeLater(() -> {
@@ -2332,6 +2337,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             metaBar.loadImageAdjustments(((ImageFrame) evt.getSource()));
             if (nerveDetectionModule != null) {
                 nerveDetectionModule.loadSpots(((ImageFrame) evt.getSource()));
+            }
+            if (null != imageOverlayModule) {
+                imageOverlayModule.updateGUIFromProperties();
             }
 
         } else if (evt.getPropertyName().equals(ImageFrame.IFRAME_CLOSING)) {
@@ -4330,6 +4338,13 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             nerveDetectionModule = new NerveDetectionModule(true);
         }
         return nerveDetectionModule;
+    }
+
+    public ImageOverlayModule getImageOverlayModule() {
+        if (imageOverlayModule == null) {
+            imageOverlayModule = new ImageOverlayModule(true);
+        }
+        return imageOverlayModule;
     }
 
 //    public ManualClassificationModule getManualClassificationModule() {

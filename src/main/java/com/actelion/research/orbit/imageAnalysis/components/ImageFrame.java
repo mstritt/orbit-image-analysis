@@ -24,6 +24,7 @@ import com.actelion.research.orbit.beans.RawMeta;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame.Tools;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
+import com.actelion.research.orbit.imageAnalysis.modules.LocalOverlay;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.ScaleoutMode;
 import com.actelion.research.orbit.imageAnalysis.utils.TiledImagePainter;
@@ -48,6 +49,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -73,6 +75,9 @@ public class ImageFrame extends JInternalFrame implements ComponentListener, Pro
     private int mipLayer = 0;
     private ImageIcon icon = null;
     private boolean channelContributionsLoaded = false;
+
+    private final ArrayList<LocalOverlay> loadedOverlays = new ArrayList<>();
+    private LocalOverlay selectedOverlay;
 
 
     public ImageFrame(Object imageStrOrUrl) throws OrbitImageServletException {
@@ -674,5 +679,33 @@ public class ImageFrame extends JInternalFrame implements ComponentListener, Pro
 
     public void setChannelContributionsLoaded(boolean channelContributionsLoaded) {
         this.channelContributionsLoaded = channelContributionsLoaded;
+    }
+
+    public LocalOverlay getLocalOverlay() {
+        return selectedOverlay;
+    }
+
+    public ArrayList<LocalOverlay> getLoadedOverlays() {
+        return loadedOverlays;
+    }
+
+    public void setLocalOverlay(LocalOverlay overlay) {
+        selectedOverlay = overlay;
+    }
+
+    public void loadOverlay(String overlayPath) {
+        boolean overlayExists = false;
+        for (LocalOverlay localOverlay : loadedOverlays) {
+            if (overlayPath.equals(localOverlay.getFilePath())) {
+                selectedOverlay = localOverlay;
+                overlayExists = true;
+                break;
+            }
+        }
+        if (!overlayExists) {
+            LocalOverlay newOverlay = new LocalOverlay(recognitionFrame.bimg.getWidth(), getRdf().getMd5(), overlayPath);
+            loadedOverlays.add(newOverlay);
+            selectedOverlay = newOverlay;
+        }
     }
 }

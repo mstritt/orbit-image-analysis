@@ -437,6 +437,7 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
             int z = nos[0], t = nos[2];
             int col;
             int[] pix = new int[3];
+            float saturation = 1f;
             for (int c = 0; c < sizeC; c++) {
                 if (isChannelActive(c,channelContributions,analysis)) {
                     int index = reader.get().getIndex(z, c, t);
@@ -475,7 +476,8 @@ public class OrbitImageBioformats implements IOrbitImageMultiChannel {
                             int intens = Math.min(s, 255);
                             pix = raster.getPixel(ix, iy, pix);
 
-                            col = Color.HSBtoRGB(hueMap[c], 1f, intens / 255f);
+                            saturation = hueMap[c]>1f? 0 : 1; // hue > 1 means grayscale, e.g. phase contrast channel
+                            col = Color.HSBtoRGB(hueMap[c], saturation, intens / 255f);
                             pix[0] += (col >> 16) & 0xFF;    // red
                             pix[1] += (col >> 8) & 0xFF;  // green
                             pix[2] += col & 0xFF;    // blue
