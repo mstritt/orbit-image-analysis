@@ -96,6 +96,8 @@ public class FeaturesAdminFrame extends JDialog {
 
     private JCheckBox cbDeepLearning = null;
     private JTextField tfDeepLearningModelPath = null;
+    private DLSegmentModelComboBoxModel dlSegmentMethodsModel = null;
+    private JComboBox<AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>,? extends AbstractSegmentationSettings>> dLMethodComboBox = null;
 
     private JCheckBox cbDisableWatershed = null;
     private JCheckBox cbDoCombineCrossTiles = null;
@@ -553,16 +555,13 @@ public class FeaturesAdminFrame extends JDialog {
 //        dLSegmentMethods.add(glomeruli);
 
         AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>,? extends AbstractSegmentationSettings>[] dLSegmentArray = new AbstractSegment[]{nuclei, insulin, glomeruli};
-        DLSegmentModelComboBoxModel dlSegmentMethodsModel =
+        dlSegmentMethodsModel =
                 new DLSegmentModelComboBoxModel(dLSegmentArray);
 
-        JComboBox<AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>,? extends AbstractSegmentationSettings>>
-                dLMethodComboBox = new JComboBox<>(dlSegmentMethodsModel);
+        dLMethodComboBox = new JComboBox<>(dlSegmentMethodsModel);
 
         panel.add(dLMethodComboBox);
 
-
-        featureDescription.setDLSegment(dLSegmentArray[0]);
 
         setCompBounds(panel, frameWidth - 50);
         panelDeepLearning.add(panel);
@@ -754,6 +753,8 @@ public class FeaturesAdminFrame extends JDialog {
 
         cbDeepLearning.setSelected(featureDescription.isDeepLearningSegmentation());
         tfDeepLearningModelPath.setText(featureDescription.getDeepLearningModelPath());
+        // TODO: Figure out what to do here...
+        //dLMethodComboBox.setModel(featureDescription.getDLSegment());
 
         // roi
 
@@ -949,6 +950,10 @@ public class FeaturesAdminFrame extends JDialog {
 
         featureDescription.setDeepLearningSegmentation(cbDeepLearning.isSelected());
         featureDescription.setDeepLearningModelPath(tfDeepLearningModelPath.getText());
+
+        // v3 features
+        // TODO... Check this.
+        featureDescription.setDLSegment(dlSegmentMethodsModel.getSelectedItem());
 
         // fluo channels
         String[] activeFluoChannels = cbFluoChannels.getCheckedItems();
