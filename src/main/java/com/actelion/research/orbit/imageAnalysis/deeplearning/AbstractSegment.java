@@ -7,7 +7,6 @@ import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101Detections;
 import com.actelion.research.orbit.imageAnalysis.imaging.TileSizeWrapper;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
@@ -24,11 +23,12 @@ import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
 // TODO: Consider moving boilerplate to interface using default implementation functionality.
-public abstract class AbstractSegment<D extends AbstractDetections<? extends AbstractDetection>,S extends AbstractSegmentationSettings<S>> implements IDLSegment<D, S> {
+public abstract class AbstractSegment<D extends AbstractDetections<? extends AbstractDetection>,S extends AbstractSegmentationSettings> implements IDLSegment<D, S>, Serializable {
 
     protected static Logger logger = LoggerFactory.getLogger(AbstractSegment.class);
     protected final S segmentationSettings;
@@ -522,9 +522,24 @@ public abstract class AbstractSegment<D extends AbstractDetections<? extends Abs
         return combined;
     }
 
+    /**
+     * Shrink an image from the input size to the size used for training the Deep Learning model.
+     * @param bi The image to shrink.
+     * @param settings The settings containing the size to shrink to.
+     * @return The shrunk image.
+     */
+    public static BufferedImage shrink(BufferedImage bi, AbstractSegmentationSettings settings) {
+        BufferedImage bi2 = new BufferedImage(settings.getImageWidth(), settings.getImageHeight(),BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = (Graphics2D) bi2.getGraphics();
+        g.drawImage(bi,0,0,settings.getImageWidth(),settings.getImageHeight(),null);
+        g.dispose();
+        return bi2;
+    }
+
     @Override
     public abstract D processDetections(SegmentationResult segRes, Point tileOffset);
 
-//    @Override
-//    public abstract D processDetections(Point tileOffset);
+    public String toString() {
+        return segmentationSettings.toString();
+    }
 }

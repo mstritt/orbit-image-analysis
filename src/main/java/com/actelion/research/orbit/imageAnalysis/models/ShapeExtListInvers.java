@@ -19,7 +19,7 @@
 
 package com.actelion.research.orbit.imageAnalysis.models;
 
-import com.freedomotic.util.SerialClone.SerialClone;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -190,7 +190,7 @@ public class ShapeExtListInvers implements IScaleableShape {
 
     @Override
     public ShapeExtListInvers clone() {
-        return SerialClone.clone(this);
+        return SerializationUtils.clone(this);
     }
 
     @Override

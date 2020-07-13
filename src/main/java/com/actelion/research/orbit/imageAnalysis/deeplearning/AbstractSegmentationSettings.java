@@ -2,7 +2,9 @@ package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
 import java.awt.*;
 
-public abstract class AbstractSegmentationSettings<S> {
+public abstract class AbstractSegmentationSettings {
+
+    private String modelName;
 
     private final int imageWidth;
     private final int imageHeight;
@@ -30,7 +32,8 @@ public abstract class AbstractSegmentationSettings<S> {
      * @param segmentationRefinement Whether or not to refine the segmentation result. e.g. to mitigate for tile boundary
      *                               effects.
      */
-    public AbstractSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, String annotationPrefix, boolean segmentationRefinement, double detectionToleranceScale) {
+    public AbstractSegmentationSettings(String modelName, int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, String annotationPrefix, boolean segmentationRefinement, double detectionToleranceScale) {
+        this.modelName = modelName;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.trainingImageTileWidth = (int) (imageWidth * tileScaleFactorX);
@@ -149,5 +152,10 @@ public abstract class AbstractSegmentationSettings<S> {
         public int getScaleFactor() {
             return 2;
         }
+    }
+
+    @Override
+    public String toString() {
+        return this.modelName;
     }
 }

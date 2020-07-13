@@ -31,7 +31,7 @@ import com.actelion.research.orbit.imageAnalysis.segmenter.SegmentedImage;
 import com.actelion.research.orbit.imageAnalysis.segmenter.SegmenterFacade;
 import com.actelion.research.orbit.imageAnalysis.utils.*;
 import com.actelion.research.orbit.utils.StdStats;
-import com.freedomotic.util.SerialClone.SerialClone;
+import org.apache.commons.lang3.SerializationUtils;
 import ij.ImagePlus;
 import ij.plugin.filter.EDM;
 import ij.process.AutoThresholder;
@@ -114,7 +114,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         this.rdf = rdf;
         if (classShapeToSet != null) {
             if (rf.getClassShapes() != null)
-                oldClassShapes = SerialClone.clone(rf.getClassShapes()); // remember original classShales workaround (dirty fix...). Must be cloned because rf.setClassShapes will clear() and addAll() (next line).
+                oldClassShapes = SerializationUtils.clone((ArrayList) rf.getClassShapes()); // remember original classShapes workaround (dirty fix...). Must be cloned because rf.setClassShapes will clear() and addAll() (next line).
             this.rf.setClassShapes(classShapeToSet);
             logger.debug("old classShapes saved");
         } else {

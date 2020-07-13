@@ -20,7 +20,7 @@
 package com.actelion.research.orbit.imageAnalysis.models;
 
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
-import com.freedomotic.util.SerialClone.SerialClone;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -99,7 +99,7 @@ public class Arc2DExt extends Arc2DFixed.Double implements IScaleableShape {
 
     @Override
     public Arc2DExt clone() {
-        return SerialClone.clone(this);
+        return SerializationUtils.clone(this);
     }
 
     @Override

@@ -373,7 +373,7 @@ public class DLHelpers {
      * @param settings The settings containing the size to shrink to.
      * @return The shrunk image.
      */
-    public static <T> BufferedImage shrink(BufferedImage bi, AbstractSegmentationSettings<T> settings) {
+    public static BufferedImage shrink(BufferedImage bi, AbstractSegmentationSettings settings) {
         BufferedImage bi2 = new BufferedImage(settings.getImageWidth(), settings.getImageHeight(),BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) bi2.getGraphics();
         g.drawImage(bi,0,0,settings.getImageWidth(),settings.getImageHeight(),null);

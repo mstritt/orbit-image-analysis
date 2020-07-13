@@ -19,6 +19,11 @@
 
 package com.actelion.research.orbit.imageAnalysis.models;
 
+import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractDetection;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractDetections;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegment;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegmentationSettings;
+import org.apache.commons.lang3.SerializationUtils;
 import imageJ.Colour_Deconvolution;
 
 import java.io.Serializable;
@@ -34,7 +39,7 @@ public class FeatureDescription implements Serializable, Cloneable {
     public static final int FEATURE_SET_PIX_MEAN_MIN_MAX_SD_EDGE = 1;
     public static final int FEATURE_SET_INTENS = 2;
     public static final int FEATURE_SET_DEFAULT = FEATURE_SET_PIX_MEAN_MIN_MAX_SD_EDGE;
-    private int featureVersion = 2; // if not set (=0) TissueFeaturesOld will be used for backward compatibility
+    private int featureVersion = 3; // if not set (=0) TissueFeaturesOld will be used for backward compatibility
     private int windowSize = 4;
     private int sampleSize = 3; // number of color channels. Default is 3 for RGB, but can be 1 for grey-color.
     private boolean contextClassificationEnabled = false;
@@ -72,6 +77,7 @@ public class FeatureDescription implements Serializable, Cloneable {
     private Map<String,Float> hueMap = null;
     private boolean deepLearningSegmentation = false;
     private String deepLearningModelPath = null;
+    private AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>, ? extends AbstractSegmentationSettings> dLSegment = null;
 
     // MIHC
     private boolean mihcActive = false;
@@ -417,6 +423,14 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.deepLearningModelPath = deepLearningModelPath;
     }
 
+    public AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>, ? extends AbstractSegmentationSettings> getDLSegment() {
+        return dLSegment;
+    }
+
+    public void setDLSegment(AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>, ? extends AbstractSegmentationSettings> dLSegment) {
+        this.dLSegment = dLSegment;
+    }
+
     public Map<String, Float> getHueMap() {
         return hueMap;
     }
@@ -469,6 +483,8 @@ public class FeatureDescription implements Serializable, Cloneable {
             copy.setMihcNormalGain(mihcNormalGain==null? null : Arrays.copyOf(mihcNormalGain,mihcNormalGain.length));
             copy.setMihcMatrixChannelNames(mihcMatrixChannelNames==null? null : Arrays.copyOf(mihcMatrixChannelNames,mihcMatrixChannelNames.length));
             copy.setMihcMatrix(deepCopy(mihcMatrix));
+            copy.setDLSegment(SerializationUtils.clone(this.getDLSegment()));
+
             return copy;
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
@@ -536,6 +552,7 @@ public class FeatureDescription implements Serializable, Cloneable {
                 ", mumfordShahCellSize="+mumfordShahCellSize +
                 ", deepLearningSegmentation="+deepLearningSegmentation +
                 ", deepLearningSegmentationModelPath="+deepLearningModelPath +
+                ", deepLearningSegmentation="+dLSegment.toString() +
                 ", hueMap="+getHueMapString() +
                 ", mihcActive="+mihcActive+
                 '}';

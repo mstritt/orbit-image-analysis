@@ -20,7 +20,7 @@
 package com.actelion.research.orbit.imageAnalysis.models;
 
 import com.actelion.research.orbit.beans.RawAnnotation;
-import com.freedomotic.util.SerialClone.SerialClone;
+import org.apache.commons.lang3.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -278,7 +278,7 @@ public class ImageAnnotation extends RawAnnotation {
 
     @Override
     public ImageAnnotation clone() {
-        return SerialClone.clone(this);
+        return SerializationUtils.clone(this);
     }
 
 

@@ -20,7 +20,7 @@
 package com.actelion.research.orbit.imageAnalysis.models;
 
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
-import com.freedomotic.util.SerialClone.SerialClone;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -207,7 +207,7 @@ public class ShapeExtList implements IScaleableShape {
 
     @Override
     public ShapeExtList clone() {
-        return SerialClone.clone(this);
+        return SerializationUtils.clone(this);
     }
 
     @Override

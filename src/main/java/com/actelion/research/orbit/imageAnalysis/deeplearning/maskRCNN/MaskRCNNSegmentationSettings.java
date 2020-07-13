@@ -6,7 +6,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings<MaskRCNNSegmentationSettings> {
+public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
 
     private final int maxDetections;
     private final int maskWidth;
@@ -40,11 +40,13 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings<M
      * @param numClasses The number of classes in the trained model (Background + other classes).
      *                   e.g. for classes: Background, g0, g1, g2, g3 -> numClasses = 5.
      */
-    public MaskRCNNSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactor, int maxDetections,
+    public MaskRCNNSegmentationSettings(String modelName, int imageWidth, int imageHeight, float tileScaleFactor, int maxDetections,
                                         int maskWidth, int maskHeight, int numClasses, String annotationPrefix,
                                         boolean segmentationRefinement) {
-        this(imageWidth, imageHeight, tileScaleFactor, tileScaleFactor, maxDetections,
-                maskWidth, maskHeight, numClasses, annotationPrefix, segmentationRefinement);
+        this(modelName, imageWidth, imageHeight,
+                tileScaleFactor, tileScaleFactor,
+                maxDetections, maskWidth, maskHeight,
+                numClasses, annotationPrefix, segmentationRefinement);
     }
 
     /**
@@ -63,10 +65,13 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings<M
      * @param numClasses The number of classes in the trained model (Background + other classes).
      *                   e.g. for classes: Background, g0, g1, g2, g3 -> numClasses = 5.
      */
-    public MaskRCNNSegmentationSettings(int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY,
+    public MaskRCNNSegmentationSettings(String modelName, int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY,
                                         int maxDetections, int maskWidth, int maskHeight, int numClasses,
                                         String annotationPrefix, boolean segmentationRefinement) {
-        super(imageWidth, imageHeight, tileScaleFactorX, tileScaleFactorY, annotationPrefix, segmentationRefinement);
+        super(modelName, imageWidth, imageHeight,
+                tileScaleFactorX, tileScaleFactorY,
+                annotationPrefix, segmentationRefinement,
+                120d);
         this.maxDetections = maxDetections;
         this.maskWidth = maskWidth;
         this.maskHeight = maskHeight;
