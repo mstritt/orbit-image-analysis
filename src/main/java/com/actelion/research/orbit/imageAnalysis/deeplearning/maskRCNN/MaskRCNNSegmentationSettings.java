@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
-public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings implements Serializable, Cloneable {
+public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings<MaskRCNNSegmentationSettings> implements Serializable, Cloneable {
 
     private final int maxDetections;
     private final int maskWidth;

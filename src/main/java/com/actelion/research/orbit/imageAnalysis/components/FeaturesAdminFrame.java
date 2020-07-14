@@ -27,7 +27,6 @@ import com.actelion.research.orbit.gui.IntegerTextField;
 import com.actelion.research.orbit.imageAnalysis.components.legacy.JComboCheckBox;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101SegmentationSettings;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
 import com.actelion.research.orbit.imageAnalysis.models.FeatureDescription;
@@ -92,7 +91,7 @@ public class FeaturesAdminFrame extends JDialog {
     private JCheckBox cbDeepLearning = null;
     private JTextField tfDeepLearningModelPath = null;
     private DLSegmentModelComboBoxModel dlSegmentMethodsModel = null;
-    private JComboBox<AbstractSegmentationSettings> dLMethodComboBox = null;
+    private JComboBox<AbstractSegmentationSettings<?>> dLMethodComboBox = null;
 
     private JCheckBox cbDisableWatershed = null;
     private JCheckBox cbDoCombineCrossTiles = null;
@@ -552,7 +551,7 @@ public class FeaturesAdminFrame extends JDialog {
 //        dLSegmentMethods.add(insulin);
 //        dLSegmentMethods.add(glomeruli);
 
-        AbstractSegmentationSettings[] dLSegmentArray = new AbstractSegmentationSettings[]{ nucleiSettings,
+        AbstractSegmentationSettings<?>[] dLSegmentArray = new AbstractSegmentationSettings<?>[]{ nucleiSettings,
                                                                                             insulinSettings,
                                                                                             glomeruliSettings};
         dlSegmentMethodsModel =
@@ -1015,15 +1014,15 @@ public class FeaturesAdminFrame extends JDialog {
         }
     }
 
-    static class DLSegmentModelComboBoxModel extends DefaultComboBoxModel<AbstractSegmentationSettings> {
-        public DLSegmentModelComboBoxModel(AbstractSegmentationSettings[] items) {
+    static class DLSegmentModelComboBoxModel extends DefaultComboBoxModel<AbstractSegmentationSettings<?>> {
+        public DLSegmentModelComboBoxModel(AbstractSegmentationSettings<?>[] items) {
             super(items);
         }
 
         @Override
-        public AbstractSegmentationSettings getSelectedItem() {
+        public AbstractSegmentationSettings<?> getSelectedItem() {
 
-            return (AbstractSegmentationSettings) super.getSelectedItem();
+            return (AbstractSegmentationSettings<?>) super.getSelectedItem();
         }
     }
 }

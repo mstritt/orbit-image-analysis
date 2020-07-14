@@ -4,7 +4,7 @@ import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegmentati
 
 import java.io.Serializable;
 
-public class DLR101SegmentationSettings extends AbstractSegmentationSettings implements Serializable, Cloneable {
+public class DLR101SegmentationSettings extends AbstractSegmentationSettings<DLR101SegmentationSettings> implements Serializable, Cloneable {
 
     public DLR101SegmentationSettings(String modelName, String modelPath, int imageWidth, int imageHeight, float tileScaleFactor, String annotationPrefix, boolean segmentationRefinement) {
         this(modelName, modelPath, imageWidth, imageHeight,

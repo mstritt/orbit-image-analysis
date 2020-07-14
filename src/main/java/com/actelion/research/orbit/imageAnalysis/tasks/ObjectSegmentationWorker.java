@@ -23,7 +23,10 @@ import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.InstSegMaskRCNN;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegment;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTiled;
 import com.actelion.research.orbit.imageAnalysis.imaging.IJUtils;
 import com.actelion.research.orbit.imageAnalysis.models.*;
@@ -114,7 +117,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         this.rdf = rdf;
         if (classShapeToSet != null) {
             if (rf.getClassShapes() != null)
-                oldClassShapes = SerializationUtils.clone((ArrayList) rf.getClassShapes()); // remember original classShapes workaround (dirty fix...). Must be cloned because rf.setClassShapes will clear() and addAll() (next line).
+                oldClassShapes =  SerializationUtils.clone(new ArrayList<>(rf.getClassShapes())); // remember original classShapes workaround (dirty fix...). Must be cloned because rf.setClassShapes will clear() and addAll() (next line).
             this.rf.setClassShapes(classShapeToSet);
             logger.debug("old classShapes saved");
         } else {
@@ -264,13 +267,33 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             final int numSamples = rf.bimg.getImage().getNumBands();
 
             // init maskrcnn segmentation
-            boolean mumfordShahSegmentation = segmentationModel != null && segmentationModel.getFeatureDescription().isMumfordShahSegmentation();
-            boolean deepLearningSegmentation = segmentationModel != null && segmentationModel.getFeatureDescription().isDeepLearningSegmentation();
+            assert segmentationModel != null;
+            boolean mumfordShahSegmentation = segmentationModel.getFeatureDescription().isMumfordShahSegmentation();
+            boolean deepLearningSegmentation = segmentationModel.getFeatureDescription().isDeepLearningSegmentation();
+            AbstractSegmentationSettings<?> dlSegmentSettings = segmentationModel.getFeatureDescription().getDLSegment();
             final InstSegMaskRCNN segMaskRCNN;
             final byte[] graphDef;
             final Graph tfGraph;
             final Session tfSession;
             if (deepLearningSegmentation) {
+
+                switch(dlSegmentSettings.getModelName()) {
+                    case "Nuclei":
+                        MaskRCNNSegment segmentationModel = new MaskRCNNSegment((MaskRCNNSegmentationSettings) dlSegmentSettings);
+                        System.out.println(Arrays.toString(segmentationModel.getSegmentationSettings().getMeanPixel()));
+                    case "Pancreas Islets":
+                        break;
+                    case "Glomeruli":
+                        break;
+                    case "Corpus Callosum":
+                        break;
+                    case "Brain":
+                        break;
+                    default:
+                        throw new NoSuchFieldException("No model for: " + dlSegmentSettings.getModelName());
+
+                }
+
                 segMaskRCNN = new InstSegMaskRCNN();
                 String fn = segmentationModel.getFeatureDescription().getDeepLearningModelPath();
                 if (fn==null) {

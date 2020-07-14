@@ -19,9 +19,6 @@
 
 package com.actelion.research.orbit.imageAnalysis.models;
 
-import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractDetection;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractDetections;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegmentationSettings;
 import org.apache.commons.lang3.SerializationUtils;
 import imageJ.Colour_Deconvolution;
@@ -77,7 +74,7 @@ public class FeatureDescription implements Serializable, Cloneable {
     private Map<String,Float> hueMap = null;
     private boolean deepLearningSegmentation = false;
     private String deepLearningModelPath = null;
-    private AbstractSegmentationSettings dLSegmentSettings = null;
+    private AbstractSegmentationSettings<?> dLSegmentSettings = null;
 
     // MIHC
     private boolean mihcActive = false;
@@ -423,11 +420,11 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.deepLearningModelPath = deepLearningModelPath;
     }
 
-    public AbstractSegmentationSettings getDLSegment() {
+    public AbstractSegmentationSettings<?> getDLSegment() {
         return dLSegmentSettings;
     }
 
-    public void setDLSegment(AbstractSegmentationSettings dLSegment) {
+    public void setDLSegment(AbstractSegmentationSettings<?> dLSegment) {
         this.dLSegmentSettings = dLSegment;
     }
 

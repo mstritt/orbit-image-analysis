@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public abstract class AbstractSegmentationSettings implements Serializable, Cloneable {
+public abstract class AbstractSegmentationSettings<T> implements Serializable, Cloneable {
 
     private final String modelName;
     private final String modelPath;
@@ -49,11 +49,16 @@ public abstract class AbstractSegmentationSettings implements Serializable, Clon
         this.detectionToleranceScale = detectionToleranceScale;
     }
 
+    public String getModelName() {
+        return modelName;
+    }
+
     /**
-     * Return the annotation prefix to use when storing annotations.
+     * Get the path to the DL model used for segmentation.
+     * @return Path to DL model for segmentation.
      */
-    public String getAnnotationPrefix() {
-        return annotationPrefix;
+    public Path getModelPath() {
+        return Paths.get(modelPath);
     }
 
     public int getImageWidth() {
@@ -64,19 +69,6 @@ public abstract class AbstractSegmentationSettings implements Serializable, Clon
         return imageHeight;
     }
 
-    // Generic image augmentation settings
-    public boolean getDeconvolution() {
-        return false;
-    }
-
-    public String getDeconvolutionName() {
-        return "H DAB";
-    }
-
-    public int getDeconvolutionChannel() {
-        return 1;
-    }
-
     @Deprecated
     public boolean getSegmentationRefinement() {
         return true;
@@ -84,6 +76,10 @@ public abstract class AbstractSegmentationSettings implements Serializable, Clon
 
     public int getTrainingImageTileWidth() {
         return trainingImageTileWidth;
+    }
+
+    public int getTrainingImageTileHeight() {
+        return trainingImageTileHeight;
     }
 
     @Deprecated
@@ -120,8 +116,12 @@ public abstract class AbstractSegmentationSettings implements Serializable, Clon
         return tileScaleFactorY * 100.0d;
     }
 
-    public int getTrainingImageTileHeight() {
-        return trainingImageTileHeight;
+    /**
+     * Used when storing the annotations to DB.
+     * @return Annotation prefix to use when storing annotations.
+     */
+    public String getAnnotationPrefix() {
+        return annotationPrefix;
     }
 
     public abstract String getClassName(int classNum);
@@ -138,8 +138,17 @@ public abstract class AbstractSegmentationSettings implements Serializable, Clon
         return detectionToleranceScale;
     }
 
-    public Path getModelPath() {
-        return Paths.get(modelPath);
+    // Generic image augmentation settings
+    public boolean getDeconvolution() {
+        return false;
+    }
+
+    public String getDeconvolutionName() {
+        return "H DAB";
+    }
+
+    public int getDeconvolutionChannel() {
+        return 1;
     }
 
     @Override

@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.List;
 
 // TODO: Consider moving boilerplate to interface using default implementation functionality.
-public abstract class AbstractSegment<D extends AbstractDetections<? extends AbstractDetection>,S extends AbstractSegmentationSettings> implements IDLSegment<D, S> {
+public abstract class AbstractSegment<D extends AbstractDetections<? extends AbstractDetection>,S extends AbstractSegmentationSettings<?>> implements IDLSegment<D, S> {
 
     protected static Logger logger = LoggerFactory.getLogger(AbstractSegment.class);
     protected final S segmentationSettings;
@@ -527,7 +527,7 @@ public abstract class AbstractSegment<D extends AbstractDetections<? extends Abs
      * @param settings The settings containing the size to shrink to.
      * @return The shrunk image.
      */
-    public static BufferedImage shrink(BufferedImage bi, AbstractSegmentationSettings settings) {
+    public static BufferedImage shrink(BufferedImage bi, AbstractSegmentationSettings<?> settings) {
         BufferedImage bi2 = new BufferedImage(settings.getImageWidth(), settings.getImageHeight(),BufferedImage.TYPE_INT_RGB);
         Graphics2D g = (Graphics2D) bi2.getGraphics();
         g.drawImage(bi,0,0,settings.getImageWidth(),settings.getImageHeight(),null);
