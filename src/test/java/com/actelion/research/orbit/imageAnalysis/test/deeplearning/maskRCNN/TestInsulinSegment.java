@@ -42,7 +42,7 @@ public class TestInsulinSegment extends OrbitTestOS {
         File OUTPUT_IMAGE = new File("D:/deeplearning/insulin/testdata/12886016_tile19x4-output.jpg");
         File maskRCNNModel = new File("D:/deeplearning/insulin/models/insulin_009.pb");
 
-        MaskRCNNSegment segmentationModel = new MaskRCNNSegment(maskRCNNModel, MaskRCNNSegment.PostProcessMethod.STANDARD);
+        MaskRCNNSegment segmentationModel = new MaskRCNNSegment(maskRCNNModel);
 
         OrbitModel segModel = OrbitModel.LoadFromInputStream(
                 this.getClass().getResourceAsStream("/resource/testmodels/dlsegmentsplit.omo"));
@@ -85,12 +85,14 @@ public class TestInsulinSegment extends OrbitTestOS {
         boolean storeAnnotations = false;
         File maskRCNNModel = new File("D:/deeplearning/insulin/models/insulin_009.pb");
 
-        MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings("Pancreas Islets", 512, 512,
-                16f, 10, 56, 56, 5, "IsletC", true);
+        MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings("Pancreas Islets",
+                maskRCNNModel.getPath(), 512, 512,
+                16f, 10, 56, 56, 5, "IsletC",
+                true, MaskRCNNSegmentationSettings.PostProcessMethod.CUSTOM);
         ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW));
         ArrayList<String> classNames = new ArrayList<>(Arrays.asList("Background", "g0", "g1", "g2", "g3"));
         settings.setCustomClassNames(colors, classNames);
-        MaskRCNNSegment segmentationModel = new MaskRCNNSegment(maskRCNNModel, MaskRCNNSegment.PostProcessMethod.CUSTOM, settings);
+        MaskRCNNSegment segmentationModel = new MaskRCNNSegment(settings);
 
         OrbitModel segModel = OrbitModel.LoadFromInputStream(
                 this.getClass().getResourceAsStream("/resource/testmodels/dlsegmentsplit.omo"));
@@ -140,12 +142,14 @@ public class TestInsulinSegment extends OrbitTestOS {
         boolean storeAnnotations = false;
         File maskRCNNModel = new File("D:/deeplearning/insulin/models/insulin_009.pb");
 
-        MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings("Pancreas Islets", 512, 512,
-                16f, 10, 56, 56, 5, "IsletS", true);
+        MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings("Pancreas Islets",
+                maskRCNNModel.getPath(), 512, 512,
+                16f, 10, 56, 56, 5, "IsletS",
+                true, MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD);
         ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW));
         ArrayList<String> classNames = new ArrayList<>(Arrays.asList("Background", "g0", "g1", "g2", "g3"));
         settings.setCustomClassNames(colors, classNames);
-        MaskRCNNSegment segmentationModel = new MaskRCNNSegment(maskRCNNModel, MaskRCNNSegment.PostProcessMethod.STANDARD, settings);
+        MaskRCNNSegment segmentationModel = new MaskRCNNSegment(settings);
 
         OrbitModel segModel = OrbitModel.LoadFromInputStream(
                 this.getClass().getResourceAsStream("/resource/testmodels/dlsegmentsplit.omo"));

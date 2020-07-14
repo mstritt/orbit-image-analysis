@@ -1,14 +1,17 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
 import java.awt.*;
+import java.io.Serializable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-public abstract class AbstractSegmentationSettings {
+public abstract class AbstractSegmentationSettings implements Serializable, Cloneable {
 
-    private String modelName;
+    private final String modelName;
+    private final String modelPath;
 
     private final int imageWidth;
     private final int imageHeight;
-    private final AugmentationSettings augmentationSettings;
 
     private final int trainingImageTileWidth;
     private final int trainingImageTileHeight;
@@ -22,25 +25,25 @@ public abstract class AbstractSegmentationSettings {
 
     /**
      * Setup and store the settings used for abstract segmentation model training and inference.
+     * @param modelPath
      * @param imageWidth The width in px of the training images.
      * @param imageHeight The height in px of the training images.
      * @param tileScaleFactorX The scale factor in x-axis that was used to generate the test dataset (e.g. if image tiles were
- *                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
+*                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
      * @param tileScaleFactorY The scale factor in y-axis that was used to generate the test dataset (e.g. if image tiles were
 *                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
      * @param annotationPrefix The prefix used to store annotations.
      * @param segmentationRefinement Whether or not to refine the segmentation result. e.g. to mitigate for tile boundary
-     *                               effects.
      */
-    public AbstractSegmentationSettings(String modelName, int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, String annotationPrefix, boolean segmentationRefinement, double detectionToleranceScale) {
+    public AbstractSegmentationSettings(String modelName, String modelPath, int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, String annotationPrefix, boolean segmentationRefinement, double detectionToleranceScale) {
         this.modelName = modelName;
+        this.modelPath = modelPath;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.trainingImageTileWidth = (int) (imageWidth * tileScaleFactorX);
         this.trainingImageTileHeight = (int) (imageHeight * tileScaleFactorY);
         this.tileScaleFactorX = tileScaleFactorX;
         this.tileScaleFactorY = tileScaleFactorY;
-        this.augmentationSettings = new AugmentationSettings();
         this.annotationPrefix = annotationPrefix;
         this.segmentationRefinement = segmentationRefinement;
         this.detectionToleranceScale = detectionToleranceScale;
@@ -135,23 +138,8 @@ public abstract class AbstractSegmentationSettings {
         return detectionToleranceScale;
     }
 
-    public AugmentationSettings getAugmentationSettings() {
-        return augmentationSettings;
-    }
-
-    public static class AugmentationSettings {
-
-        AugmentationSettings() {
-
-        }
-
-        public boolean getFlip() {
-            return true;
-        }
-
-        public int getScaleFactor() {
-            return 2;
-        }
+    public Path getModelPath() {
+        return Paths.get(modelPath);
     }
 
     @Override

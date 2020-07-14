@@ -85,9 +85,13 @@ public class DLHelpers {
         return null;
     }
 
-    public static Session buildSession(String fileName) {
-        byte[] graphDef = readAllBytesOrExit(Paths.get(fileName));
+    public static Session buildSession(Path filePath) {
+        byte[] graphDef = readAllBytesOrExit(filePath);
         return buildSessionBytes(graphDef);
+    }
+
+    public static Session buildSession(String fileName) {
+        return buildSession(Paths.get(fileName));
     }
 
     public static Session buildSession(URL modelUrl) {
@@ -334,14 +338,14 @@ public class DLHelpers {
         }
         try {
             Raster shiftraster = orbitImage.getData(rect);
-            if (segmentationSettings.getAugmentationSettings().getFlip()) {
+            if (true) {
                 shiftraster = flipRaster(shiftraster);
             }
             BufferedImage mask2 = maskRaster(shiftraster, orbitImage, s, false, segmentationSettings);
-            if (segmentationSettings.getAugmentationSettings().getFlip()) {
+            if (true) {
                 mask2 = flipImage(mask2);
             }
-            maskOriginal = combineMasks(maskOriginal, mask2, dx / segmentationSettings.getAugmentationSettings().getScaleFactor(), dy / segmentationSettings.getAugmentationSettings().getScaleFactor());
+            maskOriginal = combineMasks(maskOriginal, mask2, dx / 2, dy / 2);
         } catch (Exception e) {
             logger.warn("Could not shift raster, returning original image (rect="+rect+" img.bounds="+orbitImage.getBounds()+")", e);
         }

@@ -3,10 +3,11 @@ package com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegmentationSettings;
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
-public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
+public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings implements Serializable, Cloneable {
 
     private final int maxDetections;
     private final int maskWidth;
@@ -26,27 +27,32 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
     private final HashMap<Integer, Color> customAnnotationClassColours = new HashMap<>();
     private final HashMap<Integer, String> customAnnotationClassNames = new HashMap<>();
 
+    private final PostProcessMethod postProcess;
+    public enum PostProcessMethod {
+        STANDARD,
+        CUSTOM
+    }
 
     /**
      * Convenience constructor. Setup and store the settings used for MaskRCNN training and inference.
      * @param imageWidth The width in px of the training images.
      * @param imageHeight The height in px of the training images.
      * @param tileScaleFactor The scale factor (when x and y scales are equal) that was used to generate the
-     *                        test dataset (e.g. if image tiles were
-     *                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
+ *                        test dataset (e.g. if image tiles were
+ *                        size 8192 px, and training images were output at 512 px, then tileScaleFactor=16.
      * @param maxDetections The maximum number of predictions to return.
      * @param maskWidth The width of the mask used to train the model (px).
      * @param maskHeight The height of the mask used to train the model (px).
      * @param numClasses The number of classes in the trained model (Background + other classes).
-     *                   e.g. for classes: Background, g0, g1, g2, g3 -> numClasses = 5.
+     * @param postProcess
      */
-    public MaskRCNNSegmentationSettings(String modelName, int imageWidth, int imageHeight, float tileScaleFactor, int maxDetections,
+    public MaskRCNNSegmentationSettings(String modelName, String modelPath, int imageWidth, int imageHeight, float tileScaleFactor, int maxDetections,
                                         int maskWidth, int maskHeight, int numClasses, String annotationPrefix,
-                                        boolean segmentationRefinement) {
-        this(modelName, imageWidth, imageHeight,
+                                        boolean segmentationRefinement, PostProcessMethod postProcess) {
+        this(modelName, modelPath, imageWidth, imageHeight,
                 tileScaleFactor, tileScaleFactor,
                 maxDetections, maskWidth, maskHeight,
-                numClasses, annotationPrefix, segmentationRefinement);
+                numClasses, annotationPrefix, segmentationRefinement, postProcess);
     }
 
     /**
@@ -54,21 +60,21 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
      * @param imageWidth The width in px of the training images.
      * @param imageHeight The height in px of the training images.
      * @param tileScaleFactorX The scale factor in the x-axis that was used to generate the test dataset (e.g. if
-     *                         image tiles were size 8192 px, and training images were output at 512 px,
-     *                         then tileScaleFactor=16.
+ *                         image tiles were size 8192 px, and training images were output at 512 px,
+ *                         then tileScaleFactor=16.
      * @param tileScaleFactorY The scale factor in the y-axis that was used to generate the test dataset (e.g. if
-     *                         image tiles were size 8192 px, and training images were output at 512 px,
-     *                         then tileScaleFactor=16.
+*                         image tiles were size 8192 px, and training images were output at 512 px,
+*                         then tileScaleFactor=16.
      * @param maxDetections The maximum number of predictions to return.
      * @param maskWidth The width of the mask used to train the model (px).
      * @param maskHeight The height of the mask used to train the model (px).
      * @param numClasses The number of classes in the trained model (Background + other classes).
-     *                   e.g. for classes: Background, g0, g1, g2, g3 -> numClasses = 5.
+     * @param postProcess
      */
-    public MaskRCNNSegmentationSettings(String modelName, int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY,
+    public MaskRCNNSegmentationSettings(String modelName, String modelPath, int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY,
                                         int maxDetections, int maskWidth, int maskHeight, int numClasses,
-                                        String annotationPrefix, boolean segmentationRefinement) {
-        super(modelName, imageWidth, imageHeight,
+                                        String annotationPrefix, boolean segmentationRefinement, PostProcessMethod postProcess) {
+        super(modelName, modelPath, imageWidth, imageHeight,
                 tileScaleFactorX, tileScaleFactorY,
                 annotationPrefix, segmentationRefinement,
                 120d);
@@ -76,6 +82,7 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
         this.maskWidth = maskWidth;
         this.maskHeight = maskHeight;
         this.numClasses = numClasses;
+        this.postProcess = postProcess;
 
         // Set annotation colours
         generateClassNames(numClasses);
@@ -175,6 +182,10 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings {
      */
     public float[] getMeanPixel() {
         return meanPixel;
+    }
+
+    public PostProcessMethod getPostProcess() {
+        return postProcess;
     }
 
     @Override

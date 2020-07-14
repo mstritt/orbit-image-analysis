@@ -25,11 +25,7 @@ import com.actelion.research.orbit.gui.DoubleTextField;
 import com.actelion.research.orbit.gui.IntInputVerifier;
 import com.actelion.research.orbit.gui.IntegerTextField;
 import com.actelion.research.orbit.imageAnalysis.components.legacy.JComboCheckBox;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractDetection;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractDetections;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegmentationSettings;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101Segment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101SegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
@@ -52,7 +48,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -97,7 +92,7 @@ public class FeaturesAdminFrame extends JDialog {
     private JCheckBox cbDeepLearning = null;
     private JTextField tfDeepLearningModelPath = null;
     private DLSegmentModelComboBoxModel dlSegmentMethodsModel = null;
-    private JComboBox<AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>,? extends AbstractSegmentationSettings>> dLMethodComboBox = null;
+    private JComboBox<AbstractSegmentationSettings> dLMethodComboBox = null;
 
     private JCheckBox cbDisableWatershed = null;
     private JCheckBox cbDoCombineCrossTiles = null;
@@ -534,19 +529,22 @@ public class FeaturesAdminFrame extends JDialog {
 
         lab = new JLabel("Predefined Model");
         panel.add(lab);
-        MaskRCNNSegment nuclei = new MaskRCNNSegment(new File("D:/deeplearning/deepretina/deepretina_final.pb"),
-                MaskRCNNSegment.PostProcessMethod.STANDARD,
-                new MaskRCNNSegmentationSettings("Nuclei", 512, 512,
-                        0.5f, 512, 28, 28, 2,
-                        "NucleiS", false));
-        MaskRCNNSegment insulin = new MaskRCNNSegment(new File("D:/deeplearning/insulin/models/insulin_009.pb"),
-                MaskRCNNSegment.PostProcessMethod.STANDARD,
-                new MaskRCNNSegmentationSettings("Pancreas Islets", 512, 512,
-                        16f, 10, 56, 56, 5,
-                        "IsletC", true));
-        DLR101Segment glomeruli = new DLR101Segment(new File("D:/deeplearning/glomeruli/glomeruli-410k.pb"),
-                new DLR101SegmentationSettings("Glomeruli", 512, 512,
-                        2, "Glomeruli", true));
+        MaskRCNNSegmentationSettings nucleiSettings = new MaskRCNNSegmentationSettings(
+                "Nuclei", "D:/deeplearning/deepretina/deepretina_final.pb",
+                512, 512,
+                0.5f, 512, 28, 28, 2,
+                "NucleiS", false,
+                MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD);
+        MaskRCNNSegmentationSettings insulinSettings = new MaskRCNNSegmentationSettings(
+                "Pancreas Islets", "D:/deeplearning/insulin/models/insulin_009.pb",
+                512, 512,
+                16f, 10, 56, 56, 5,
+                "IsletC", true,
+                MaskRCNNSegmentationSettings.PostProcessMethod.CUSTOM);
+        DLR101SegmentationSettings glomeruliSettings = new DLR101SegmentationSettings(
+                "Glomeruli", "D:/deeplearning/glomeruli/glomeruli-410k.pb",
+                512, 512,
+                2, "Glomeruli", true);
         // Since this is a two-step method it needs a different approach...
         //MaskRCNNSegment corpus_callosum = new MaskRCNNSegment(new File("D:/deeplearning/insulin/models/insulin_009.pb"), MaskRCNNSegment.PostProcessMethod.STANDARD);
 
@@ -554,7 +552,9 @@ public class FeaturesAdminFrame extends JDialog {
 //        dLSegmentMethods.add(insulin);
 //        dLSegmentMethods.add(glomeruli);
 
-        AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>,? extends AbstractSegmentationSettings>[] dLSegmentArray = new AbstractSegment[]{nuclei, insulin, glomeruli};
+        AbstractSegmentationSettings[] dLSegmentArray = new AbstractSegmentationSettings[]{ nucleiSettings,
+                                                                                            insulinSettings,
+                                                                                            glomeruliSettings};
         dlSegmentMethodsModel =
                 new DLSegmentModelComboBoxModel(dLSegmentArray);
 
@@ -1015,15 +1015,15 @@ public class FeaturesAdminFrame extends JDialog {
         }
     }
 
-    static class DLSegmentModelComboBoxModel extends DefaultComboBoxModel<AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>, ? extends AbstractSegmentationSettings>> {
-        public DLSegmentModelComboBoxModel(AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>, ? extends AbstractSegmentationSettings>[] items) {
+    static class DLSegmentModelComboBoxModel extends DefaultComboBoxModel<AbstractSegmentationSettings> {
+        public DLSegmentModelComboBoxModel(AbstractSegmentationSettings[] items) {
             super(items);
         }
 
         @Override
-        public AbstractSegment<?, ?> getSelectedItem() {
+        public AbstractSegmentationSettings getSelectedItem() {
 
-            return (AbstractSegment<?,?>) super.getSelectedItem();
+            return (AbstractSegmentationSettings) super.getSelectedItem();
         }
     }
 }

@@ -279,9 +279,9 @@ dependencies {
     testImplementation 'junit:junit:4.13'
 }
 
-//if (file('custom.gradle').exists()) {
-//    apply from: 'custom.gradle'
-//}
+if (file('custom.gradle').exists()) {
+    apply from: 'custom.gradle'
+}
 
 /*
  * Compile the icons at build time, for better performance.

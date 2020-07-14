@@ -32,11 +32,7 @@ import java.util.List;
  */
 public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCNNSegmentationSettings> {
     private final Session s;
-    private final PostProcessMethod postProcess;
-    public enum PostProcessMethod {
-        STANDARD,
-        CUSTOM
-    }
+
 
     private transient Tensor<Float> anchors = null;
 
@@ -44,15 +40,17 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
      * MaskRCNNSegment object constructor with default segmentation settings.
      */
     @Deprecated
-    public MaskRCNNSegment(File maskRCNNModelPB, PostProcessMethod ppm) {
-        this(maskRCNNModelPB, ppm, new MaskRCNNSegmentationSettings("Default",512,512, 16.0f,10,56,56,5, "Default_", true));
+    public MaskRCNNSegment(File maskRCNNModelPB) {
+        this(new MaskRCNNSegmentationSettings(
+                "Default",maskRCNNModelPB.getPath(),512,512,
+                16.0f,10,56,56,5,
+                "Default_", true, MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD));
     }
 
-    public MaskRCNNSegment(File maskRCNNModelPB, PostProcessMethod ppm, MaskRCNNSegmentationSettings settings) {
+    public MaskRCNNSegment(MaskRCNNSegmentationSettings settings) {
         super(settings);
         logger = LoggerFactory.getLogger(MaskRCNNSegment.class);
-        s = DLHelpers.buildSession(maskRCNNModelPB.getAbsolutePath());
-        postProcess = ppm;
+        s = DLHelpers.buildSession(settings.getModelPath());
     }
 
     /**
@@ -224,7 +222,7 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
 
         MaskRCNNDetections detections = null;
 
-        switch (this.postProcess) {
+        switch (segmentationSettings.getPostProcess()) {
             case STANDARD:
                 // Apply segmentation model to the tile image.
                 try {
@@ -251,7 +249,7 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
 
         MaskRCNNDetections detections = null;
 
-        switch (this.postProcess) {
+        switch (segmentationSettings.getPostProcess()) {
             case STANDARD:
                 // Apply segmentation model to the tile image.
                 try {

@@ -77,7 +77,7 @@ public class FeatureDescription implements Serializable, Cloneable {
     private Map<String,Float> hueMap = null;
     private boolean deepLearningSegmentation = false;
     private String deepLearningModelPath = null;
-    private AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>, ? extends AbstractSegmentationSettings> dLSegment = null;
+    private AbstractSegmentationSettings dLSegmentSettings = null;
 
     // MIHC
     private boolean mihcActive = false;
@@ -423,12 +423,12 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.deepLearningModelPath = deepLearningModelPath;
     }
 
-    public AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>, ? extends AbstractSegmentationSettings> getDLSegment() {
-        return dLSegment;
+    public AbstractSegmentationSettings getDLSegment() {
+        return dLSegmentSettings;
     }
 
-    public void setDLSegment(AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>, ? extends AbstractSegmentationSettings> dLSegment) {
-        this.dLSegment = dLSegment;
+    public void setDLSegment(AbstractSegmentationSettings dLSegment) {
+        this.dLSegmentSettings = dLSegment;
     }
 
     public Map<String, Float> getHueMap() {
@@ -552,7 +552,7 @@ public class FeatureDescription implements Serializable, Cloneable {
                 ", mumfordShahCellSize="+mumfordShahCellSize +
                 ", deepLearningSegmentation="+deepLearningSegmentation +
                 ", deepLearningSegmentationModelPath="+deepLearningModelPath +
-                ", deepLearningSegmentation="+dLSegment.toString() +
+                ", deepLearningSegmentation="+ dLSegmentSettings.toString() +
                 ", hueMap="+getHueMapString() +
                 ", mihcActive="+mihcActive+
                 '}';

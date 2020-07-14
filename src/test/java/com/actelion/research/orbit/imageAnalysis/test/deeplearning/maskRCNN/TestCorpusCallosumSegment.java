@@ -65,10 +65,12 @@ public class TestCorpusCallosumSegment extends OrbitTestOS {
 
 
         // Setup the brain detector.
-        MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings("Brain", brainImgDims.x, brainImgDims.y,
-                1f, 1, 28, 28, 2, "Brain", false);
+        MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings("Brain",
+                maskRCNNBrainModel.getPath(), brainImgDims.x, brainImgDims.y,
+                1f, 1, 28, 28, 2, "Brain",
+                false, MaskRCNNSegmentationSettings.PostProcessMethod.CUSTOM);
 
-        MaskRCNNSegment brainModel = new MaskRCNNSegment(maskRCNNBrainModel, MaskRCNNSegment.PostProcessMethod.CUSTOM, brainSettings);
+        MaskRCNNSegment brainModel = new MaskRCNNSegment(brainSettings);
 
         // Resize the whole slide image to low-res for the MaskRCNN brain detection.
         BufferedImage image512 = DLHelpers.resize(smallImage,brainSettings.getImageWidth(),brainSettings.getImageHeight());
@@ -106,11 +108,13 @@ public class TestCorpusCallosumSegment extends OrbitTestOS {
         float brainScaleY = (float) brainBBPadded.height / (float) ccImgDims.y;
 
         // Settings for Corpus Callosum detection.
-        MaskRCNNSegmentationSettings corpusCallosumSettings = new MaskRCNNSegmentationSettings("Corpus Callosum", ccImgDims.x, ccImgDims.y,
-                brainScaleX, brainScaleY, 1, 56, 56, 2, "Corpus_Callosum", false);
+        MaskRCNNSegmentationSettings corpusCallosumSettings = new MaskRCNNSegmentationSettings("Corpus Callosum",
+                maskRCNNCorpusCallosumModel.getPath(), ccImgDims.x, ccImgDims.y,
+                brainScaleX, brainScaleY, 1, 56, 56, 2, "Corpus_Callosum",
+                false, MaskRCNNSegmentationSettings.PostProcessMethod.CUSTOM);
 
         // Setup the Corpus Callosum segmentation model.
-        MaskRCNNSegment ccModel = new MaskRCNNSegment(maskRCNNCorpusCallosumModel, MaskRCNNSegment.PostProcessMethod.CUSTOM, corpusCallosumSettings);
+        MaskRCNNSegment ccModel = new MaskRCNNSegment(corpusCallosumSettings);
 
         // Create tensor from brain image.
         Tensor<Float> input2 = DLHelpers.convertBufferedImageToTensor(brainImg, corpusCallosumSettings.getImageWidth(), corpusCallosumSettings.getImageHeight());
