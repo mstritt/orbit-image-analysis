@@ -138,126 +138,134 @@ public abstract class AbstractSegment<D extends AbstractDetections<? extends Abs
         Map<Integer, List<Shape>> segmentationsPerImage = new HashMap<>();
         // Loop over images.
         for (RawDataFile rdf : rdfList) {
-            long startt = System.currentTimeMillis();
-            OrbitTiledImage2.resetTileCache();
             int rdfId = rdf.getRawDataFileId();
-            logger.info("rdfid: " + rdfId);
+            List<Shape> shapes = generateSegmentationAnnotations(rdf, segmentationSettings, orbitSegModel, modelContainingExclusionModel, tileOnly, storeAnnotations);
+            segmentationsPerImage.put(rdfId, shapes);
+        }
+        return segmentationsPerImage;
+    }
 
-            // Get annotations already existing for the image.
-            List<RawAnnotation> annotations = null;
+    public List<Shape> generateSegmentationAnnotations(RawDataFile rdf, S segmentationSettings, OrbitModel orbitSegModel, OrbitModel modelContainingExclusionModel, Point tileOnly, boolean storeAnnotations) {
+        List<Shape> contours = new ArrayList<>();
+        long startt = System.currentTimeMillis();
+        OrbitTiledImage2.resetTileCache();
+        int rdfId = rdf.getRawDataFileId();
+        logger.info("rdfid: " + rdfId);
+
+        // Get annotations already existing for the image.
+        List<RawAnnotation> annotations = null;
+        try {
+            annotations = DALConfig.getImageProvider().LoadRawAnnotationsByRawDataFile(rdfId, RawAnnotation.ANNOTATION_TYPE_IMAGE);
+        } catch (Exception e) {
+            logger.error("Could not read Raw Annotations.");
+            logger.error(e.getLocalizedMessage());
+        }
+
+        // TODO: Consider union case, and also separate Rois.
+        // Extract the different types of annotation.
+        List<ImageAnnotation> rois = new ArrayList<>();
+        List<Shape> exclusions = new ArrayList<>();
+        List<Shape> inclusions = new ArrayList<>();
+        for (RawAnnotation annotation : Objects.requireNonNull(annotations)) {
+            ImageAnnotation ia = null;
             try {
-                annotations = DALConfig.getImageProvider().LoadRawAnnotationsByRawDataFile(rdfId, RawAnnotation.ANNOTATION_TYPE_IMAGE);
-            } catch (Exception e) {
-                logger.error("Could not read Raw Annotations.");
+                ia = new ImageAnnotation(annotation);
+            } catch (IOException | ClassNotFoundException e) {
                 logger.error(e.getLocalizedMessage());
             }
+            if (Objects.requireNonNull(ia).getSubType() == ImageAnnotation.SUBTYPE_ROI) rois.add(ia);
+            else if (ia.getSubType() == ImageAnnotation.SUBTYPE_EXCLUSION) exclusions.add(ia.getFirstShape());
+            //TODO: Add inclusions. Can be used by a standard method?
+            //    public ShapeAnnotationList(List<RawAnnotation> annotations, int annotationGroup, Rectangle outerBounds) {
+            // loadRoi ???
+        }
 
-            // TODO: Consider union case, and also separate Rois.
-            // Extract the different types of annotation.
-            List<ImageAnnotation> rois = new ArrayList<>();
-            List<Shape> exclusions = new ArrayList<>();
-            List<Shape> inclusions = new ArrayList<>();
-            for (RawAnnotation annotation : Objects.requireNonNull(annotations)) {
-                ImageAnnotation ia = null;
+        // Retrieve the actual image.
+        RecognitionFrame rf = null;
+        try {
+            rf = new RecognitionFrame(rdf);
+        } catch (OrbitImageServletException e) {
+            logger.error(e.getLocalizedMessage());
+        }
+
+        TileSizeWrapper tileSizeWrapper = new TileSizeWrapper(
+                new OrbitImagePlanar(Objects.requireNonNull(rf).bimg.getImage(), ""),
+                segmentationSettings.getTrainingImageTileWidth(),
+                segmentationSettings.getTrainingImageTileHeight());
+
+        OrbitTiledImageIOrbitImage orbitImage = new OrbitTiledImageIOrbitImage(tileSizeWrapper);
+
+        // Apply the Exclusion map.
+        ExclusionMapGen exclusionMapGen = null;
+        // TODO: Re-enable when JAI issue is fixed.
+        if (modelContainingExclusionModel != null && modelContainingExclusionModel.getExclusionModel() != null) {
+            exclusionMapGen = ExclusionMapGen.constructExclusionMap(rdf, rf, modelContainingExclusionModel);
+            if (exclusionMapGen != null) {
                 try {
-                    ia = new ImageAnnotation(annotation);
-                } catch (IOException | ClassNotFoundException e) {
+                    exclusionMapGen.generateMap();
+                } catch (OrbitImageServletException e) {
                     logger.error(e.getLocalizedMessage());
-                }
-                if (Objects.requireNonNull(ia).getSubType() == ImageAnnotation.SUBTYPE_ROI) rois.add(ia);
-                else if (ia.getSubType() == ImageAnnotation.SUBTYPE_EXCLUSION) exclusions.add(ia.getFirstShape());
-                //TODO: Add inclusions. Can be used by a standard method?
-                //    public ShapeAnnotationList(List<RawAnnotation> annotations, int annotationGroup, Rectangle outerBounds) {
-                // loadRoi ???
-            }
-
-            // Retrieve the actual image.
-            RecognitionFrame rf = null;
-            try {
-                rf = new RecognitionFrame(rdf);
-            } catch (OrbitImageServletException e) {
-                logger.error(e.getLocalizedMessage());
-            }
-
-            TileSizeWrapper tileSizeWrapper = new TileSizeWrapper(
-                    new OrbitImagePlanar(Objects.requireNonNull(rf).bimg.getImage(), ""),
-                    segmentationSettings.getTrainingImageTileWidth(),
-                    segmentationSettings.getTrainingImageTileHeight());
-
-            OrbitTiledImageIOrbitImage orbitImage = new OrbitTiledImageIOrbitImage(tileSizeWrapper);
-
-            // Apply the Exclusion map.
-            ExclusionMapGen exclusionMapGen = null;
-            // TODO: Re-enable when JAI issue is fixed.
-            if (modelContainingExclusionModel != null && modelContainingExclusionModel.getExclusionModel() != null) {
-                exclusionMapGen = ExclusionMapGen.constructExclusionMap(rdf, rf, modelContainingExclusionModel);
-                if (exclusionMapGen != null) {
-                    try {
-                        exclusionMapGen.generateMap();
-                    } catch (OrbitImageServletException e) {
-                        logger.error(e.getLocalizedMessage());
-                    }
-                }
-            }
-
-            // For existing ROI annotations (from Orbit DB) define a roiDef and add it to a list of all roiDefs.
-            List<Shape> roiDefList = new ArrayList<>();
-            for (ImageAnnotation roiAnnotation : rois) {
-                IScaleableShape roiShape = (IScaleableShape) roiAnnotation.getFirstShape();
-                roiShape = (IScaleableShape) roiShape.getScaledInstance(100d, new Point(0, 0));
-                ShapeAnnotationList roiDef = new ShapeAnnotationList(inclusions, exclusions, roiShape, roiShape.getBounds());
-                roiDefList.add(roiDef);
-            }
-            if (roiDefList.size() == 0) {   // no ROI annotations, so create one around the whole image
-                roiDefList.add(new RectangleExt(0, 0, rf.bimg.getWidth(), rf.bimg.getHeight()));
-            }
-
-            // Process all roiDefs.
-            for (Shape roiDef : roiDefList) {
-                Point[] tiles = orbitImage.getTileIndices(roiDef.getBounds());
-                int tileNr = 0;
-                // Process all tiles from the image.
-                for (Point tile : tiles) {
-                    tileNr++;
-                    logger.info("tile " + tileNr + " of " + tiles.length);
-                    logger.info("tileX: "+tile.x+" tileY: "+tile.y);
-                    // Test if the tile is in the ROI, and not exclusively part of the exclusion map.
-                    // if (!(tile.x==15 && tile.y==12)) continue;   // for testing: just on one tile
-                    if (tileOnly != null) {
-                        if (!(tile.x==tileOnly.x && tile.y==tileOnly.y)) continue;
-                    }
-                    if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
-                        // Calculate Tile Offset for translating annotations.
-                        //D detections = segmentationImplementation(orbitSegModel, orbitImage, tile);
-                        D detections = segmentationImplementation(orbitSegModel, orbitImage, tile, exclusionMapGen, roiDef);
-
-                        logger.info("shapes before filtering: " + detections.getDetections().size());
-                        // TODO: Re-enable
-                        //segmentationShapes = DLSegment.filterShapes(segmentationShapes);
-                        logger.info("shapes after filtering: " + detections.getDetections().size());
-                        if (storeAnnotations && detections.getDetections().size() > 0) {
-                            logger.info("storing annotations in DB");
-                            try {
-                                // TODO: Fix this.
-                                // If running in GUI mode force user to login, else use a hardcoded user.
-                                if (!ScaleoutMode.SCALEOUTMODE.get()) {
-                                    OrbitImageAnalysis.getInstance().forceLogin();
-                                    this.storeShapes(detections, segmentationSettings, rdfId, "AutomatedAnnotation");
-                                } else {
-                                    this.storeShapes(detections, segmentationSettings, rdfId, "AutomatedAnnotation");
-                                }
-                            } catch (Exception e) {
-                                logger.error(e.getLocalizedMessage());
-                            }
-                        }
-                        segmentationsPerImage.put(rdfId, detections.getContourShapes());
-                        long usedt = System.currentTimeMillis() - startt;
-                        logger.info("used time(h) for image: " + (usedt / 60000) / 60);
-                    }
                 }
             }
         }
-        return segmentationsPerImage;
+
+        // For existing ROI annotations (from Orbit DB) define a roiDef and add it to a list of all roiDefs.
+        List<Shape> roiDefList = new ArrayList<>();
+        for (ImageAnnotation roiAnnotation : rois) {
+            IScaleableShape roiShape = (IScaleableShape) roiAnnotation.getFirstShape();
+            roiShape = (IScaleableShape) roiShape.getScaledInstance(100d, new Point(0, 0));
+            ShapeAnnotationList roiDef = new ShapeAnnotationList(inclusions, exclusions, roiShape, roiShape.getBounds());
+            roiDefList.add(roiDef);
+        }
+        if (roiDefList.size() == 0) {   // no ROI annotations, so create one around the whole image
+            roiDefList.add(new RectangleExt(0, 0, rf.bimg.getWidth(), rf.bimg.getHeight()));
+        }
+
+        // Process all roiDefs.
+        for (Shape roiDef : roiDefList) {
+            Point[] tiles = orbitImage.getTileIndices(roiDef.getBounds());
+            int tileNr = 0;
+            // Process all tiles from the image.
+            for (Point tile : tiles) {
+                tileNr++;
+                logger.info("tile " + tileNr + " of " + tiles.length);
+                logger.info("tileX: "+tile.x+" tileY: "+tile.y);
+                // Test if the tile is in the ROI, and not exclusively part of the exclusion map.
+                // if (!(tile.x==15 && tile.y==12)) continue;   // for testing: just on one tile
+                if (tileOnly != null) {
+                    if (!(tile.x==tileOnly.x && tile.y==tileOnly.y)) continue;
+                }
+                if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
+                    // Calculate Tile Offset for translating annotations.
+                    //D detections = segmentationImplementation(orbitSegModel, orbitImage, tile);
+                    D detections = segmentationImplementation(orbitSegModel, orbitImage, tile, exclusionMapGen, roiDef);
+
+                    logger.info("shapes before filtering: " + detections.getDetections().size());
+                    // TODO: Re-enable
+                    //segmentationShapes = DLSegment.filterShapes(segmentationShapes);
+                    logger.info("shapes after filtering: " + detections.getDetections().size());
+                    if (storeAnnotations && detections.getDetections().size() > 0) {
+                        logger.info("storing annotations in DB");
+                        try {
+                            // TODO: Fix this.
+                            // If running in GUI mode force user to login, else use a hardcoded user.
+                            if (!ScaleoutMode.SCALEOUTMODE.get()) {
+                                OrbitImageAnalysis.getInstance().forceLogin();
+                                this.storeShapes(detections, segmentationSettings, rdfId, "AutomatedAnnotation");
+                            } else {
+                                this.storeShapes(detections, segmentationSettings, rdfId, "AutomatedAnnotation");
+                            }
+                        } catch (Exception e) {
+                            logger.error(e.getLocalizedMessage());
+                        }
+                    }
+                    contours.addAll(detections.getContourShapes());
+                    long usedt = System.currentTimeMillis() - startt;
+                    logger.info("used time(h) for image: " + (usedt / 60000) / 60);
+                }
+            }
+        }
+        return contours;
     }
 
     public void storeShape(Shape shape, String name, Color color, int rdfId, String user) throws Exception {
