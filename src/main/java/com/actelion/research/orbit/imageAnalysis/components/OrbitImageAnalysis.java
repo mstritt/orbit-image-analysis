@@ -798,6 +798,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             e.printStackTrace();
         }
         infoStr += "\nLib directory: " + libDir;
+        infoStr += "\nTemporary directory: " + OrbitUtils.getTempDir();
         infoStr += "\nLoaded model: " + loadedModel;
 
         return infoStr;

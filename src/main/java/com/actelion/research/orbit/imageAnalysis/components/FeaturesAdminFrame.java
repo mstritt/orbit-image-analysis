@@ -46,6 +46,8 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -528,22 +530,28 @@ public class FeaturesAdminFrame extends JDialog {
 
         lab = new JLabel("Predefined Model");
         panel.add(lab);
+
+        //select rdf.* from RAW_DATA_FILE rdf where rdf.FILENAME like '%.pb';
+        // http://ares:8080/orbit/rdf?orbitID=19340932&download=true
         MaskRCNNSegmentationSettings nucleiSettings = new MaskRCNNSegmentationSettings(
-                "Nuclei", "D:/deeplearning/deepretina/deepretina_final.pb",
+                "Nuclei", "http://ares:8080/orbit/rdf?orbitID=19340900", null,
                 512, 512,
                 0.5f, 512, 28, 28, 2,
                 "NucleiS", false,
                 MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD);
+
         MaskRCNNSegmentationSettings insulinSettings = new MaskRCNNSegmentationSettings(
-                "Pancreas Islets", "D:/deeplearning/insulin/models/insulin_009.pb",
-                512, 512,
-                16f, 10, 56, 56, 5,
-                "IsletC", true,
-                MaskRCNNSegmentationSettings.PostProcessMethod.CUSTOM);
+                    "Pancreas Islets", "http://ares:8080/orbit/rdf?orbitID=19340903", null,
+                    512, 512,
+                    16f, 10, 56, 56, 5,
+                    "IsletC", true,
+                    MaskRCNNSegmentationSettings.PostProcessMethod.CUSTOM);
+
         DLR101SegmentationSettings glomeruliSettings = new DLR101SegmentationSettings(
-                "Glomeruli", "D:/deeplearning/glomeruli/glomeruli-410k.pb",
+                "Glomeruli", "http://ares:8080/orbit/rdf?orbitID=23539963", null,
                 512, 512,
                 2, "Glomeruli", true);
+
         // Since this is a two-step method it needs a different approach...
         //MaskRCNNSegment corpus_callosum = new MaskRCNNSegment(new File("D:/deeplearning/insulin/models/insulin_009.pb"), MaskRCNNSegment.PostProcessMethod.STANDARD);
 

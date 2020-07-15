@@ -4,6 +4,7 @@ import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegmentati
 
 import java.awt.*;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.*;
 import java.util.List;
 
@@ -46,10 +47,10 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings<M
      * @param numClasses The number of classes in the trained model (Background + other classes).
      * @param postProcess
      */
-    public MaskRCNNSegmentationSettings(String modelName, String modelPath, int imageWidth, int imageHeight, float tileScaleFactor, int maxDetections,
+    public MaskRCNNSegmentationSettings(String modelName, String remoteModelURL, String modelPath, int imageWidth, int imageHeight, float tileScaleFactor, int maxDetections,
                                         int maskWidth, int maskHeight, int numClasses, String annotationPrefix,
                                         boolean segmentationRefinement, PostProcessMethod postProcess) {
-        this(modelName, modelPath, imageWidth, imageHeight,
+        this(modelName, remoteModelURL, modelPath, imageWidth, imageHeight,
                 tileScaleFactor, tileScaleFactor,
                 maxDetections, maskWidth, maskHeight,
                 numClasses, annotationPrefix, segmentationRefinement, postProcess);
@@ -71,10 +72,10 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings<M
      * @param numClasses The number of classes in the trained model (Background + other classes).
      * @param postProcess
      */
-    public MaskRCNNSegmentationSettings(String modelName, String modelPath, int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY,
+    public MaskRCNNSegmentationSettings(String modelName, String remoteModelURL, String modelPath, int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY,
                                         int maxDetections, int maskWidth, int maskHeight, int numClasses,
                                         String annotationPrefix, boolean segmentationRefinement, PostProcessMethod postProcess) {
-        super(modelName, modelPath, imageWidth, imageHeight,
+        super(modelName, remoteModelURL, modelPath, imageWidth, imageHeight,
                 tileScaleFactorX, tileScaleFactorY,
                 annotationPrefix, segmentationRefinement,
                 120d);

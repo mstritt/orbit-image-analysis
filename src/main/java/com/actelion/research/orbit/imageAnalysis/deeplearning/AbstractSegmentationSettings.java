@@ -1,14 +1,21 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
+import org.apache.commons.io.FileUtils;
+
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public abstract class AbstractSegmentationSettings<T> implements Serializable, Cloneable {
 
     private final String modelName;
-    private final String modelPath;
+    private final String remoteModelURL;
+    private String modelPath;
 
     private final int imageWidth;
     private final int imageHeight;
@@ -25,6 +32,7 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
 
     /**
      * Setup and store the settings used for abstract segmentation model training and inference.
+     * @param remoteModelURL
      * @param modelPath
      * @param imageWidth The width in px of the training images.
      * @param imageHeight The height in px of the training images.
@@ -35,9 +43,18 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
      * @param annotationPrefix The prefix used to store annotations.
      * @param segmentationRefinement Whether or not to refine the segmentation result. e.g. to mitigate for tile boundary
      */
-    public AbstractSegmentationSettings(String modelName, String modelPath, int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, String annotationPrefix, boolean segmentationRefinement, double detectionToleranceScale) {
+    public AbstractSegmentationSettings(String modelName, String remoteModelURL, String modelPath, int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, String annotationPrefix, boolean segmentationRefinement, double detectionToleranceScale) {
         this.modelName = modelName;
-        this.modelPath = modelPath;
+        this.remoteModelURL = remoteModelURL;
+        if (remoteModelURL != null) {
+            try {
+                this.modelPath = cacheRemoteModel();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            this.modelPath = modelPath;
+        }
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.trainingImageTileWidth = (int) (imageWidth * tileScaleFactorX);
@@ -53,11 +70,24 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
         return modelName;
     }
 
+    public String cacheRemoteModel() throws IOException {
+        File modelFile = File.createTempFile("orbit-dl-model", modelName);
+        return modelFile.getPath();
+    }
+
     /**
      * Get the path to the DL model used for segmentation.
      * @return Path to DL model for segmentation.
      */
     public Path getModelPath() {
+        File modelFile = new File(modelPath);
+        if (!modelFile.exists()) {
+            try {
+                FileUtils.copyURLToFile(new URL(remoteModelURL), modelFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         return Paths.get(modelPath);
     }
 
