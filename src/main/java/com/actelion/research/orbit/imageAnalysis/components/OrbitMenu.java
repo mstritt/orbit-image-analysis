@@ -84,6 +84,8 @@ public class OrbitMenu extends JRibbonFrame {
     private Command setSecondarySegmentationModelCommand;
     // Commands for Features and Define ROI are defined in Exclusion Model and Classification
     private Command objectSegmentationCommand;
+    private Command dLObjectSegmentationCommand;
+
     private Command showSegmentationHeatmapCommand;
     // Commands for Reset Primary and Secondary Model are defined in Exclusion Model
     private Command setupClassesObjectClassificationCommand;
@@ -645,6 +647,18 @@ public class OrbitMenu extends JRibbonFrame {
                                 .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.tooltip.actionParagraph2"))
                                 .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.tooltip.actionParagraph3"))
                                 .addDescriptionSection(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.tooltip.actionParagraph4"))
+                                .build())
+                .build();
+
+        this.dLObjectSegmentationCommand = Command.builder()
+                .setText(resourceBundle.getString("ObjectDetection.dLObjectSegmentation.objectSegmentation.text"))
+                .setIconFactory(mask2browser.factory())
+                .setAction(oia.DLObjectSegmentationCommandAction)
+                .setActionRichTooltip(
+                        RichTooltip.builder()
+                                .setTitle(resourceBundle.getString("ObjectDetection.dLObjectSegmentation.objectSegmentation.tooltip.text"))
+                                .addDescriptionSection(resourceBundle.getString("ObjectDetection.dLObjectSegmentation.objectSegmentation.tooltip.actionParagraph1"))
+                                .addDescriptionSection(resourceBundle.getString("ObjectDetection.dLObjectSegmentation.objectSegmentation.tooltip.actionParagraph2"))
                                 .build())
                 .build();
 
@@ -2094,6 +2108,8 @@ public class OrbitMenu extends JRibbonFrame {
                 CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> objectSegmentationProjection = this.objectSegmentationCommand.project(
                 CommandButtonPresentationModel.builder().build());
+        CommandButtonProjection<Command> dLObjectSegmentationProjection = this.dLObjectSegmentationCommand.project(
+                CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> showSegmentationHeatmapProjection = this.showSegmentationHeatmapCommand.project(
                 CommandButtonPresentationModel.builder().build());
         CommandButtonProjection<Command> resetPrimarySegmentationModelProjection = this.resetPrimarySegmentationModelCommand.project(
@@ -2101,12 +2117,14 @@ public class OrbitMenu extends JRibbonFrame {
         CommandButtonProjection<Command> resetSecondarySegmentationModelProjection = this.resetSecondarySegmentationModelCommand.project(
                 CommandButtonPresentationModel.builder().build());
 
+        objectSegmentationBand.addRibbonCommand(featuresProjection, JRibbonBand.PresentationPriority.TOP);
         objectSegmentationBand.addRibbonCommand(setPrimarySegmentationModelProjection, JRibbonBand.PresentationPriority.TOP);
         objectSegmentationBand.addRibbonCommand(setSecondarySegmentationModelProjection, JRibbonBand.PresentationPriority.TOP);
-        objectSegmentationBand.addRibbonCommand(featuresProjection, JRibbonBand.PresentationPriority.MEDIUM);
-        objectSegmentationBand.addRibbonCommand(defineRoiProjection, JRibbonBand.PresentationPriority.MEDIUM);
         objectSegmentationBand.addRibbonCommand(objectSegmentationProjection, JRibbonBand.PresentationPriority.TOP);
-        objectSegmentationBand.addRibbonCommand(showSegmentationHeatmapProjection, JRibbonBand.PresentationPriority.TOP);
+        objectSegmentationBand.addRibbonCommand(dLObjectSegmentationProjection, JRibbonBand.PresentationPriority.TOP);
+
+        objectSegmentationBand.addRibbonCommand(defineRoiProjection, JRibbonBand.PresentationPriority.MEDIUM);
+        objectSegmentationBand.addRibbonCommand(showSegmentationHeatmapProjection, JRibbonBand.PresentationPriority.MEDIUM);
         objectSegmentationBand.addRibbonCommand(resetPrimarySegmentationModelProjection, JRibbonBand.PresentationPriority.MEDIUM);
         objectSegmentationBand.addRibbonCommand(resetSecondarySegmentationModelProjection, JRibbonBand.PresentationPriority.MEDIUM);
 

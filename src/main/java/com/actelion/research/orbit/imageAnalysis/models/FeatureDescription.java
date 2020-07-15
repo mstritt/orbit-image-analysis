@@ -548,8 +548,8 @@ public class FeatureDescription implements Serializable, Cloneable {
                 ", mumfordShahAlpha="+mumfordShahAlpha +
                 ", mumfordShahCellSize="+mumfordShahCellSize +
                 ", deepLearningSegmentation="+deepLearningSegmentation +
-                ", deepLearningSegmentationModelPath="+deepLearningModelPath +
-                ", deepLearningSegmentation="+ dLSegmentSettings.toString() +
+                ", deepLearningSegmentationModelPath="+((featureVersion<3) ? "not set" : dLSegmentSettings.toString()) +
+                ", deepLearningSegmentation="+ ((featureVersion<3) ? "not set" : dLSegmentSettings.toString()) +
                 ", hueMap="+getHueMapString() +
                 ", mihcActive="+mihcActive+
                 '}';

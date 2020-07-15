@@ -428,11 +428,13 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                                 this.getClass().getResourceAsStream("/resource/testmodels/dlsegmentsplit.omo"));
                         //D detections = finalDLSegmentationModel.segmentationImplementation(segModel, orbitImage, currentTile, null, fullROI);
                         //tileSegmentations = Objects.requireNonNull(finalDLSegmentationModel).generateSegmentationAnnotations(Arrays.asList(rdf), dlSegmentSettings, segModel, segModel, null, currentTile, false);
+
+
                         tileSegmentations = Objects.requireNonNull(finalDLSegmentationModel).generateSegmentationAnnotations(rdf,
                                 (MaskRCNNSegmentationSettings) dlSegmentSettings,
                                 segModel,
-                                segModel,
-                                currentTile,
+                                null,
+                                new Point(0,0),
                                 false);
                         // TODO: Problem with the tile size vs. the settings in dlSegmentSettings...
                         // e.g.

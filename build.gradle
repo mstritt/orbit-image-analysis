@@ -256,6 +256,7 @@ dependencies {
     }
     api (group: 'ome', name:'formats-gpl', version:'6.5.0') {
         exclude (module: 'blitz')
+        exclude( group: 'org.sl4j', module: 'slf4j-log4j12')
     }
     api (group: 'net.imglib2', name: 'imglib2', version: '3.2.1') // to avoid jpeg2000 problem: NoSuchMethodError: jj2000.j2k.fileformat.reader.FileFormatReader.<init>
 
@@ -271,7 +272,8 @@ dependencies {
     }
     implementation 'org.xerial:sqlite-jdbc:3.21.0'
     implementation 'org.tensorflow:tensorflow:1.14.0'  // 1.4.0 1.10.0 implementationOnly
-    // implementation 'org.tensorflow:libtensorflow_jni_gpu:1.10.0'
+    implementation 'org.tensorflow:libtensorflow_jni_gpu:1.14.0'
+    //https://www.tensorflow.org/install/gpu
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7'
 
     testImplementation 'org.hamcrest:hamcrest:2.2'

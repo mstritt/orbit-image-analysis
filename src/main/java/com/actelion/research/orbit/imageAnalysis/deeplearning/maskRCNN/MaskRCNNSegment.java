@@ -240,6 +240,7 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
                 logger.info(detections.toString());
                 break;
         }
+        //s.close();
         return detections;
     }
 
@@ -275,6 +276,7 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
                 logger.info(detections.toString());
                 break;
         }
+        //s.close();
         return detections;
     }
 

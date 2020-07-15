@@ -86,7 +86,8 @@ public class TestInsulinSegment extends OrbitTestOS {
         File maskRCNNModel = new File("D:/deeplearning/insulin/models/insulin_009.pb");
 
         MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings("Pancreas Islets",
-                maskRCNNModel.getPath(), 512, 512,
+                "http://ares:8080/orbit/rdf?orbitID=19340900",
+                null, 512, 512,
                 16f, 10, 56, 56, 5, "IsletC",
                 true, MaskRCNNSegmentationSettings.PostProcessMethod.CUSTOM);
         ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW));
@@ -143,7 +144,8 @@ public class TestInsulinSegment extends OrbitTestOS {
         File maskRCNNModel = new File("D:/deeplearning/insulin/models/insulin_009.pb");
 
         MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings("Pancreas Islets",
-                maskRCNNModel.getPath(), 512, 512,
+                "http://ares:8080/orbit/rdf?orbitID=19340900",
+                null, 512, 512,
                 16f, 10, 56, 56, 5, "IsletS",
                 true, MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD);
         ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW));

@@ -81,7 +81,7 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
      */
     public Path getModelPath() {
         File modelFile = new File(modelPath);
-        if (!modelFile.exists()) {
+        if (modelFile.exists() && modelFile.length() == 0) {
             try {
                 FileUtils.copyURLToFile(new URL(remoteModelURL), modelFile);
             } catch (IOException e) {

@@ -33,7 +33,9 @@ public class TestGlomeruliSegment extends OrbitTestOS {
         File dLR101GlomeruliModel = new File("D:/deeplearning/glomeruli/20180202_glomeruli_detection_noquant.pb");
 //        File dLR101GlomeruliModel = new File("D:/deeplearning/glomeruli/glomeruli-410k.pb");
 
-        DLR101SegmentationSettings glomeruliSettings = new DLR101SegmentationSettings("Glomeruli", 512, 512,
+        DLR101SegmentationSettings glomeruliSettings = new DLR101SegmentationSettings("Glomeruli",
+                "http://ares:8080/orbit/rdf?orbitID=23539963",
+                null, 512, 512,
                 1, "Glomeruli", true);
 
         DLR101Segment glomeruliModel = new DLR101Segment(dLR101GlomeruliModel, glomeruliSettings);
@@ -98,7 +100,9 @@ public class TestGlomeruliSegment extends OrbitTestOS {
         boolean storeAnnotations = true;
         File dLR101GlomeruliModel = new File("D:/deeplearning/glomeruli/glomeruli-410k.pb");
 
-        DLR101SegmentationSettings glomeruliSettings = new DLR101SegmentationSettings("Glomeruli", 512, 512,
+        DLR101SegmentationSettings glomeruliSettings = new DLR101SegmentationSettings("Glomeruli",
+                "http://ares:8080/orbit/rdf?orbitID=23539963",
+                null, 512, 512,
                 2, "Glomeruli", true);
 
 //        ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW));

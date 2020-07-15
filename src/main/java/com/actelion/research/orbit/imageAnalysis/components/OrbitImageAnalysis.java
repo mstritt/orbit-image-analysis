@@ -1083,7 +1083,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         modifiedClassShapes = false;
     }
 
-
     private OrbitWorker objectSegmentation(boolean withGUI, boolean orderPoints) {
         logger.info("objectSegmentation called [method call]");
         OrbitModel localModel = new OrbitModel(this.model);
@@ -1142,6 +1141,79 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         rf.setROI(segROI);
         List<ClassShape> classShapesToSet = localModel.getSegmentationModel().getClassShapes();
         ObjectSegmentationWorker segWorker = new ObjectSegmentationWorker(iFrame.getRdf(), rf, null, classShapesToSet, tiles);
+
+
+        if (oriRf != null) {
+            segWorker.setDontClassify(false);
+            segWorker.setOriginalFrame(oriRf);
+        }
+        segWorker.setModel(localModel);
+        segWorker.setExclusionMap(ExclusionMapGen.constructExclusionMap(iFrame.getRdf(), rf, localModel, segROI));
+        segWorker.setHeatmapFeature(isShowObjectHeatmap() ? ObjectFeatureBuilderTiled.FeatureAreaNumReverse : -1); // 4 means numFeatures-4=area, otherwise -1 means deactivate heatmap
+//			  segWorker.setDontClassify(true);
+        ProgressPanel progressPanel2 = new ProgressPanel(getCurrentPicName(), "Object Segmentation", segWorker);
+        addAndExecuteTask(progressPanel2, true);
+        return segWorker;
+    }
+
+    private OrbitWorker dLObjectSegmentation(boolean withGUI, boolean orderPoints) {
+        logger.info("dLObjectSegmentation called [method call]");
+        OrbitModel localModel = new OrbitModel(this.model);
+        ImageFrame iFrame = getIFrame();
+
+        if (localModel.getSegmentationModel() == null) {
+            JOptionPane.showMessageDialog(this, "No primary segmentation model available.\nPlease first define a segmentation model and click the 'set primary segmentation model' button.", "No segmentation model available", JOptionPane.ERROR_MESSAGE);
+            return null;
+        } else {
+            if (localModel.getSegmentationModel().getClassShapes().size() < 2)
+                throw new IllegalArgumentException("classShapesToSet.size should be >= 2 bit is " + localModel.getSegmentationModel().getClassShapes().size());
+        }
+
+        reloadROI(iFrame);
+        iFrame.getOpacitySlider().setEnabled(true);
+        Arc2DExt fixedROI = null;
+        if (localModel.getFixedCircularROI() > 0) {
+            fixedROI = new Arc2DExt();
+            fixedROI.setArcByCenter((iFrame.recognitionFrame.bimg.getWidth() / 2d) + localModel.getFixedROIOffsetX(), (iFrame.recognitionFrame.bimg.getHeight() / 2d) + localModel.getFixedROIOffsetY(), localModel.getFixedCircularROI(), 0, 360, Arc2DExt.CHORD);
+        }
+
+        List<Point> tiles = null;
+
+        IScaleableShape segROI = fixedROI;
+        if (iFrame.recognitionFrame.getROI() == null) {
+            RawDataFile rdf = iFrame.getRdf();
+            if (rdf != null && rdf.getRawDataFileId() > 0) {
+                int annoGroup = localModel.getAnnotationGroup();
+                if (annoGroup < 0 && localModel.isLoadAnnotationsAsInversROI()) {
+                    annoGroup = 0;// 0 means all
+                }
+                logger.debug("use annotations as ROI group: " + annoGroup);
+                iFrame.recognitionFrame.loadAnnotationROI(rdf.getRawDataFileId(), annoGroup);
+                logger.trace("recognition frame roi: " + iFrame.recognitionFrame.getROI());
+            }
+        }
+
+        RecognitionFrame rf = iFrame.recognitionFrame;
+        RecognitionFrame oriRf = null;
+        rf.setObjectSegmentationColors(null); // reset heatmap
+
+        // level set start
+        int level = localModel.getSegmentationModel().getMipLayer();    // upd 22.09.2015
+        logger.debug("used special layer for recognitionFrame construction (segmentation): " + level);
+        if (level < 0) throw new IllegalArgumentException("special layer < 0 is not allowed");
+        if (level > 0 && (iFrame.getMipLayer() != level)) {
+            RawDataFile rdf = iFrame.getRdf();
+            if (rdf == null) throw new IllegalArgumentException("level set but rdf is null");
+            oriRf = rf;
+            rf = OrbitUtils.getMipRecognitionFrame(rf,rdf,level);
+        }
+        // level set end
+
+
+        if (segROI == null) segROI = rf.getROI();
+        rf.setROI(segROI);
+        List<ClassShape> classShapesToSet = localModel.getSegmentationModel().getClassShapes();
+        DLSegmentationWorker segWorker = new DLSegmentationWorker(iFrame.getRdf(), rf, null, classShapesToSet, tiles);
 
 
         if (oriRf != null) {
@@ -3393,6 +3465,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     final CommandAction SetPrimarySegmentationModelCommandAction = e -> setModelAsSegmentationModel(model, true);
     final CommandAction SetSecondarySegmentationModelCommandAction = e -> setModelAsSecondarySegmentationModel(model, true);
     final CommandAction ObjectSegmentationCommandAction = e -> objectSegmentation(true, false);
+    final CommandAction DLObjectSegmentationCommandAction = e -> dLObjectSegmentation(true, false);
     final CommandAction ShowSegmentationHeatmapCommandAction = e -> {
         this.setShowObjectHeatmap(!this.isShowObjectHeatmap());
         OrbitModel model = this.getModel();
