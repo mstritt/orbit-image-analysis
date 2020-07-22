@@ -255,7 +255,7 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
                 // Apply segmentation model to the tile image.
                 try {
                     detections = this.segmentTile(tile.x, tile.y, orbitImage, orbitSegModel, false, tileOffset);
-                    logger.info(detections.toString());
+                    //logger.info(detections.toString());
 
                     if (segmentationSettings.isSegmentationRefinement()) {
                         try {
@@ -301,7 +301,7 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
         }
 
         Tensor<Float> inputTensor = DLHelpers.convertBufferedImageToTensor(ori,segmentationSettings.getImageWidth(),segmentationSettings.getImageHeight());
-        long startt = System.currentTimeMillis();
+        //long startt = System.currentTimeMillis();
 
         // Apply MaskRCNN model.
         MaskRCNNRawDetections rawDetections = this.getMaskRCNNRawDetections(inputTensor);
@@ -344,8 +344,8 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
 
 
 
-                long usedt = System.currentTimeMillis() - startt;
-                logger.info("segment time (s): " + usedt / 1000d);
+                //long usedt = System.currentTimeMillis() - startt;
+                //logger.info("segment time (s): " + usedt / 1000d);
 
                 // TODO: Move this to a test.
                 if (writeImg) {

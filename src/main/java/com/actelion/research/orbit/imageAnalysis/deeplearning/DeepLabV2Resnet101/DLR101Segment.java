@@ -24,9 +24,15 @@ public class DLR101Segment extends AbstractSegment<DLR101Detections, DLR101Segme
 
     private final Session s;
 
+    @Deprecated
     public DLR101Segment(File modelPB, DLR101SegmentationSettings settings) {
         super(settings);
         this.s = DLHelpers.buildSession(modelPB.getAbsolutePath());
+    }
+
+    public DLR101Segment(DLR101SegmentationSettings settings) {
+        super(settings);
+        this.s = DLHelpers.buildSession(settings.getModelPath());
     }
 
     @Override

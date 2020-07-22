@@ -1,14 +1,12 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
-import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetection;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
 import com.actelion.research.orbit.imageAnalysis.models.RectangleExt;
 import com.actelion.research.orbit.imageAnalysis.models.SegmentationResult;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class AbstractDetections<T extends AbstractDetection> {
@@ -101,6 +99,13 @@ public abstract class AbstractDetections<T extends AbstractDetection> {
                 .collect(Collectors.toList());
     }
 
+    public int getNumDetections() {
+        return Math.toIntExact(this.detections
+                .stream()
+                .filter(Objects::nonNull)
+                .count());
+    }
+
     /**
      * Remove detection by index.
      * @param i index of detection to remove.
@@ -111,6 +116,10 @@ public abstract class AbstractDetections<T extends AbstractDetection> {
     }
 
     public abstract void addDetection(PolygonExt contour, RectangleExt boundingBox, Float classProbability, Integer maskClass, Point tileOffset);
+
+    public void addDetection(List<T> detections) {
+        this.detections.addAll(detections);
+    }
 
     /**
      * String representation of detections object.

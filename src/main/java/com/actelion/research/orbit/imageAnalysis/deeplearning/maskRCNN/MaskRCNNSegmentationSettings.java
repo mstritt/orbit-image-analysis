@@ -15,7 +15,7 @@ public class MaskRCNNSegmentationSettings extends AbstractSegmentationSettings<M
     private final int maskHeight;
     private final int numClasses;
 
-    private final float minimumAreaThreshold = 1E-5f;
+    private final float minimumAreaThreshold = 1E-6f;
     private final float boundingBoxProbabilityThreshold = 0.1f;
     private final float pixelProbabilityThreshold = 0.45f;
     private final float marchingSquaresContourThreshold = 0.5f;

@@ -534,21 +534,21 @@ public class FeaturesAdminFrame extends JDialog {
         //select rdf.* from RAW_DATA_FILE rdf where rdf.FILENAME like '%.pb';
         // http://ares:8080/orbit/rdf?orbitID=19340932&download=true
         MaskRCNNSegmentationSettings nucleiSettings = new MaskRCNNSegmentationSettings(
-                "Nuclei", "http://ares:8080/orbit/rdf?orbitID=19340900", null,
+                "Nuclei", "http://ares:8080/orbit/rdf?orbitID=19340900", "C:\\Users\\fullejo1\\Downloads\\deepretina_final.pb",
                 512, 512,
                 0.5f, 512, 28, 28, 2,
                 "NucleiS", false,
                 MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD);
 
         MaskRCNNSegmentationSettings insulinSettings = new MaskRCNNSegmentationSettings(
-                    "Pancreas Islets", "http://ares:8080/orbit/rdf?orbitID=19340903", null,
+                    "Pancreas Islets", "http://ares:8080/orbit/rdf?orbitID=19340903", "C:\\Users\\fullejo1\\Downloads\\insulin_009.pb",
                     512, 512,
                     16f, 10, 56, 56, 5,
                     "IsletC", true,
                     MaskRCNNSegmentationSettings.PostProcessMethod.CUSTOM);
 
         DLR101SegmentationSettings glomeruliSettings = new DLR101SegmentationSettings(
-                "Glomeruli", "http://ares:8080/orbit/rdf?orbitID=23539963", null,
+                "Glomeruli", "http://ares:8080/orbit/rdf?orbitID=23539963", "C:\\Users\\fullejo1\\Downloads\\glomeruli-410k.pb",
                 512, 512,
                 2, "Glomeruli", true);
 
@@ -761,6 +761,7 @@ public class FeaturesAdminFrame extends JDialog {
         cbDeepLearning.setSelected(featureDescription.isDeepLearningSegmentation());
         tfDeepLearningModelPath.setText(featureDescription.getDeepLearningModelPath());
         // TODO: Figure out what to do here...
+//        dlSegmentMethodsModel.setSelectedItem(featureDescription.getDLSegment());
         //dLMethodComboBox.setModel(featureDescription.getDLSegment());
 
         // roi

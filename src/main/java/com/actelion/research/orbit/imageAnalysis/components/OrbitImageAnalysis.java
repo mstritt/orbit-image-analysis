@@ -1216,14 +1216,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         DLSegmentationWorker segWorker = new DLSegmentationWorker(iFrame.getRdf(), rf, null, classShapesToSet, tiles);
 
 
-        if (oriRf != null) {
-            segWorker.setDontClassify(false);
-            segWorker.setOriginalFrame(oriRf);
-        }
         segWorker.setModel(localModel);
         segWorker.setExclusionMap(ExclusionMapGen.constructExclusionMap(iFrame.getRdf(), rf, localModel, segROI));
-        segWorker.setHeatmapFeature(isShowObjectHeatmap() ? ObjectFeatureBuilderTiled.FeatureAreaNumReverse : -1); // 4 means numFeatures-4=area, otherwise -1 means deactivate heatmap
-//			  segWorker.setDontClassify(true);
         ProgressPanel progressPanel2 = new ProgressPanel(getCurrentPicName(), "Object Segmentation", segWorker);
         addAndExecuteTask(progressPanel2, true);
         return segWorker;
