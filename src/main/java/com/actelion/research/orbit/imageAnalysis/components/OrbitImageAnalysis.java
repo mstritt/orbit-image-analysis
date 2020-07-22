@@ -2287,6 +2287,53 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     }
 
+    private void downloadImages() {
+        if (getIFrames() == null || getIFrames().size() == 0) {
+            JOptionPane.showMessageDialog(this, "Nothing to save. Please open a file before saving.",
+                    "Nothing to save",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                "Orbit Image Files (*.tiff|.npdi|.ndpis|.jpg)", "tiff", "ndpi", "ndpis", "jpg");
+        fileChooser.setFileFilter(filter);
+        fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+        if (getIFrames().size() == 1) {
+            fileChooser.setSelectedFile(new File(getIFrame().recognitionFrame.getPicName()));
+        } else {
+            fileChooser.setSelectedFile(new File("Images.orbit"));
+        }
+
+        int returnVal = fileChooser.showSaveDialog(OrbitImageAnalysis.this);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            String fn = fileChooser.getSelectedFile().getAbsolutePath();
+            //if (!fn.toLowerCase().endsWith(".orbit")) fn += ".orbit";
+            File file = new File(fn);
+            if (file.isDirectory()) return;
+            try {
+                FileOutputStream fos = new FileOutputStream(file);
+                OutputStreamWriter osw = new OutputStreamWriter(fos);
+                for (ImageFrame iFrame : getIFrames()) {
+                    osw.write(iFrame.recognitionFrame.getOriginalName() + "\n");
+                }
+                osw.flush();
+                osw.close();
+                fos.flush();
+                fos.close();
+                JOptionPane.showMessageDialog(this, "Orbit file saved successfully.",
+                        "Orbit file saved", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception e) {
+                logger.error("error saving orbit file", e);
+                e.printStackTrace();
+            }
+
+        } else {
+            logger.trace("save as orbit canceled.");
+        }
+    }
 
     public void exitProcedure() {
         if (JOptionPane.showConfirmDialog(this,
@@ -3115,6 +3162,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 }
 
     final CommandAction SaveAsOrbitFileCommandAction = e -> saveAsOrbitFile();
+    final CommandAction DownloadImagesCommandAction = e -> downloadImages();
     final CommandAction ImageProviderCommandAction = e -> switchLocalRemoteImageProvider();
 
 
@@ -3234,7 +3282,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
         }
     };
-    final CommandAction SaveModelAsCommandAction = e ->  saveModel(model, loadedModel);;
+    final CommandAction SaveModelAsCommandAction = e ->  saveModel(model, loadedModel);
     final CommandAction SaveNestedExclusionModelCommandAction = e -> {
         if (model.getExclusionModel() != null) {
             model.cleanModel();
@@ -3246,6 +3294,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                     JOptionPane.ERROR_MESSAGE);
         }
     };
+
     final CommandAction SaveNestedSegmentationModelCommandAction = e -> {
         if (model.getSegmentationModel() != null) {
             model.cleanModel();

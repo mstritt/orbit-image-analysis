@@ -38,6 +38,7 @@ public class OrbitMenu extends JRibbonFrame {
     private Command openSpecialResolutionCommand;
     private final CommandMenuContentModel openSpecialResolutionContentModel = new CommandMenuContentModel();
     private Command saveImageLinksCommand;
+    private Command downloadImagesCommand;
     private Command imageProviderCommand;
 
     // Commands for Edit tasks
@@ -269,6 +270,18 @@ public class OrbitMenu extends JRibbonFrame {
                                 .addDescriptionSection(resourceBundle.getString("Image.Save.SaveLinks.tooltip.actionParagraph1"))
                                 .build())
                 .build();
+
+        this.downloadImagesCommand = Command.builder()
+                .setText(resourceBundle.getString("Image.Save.DownloadImage.text"))
+                .setIconFactory(document_save_as_3.factory())
+                .setAction(oia.DownloadImagesCommandAction)
+                .setActionRichTooltip(
+                        RichTooltip.builder()
+                                .setTitle(resourceBundle.getString("Image.Save.DownloadImage.text"))
+                                .addDescriptionSection(resourceBundle.getString("Image.Save.DownloadImage.tooltip.actionParagraph1"))
+                                .build())
+                .build();
+
 
         this.imageProviderCommand = Command.builder()
                 .setText(resourceBundle.getString("Image.ImageProvider.SwitchImageProvider.text"))
@@ -1535,6 +1548,7 @@ public class OrbitMenu extends JRibbonFrame {
         RibbonApplicationMenu applicationMenu = new RibbonApplicationMenu(
                 new CommandGroup(openImageMenuCommand),
                 new CommandGroup(saveImageLinksCommand),
+                new CommandGroup(downloadImagesCommand),
                 new CommandGroup(openModelMenuCommand),
                 new CommandGroup(saveModelAsMenuCommand),
                 new CommandGroup(helpMenuCommand),
@@ -1716,7 +1730,11 @@ public class OrbitMenu extends JRibbonFrame {
         CommandButtonProjection<Command> saveImageLinksProjection = this.saveImageLinksCommand.project(
                 CommandButtonPresentationModel.builder().build());
 
+        CommandButtonProjection<Command> downloadImagesProjection = this.downloadImagesCommand.project(
+                CommandButtonPresentationModel.builder().build());
+
         saveImageBand.addRibbonCommand(saveImageLinksProjection, JRibbonBand.PresentationPriority.TOP);
+        saveImageBand.addRibbonCommand(downloadImagesProjection, JRibbonBand.PresentationPriority.TOP);
 
         List<RibbonBandResizePolicy> resizePolicies = new ArrayList<>();
         resizePolicies.add(new CoreRibbonResizePolicies.Mirror(saveImageBand));
