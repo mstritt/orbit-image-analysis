@@ -177,6 +177,17 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
             logger.warn("error reading tile "+tileX+" x "+tileY+" channelContributions: "+Arrays.toString(channelContributions));
         }
 
+        // TODO: really needed?
+        if (tile.getNumBands() == 1) {
+            BufferedImage bi = createImage(tile, null, grayColorModel.createCompatibleSampleModel(this.getWidth(), this.getHeight()), grayColorModel);
+            PlanarImage pi = PlanarImage.wrapRenderedImage(bi);
+            ParameterBlock pb = new ParameterBlock();
+            pb.addSource(pi); // r
+            pb.addSource(pi); // g
+            pb.addSource(pi); // b
+            pi = JAI.create("bandmerge", pb);
+            tile = pi.getData();
+        }
 
         BufferedImage bi = null;
 
@@ -384,10 +395,17 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
 
     }
 
-    private BufferedImage convertGrayImageToColorImage(BufferedImage grayImage) {
-        System.out.println("convertGrayImageToColorImage");
+    private BufferedImage convertGrayImageToARGBImage(BufferedImage grayImage) {
         BufferedImage outputImage = new BufferedImage(grayImage.getWidth(), grayImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
         outputImage.setData(convertGrayRasterToColorRaster(grayImage.getRaster()));
+        return outputImage;
+    }
+
+    private BufferedImage convertGrayImageToRGBImage(BufferedImage grayImage) {
+        BufferedImage outputImage = new BufferedImage(grayImage.getWidth(), grayImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = outputImage.createGraphics();
+        g2d.drawImage(grayImage,0,0, null);
+        g2d.dispose();
         return outputImage;
     }
 
@@ -747,12 +765,23 @@ public abstract class OrbitTiledImage2 extends PlanarImage implements RenderedIm
         return result;
     }
 
+    /**
+     * Output is a RGB image, even for 1-band images
+     * Only works for small images!
+     * @return
+     */
     @Override
     public BufferedImage getAsBufferedImage() {
         BufferedImage colorImage = null;
-        BufferedImage image = this.getAsBufferedImage((Rectangle) null, super.getColorModel());
+        BufferedImage image;
+        if (originalWasGrayScale) { // here we handle the case that it is a 1-band image, but with a wrong (e.g. 3-band) color and sample model
+            image = createImage(getData(),null,grayColorModel.createCompatibleSampleModel(tileWidth,tileHeight),grayColorModel);
+            image = convertGrayImageToRGBImage(image);
+        } else {
+            image = this.getAsBufferedImage((Rectangle) null, super.getColorModel());
+        }
         if (1 == image.getRaster().getNumBands()){
-            colorImage = convertGrayImageToColorImage(image);
+            colorImage = convertGrayImageToRGBImage(image); // was ARGB !
         } else if (3 == image.getRaster().getNumBands()){
             colorImage = image;
         } else {
