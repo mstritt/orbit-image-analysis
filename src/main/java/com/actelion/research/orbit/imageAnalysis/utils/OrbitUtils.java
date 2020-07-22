@@ -385,9 +385,10 @@ public class OrbitUtils {
 
     public static boolean isInROI(int x, int y, Shape ROI, ExclusionMapGen exclusionMapGen) {
         if ((ROI == null) || (ROI.contains(x, y))) {
-            if ((exclusionMapGen == null) || /*(exclusionMapGen.useForSegmentation()) ||*/ (!exclusionMapGen.isExcluded(x, y) || ((ROI != null) && (ROI instanceof ShapeAnnotationList) && (((ShapeAnnotationList) ROI)).containsExplicit(x, y)))) {
-                return true;
-            }
+            return (exclusionMapGen == null)
+                    || (!exclusionMapGen.isExcluded(x, y)
+                    || ((ROI instanceof ShapeAnnotationList)
+                    && (((ShapeAnnotationList) ROI)).containsExplicit(x, y)));
         }
         return false;
     }
@@ -395,7 +396,8 @@ public class OrbitUtils {
 
     /**
      * Fuzzy check if a tile is inside the ROI. It only checks if one corner or the center of the tile is inside the ROI.
-     * Might return false if a few pixels of the tile are inside the ROI!
+     * Might return false if a few pixels of the tile are inside the ROI! Also more likely to return false if
+     * the tile size is large compared to the ROI size.
      */
     public static boolean isTileInROI(int tileX, int tileY, final PlanarImage image, Shape ROI, ExclusionMapGen exclusionMapGen) {
         Rectangle rect = image.getTileRect(tileX,tileY);
@@ -404,6 +406,28 @@ public class OrbitUtils {
         if (isInROI((int)rect.getMinX(),(int)rect.getMaxY(),ROI,exclusionMapGen)) return true;   // bottom-left
         if (isInROI((int)rect.getMaxX(),(int)rect.getMaxY(),ROI,exclusionMapGen)) return true;   // bottom-right
         if (isInROI((int)rect.getCenterX(),(int)rect.getCenterY(),ROI,exclusionMapGen)) return true;   // bottom-right
+        return false;
+    }
+
+    /**
+     * Fuzzy check if a tile is inside the ROI. It only checks if one corner or the center of the tile is inside the ROI.
+     * Might return false if a few pixels of the tile are inside the ROI! Slower than isTileInROI, but more
+     * likely to return true for large tiles c.f. ROI size.
+     */
+    public static boolean isTileInROISlow(int tileX, int tileY, final PlanarImage image, Shape ROI, ExclusionMapGen exclusionMapGen) {
+        Random random = new Random();
+        if (isTileInROI(tileX, tileY, image, ROI, exclusionMapGen)) return true;
+
+        Rectangle rect = image.getTileRect(tileX,tileY);
+
+        int randX;
+        int randY;
+        for(int i=0; i<10000; i++) {
+            randX = random.ints((int)rect.getMinX(),((int)rect.getMaxX()+1)).findFirst().getAsInt();
+            randY = random.ints((int)rect.getMinY(),((int)rect.getMaxY()+1)).findFirst().getAsInt();
+            if (isInROI(randX, randY, ROI, exclusionMapGen)) return true;
+        }
+
         return false;
     }
 
