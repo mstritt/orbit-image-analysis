@@ -269,10 +269,10 @@ public class ExclusionModule extends AbstractOrbitModule {
         CommandButtonProjection<Command> exclusionHelpProjection = this.getExclusionHelpCommand().project(
                 CommandButtonPresentationModel.builder().build());
 
+        exclusionModelBand.addRibbonCommand(configureClassesProjection, JRibbonBand.PresentationPriority.TOP);
+        exclusionModelBand.addRibbonCommand(exclusionModelLevelProjection, JRibbonBand.PresentationPriority.TOP);
         exclusionModelBand.addRibbonCommand(trainSetClassifyProjection, JRibbonBand.PresentationPriority.TOP);
         exclusionModelBand.addRibbonCommand(classifyTrainedExclusionModelProjection, JRibbonBand.PresentationPriority.TOP);
-        exclusionModelBand.addRibbonCommand(configureClassesProjection, JRibbonBand.PresentationPriority.MEDIUM);
-        exclusionModelBand.addRibbonCommand(exclusionModelLevelProjection, JRibbonBand.PresentationPriority.MEDIUM);
         exclusionModelBand.addRibbonCommand(loadAndSetLocalProjection, JRibbonBand.PresentationPriority.MEDIUM);
         exclusionModelBand.addRibbonCommand(loadAndSetServerProjection, JRibbonBand.PresentationPriority.MEDIUM);
         exclusionModelBand.addRibbonCommand(setFromModelExplorerProjection, JRibbonBand.PresentationPriority.MEDIUM);
