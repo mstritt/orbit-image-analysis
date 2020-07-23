@@ -138,44 +138,10 @@ public class DLSegmentationWorker extends OrbitWorker {
 
             long startt = System.currentTimeMillis();
             OrbitTiledImage2.resetTileCache();
-            int rdfId = rdf.getRawDataFileId();
-            logger.info("rdfid: " + rdfId);
 
-            // Get annotations already existing for the image.
-            List<RawAnnotation> annotations = null;
-            try {
-                annotations = DALConfig.getImageProvider().LoadRawAnnotationsByRawDataFile(rdfId, RawAnnotation.ANNOTATION_TYPE_IMAGE);
-            } catch (Exception e) {
-                logger.error("Could not read Raw Annotations.");
-                logger.error(e.getLocalizedMessage());
-            }
+            List<Shape> roiDefList = getROIShapes();
 
-            // TODO: Consider union case, and also separate Rois.
-            // Extract the different types of annotation.
-            List<ImageAnnotation> rois = new ArrayList<>();
-            List<Shape> exclusions = new ArrayList<>();
-            List<Shape> inclusions = new ArrayList<>();
-            for (RawAnnotation annotation : Objects.requireNonNull(annotations)) {
-                ImageAnnotation ia = null;
-                try {
-                    ia = new ImageAnnotation(annotation);
-                } catch (IOException | ClassNotFoundException e) {
-                    logger.error(e.getLocalizedMessage());
-                }
-                if (Objects.requireNonNull(ia).getSubType() == ImageAnnotation.SUBTYPE_ROI) rois.add(ia);
-                else if (ia.getSubType() == ImageAnnotation.SUBTYPE_EXCLUSION) exclusions.add(ia.getFirstShape());
-                //TODO: Add inclusions. Can be used by a standard method?
-                //    public ShapeAnnotationList(List<RawAnnotation> annotations, int annotationGroup, Rectangle outerBounds) {
-                // loadRoi ???
-            }
-
-            // Retrieve the actual image.
-//            try {
-//                rf = new RecognitionFrame(rdf);
-//            } catch (OrbitImageServletException e) {
-//                logger.error(e.getLocalizedMessage());
-//            }
-
+            // DL Segmentation requires varying image sizes (to match those used for the training.
             TileSizeWrapper tileSizeWrapper = new TileSizeWrapper(
                     new OrbitImagePlanar(Objects.requireNonNull(rf).bimg.getImage(), ""),
                     dlSegmentSettings.getTrainingImageTileWidth(),
@@ -190,18 +156,6 @@ public class DLSegmentationWorker extends OrbitWorker {
             OrbitModel segModel = OrbitModel.LoadFromInputStream(
                     this.getClass().getResourceAsStream("/resource/testmodels/dlsegmentsplit.omo"));
 
-            // For existing ROI annotations (from Orbit DB) define a roiDef and add it to a list of all roiDefs.
-            List<Shape> roiDefList = new ArrayList<>();
-            for (ImageAnnotation roiAnnotation : rois) {
-                IScaleableShape roiShape = (IScaleableShape) roiAnnotation.getFirstShape();
-                roiShape = (IScaleableShape) roiShape.getScaledInstance(100d, new Point(0, 0));
-                ShapeAnnotationList roiDefinition = new ShapeAnnotationList(inclusions, exclusions, roiShape, roiShape.getBounds());
-                roiDefList.add(roiDefinition);
-            }
-            if (roiDefList.size() == 0) {   // no ROI annotations, so create one around the whole image
-                roiDefList.add(new RectangleExt(0, 0, rf.bimg.getWidth(), rf.bimg.getHeight()));
-                logger.info("No ROI defined, so using entire image for detections.");
-            }
 
             final AtomicInteger currentTileNum = new AtomicInteger(0);
             final AtomicInteger allObjectCount = new AtomicInteger(0);
@@ -209,18 +163,17 @@ public class DLSegmentationWorker extends OrbitWorker {
 
             final ExecutorService executor = Executors.newFixedThreadPool(numThreads);
             List<Callable<MaskRCNNDetections>> tileTaskList = new ArrayList<>();
-
             List<Future<MaskRCNNDetections>> tileSegments;
-
 
             // Process all roiDefs.
             for (Shape roiDef : roiDefList) {
                 tiles = Arrays.asList(orbitImage.getTileIndices(roiDef.getBounds()));
 
-
-                    // Process all tiles from the image.
+                // Process all tiles from the image.
                 for (Point tile : tiles) {
-                    MaskRCNNSegment finalDLSegmentationModel = (MaskRCNNSegment) dLSegmentationModel;
+
+//                    MaskRCNNSegment finalDLSegmentationModel = (MaskRCNNSegment) dLSegmentationModel;
+                    AbstractSegment finalDLSegmentationModel = dLSegmentationModel;
 
                     tileTaskList.add(() -> {
                         MaskRCNNDetections detections;
@@ -318,6 +271,54 @@ public class DLSegmentationWorker extends OrbitWorker {
         }
     }
 
+    /**
+     * Currently we use a custom implementation to define the ROIs in an efficient manner, but we
+     * may want to reconsider using the rf.getROI() method as used in the ObjectSegmentationWorker.
+     * Extract the different types of annotation.
+     * @return For existing ROI annotations (from Orbit DB) define a roiDef and add it to a list of all roiDefs.
+     */
+    private List<Shape> getROIShapes() {
+        int rdfId = rdf.getRawDataFileId();
+        logger.info("rdfid: " + rdfId);
+
+        // Get annotations already existing for the image.
+        List<RawAnnotation> annotations = null;
+        try {
+            annotations = DALConfig.getImageProvider().LoadRawAnnotationsByRawDataFile(rdfId, RawAnnotation.ANNOTATION_TYPE_IMAGE);
+        } catch (Exception e) {
+            logger.error("Could not read Raw Annotations.");
+            logger.error(e.getLocalizedMessage());
+        }
+
+        List<ImageAnnotation> rois = new ArrayList<>();
+        List<Shape> exclusions = new ArrayList<>();
+        List<Shape> inclusions = new ArrayList<>();
+        for (RawAnnotation annotation : Objects.requireNonNull(annotations)) {
+            ImageAnnotation ia = null;
+            try {
+                ia = new ImageAnnotation(annotation);
+            } catch (IOException | ClassNotFoundException e) {
+                logger.error(e.getLocalizedMessage());
+            }
+            if (Objects.requireNonNull(ia).getSubType() == ImageAnnotation.SUBTYPE_ROI) rois.add(ia);
+            else if (ia.getSubType() == ImageAnnotation.SUBTYPE_EXCLUSION) exclusions.add(ia.getFirstShape());
+            else if (ia.getSubType() == ImageAnnotation.SUBTYPE_INCLUSION) inclusions.add(ia.getFirstShape());
+        }
+
+        // For existing ROI annotations (from Orbit DB) define a roiDef and add it to a list of all roiDefs.
+        List<Shape> roiDefList = new ArrayList<>();
+        for (ImageAnnotation roiAnnotation : rois) {
+            IScaleableShape roiShape = (IScaleableShape) roiAnnotation.getFirstShape();
+            roiShape = (IScaleableShape) roiShape.getScaledInstance(100d, new Point(0, 0));
+            ShapeAnnotationList roiDefinition = new ShapeAnnotationList(inclusions, exclusions, roiShape, roiShape.getBounds());
+            roiDefList.add(roiDefinition);
+        }
+        if (roiDefList.size() == 0) {   // no ROI annotations, so create one around the whole image
+            roiDefList.add(new RectangleExt(0, 0, rf.bimg.getWidth(), rf.bimg.getHeight()));
+            logger.info("No ROI defined, so using entire image for detections.");
+        }
+        return roiDefList;
+    }
 
 
     public RecognitionFrame getRf() {
