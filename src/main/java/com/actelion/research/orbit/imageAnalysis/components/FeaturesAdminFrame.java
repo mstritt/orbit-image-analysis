@@ -545,7 +545,7 @@ public class FeaturesAdminFrame extends JDialog {
                     512, 512,
                     16f, 10, 56, 56, 5,
                     "IsletC", true,
-                    MaskRCNNSegmentationSettings.PostProcessMethod.CUSTOM);
+                    MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD);
 
         DLR101SegmentationSettings glomeruliSettings = new DLR101SegmentationSettings(
                 "Glomeruli", "http://ares:8080/orbit/rdf?orbitID=23539963", "C:\\Users\\fullejo1\\Downloads\\glomeruli-410k.pb",

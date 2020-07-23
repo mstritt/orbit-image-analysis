@@ -4,7 +4,6 @@ import com.actelion.research.orbit.imageAnalysis.deeplearning.AbstractSegmentati
 
 import java.awt.*;
 import java.io.Serializable;
-import java.net.URL;
 import java.util.*;
 import java.util.List;
 
