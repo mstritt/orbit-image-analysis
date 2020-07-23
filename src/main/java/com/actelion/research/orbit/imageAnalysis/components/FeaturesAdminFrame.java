@@ -49,6 +49,7 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -544,8 +545,15 @@ public class FeaturesAdminFrame extends JDialog {
                     "Pancreas Islets", "http://ares:8080/orbit/rdf?orbitID=19340903", "C:\\Users\\fullejo1\\Downloads\\insulin_009.pb",
                     512, 512,
                     16f, 10, 56, 56, 5,
-                    "IsletC", true,
+                    "IsletS", true,
                     MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD);
+        ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW));
+        ArrayList<String> classNames = new ArrayList<>(Arrays.asList("Background", "g0", "g1", "g2", "g3"));
+        try {
+            insulinSettings.setCustomClassNames(colors, classNames);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         DLR101SegmentationSettings glomeruliSettings = new DLR101SegmentationSettings(
                 "Glomeruli", "http://ares:8080/orbit/rdf?orbitID=23539963", "C:\\Users\\fullejo1\\Downloads\\glomeruli-410k.pb",

@@ -2,6 +2,7 @@ package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.imageAnalysis.models.*;
+import com.actelion.research.orbit.imageAnalysis.tasks.OrbitWorker;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
 
 import java.awt.*;

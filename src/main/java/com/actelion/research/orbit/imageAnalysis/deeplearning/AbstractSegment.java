@@ -10,6 +10,7 @@ import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.imaging.TileSizeWrapper;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
+import com.actelion.research.orbit.imageAnalysis.tasks.OrbitWorker;
 import com.actelion.research.orbit.imageAnalysis.utils.*;
 
 import org.slf4j.Logger;

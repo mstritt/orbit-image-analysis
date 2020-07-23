@@ -257,7 +257,7 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
                     detections = this.segmentTile(tile.x, tile.y, orbitImage, orbitSegModel, false, tileOffset);
                     //logger.info(detections.toString());
 
-                    if (segmentationSettings.isSegmentationRefinement()) {
+                    if (detections.getSegmentationResult() != null && segmentationSettings.isSegmentationRefinement()) {
                         try {
                             return segmentationRefinement(detections, orbitSegModel, orbitImage, exclusionMapGen, roiDef, tile);
                         } catch (Exception e) {
@@ -508,6 +508,8 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
     @Override
     public MaskRCNNDetections processDetections(SegmentationResult segRes, Point tileOffset) {
         MaskRCNNDetections detections = new MaskRCNNDetections();
+        detections.setSegmentationResult(segRes);
+
         List<Shape> shapes = segRes.getShapeList();
         for (Shape shape : shapes) {
             PolygonExt polygon = (PolygonExt) shape;

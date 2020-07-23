@@ -25,6 +25,7 @@ import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.*;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101Detections;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101Segment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101SegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
@@ -110,16 +111,18 @@ public class DLSegmentationWorker extends OrbitWorker {
 
             // init maskrcnn segmentation
             assert segmentationModel != null;
-
+//<D extends AbstractDetections<? extends AbstractDetection>,S extends AbstractSegmentationSettings<?>>
             AbstractSegmentationSettings<?> dlSegmentSettings = segmentationModel.getFeatureDescription().getDLSegment();
             AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>,
                     ? extends AbstractSegmentationSettings<?>> dLSegmentationModel = null;
 
+            String modelType = dlSegmentSettings.getModelName();
             // Decide which DL model to apply...
-            switch (dlSegmentSettings.getModelName()) {
+            switch (modelType) {
                 case "Nuclei":
                 case "Pancreas Islets":
                     dLSegmentationModel = new MaskRCNNSegment((MaskRCNNSegmentationSettings) dlSegmentSettings);
+//                    dLSegmentationModel = dlSegmentSettings.getModelInstance()
                     break;
                 case "Glomeruli":
                     dLSegmentationModel = new DLR101Segment((DLR101SegmentationSettings) dlSegmentSettings);
@@ -158,31 +161,31 @@ public class DLSegmentationWorker extends OrbitWorker {
 
 
             final AtomicInteger currentTileNum = new AtomicInteger(0);
+            final AtomicInteger totalNumTiles = new AtomicInteger(0);
             final AtomicInteger allObjectCount = new AtomicInteger(0);
 
 
             final ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-            List<Callable<MaskRCNNDetections>> tileTaskList = new ArrayList<>();
-            List<Future<MaskRCNNDetections>> tileSegments;
+            List<Callable<AbstractDetections<?>>> tileTaskList = new ArrayList<>();
+            List<Future<AbstractDetections<?>>> tileSegments;
 
             // Process all roiDefs.
             for (Shape roiDef : roiDefList) {
                 tiles = Arrays.asList(orbitImage.getTileIndices(roiDef.getBounds()));
-
+                totalNumTiles.addAndGet(tiles.size());
                 // Process all tiles from the image.
                 for (Point tile : tiles) {
 
-//                    MaskRCNNSegment finalDLSegmentationModel = (MaskRCNNSegment) dLSegmentationModel;
-                    AbstractSegment finalDLSegmentationModel = dLSegmentationModel;
+                    AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>, ? extends AbstractSegmentationSettings<?>> finalDLSegmentationModel = dLSegmentationModel;
 
                     tileTaskList.add(() -> {
-                        MaskRCNNDetections detections;
+                        AbstractDetections<?> detections;
 
                         if (isCancelled()) return null;
 
 
                         currentTileNum.incrementAndGet();
-                        logger.info("tile " + currentTileNum.get() + " of " + tiles.size());
+                        logger.info("tile " + currentTileNum.get() + " of " + totalNumTiles.get());
                         logger.info("tileX: " + tile.x + " tileY: " + tile.y);
 
                         // Test if the tile is in the ROI, and not exclusively part of the exclusion map.
@@ -199,14 +202,14 @@ public class DLSegmentationWorker extends OrbitWorker {
 
                             long usedt = System.currentTimeMillis() - startt;
                             logger.info("used time(h) for image: " + (usedt / 60000) / 60);
-                            setProgress((int) (((double) currentTileNum.get() / (double) tiles.size()) * 100d));
+                            //setProgress((int) (((double) currentTileNum.get() / (double) totalNumTiles.get()) * 100d));
                             logger.info("tileX: " + tile.x + " tileY: " + tile.y + " tile in ROI");
                         } else {
                             // If the tile isn't in the ROI, just increment the tile number...
                             logger.info("tileX: " + tile.x + " tileY: " + tile.y + " not in ROI.");
                             return null;
                         }
-                        setProgress((int) (((double) currentTileNum.get() / (double) tiles.size()) * 100d));
+                        setProgress((int) (0.9*((double) currentTileNum.get() / (double) totalNumTiles.get()) * 100d));
 
                         return detections;
                     });
@@ -215,15 +218,24 @@ public class DLSegmentationWorker extends OrbitWorker {
             logger.info("Tiles to process: "+ tileTaskList.size());
             tileSegments = executor.invokeAll(tileTaskList);
 
-            MaskRCNNDetections allDetections = new MaskRCNNDetections();
-            for (Future<MaskRCNNDetections> flist : tileSegments) {
-                if (flist != null && !flist.isCancelled() && flist.isDone()) {
-                    MaskRCNNDetections detections = flist.get();
-                    if (detections != null) {
-                        allDetections.addDetection(detections.getDetections());
-                    }
-                }
+            AbstractDetections<? extends AbstractDetection> allDetections = null;
+//            allDetections = getMaskRCNNDetections(tileSegments);
+            switch (modelType) {
+                case "Nuclei":
+                case "Pancreas Islets":
+                case "Brain":
+                    allDetections = getMaskRCNNDetections(tileSegments);
+                    break;
+                case "Glomeruli":
+                    allDetections = getDLR101Detections(tileSegments);
+                    break;
+                case "Corpus Callosum":
+                    // TODO: This needs implementing...
+                    break;
+                default:
+                    throw new NoSuchFieldException("No model for: " + dlSegmentSettings.getModelName());
             }
+
 
             executor.shutdownNow();
 
@@ -257,7 +269,6 @@ public class DLSegmentationWorker extends OrbitWorker {
                 this.originalFrame.setClassImage(rf.getClassImage());
             }
 
-
             setProgress(100);
 
             if (rf.isVisible()) {
@@ -269,6 +280,38 @@ public class DLSegmentationWorker extends OrbitWorker {
                     "See the logs for further information.", e);
             e.printStackTrace();
         }
+    }
+
+    private AbstractDetections<? extends AbstractDetection> getMaskRCNNDetections(List<Future<AbstractDetections<?>>> tileSegments) throws InterruptedException, ExecutionException {
+        AbstractDetections<? extends AbstractDetection> allDetections;
+        allDetections = new MaskRCNNDetections();
+        for (Future<AbstractDetections<?>> flist : tileSegments) {
+            if (flist != null && !flist.isCancelled() && flist.isDone()) {
+                MaskRCNNDetections detections = (MaskRCNNDetections) flist.get();
+                if (detections != null) {
+                    allDetections.addDetection(detections.getDetections());
+                }
+
+                allDetections.addDetection(flist.get().getDetections());
+            }
+        }
+        return allDetections;
+    }
+
+    private AbstractDetections<? extends AbstractDetection> getDLR101Detections(List<Future<AbstractDetections<?>>> tileSegments) throws InterruptedException, ExecutionException {
+        AbstractDetections<? extends AbstractDetection> allDetections;
+        allDetections = new MaskRCNNDetections();
+        for (Future<AbstractDetections<?>> flist : tileSegments) {
+            if (flist != null && !flist.isCancelled() && flist.isDone()) {
+                DLR101Detections detections = (DLR101Detections) flist.get();
+                if (detections != null) {
+                    allDetections.addDetection(detections.getDetections());
+                }
+
+                allDetections.addDetection(flist.get().getDetections());
+            }
+        }
+        return allDetections;
     }
 
     /**

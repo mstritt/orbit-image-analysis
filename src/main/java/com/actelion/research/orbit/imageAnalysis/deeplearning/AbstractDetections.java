@@ -117,8 +117,8 @@ public abstract class AbstractDetections<T extends AbstractDetection> {
 
     public abstract void addDetection(PolygonExt contour, RectangleExt boundingBox, Float classProbability, Integer maskClass, Point tileOffset);
 
-    public void addDetection(List<T> detections) {
-        this.detections.addAll(detections);
+    public void addDetection(List<? extends AbstractDetection> detections) {
+        this.detections.addAll((Collection<? extends T>) detections);
     }
 
     /**
