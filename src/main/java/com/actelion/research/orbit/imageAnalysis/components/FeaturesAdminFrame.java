@@ -577,6 +577,7 @@ public class FeaturesAdminFrame extends JDialog {
 
         panel.add(dLMethodComboBox);
 
+        // TODO: Add a checkbox (Store annotations).
 
         setCompBounds(panel, frameWidth - 50);
         panelDeepLearning.add(panel);

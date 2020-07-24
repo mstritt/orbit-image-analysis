@@ -175,7 +175,7 @@ public class DLSegmentationWorker extends OrbitWorker {
                 totalNumTiles.addAndGet(tiles.size());
                 // Process all tiles from the image.
                 for (Point tile : tiles) {
-
+                    setProgress(getProgress());
                     AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>, ? extends AbstractSegmentationSettings<?>> finalDLSegmentationModel = dLSegmentationModel;
 
                     tileTaskList.add(() -> {
@@ -190,13 +190,10 @@ public class DLSegmentationWorker extends OrbitWorker {
 
                         // Test if the tile is in the ROI, and not exclusively part of the exclusion map.
                         if (OrbitUtils.isTileInROISlow(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
-                            // Calculate Tile Offset for translating annotations.
+
                             detections = finalDLSegmentationModel.segmentationImplementation(segModel, orbitImage, tile, exclusionMapGen, roiDef);
 
-                            logger.info("shapes before filtering: " + detections.getDetections().size());
-                            // TODO: Re-enable
-                            //segmentationShapes = DLSegment.filterShapes(segmentationShapes);
-                            logger.info("shapes after filtering: " + detections.getDetections().size());
+                            filterRoiDetections(roiDef, detections);
 
                             allObjectCount.addAndGet(detections.getNumDetections());
 
@@ -216,6 +213,7 @@ public class DLSegmentationWorker extends OrbitWorker {
                 } // tiles
             } // roidef
             logger.info("Tiles to process: "+ tileTaskList.size());
+            setProgress(10);
             tileSegments = executor.invokeAll(tileTaskList);
 
             AbstractDetections<? extends AbstractDetection> allDetections = null;
@@ -280,6 +278,23 @@ public class DLSegmentationWorker extends OrbitWorker {
                     "See the logs for further information.", e);
             e.printStackTrace();
         }
+    }
+
+    private void filterRoiDetections(Shape roiDef, AbstractDetections<?> detections) {
+        logger.info("shapes before filtering (all in tile): " + detections.getDetections().size());
+        int i = 0;
+        for (Shape contour: detections.getContourShapes()) {
+            int x = (int) contour.getBounds().getCenterX();
+            int y = (int) contour.getBounds().getCenterY();
+            if (!OrbitUtils.isInROI(x,y,roiDef,exclusionMapGen)) {
+                // If the detection isn't in the ROI, then remove it.
+                detections.removeDetection(i);
+            } else {
+                // Only increment if we need to inspect the next element.
+                i++;
+            }
+        }
+        logger.info("shapes after filtering (only in ROI): " + detections.getNumDetections());
     }
 
     private AbstractDetections<? extends AbstractDetection> getMaskRCNNDetections(List<Future<AbstractDetections<?>>> tileSegments) throws InterruptedException, ExecutionException {

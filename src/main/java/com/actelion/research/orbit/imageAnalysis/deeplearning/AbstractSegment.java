@@ -364,7 +364,7 @@ public abstract class AbstractSegment<D extends AbstractDetections<? extends Abs
             // Find the center of the detected object.
             center = pm2.getCenter();
 
-            // Re-center the tile around the detected object, ready for 'redetection'.
+                // Re-center the tile around the detected object, ready for 'redetection'.
             int startx = (int) (center.getX() - halfTileSize);
             int starty = (int) (center.getY() - halfTileSize);
             if (startx < 0) startx = 0;
@@ -454,6 +454,9 @@ public abstract class AbstractSegment<D extends AbstractDetections<? extends Abs
                             detections.removeDetection(i);
                         }
                     }
+                } else {
+                    // We're not in the ROI. So remove the detection.
+                    detections.removeDetection(i);
                 }
             }
             i++;

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * MaskRCNNSegment class for applying MaskRCNN Segmentation models, and keeping track of the
@@ -214,6 +215,7 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
         return Tensor.create(rgbArray, Float.class);
     }
 
+    @Deprecated
     @Override
     public MaskRCNNDetections segmentationImplementation(OrbitModel segModel,
                                                          OrbitTiledImageIOrbitImage orbitImage,
@@ -256,6 +258,8 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
                 try {
                     detections = this.segmentTile(tile.x, tile.y, orbitImage, orbitSegModel, false, tileOffset);
                     //logger.info(detections.toString());
+
+
 
                     if (detections.getSegmentationResult() != null && segmentationSettings.isSegmentationRefinement()) {
                         try {
