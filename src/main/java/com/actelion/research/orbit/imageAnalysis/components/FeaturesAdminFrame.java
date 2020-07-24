@@ -141,8 +141,119 @@ public class FeaturesAdminFrame extends JDialog {
 
         final JTabbedPane tabs = new JTabbedPane();
 
-        // classification
+        OrbitModel model = OrbitImageAnalysis.getInstance().getModel();
 
+        // classification
+        tabs.add("Classification", getClassificationJPanel(model));
+
+        // segmentation
+        tabs.add("Segmentation", getSegmentationJScrollPane(model));
+
+        // deep learning
+        tabs.add("Deep Learning", getDeepLearningJPanel());
+
+        // roi
+        tabs.add("ROI", getROIJPanel());
+
+
+        // image adjustments
+        tabs.add("Image Adjustments", getAdjustmentsJPanel());
+
+
+        // layout
+        setLayout(new BorderLayout());
+        add(tabs, BorderLayout.CENTER);
+
+        btnOK = new JButton("OK");
+        add(btnOK, BorderLayout.SOUTH);
+
+        tabs.setSelectedIndex(FeaturesAdminFrame.selectedTab);
+
+        tabs.addChangeListener(e -> {
+            logger.trace("selected tab: "+ tabs.getSelectedIndex());
+            FeaturesAdminFrame.selectedTab = tabs.getSelectedIndex();
+        });
+
+        addActionListeners();
+
+        setLocationRelativeTo(OrbitImageAnalysis.getInstance());
+    }
+
+    private JPanel getAdjustmentsJPanel() {
+        JPanel panelImageAdjustments = new JPanel();
+        panelImageAdjustments.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
+
+        cbUseImageAdjustments = new JCheckBox("Use image adjustments *", featureDescription.isUseImageAdjustments());
+        cbUseImageAdjustments.setToolTipText("load image adjustments from database before classification (brightness, contrast, gamma) - use with care!");
+        setCompBounds(cbUseImageAdjustments, frameWidth);
+        panelImageAdjustments.add(cbUseImageAdjustments);
+
+        JLabel imageAdjustmentWarning = new JLabel("<html><body>* If activated, image adjustments like gamma, brightness " +
+                "and contrast from the image<br/>adjustment panel are taken into account." +
+                "<br/>Please use it with care, because it will influence the quantification results,<br/>" +
+                "thus you might get an unwanted bias." +
+                "<br/>If you really want to use it, please double-check that the image adjustments are saved.</body></html>");
+        panelImageAdjustments.add(imageAdjustmentWarning);
+        return panelImageAdjustments;
+    }
+
+    private JPanel getROIJPanel() {
+        JPanel panelROI = new JPanel();
+        panelROI.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
+
+        List<AnnotationGroupLabel> annotationGroups = new ArrayList<>(12);
+        annotationGroups.add(new AnnotationGroupLabel(-1, "Ignore"));
+        annotationGroups.add(new AnnotationGroupLabel(0, "All Groups"));
+        for (int g = 1; g < (OrbitUtils.ANNOTATION_GROUPS + 1); g++)
+            annotationGroups.add(new AnnotationGroupLabel(g, "Group " + g));
+        cbAnnotationROI = new JComboBox<>(annotationGroups.toArray(new AnnotationGroupLabel[0]));
+        cbAnnotationROI.setSelectedIndex(0);
+        int groupIdx = OrbitImageAnalysis.getInstance().getModel().getAnnotationGroup() + 1; // +1 because 'ignore' is -1
+        if (cbAnnotationROI.getItemCount() > groupIdx)
+            cbAnnotationROI.setSelectedIndex(groupIdx);
+        cbAnnotationROI.setToolTipText("Use annotations (excl/incl/ROI) to build the ROI?");
+
+        JPanel panel = new JPanel(new GridLayout(1, 2));
+        JLabel lab = new JLabel("Use annotations as ROI:");
+        panel.add(lab);
+        panel.add(cbAnnotationROI);
+        setCompBounds(panel, frameWidth - 50);
+        panelROI.add(panel);
+
+
+        panel = new JPanel(new GridLayout(1, 2));
+        lab = new JLabel("Fixed circular ROI (pixel):");
+        panel.add(lab);
+        tfFixedROI = new JTextField();
+        tfFixedROI.setText(Integer.toString(OrbitImageAnalysis.getInstance().getModel().getFixedCircularROI()));
+        tfFixedROI.setInputVerifier(new IntInputVerifier(0));
+        panel.add(tfFixedROI);
+        setCompBounds(panel, frameWidth - 50);
+        panelROI.add(panel);
+
+        panel = new JPanel(new GridLayout(1, 2));
+        lab = new JLabel("ROI offset X:");
+        panel.add(lab);
+        tfROIX = new JTextField();
+        tfROIX.setText(Integer.toString(OrbitImageAnalysis.getInstance().getModel().getFixedROIOffsetX()));
+        tfROIX.setInputVerifier(new IntInputVerifier(0));
+        panel.add(tfROIX);
+        setCompBounds(panel, frameWidth - 50);
+        panelROI.add(panel);
+
+        panel = new JPanel(new GridLayout(1, 2));
+        lab = new JLabel("ROI offset Y:");
+        panel.add(lab);
+        tfROIY = new JTextField();
+        tfROIY.setText(Integer.toString(OrbitImageAnalysis.getInstance().getModel().getFixedROIOffsetY()));
+        tfROIY.setInputVerifier(new IntInputVerifier(0));
+        panel.add(tfROIY);
+        setCompBounds(panel, frameWidth - 50);
+        panelROI.add(panel);
+        return panelROI;
+    }
+
+    private JPanel getClassificationJPanel(OrbitModel model) {
         JPanel panelClassification = new JPanel();
         panelClassification.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
 
@@ -216,11 +327,9 @@ public class FeaturesAdminFrame extends JDialog {
         setCompBounds(panel, frameWidth - 50);
         panelClassification.add(panel);
 
-
         List<String> classList = new ArrayList<>();
         //classList.add("<ALL>");
         StringBuilder selected = new StringBuilder();
-        OrbitModel model = OrbitImageAnalysis.getInstance().getModel();
         if (model != null) {
             OrbitModel classModel = model;
             if (model.getSegmentationModel() != null) classModel = model.getSegmentationModel();
@@ -269,14 +378,12 @@ public class FeaturesAdminFrame extends JDialog {
         setCompBounds(panel, frameWidth - 50);
         panelClassification.add(panel);
 
+        return panelClassification;
+    }
 
-
-        tabs.add("Classification", panelClassification);
-
-
-        // segmentation
-
-
+    private JScrollPane getSegmentationJScrollPane(OrbitModel model) {
+        JPanel panel;
+        JLabel lab;
         JPanel panelSegmentation = new JPanel();
         panelSegmentation.setLayout(new GridLayout(-1,1));
 
@@ -414,7 +521,6 @@ public class FeaturesAdminFrame extends JDialog {
         panelSegmentation.add(panel);
 
 
-
         panel = new JPanel(new GridLayout(1, 2));
         lab = new JLabel("Dilate:");
         panel.add(lab);
@@ -476,11 +582,12 @@ public class FeaturesAdminFrame extends JDialog {
         panelSegmentation.add(cbNerveDetectionMode);
 
 
-        JScrollPane segScrollPane = new JScrollPane(panelSegmentation,ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tabs.add("Segmentation", segScrollPane);
+        return new JScrollPane(panelSegmentation,ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+    }
 
-        // deep learning
-
+    private JPanel getDeepLearningJPanel() {
+        JPanel panel;
+        JLabel lab;
         JPanel panelDeepLearning = new JPanel();
         panelDeepLearning.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
 
@@ -582,106 +689,7 @@ public class FeaturesAdminFrame extends JDialog {
 
         setCompBounds(panel, frameWidth - 50);
         panelDeepLearning.add(panel);
-
-        tabs.add("Deep Learning", panelDeepLearning);
-
-        // roi
-
-        JPanel panelROI = new JPanel();
-        panelROI.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
-
-        List<AnnotationGroupLabel> annotationGroups = new ArrayList<>(12);
-        annotationGroups.add(new AnnotationGroupLabel(-1, "Ignore"));
-        annotationGroups.add(new AnnotationGroupLabel(0, "All Groups"));
-        for (int g = 1; g < (OrbitUtils.ANNOTATION_GROUPS + 1); g++)
-            annotationGroups.add(new AnnotationGroupLabel(g, "Group " + g));
-        cbAnnotationROI = new JComboBox<>(annotationGroups.toArray(new AnnotationGroupLabel[0]));
-        cbAnnotationROI.setSelectedIndex(0);
-        int groupIdx = OrbitImageAnalysis.getInstance().getModel().getAnnotationGroup() + 1; // +1 because 'ignore' is -1
-        if (cbAnnotationROI.getItemCount() > groupIdx)
-            cbAnnotationROI.setSelectedIndex(groupIdx);
-        cbAnnotationROI.setToolTipText("Use annotations (excl/incl/ROI) to build the ROI?");
-
-        panel = new JPanel(new GridLayout(1, 2));
-        lab = new JLabel("Use annotations as ROI:");
-        panel.add(lab);
-        panel.add(cbAnnotationROI);
-        setCompBounds(panel, frameWidth - 50);
-        panelROI.add(panel);
-
-
-        panel = new JPanel(new GridLayout(1, 2));
-        lab = new JLabel("Fixed circular ROI (pixel):");
-        panel.add(lab);
-        tfFixedROI = new JTextField();
-        tfFixedROI.setText(Integer.toString(OrbitImageAnalysis.getInstance().getModel().getFixedCircularROI()));
-        tfFixedROI.setInputVerifier(new IntInputVerifier(0));
-        panel.add(tfFixedROI);
-        setCompBounds(panel, frameWidth - 50);
-        panelROI.add(panel);
-
-        panel = new JPanel(new GridLayout(1, 2));
-        lab = new JLabel("ROI offset X:");
-        panel.add(lab);
-        tfROIX = new JTextField();
-        tfROIX.setText(Integer.toString(OrbitImageAnalysis.getInstance().getModel().getFixedROIOffsetX()));
-        tfROIX.setInputVerifier(new IntInputVerifier(0));
-        panel.add(tfROIX);
-        setCompBounds(panel, frameWidth - 50);
-        panelROI.add(panel);
-
-        panel = new JPanel(new GridLayout(1, 2));
-        lab = new JLabel("ROI offset Y:");
-        panel.add(lab);
-        tfROIY = new JTextField();
-        tfROIY.setText(Integer.toString(OrbitImageAnalysis.getInstance().getModel().getFixedROIOffsetY()));
-        tfROIY.setInputVerifier(new IntInputVerifier(0));
-        panel.add(tfROIY);
-        setCompBounds(panel, frameWidth - 50);
-        panelROI.add(panel);
-
-        tabs.add("ROI", panelROI);
-
-
-        // image adjustments
-
-        JPanel panelImageAdjustments = new JPanel();
-        panelImageAdjustments.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
-
-        cbUseImageAdjustments = new JCheckBox("Use image adjustments *", featureDescription.isUseImageAdjustments());
-        cbUseImageAdjustments.setToolTipText("load image adjustments from database before classification (brightness, contrast, gamma) - use with care!");
-        setCompBounds(cbUseImageAdjustments, frameWidth);
-        panelImageAdjustments.add(cbUseImageAdjustments);
-
-        JLabel imageAdjustmentWarning = new JLabel("<html><body>* If activated, image adjustments like gamma, brightness " +
-                "and contrast from the image<br/>adjustment panel are taken into account." +
-                "<br/>Please use it with care, because it will influence the quantification results,<br/>" +
-                "thus you might get an unwanted bias." +
-                "<br/>If you really want to use it, please double-check that the image adjustments are saved.</body></html>");
-        panelImageAdjustments.add(imageAdjustmentWarning);
-
-
-        tabs.add("Image Adjustments", panelImageAdjustments);
-
-
-        // layout
-
-        setLayout(new BorderLayout());
-        add(tabs, BorderLayout.CENTER);
-
-        btnOK = new JButton("OK");
-        add(btnOK, BorderLayout.SOUTH);
-
-        tabs.setSelectedIndex(FeaturesAdminFrame.selectedTab);
-
-        tabs.addChangeListener(e -> {
-            logger.trace("selected tab: "+ tabs.getSelectedIndex());
-            FeaturesAdminFrame.selectedTab = tabs.getSelectedIndex();
-        });
-
-        addActionListeners();
-
-        setLocationRelativeTo(OrbitImageAnalysis.getInstance());
+        return panelDeepLearning;
     }
 
     /**
