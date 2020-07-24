@@ -34,9 +34,9 @@ public class FuzzynessAdminFrame extends JDialog {
     private JTextField tfPixelFuzzyness = null;
     private JTextField tfTileFuzzyness = null;
 
-    private int frameWidth = 400;
-    private int frameHeight = 250;
-    private int btnHeight = 30;
+    private final int frameWidth = 400;
+    private final int frameHeight = 250;
+    private final int btnHeight = 30;
 
     public FuzzynessAdminFrame() {
         initialize();
@@ -51,6 +51,8 @@ public class FuzzynessAdminFrame extends JDialog {
         }
         setResizable(false);
         setSize(new Dimension(frameWidth, frameHeight));
+        setLocationRelativeTo(OrbitImageAnalysis.getInstance());
+
         setLayout(new FlowLayout(FlowLayout.LEFT, 20, 20));
         JLabel featLabel = new JLabel("Fuzzyness");
         setCompBounds(featLabel, frameWidth, 0);
@@ -87,9 +89,7 @@ public class FuzzynessAdminFrame extends JDialog {
 
         addActionListeners();
 
-        Toolkit toolkit = getToolkit();
-        Dimension size = toolkit.getScreenSize();
-        setLocation((size.width - getWidth()) / 2, (size.height - getHeight()) / 2);
+        setLocationRelativeTo(OrbitImageAnalysis.getInstance());
     }
 
 
@@ -101,11 +101,7 @@ public class FuzzynessAdminFrame extends JDialog {
 
 
     private void addActionListeners() {
-        ActionListener okAction = new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                exitProcedure();
-            }
-        };
+        ActionListener okAction = arg0 -> exitProcedure();
         btnOK.addActionListener(okAction);
     }
 
@@ -115,14 +111,18 @@ public class FuzzynessAdminFrame extends JDialog {
             double pixelFuzzyness = Double.parseDouble(tfPixelFuzzyness.getText().replaceAll(",", "\\."));
             OrbitImageAnalysis.getInstance().setPixelFuzzyness(pixelFuzzyness);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Cannot parst pixel fuzzyness. Please enter a correct numeric value, e.g. 0.5", "Cannot parse pixel fuzzyness", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Cannot parse pixel fuzzyness. Please enter a correct numeric value, e.g. 0.5",
+                    "Cannot parse pixel fuzzyness", JOptionPane.ERROR_MESSAGE);
             return;
         }
         try {
             double tileFuzzyness = Double.parseDouble(tfTileFuzzyness.getText().replaceAll(",", "\\."));
             OrbitImageAnalysis.getInstance().setTileFuzzyness(tileFuzzyness);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Cannot parst tile fuzzyness. Please enter a correct numeric value, e.g. 0.5", "Cannot parse tile fuzzyness", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Cannot parse tile fuzzyness. Please enter a correct numeric value, e.g. 0.5",
+                    "Cannot parse tile fuzzyness", JOptionPane.ERROR_MESSAGE);
             return;
         }
 

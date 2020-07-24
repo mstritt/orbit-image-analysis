@@ -681,12 +681,7 @@ public class FeaturesAdminFrame extends JDialog {
 
         addActionListeners();
 
-//        Toolkit toolkit = getToolkit();
-//        Dimension size = toolkit.getScreenSize();
-        //setLocation((size.width - getWidth()) / 2, (size.height - getHeight()) / 2);
         setLocationRelativeTo(OrbitImageAnalysis.getInstance());
-//        Toolkit toolkit = getToolkit();
-//        Dimension size = toolkit.getScreenSize();
     }
 
     /**

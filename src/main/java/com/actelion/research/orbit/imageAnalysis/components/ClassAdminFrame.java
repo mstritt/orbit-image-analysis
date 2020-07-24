@@ -21,6 +21,7 @@ package com.actelion.research.orbit.imageAnalysis.components;
 
 import com.actelion.research.orbit.imageAnalysis.models.ClassShape;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
+import org.pushingpixels.neon.api.NeonCortex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,9 +55,9 @@ public class ClassAdminFrame extends JDialog {
     private final JComboBox cbIncExclMode = new JComboBox(new String[]{ClassShape.STR_UNDEFINED, ClassShape.STR_Inclusion, ClassShape.STR_Exclusion});
     private JButton btnOK = null;
 
-    private final int frameWidth = (int)(800 / OrbitUtils.getScaleFactor()[0]);  // 647
-    private final int frameHeight = (int)(555/OrbitUtils.getScaleFactor()[1]);
-    private final int btnHeight = (int)(30/OrbitUtils.getScaleFactor()[1]);
+    private final int frameWidth = (int)(800 / NeonCortex.getScaleFactor());  // 647
+    private final int frameHeight = (int)(555/NeonCortex.getScaleFactor());
+    private final int btnHeight = (int)(30/NeonCortex.getScaleFactor());
     private int boundaryClass = -1;
     private boolean firePropertyChangeEvent = true;
 
@@ -97,6 +98,7 @@ public class ClassAdminFrame extends JDialog {
         }
         setResizable(false);
         setSize(new Dimension(frameWidth, frameHeight));
+        setLocationRelativeTo(OrbitImageAnalysis.getInstance());
         //setLayout(new GridLayout(1, 3, 10, 10));
 
         // class attributes panel
@@ -136,7 +138,7 @@ public class ClassAdminFrame extends JDialog {
         p.add(btnOK);
 
         JPanel panel = new JPanel();
-        panel.setPreferredSize(new Dimension(frameWidth, frameHeight*2));
+        panel.setPreferredSize(new Dimension(frameWidth, frameHeight));
 
         panel.setLayout(new GridLayout(1, 3, 10, 10));
         panel.add(getClassScrollPane());
@@ -147,9 +149,8 @@ public class ClassAdminFrame extends JDialog {
 
         addActionListeners();
 
-        Toolkit toolkit = getToolkit();
-        Dimension size = toolkit.getScreenSize();
-        setLocation((size.width - getWidth()) / 2, (size.height - getHeight()) / 2);
+        setLocationRelativeTo(OrbitImageAnalysis.getInstance());
+
     }
 
 
@@ -194,6 +195,7 @@ public class ClassAdminFrame extends JDialog {
             if (classList.getSelectedValue() == null) return;
             Color oldCol = ((ClassShape) classList.getSelectedValue()).getColor();
             Color c = JColorChooser.showDialog(ClassAdminFrame.this, "Select color", oldCol);
+            setLocationRelativeTo(ClassAdminFrame.this);
             if (c != null && c.getRGB() != OrbitUtils.UNDEF_COLOR) { // c is null if the colorDialog is closed e.g. with cancel
                 ((ClassShape) classList.getSelectedValue()).setColor(c);
                 classList.repaint();

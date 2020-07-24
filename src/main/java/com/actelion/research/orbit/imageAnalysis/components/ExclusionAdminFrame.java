@@ -46,6 +46,7 @@ public class ExclusionAdminFrame extends JDialog {
         this.model = model;
 
         setTitle("Configure Exclusion Model");
+        setLocationRelativeTo(OrbitImageAnalysis.getInstance());
         setResizable(false);
         setIconImage(null);
 
@@ -59,18 +60,12 @@ public class ExclusionAdminFrame extends JDialog {
             cbExclusionLevel.setSelectedItem(exclLevel);
         }
 
-        okBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                save();
-                close();
-            }
+        okBtn.addActionListener(e -> {
+            save();
+            close();
         });
 
-        cancelBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                close();
-            }
-        });
+        cancelBtn.addActionListener(e -> close());
 
         // layout
         setLayout(new GridBagLayout());

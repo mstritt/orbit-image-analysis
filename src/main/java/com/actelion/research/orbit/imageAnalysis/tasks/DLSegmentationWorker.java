@@ -182,7 +182,8 @@ public class DLSegmentationWorker extends OrbitWorker {
                         AbstractDetections<?> detections;
 
                         if (isCancelled()) return null;
-
+                        // TODO: This is sub-optimal for (potentially) long running jobs. Since only new (as yet
+                        //  unprocessed) jobs get cancelled.
 
                         currentTileNum.incrementAndGet();
                         logger.info("tile " + currentTileNum.get() + " of " + totalNumTiles.get());
@@ -193,7 +194,7 @@ public class DLSegmentationWorker extends OrbitWorker {
 
                             detections = finalDLSegmentationModel.segmentationImplementation(segModel, orbitImage, tile, exclusionMapGen, roiDef);
 
-                            filterRoiDetections(roiDef, detections);
+//                            filterRoiDetections(roiDef, detections);
 
                             allObjectCount.addAndGet(detections.getNumDetections());
 
