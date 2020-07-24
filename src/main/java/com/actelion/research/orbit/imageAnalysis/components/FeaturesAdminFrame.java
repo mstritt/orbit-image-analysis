@@ -596,9 +596,9 @@ public class FeaturesAdminFrame extends JDialog {
         setCompBounds(cbDeepLearning, frameWidth);
         panelDeepLearning.add(cbDeepLearning);
 
-        panel = new JPanel(new GridLayout(2, 2));
+        panel = new JPanel(new GridLayout(4, 2));
         lab = new JLabel("Deep Learning Model Path or URL:");
-        panel.add(lab);
+        panelDeepLearning.add(lab);
         JPanel pathPanel = new JPanel(new FlowLayout());
         tfDeepLearningModelPath = new JTextField(featureDescription.getDeepLearningModelPath(), 15);
         tfDeepLearningModelPath.setToolTipText("can be a full path to a model file or a URL");
@@ -635,10 +635,10 @@ public class FeaturesAdminFrame extends JDialog {
         });
         pathPanel.add(fileSelectBtn);
 
-        panel.add(pathPanel);
+        panelDeepLearning.add(pathPanel);
 
         lab = new JLabel("Predefined Model");
-        panel.add(lab);
+        panelDeepLearning.add(lab);
 
         //select rdf.* from RAW_DATA_FILE rdf where rdf.FILENAME like '%.pb';
         // http://ares:8080/orbit/rdf?orbitID=19340932&download=true
@@ -683,7 +683,7 @@ public class FeaturesAdminFrame extends JDialog {
 
         dLMethodComboBox = new JComboBox<>(dlSegmentMethodsModel);
 
-        panel.add(dLMethodComboBox);
+        panelDeepLearning.add(dLMethodComboBox);
 
         // TODO: Add a checkbox (Store annotations).
 
