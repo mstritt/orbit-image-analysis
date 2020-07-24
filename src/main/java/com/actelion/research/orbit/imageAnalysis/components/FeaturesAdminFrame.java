@@ -35,6 +35,7 @@ import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImageIOrbitImage;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import imageJ.Colour_Deconvolution;
+import org.pushingpixels.neon.api.NeonCortex;
 import org.pushingpixels.substance.api.SubstanceCortex;
 import org.pushingpixels.substance.api.skin.GraphiteGlassSkin;
 import org.slf4j.Logger;
@@ -107,9 +108,9 @@ public class FeaturesAdminFrame extends JDialog {
 
     private final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
-    private final int frameWidth = (int)(800/OrbitUtils.getScaleFactor()[0]);
-    private final int frameHeight = (int)(Math.min(ge.getMaximumWindowBounds().height,900)/OrbitUtils.getScaleFactor()[1]); // 1100
-    private final int btnHeight = (int)(35/OrbitUtils.getScaleFactor()[1]);
+    private final int frameWidth = (int)(800/ NeonCortex.getScaleFactor());
+    private final int frameHeight = (int)(Math.min(ge.getMaximumWindowBounds().height,800)/NeonCortex.getScaleFactor()); // 1100
+    private final int btnHeight = (int)(35/NeonCortex.getScaleFactor());
 
     public static int selectedTab = 0;
     private FeatureDescription featureDescription = null;
@@ -538,7 +539,7 @@ public class FeaturesAdminFrame extends JDialog {
                 "Nuclei", "http://ares:8080/orbit/rdf?orbitID=19340900", "C:\\Users\\fullejo1\\Downloads\\deepretina_final.pb",
                 512, 512,
                 0.5f, 512, 28, 28, 2,
-                "NucleiS", false,
+                "NucleiS", true,
                 MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD);
 
         MaskRCNNSegmentationSettings insulinSettings = new MaskRCNNSegmentationSettings(
@@ -680,9 +681,12 @@ public class FeaturesAdminFrame extends JDialog {
 
         addActionListeners();
 
-        Toolkit toolkit = getToolkit();
-        Dimension size = toolkit.getScreenSize();
-        setLocation((size.width - getWidth()) / 2, (size.height - getHeight()) / 2);
+//        Toolkit toolkit = getToolkit();
+//        Dimension size = toolkit.getScreenSize();
+        //setLocation((size.width - getWidth()) / 2, (size.height - getHeight()) / 2);
+        setLocationRelativeTo(OrbitImageAnalysis.getInstance());
+//        Toolkit toolkit = getToolkit();
+//        Dimension size = toolkit.getScreenSize();
     }
 
     /**
