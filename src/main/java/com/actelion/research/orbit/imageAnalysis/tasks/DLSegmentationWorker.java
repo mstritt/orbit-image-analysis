@@ -22,6 +22,7 @@ package com.actelion.research.orbit.imageAnalysis.tasks;
 import com.actelion.research.orbit.beans.RawAnnotation;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
+import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.*;
@@ -56,15 +57,15 @@ public class DLSegmentationWorker extends OrbitWorker {
     private int minSegmentationSize = 10;
     private final static Logger logger = LoggerFactory.getLogger(DLSegmentationWorker.class);
     private RecognitionFrame rf = null;
-    private int objectCount = 0;
     private List<Point> tiles = null;
     private OrbitModel model = null; // only used for feature(names) builder. Internally the segmentationModel (and secondary) are used for convenience.
     private OrbitModel segmentationModel = null; // the (primary) segmentation model, in GUI mode the model from OrbitImageAnalysis.getInstance() will be taken
     private OrbitModel secondarySegmentationModel = null;  // used for segmentation inside a segmentation
     private ExclusionMapGen exclusionMapGen = null;
+    private List<ClassShape> oldClassShapes = null;
 
-    private SegmentationResult segmentationResult = new SegmentationResult();
-    private RecognitionFrame originalFrame = null;
+    private final SegmentationResult segmentationResult = new SegmentationResult();
+    private final RecognitionFrame originalFrame = null;
 
     private int numThreads = Runtime.getRuntime().availableProcessors();
 
@@ -83,11 +84,11 @@ public class DLSegmentationWorker extends OrbitWorker {
     public DLSegmentationWorker(RawDataFile rdf, RecognitionFrame rf, List<SwingWorker<Void, Void>> dependencyList, List<ClassShape> classShapeToSet, List<Point> tiles) {
         this.rf = rf;
         this.rdf = rdf;
+
         if (classShapeToSet != null) {
             // TODO: Tidy up this...
-            ArrayList<ClassShape> oldClassShapes;
             if (rf.getClassShapes() != null)
-                oldClassShapes =  SerializationUtils.clone(new ArrayList<>(rf.getClassShapes())); // remember original classShapes workaround (dirty fix...). Must be cloned because rf.setClassShapes will clear() and addAll() (next line).
+                this.oldClassShapes =  SerializationUtils.clone(new ArrayList<>(rf.getClassShapes())); // remember original classShapes workaround (dirty fix...). Must be cloned because rf.setClassShapes will clear() and addAll() (next line).
             this.rf.setClassShapes(classShapeToSet);
             logger.debug("old classShapes saved");
         } else {
@@ -103,18 +104,21 @@ public class DLSegmentationWorker extends OrbitWorker {
     }
 
     @Override
-    protected void doWork() throws OrbitImageServletException, NoSuchFieldException {
+    protected void doWork() {
         try {
 
             if (withGUI && !ScaleoutMode.SCALEOUTMODE.get() && numThreads > 1)
                 numThreads--; // in GUI mode reserve one thread for GUI
 
+            IScaleableShape oldROI = rf.getROI();
+
             // init maskrcnn segmentation
             assert segmentationModel != null;
 //<D extends AbstractDetections<? extends AbstractDetection>,S extends AbstractSegmentationSettings<?>>
             AbstractSegmentationSettings<?> dlSegmentSettings = segmentationModel.getFeatureDescription().getDLSegment();
-            AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>,
-                    ? extends AbstractSegmentationSettings<?>> dLSegmentationModel = null;
+//            AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>,
+//                    ? extends AbstractSegmentationSettings<?>> dLSegmentationModel = null;
+            AbstractSegment dLSegmentationModel = null;
 
             String modelType = dlSegmentSettings.getModelName();
             // Decide which DL model to apply...
@@ -122,7 +126,6 @@ public class DLSegmentationWorker extends OrbitWorker {
                 case "Nuclei":
                 case "Pancreas Islets":
                     dLSegmentationModel = new MaskRCNNSegment((MaskRCNNSegmentationSettings) dlSegmentSettings);
-//                    dLSegmentationModel = dlSegmentSettings.getModelInstance()
                     break;
                 case "Glomeruli":
                     dLSegmentationModel = new DLR101Segment((DLR101SegmentationSettings) dlSegmentSettings);
@@ -192,18 +195,18 @@ public class DLSegmentationWorker extends OrbitWorker {
                         // Test if the tile is in the ROI, and not exclusively part of the exclusion map.
                         if (OrbitUtils.isTileInROISlow(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
 
-                            detections = finalDLSegmentationModel.segmentationImplementation(segModel, orbitImage, tile, exclusionMapGen, roiDef);
+                            detections = finalDLSegmentationModel.segmentationImplementation(segModel,
+                                    orbitImage, tile, exclusionMapGen, roiDef);
 
 //                            filterRoiDetections(roiDef, detections);
 
                             allObjectCount.addAndGet(detections.getNumDetections());
 
                             long usedt = System.currentTimeMillis() - startt;
-                            logger.info("used time(h) for image: " + (usedt / 60000) / 60);
-                            //setProgress((int) (((double) currentTileNum.get() / (double) totalNumTiles.get()) * 100d));
+                            logger.info("used time(min) for image: " + (usedt / 60000));
                             logger.info("tileX: " + tile.x + " tileY: " + tile.y + " tile in ROI");
                         } else {
-                            // If the tile isn't in the ROI, just increment the tile number...
+                            // If the tile isn't in the ROI, do nothing...
                             logger.info("tileX: " + tile.x + " tileY: " + tile.y + " not in ROI.");
                             return null;
                         }
@@ -213,17 +216,21 @@ public class DLSegmentationWorker extends OrbitWorker {
                     });
                 } // tiles
             } // roidef
+
             logger.info("Tiles to process: "+ tileTaskList.size());
+
             setProgress(10);
+
+            // Run the DL segmentation tasks.
             tileSegments = executor.invokeAll(tileTaskList);
 
             AbstractDetections<? extends AbstractDetection> allDetections = null;
-//            allDetections = getMaskRCNNDetections(tileSegments);
             switch (modelType) {
                 case "Nuclei":
                 case "Pancreas Islets":
-                case "Brain":
                     allDetections = getMaskRCNNDetections(tileSegments);
+                    break;
+                case "Brain":
                     break;
                 case "Glomeruli":
                     allDetections = getDLR101Detections(tileSegments);
@@ -238,37 +245,59 @@ public class DLSegmentationWorker extends OrbitWorker {
 
             executor.shutdownNow();
 
+
+            rf.setROI(oldROI);
+            if (oldClassShapes != null) {
+                rf.setClassShapes(oldClassShapes);
+                logger.debug("ClassShape Workaround: Old classShapes set.");
+            }
+
             // set dummy classImage, otherwise no objectSegmentations would be rendered
             if (rf.getClassImage() == null)
                 rf.setClassImage(new TiledImageWriter(1, 1, 1, 1));
-            rf.setObjectSegmentationList(allDetections.getContourShapes());
+            rf.setObjectSegmentationList(Objects.requireNonNull(allDetections).getContourShapes());
 //            rf.setSecondaryObjectSegmentationList(allSegmentsAndFeatures.getSecondaryShapeList());
 
-            // if an originalFrame is set, write back the scaled segmentation shapes
-            // (this is for segmenting on a lower resolution image, not the original full res image)
-            if (originalFrame != null && originalFrame != rf) {
-                if (rf.getObjectSegmentationList() != null) {
-                    double originalCurrentFrameRatioInverse = this.originalFrame.bimg.getImage().getWidth() / (double) rf.bimg.getImage().getWidth();
-                    if (originalFrame.getObjectSegmentationList() == null)
-                        originalFrame.setObjectSegmentationList(new ArrayList<>(rf.getObjectSegmentationList().size()));
-                    if (originalFrame.getSecondaryObjectSegmentationList() == null)
-                        originalFrame.setSecondaryObjectSegmentationList(new ArrayList<>(rf.getSecondaryObjectSegmentationList() != null ? rf.getSecondaryObjectSegmentationList().size() : 0));
-                    originalFrame.getObjectSegmentationList().clear();
-                    originalFrame.getSecondaryObjectSegmentationList().clear();
-                    for (Shape shape : rf.getObjectSegmentationList()) {
-                        originalFrame.getObjectSegmentationList().add(((IScaleableShape) shape).getScaledInstance(originalCurrentFrameRatioInverse * 100d, new Point(0, 0)));
-                    }
-                    if (rf.getSecondaryObjectSegmentationList() != null) {
-                        for (Shape shape : rf.getSecondaryObjectSegmentationList()) {
-                            originalFrame.getSecondaryObjectSegmentationList().add(((IScaleableShape) shape).getScaledInstance(originalCurrentFrameRatioInverse * 100d, new Point(0, 0)));
+            // If the 'store annotations' flag is set, then write the annotations, otherwise display them
+            // in the original frame (if it exists).
+            if (rf.getFeatureDescription().isDeepLearningStoreAnnotations()) {
+                if (!ScaleoutMode.SCALEOUTMODE.get()) {
+//                    OrbitImageAnalysis.getInstance().forceLogin();
+                    dLSegmentationModel.storeShapes(allDetections, dlSegmentSettings, this.rdf.getRawDataFileId(), OrbitImageAnalysis.loginUser);
+                } else {
+                    dLSegmentationModel.storeShapes(allDetections, dlSegmentSettings, this.rdf.getRawDataFileId(), "AutomatedAnnotation");
+                }
+            } else {
+                // if an originalFrame is set, write back the scaled segmentation shapes
+                // (this is for segmenting on a lower resolution image, not the original full res image)
+                if (originalFrame != null && originalFrame != rf) {
+                    if (rf.getObjectSegmentationList() != null) {
+                        double originalCurrentFrameRatioInverse = this.originalFrame.bimg.getImage().getWidth() / (double) rf.bimg.getImage().getWidth();
+                        if (originalFrame.getObjectSegmentationList() == null)
+                            originalFrame.setObjectSegmentationList(new ArrayList<>(rf.getObjectSegmentationList().size()));
+                        if (originalFrame.getSecondaryObjectSegmentationList() == null)
+                            originalFrame.setSecondaryObjectSegmentationList(new ArrayList<>(rf.getSecondaryObjectSegmentationList() != null ? rf.getSecondaryObjectSegmentationList().size() : 0));
+                        originalFrame.getObjectSegmentationList().clear();
+                        originalFrame.getSecondaryObjectSegmentationList().clear();
+                        for (Shape shape : rf.getObjectSegmentationList()) {
+                            originalFrame.getObjectSegmentationList().add(((IScaleableShape) shape).getScaledInstance(originalCurrentFrameRatioInverse * 100d, new Point(0, 0)));
+                        }
+                        if (rf.getSecondaryObjectSegmentationList() != null) {
+                            for (Shape shape : rf.getSecondaryObjectSegmentationList()) {
+                                originalFrame.getSecondaryObjectSegmentationList().add(((IScaleableShape) shape).getScaledInstance(originalCurrentFrameRatioInverse * 100d, new Point(0, 0)));
+                            }
                         }
                     }
+                    this.originalFrame.setClassShapes(oldClassShapes);
+                    this.originalFrame.setClassImage(rf.getClassImage());
                 }
-//                this.originalFrame.setClassShapes(oldClassShapes);
-                this.originalFrame.setClassImage(rf.getClassImage());
             }
 
+
             setProgress(100);
+
+            // TODO: Generate a result string to output the object features.
+            taskResult = new TaskResult("Segmented objects (" + allObjectCount + " objects)", "");
 
             if (rf.isVisible()) {
                 rf.repaint();
@@ -277,6 +306,8 @@ public class DLSegmentationWorker extends OrbitWorker {
         } catch (InterruptedException | ExecutionException e) {
             logger.error("A problem occurred during the segmentation process.\n" +
                     "See the logs for further information.", e);
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
