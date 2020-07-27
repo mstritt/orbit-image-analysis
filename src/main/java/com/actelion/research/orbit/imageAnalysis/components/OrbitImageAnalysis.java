@@ -543,7 +543,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
         // status bar
         add(statusBar, BorderLayout.SOUTH);
-        Runnable statusBarUpdate = this::updateStatusBar;
+        Runnable statusBarUpdate = () -> statusBar.updateStatusBar(loadedModel, model);
 
         statusBarUpdater.scheduleAtFixedRate(statusBarUpdate, 0, 120, TimeUnit.SECONDS);
 
@@ -629,24 +629,6 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
     }
 
-    public void updateStatusBar() {
-        double freeSpace = OrbitUtils.getTempDiskSpace() / (1024d * 1024 * 1024); // in GB
-        statusBar.setCopyright("Orbit Image Analysis Version " + OrbitUtils.VERSION_STR);
-        statusBar.setTempSpaceStr("Temp Space: " + String.format("%1$.2f", freeSpace) + " GB");
-        String trained = "no";
-        String segModel = "no";
-        String exclModel = "no";
-        String mask = "no";
-        if (model != null) {
-            trained = (model.getClassifier() != null && model.getClassifier().isBuild()) ? "yes" : "no";
-            segModel = model.getSegmentationModel() != null ? "yes" : "no";
-            exclModel = model.getExclusionModel() != null ? "yes" : "no";
-            mask = model.getMask()!=null ? "yes" : "no";
-        }
-        statusBar.setLoadedModel("Model: " + loadedModel + " / Trained:" + trained + " / Segmentation:" + segModel + " / Exclusion:" + exclModel+" Mask:" + mask);
-        statusBar.setLoginUser("Login User: " + loginUser);
-        statusBar.setMemory(Runtime.getRuntime().totalMemory() / (1024L * 1024L), Runtime.getRuntime().maxMemory() / (1024L * 1024L));
-    }
 
     private boolean login() {
         logger.debug("login start");
@@ -654,7 +636,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             loginUser = GUEST_USER;
 
             this.orbitMenu.toggleLoginButtons();
-            updateStatusBar();
+            statusBar.updateStatusBar(loadedModel, model);
             return true;
         }
         if (OrbitLoginDialog.showLoginDialog(this) == Status.SUCCEEDED) {
@@ -662,7 +644,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             loginPassword = OrbitLoginDialog.getPassword();
             //menuLogOff.setText("Log off " + loginUser);
             logger.info("user login called: " + loginUser + " [method call]");
-            updateStatusBar();
+            statusBar.updateStatusBar(loadedModel, model);
             DALConfig.getImageProvider().logUsage(loginUser, "login");
             orbitMenu.toggleLoginButtons();
             return true;
@@ -686,9 +668,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
 
             forceLogin();
-            updateStatusBar();
+            statusBar.updateStatusBar(loadedModel, model);
         } else {
-            updateStatusBar();
+            statusBar.updateStatusBar(loadedModel, model);
             JOptionPane.showMessageDialog(this,
                     "You have successfully logged off.\n" +
                     "You act as a guest user with read-only access now.",
@@ -1158,6 +1140,14 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     private OrbitWorker dLObjectSegmentation(boolean withGUI, boolean orderPoints) {
         logger.info("dLObjectSegmentation called [method call]");
+
+        // If we want to store annotations (from the GUI) we need the user to login.
+        if (getIFrame().recognitionFrame.getFeatureDescription().isDeepLearningStoreAnnotations()) {
+            if (!ScaleoutMode.SCALEOUTMODE.get()) {
+                OrbitImageAnalysis.getInstance().forceLogin();
+            }
+        }
+
         OrbitModel localModel = new OrbitModel(this.model);
         ImageFrame iFrame = getIFrame();
 
@@ -1920,7 +1910,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                     "Segmentation model set",
                     JOptionPane.INFORMATION_MESSAGE);
         }
-        updateStatusBar();
+        statusBar.updateStatusBar(loadedModel, this.model);
     }
 
     public void setModelAsSecondarySegmentationModel(OrbitModel model, boolean withGUI) {
@@ -1952,7 +1942,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                     "Segmentation model set",
                     JOptionPane.INFORMATION_MESSAGE);
         }
-        updateStatusBar();
+        statusBar.updateStatusBar(loadedModel, this.model);
     }
 
     public void setModelAsExclusionModel(OrbitModel model, boolean withGUI) {
@@ -1974,7 +1964,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                     "Exclusion model set",
                     JOptionPane.INFORMATION_MESSAGE);
         }
-        updateStatusBar();
+        statusBar.updateStatusBar(loadedModel, this.model);
     }
 
 
@@ -2080,7 +2070,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                         JOptionPane.ERROR_MESSAGE);
             }
             loadModel(model, file.getName(), withUI, isOldModel, isTissueClassification);
-            updateStatusBar();
+            statusBar.updateStatusBar(loadedModel, this.model);
         } catch (Exception e) {
             logger.error("error loading model", e);
             logger.info("It seems that you tried to load an old model version which is incompatible with the current version.\n" +
@@ -2162,7 +2152,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         if (DALConfig.getImageProvider() instanceof IModelAwareImageProvider) {
             ((IModelAwareImageProvider) DALConfig.getImageProvider()).setOrbitModel(model);
         }
-        updateStatusBar();
+        statusBar.updateStatusBar(loadedModel, this.model);
     }
 
 
@@ -2431,7 +2421,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
             taskPanel.remove(pp);
             propertyPanel.revalidate();
-            updateStatusBar(); // e.g. if trainworker finished
+            statusBar.updateStatusBar(loadedModel, model); // e.g. if trainworker finished
 
         } else if (evt.getPropertyName().equals(ImageFrame.IFRAME_SELECTED) && (desktop.getSelectedFrame() != null && desktop.getSelectedFrame() instanceof ImageFrame)) {    // activate mouse listeners for selected frame (and deactivate for the others)
             for (ImageFrame iFrame : getIFrames()) {
@@ -2666,7 +2656,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
             IOrbitMask mask = new OrbitMaskClassificationModel(maskModel.clone());
             model.setMask(mask);
-            updateStatusBar();
+            statusBar.updateStatusBar(loadedModel, model);
             return true;
         } else {
             return false;
@@ -2686,7 +2676,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             }
             IOrbitMask mask = new OrbitMaskSegmentationModel(maskModel.clone());
             model.setMask(mask);
-            updateStatusBar();
+            statusBar.updateStatusBar(loadedModel, model);
             return true;
         } else {
             return false;
@@ -2774,7 +2764,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
         model.setClassifier(null);
         updateCcbModel(newModel.getClassShapes());
-        updateStatusBar();
+        statusBar.updateStatusBar(loadedModel, model);
         return true;
     }
 
@@ -2795,7 +2785,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
         getModel().setClassShapes(classShapes);
         updateCcbModel(classShapes);
-        updateStatusBar();
+        statusBar.updateStatusBar(loadedModel, model);
     }
 
     private void setupClassesForObjectClassification() {
@@ -2810,7 +2800,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
         this.model.setClassShapes(classShapes);
         updateCcbModel(classShapes);
-        updateStatusBar();
+        statusBar.updateStatusBar(loadedModel, model);
     }
 
 
@@ -2825,7 +2815,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
         makeClassComboBox();
         loadedModel = "none";
-        updateStatusBar();
+        statusBar.updateStatusBar(loadedModel, model);
         return true;
     }
 
@@ -3261,7 +3251,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                         model.prepareModelforSaving(getIFrames());
                         int id = model.saveModelOrbit(elb.getText().trim(), name.getText().trim(), loginUser);
                         loadedModel = name.getText().trim();
-                        updateStatusBar();
+                        statusBar.updateStatusBar(loadedModel, model);
                         logger.info("model saved in Orbit with id: " + id);
                         JOptionPane.showMessageDialog(OrbitImageAnalysis.this, "Model successfully saved in Orbit", "Model saved", JOptionPane.INFORMATION_MESSAGE);
                     } else {
@@ -3611,7 +3601,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     final CommandAction UnsetMaskCommandAction = e -> {
         if (model.getMask()!=null) {
             model.setMask(null);
-            updateStatusBar();
+            statusBar.updateStatusBar(loadedModel, model);
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
                     "Mask successfully unset.",
                     "Mask unset",

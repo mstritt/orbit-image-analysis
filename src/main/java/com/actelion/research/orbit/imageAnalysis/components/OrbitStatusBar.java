@@ -19,6 +19,8 @@
 
 package com.actelion.research.orbit.imageAnalysis.components;
 
+import com.actelion.research.orbit.imageAnalysis.models.OrbitModel;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,15 +29,17 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import static java.lang.Runtime.*;
+
 public class OrbitStatusBar extends JPanel {
 
     private static final long serialVersionUID = 1L;
-    private Logger logger = LoggerFactory.getLogger(OrbitStatusBar.class);
-    private JLabel copyright = new JLabel(" ");
-    private JProgressBar memory = new JProgressBar();
-    private JLabel loginUser = new JLabel(" ");
-    private JLabel loadedModel = new JLabel(" ");
-    private JLabel tempSpace = new JLabel(" ");
+    private final Logger logger = LoggerFactory.getLogger(OrbitStatusBar.class);
+    private final JLabel copyright = new JLabel(" ");
+    private final JProgressBar memory = new JProgressBar();
+    private final JLabel loginUser = new JLabel(" ");
+    private final JLabel loadedModel = new JLabel(" ");
+    private final JLabel tempSpace = new JLabel(" ");
 
 
     public OrbitStatusBar() {
@@ -99,14 +103,31 @@ public class OrbitStatusBar extends JPanel {
     public void setMemory(long current, long max) {
         final String str = current + " / " + max + " MB Memory";
         final int prog = (int) ((current / (double) max) * 100d);
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                memory.setString(str);
-                memory.setValue(prog);
-            }
+        SwingUtilities.invokeLater(() -> {
+            memory.setString(str);
+            memory.setValue(prog);
         });
+    }
 
+    public void updateStatusBar(String loadedModel, OrbitModel model) {
+        double freeSpace = OrbitUtils.getTempDiskSpace() / (1024d * 1024 * 1024); // in GB
+        this.setCopyright("Orbit Image Analysis Version " + OrbitUtils.VERSION_STR);
+        this.setTempSpaceStr("Temp Space: " + String.format("%1$.2f", freeSpace) + " GB");
+        String trained = "no";
+        String segModel = "no";
+        String exclModel = "no";
+        String mask = "no";
+        if (model != null) {
+            trained = (model.getClassifier() != null && model.getClassifier().isBuild()) ? "yes" : "no";
+            segModel = model.getSegmentationModel() != null ? "yes" : "no";
+            exclModel = model.getExclusionModel() != null ? "yes" : "no";
+            mask = model.getMask()!=null ? "yes" : "no";
+        }
+        this.setLoadedModel("Model: " + loadedModel + " / Trained:" + trained + " / Segmentation:" + segModel
+                + " / Exclusion:" + exclModel+" Mask:" + mask);
+        this.setLoginUser("Login User: " + loginUser);
+        this.setMemory(getRuntime().totalMemory() / (1024L * 1024L),
+                getRuntime().maxMemory() / (1024L * 1024L));
     }
 
 }
