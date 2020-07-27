@@ -654,6 +654,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.text"))
                 .setIconFactory(segmentation.factory())
                 .setAction(oia.ObjectSegmentationCommandAction)
+                .setActionEnabled(oia.model.getSegmentationModel() != null)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.objectSegmentation.tooltip.text"))
@@ -668,6 +669,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("ObjectDetection.dLObjectSegmentation.objectSegmentation.text"))
                 .setIconFactory(mask2browser.factory())
                 .setAction(oia.DLObjectSegmentationCommandAction)
+                .setActionEnabled(oia.model.getSegmentationModel() != null)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ObjectDetection.dLObjectSegmentation.objectSegmentation.tooltip.text"))
@@ -1766,7 +1768,7 @@ public class OrbitMenu extends JRibbonFrame {
      * Get the image provider band for the OrbitMenu.
      * @return The image provider band
      */
-    protected JRibbonBand getImageProviderBand() {
+    private JRibbonBand getImageProviderBand() {
         JRibbonBand imageProviderBand = new JRibbonBand(
                 resourceBundle.getString("Image.ImageProvider.textBandTitle"),
                 null,
@@ -2095,7 +2097,7 @@ public class OrbitMenu extends JRibbonFrame {
      * Get the setup object segmentation band for the OrbitMenu.
      * @return The setup object segementation band
      */
-    private JRibbonBand getSetupObjectSegmentationClassesBand() {
+    protected JRibbonBand getSetupObjectSegmentationClassesBand() {
         JRibbonBand setupClassesBand = new JRibbonBand(
                 resourceBundle.getString("ObjectDetection.Setup.textBandTitle"),
                 null,
@@ -2694,6 +2696,14 @@ public class OrbitMenu extends JRibbonFrame {
      */
     Command getOpenSpecialResolutionCommand() {
         return openSpecialResolutionCommand;
+    }
+
+    Command getObjectSegmentationCommand() {
+        return objectSegmentationCommand;
+    }
+
+    Command getdLObjectSegmentationCommand() {
+        return dLObjectSegmentationCommand;
     }
 
     protected Command getLoginMenuCommand() {
