@@ -148,6 +148,7 @@ public class OrbitMenu extends JRibbonFrame {
 
     // Taskbar commands
     private Command handToolCommand;
+    private Command fitToIFrameCommand;
 
     // Application menu commands
     private Command loginMenuCommand;
@@ -1204,8 +1205,19 @@ public class OrbitMenu extends JRibbonFrame {
                 .setAction(oia.HandToolCommandAction)
                 .setActionRichTooltip(
                         RichTooltip.builder()
-                                .setTitle(resourceBundle.getString("Taskbar.HandTool.textTaskbarTitle"))
-                                .addDescriptionSection(resourceBundle.getString("Taskbar.HandTool.textTaskbarTitle"))
+                                .setTitle(resourceBundle.getString("Taskbar.HandTool.tooltip.text"))
+                                .addDescriptionSection(resourceBundle.getString("Taskbar.HandTool.tooltip.actionParagraph1"))
+                                .build())
+                .build();
+
+        this.fitToIFrameCommand = Command.builder()
+                .setText(resourceBundle.getString("Taskbar.FitToFrame.textTaskbarTitle"))
+                .setIconFactory(select_rectangular.factory())
+                .setAction(oia.FitToIFrameCommandAction)
+                .setActionRichTooltip(
+                        RichTooltip.builder()
+                                .setTitle(resourceBundle.getString("Taskbar.FitToFrame.tooltip.text"))
+                                .addDescriptionSection(resourceBundle.getString("Taskbar.FitToFrame.tooltip.actionParagraph1"))
                                 .build())
                 .build();
 
@@ -1367,6 +1379,7 @@ public class OrbitMenu extends JRibbonFrame {
                 ? KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK)
                 : KeyStroke.getKeyStroke(KeyEvent.VK_L, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 
+        // Cut/copy/paste.
         KeyStroke copyImageKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
                 ? KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK)
                 : KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK);
@@ -1380,6 +1393,9 @@ public class OrbitMenu extends JRibbonFrame {
                 ? KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK)
                 : KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 
+        KeyStroke fitToFrameKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK)
+                : KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
         KeyStroke handToolKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
                 ? KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_DOWN_MASK)
                 : KeyStroke.getKeyStroke(KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
@@ -1438,6 +1454,7 @@ public class OrbitMenu extends JRibbonFrame {
         ribbon.registerKeyboardAction(oia.PasteImageAction, pasteKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
         ribbon.registerKeyboardAction(oia.overviewAction, loadOverviewKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
 
+        ribbon.registerKeyboardAction(oia.fitToIFrameCommandAction, fitToFrameKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
         ribbon.registerKeyboardAction(oia.handAction, handToolKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
         ribbon.registerKeyboardAction(oia.eraserAction, eraserKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
         ribbon.registerKeyboardAction(oia.polygonAction, polygonKeyStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -1644,6 +1661,7 @@ public class OrbitMenu extends JRibbonFrame {
         ribbon.addTaskbarCommand(this.classesCommand);
         // Configure Features
         ribbon.addTaskbarCommand(this.featuresCommand);
+        ribbon.addTaskbarCommand(this.fitToIFrameCommand);
     }
 
     /**

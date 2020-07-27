@@ -3087,6 +3087,35 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     final ActionListener zoomInAction = e -> zoomIn();
     final ActionListener zoomOutAction = e -> zoomOut();
 
+    /**
+     * Fit the recognition frame image to the iframe, so the whole slide is visible in the iframe.
+     */
+    private void fitImageToIFrame() {
+        if (getIFrame() != null) {
+            ImageFrame iFrame = getIFrame();
+            Dimension dim = iFrame.getSize();
+            int ifWidth = dim.width;
+            // The opacity slider means you can't see all the image, so need to take it away from the available height.
+            int ifHeight = (int) (dim.height - iFrame.getOpacitySlider().getSize().height * iFrame.getRecognitionFrame().getScale());
+
+            double rfWidth = iFrame.getRecognitionFrame().bimg.getWidth();
+            double rfHeight = iFrame.getRecognitionFrame().bimg.getHeight();
+
+            // Calculate the scale in x and y dimensions.
+            double wScale = 100 * ((double) ifWidth / rfWidth);
+            double hScale = 100 * ((double) ifHeight / rfHeight);
+
+            // Set the scale in the dimension with the smallest amount of space.
+            double newScale = Math.min(wScale, hScale);
+            iFrame.recognitionFrame.setScale(newScale);
+            // Recenter the viewport so the image fills the screen.
+            iFrame.recognitionFrame.setViewPortOffset(new Point(0,0));
+        }
+    }
+
+    final CommandAction FitToIFrameCommandAction = e -> fitImageToIFrame();
+    final ActionListener fitToIFrameCommandAction = e -> fitImageToIFrame();
+
     // CommandActions for OrbitMenu
     private void activateHandTool() {
         if (getIFrame() != null) {
