@@ -1,19 +1,19 @@
 /*
- *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2018 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
+ * Orbit, a versatile image analysis software for biological image-based quantification.
+ * Copyright (C) 2009 - 2020 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,8 +28,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-
-import static java.lang.Runtime.*;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 
 public class OrbitStatusBar extends JPanel {
 
@@ -37,10 +37,12 @@ public class OrbitStatusBar extends JPanel {
     private final Logger logger = LoggerFactory.getLogger(OrbitStatusBar.class);
     private final JLabel copyright = new JLabel(" ");
     private final JProgressBar memory = new JProgressBar();
+    private final JProgressBar cpu = new JProgressBar();
     private final JLabel loginUser = new JLabel(" ");
     private final JLabel loadedModel = new JLabel(" ");
     private final JLabel tempSpace = new JLabel(" ");
-
+//    private final OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(
+//            OperatingSystemMXBean.class);
 
     public OrbitStatusBar() {
         super(new BorderLayout(5, 5));
@@ -55,6 +57,11 @@ public class OrbitStatusBar extends JPanel {
         memory.setString("");
         memory.setMaximum(100);
         memory.setMinimum(0);
+        cpu.setBorder(BorderFactory.createLoweredBevelBorder());
+        cpu.setStringPainted(true);
+        cpu.setString("");
+        cpu.setMinimum(0);
+        cpu.setMaximum(100);
 
         memory.addMouseListener(new MouseListener() {
             public void mouseReleased(MouseEvent e) {
@@ -81,6 +88,7 @@ public class OrbitStatusBar extends JPanel {
         middlePanel.add(tempSpace, BorderLayout.EAST);
         add(copyright, BorderLayout.WEST);
         add(memory, BorderLayout.EAST);
+//        add(cpu, BorderLayout.EAST);
         add(middlePanel, BorderLayout.CENTER);
     }
 
@@ -109,6 +117,16 @@ public class OrbitStatusBar extends JPanel {
         });
     }
 
+    // Not supported with standard Java :-(
+//    private void setCPU() {
+//        final int cpuPercent = (int) osBean.getSystemCpuLoad() * 100;
+//        final String str = cpuPercent + "%";
+//        SwingUtilities.invokeLater(() -> {
+//            cpu.setString(str);
+//            cpu.setValue(cpuPercent);
+//        });
+//    }
+
     public void updateStatusBar(String loadedModel, OrbitModel model) {
         double freeSpace = OrbitUtils.getTempDiskSpace() / (1024d * 1024 * 1024); // in GB
         this.setCopyright("Orbit Image Analysis Version " + OrbitUtils.VERSION_STR);
@@ -126,8 +144,9 @@ public class OrbitStatusBar extends JPanel {
         this.setLoadedModel("Model: " + loadedModel + " / Trained:" + trained + " / Segmentation:" + segModel
                 + " / Exclusion:" + exclModel+" Mask:" + mask);
         this.setLoginUser("Login User: " + OrbitImageAnalysis.loginUser);
-        this.setMemory(getRuntime().totalMemory() / (1024L * 1024L),
-                getRuntime().maxMemory() / (1024L * 1024L));
+        this.setMemory(Runtime.getRuntime().totalMemory() / (1024L * 1024L),
+                Runtime.getRuntime().maxMemory() / (1024L * 1024L));
+//        this.setCPU();
     }
 
 }
