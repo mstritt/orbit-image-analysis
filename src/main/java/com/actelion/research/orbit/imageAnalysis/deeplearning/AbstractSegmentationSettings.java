@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public abstract class AbstractSegmentationSettings<T> implements Serializable, Cloneable {
 
@@ -31,8 +32,8 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
 
     /**
      * Setup and store the settings used for abstract segmentation model training and inference.
-     * @param remoteModelURL
-     * @param modelPath
+     * @param remoteModelURL A URL where the model can be downloaded from.
+     * @param modelPath The path to the model (on disk).
      * @param imageWidth The width in px of the training images.
      * @param imageHeight The height in px of the training images.
      * @param tileScaleFactorX The scale factor in x-axis that was used to generate the test dataset (e.g. if image tiles were
@@ -183,5 +184,39 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
     @Override
     public String toString() {
         return this.modelName;
+    }
+
+    /**
+     * We overide equals for e.g. FeatureAdminFrame, where we need to know that the objects are identical, but
+     * we also know that they will reside at different memory locations.
+     * @param o The AbstractSegmentationSettings
+     * @return Is it the same?
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractSegmentationSettings<?> that = (AbstractSegmentationSettings<?>) o;
+        return imageWidth == that.imageWidth &&
+                imageHeight == that.imageHeight &&
+                trainingImageTileWidth == that.trainingImageTileWidth &&
+                trainingImageTileHeight == that.trainingImageTileHeight &&
+                Float.compare(that.tileScaleFactorX, tileScaleFactorX) == 0 &&
+                Float.compare(that.tileScaleFactorY, tileScaleFactorY) == 0 &&
+                segmentationRefinement == that.segmentationRefinement &&
+                Double.compare(that.detectionToleranceScale, detectionToleranceScale) == 0 &&
+                modelName.equals(that.modelName) &&
+                Objects.equals(remoteModelURL, that.remoteModelURL) &&
+                Objects.equals(modelPath, that.modelPath) &&
+                annotationPrefix.equals(that.annotationPrefix);
+    }
+
+    /**
+     * Use all instance parameters to calculate the hashcode.
+     * @return The object hashcode.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(modelName, remoteModelURL, modelPath, imageWidth, imageHeight, trainingImageTileWidth, trainingImageTileHeight, tileScaleFactorX, tileScaleFactorY, annotationPrefix, segmentationRefinement, detectionToleranceScale);
     }
 }

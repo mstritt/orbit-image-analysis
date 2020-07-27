@@ -96,6 +96,7 @@ public class FeaturesAdminFrame extends JDialog {
     private JTextField tfDeepLearningModelPath = null;
     private DLSegmentModelComboBoxModel dlSegmentMethodsModel = null;
     private JComboBox<AbstractSegmentationSettings<?>> dLMethodComboBox = null;
+    private JCheckBox cbDLStoreAnnotations = null;
 
     private JCheckBox cbDisableWatershed = null;
     private JCheckBox cbDoCombineCrossTiles = null;
@@ -137,6 +138,7 @@ public class FeaturesAdminFrame extends JDialog {
         }
         setResizable(false);
         setSize(new Dimension(frameWidth, frameHeight));
+        setLocationRelativeTo(OrbitImageAnalysis.getInstance());
 
 
         final JTabbedPane tabs = new JTabbedPane();
@@ -175,8 +177,6 @@ public class FeaturesAdminFrame extends JDialog {
         });
 
         addActionListeners();
-
-        setLocationRelativeTo(OrbitImageAnalysis.getInstance());
     }
 
     private JPanel getAdjustmentsJPanel() {
@@ -586,60 +586,71 @@ public class FeaturesAdminFrame extends JDialog {
     }
 
     private JPanel getDeepLearningJPanel() {
+        // Full panel for the Deep Learning settings.
         JPanel panel;
-        JLabel lab;
-        JPanel panelDeepLearning = new JPanel();
-        panelDeepLearning.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
+        panel = new JPanel(new GridLayout(4, 1));
 
+        // Enable deep learning segmentation.
         cbDeepLearning = new JCheckBox("Deep Learning Segmentation", featureDescription.isDeepLearningSegmentation());  // large object detection
         cbDeepLearning.setToolTipText("Enable deep learning instance segmentation. Select a segmentation model before using it.");
         setCompBounds(cbDeepLearning, frameWidth);
-        panelDeepLearning.add(cbDeepLearning);
+        panel.add(cbDeepLearning);
 
-        panel = new JPanel(new GridLayout(4, 2));
-        lab = new JLabel("Deep Learning Model Path or URL:");
+        // Specify path to Deep Learning model.
+        JPanel panelDeepLearning = new JPanel();
+        panelDeepLearning.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
+
+        JLabel lab = new JLabel("Deep Learning Model Path or URL:");
         panelDeepLearning.add(lab);
-        JPanel pathPanel = new JPanel(new FlowLayout());
         tfDeepLearningModelPath = new JTextField(featureDescription.getDeepLearningModelPath(), 15);
         tfDeepLearningModelPath.setToolTipText("can be a full path to a model file or a URL");
         tfDeepLearningModelPath.setHorizontalAlignment(JTextField.LEFT);
-        pathPanel.add(tfDeepLearningModelPath);
-
-        //JPanel dlSettings = new JPanel(new FlowLayout());
-
-//        ArrayList<AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>,? extends AbstractSegmentationSettings>>
-//                dLSegmentMethods = new ArrayList<>();
-
+        panelDeepLearning.add(tfDeepLearningModelPath);
+        panel.add(panelDeepLearning);
 
         final JButton fileSelectBtn = new JButton("browse");
-        fileSelectBtn.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    "DL Segmentation Models (*.pb)", "pb");
-            fileChooser.setFileFilter(filter);
-            fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
-            String dir = prefs.get("OrbitImageAnalysis.OpenDeepLearningModelPath", null);
-            if (dir != null) {
-                File cd = new File(dir);
-                fileChooser.setCurrentDirectory(cd);
-            }
-            int returnVal = fileChooser.showSaveDialog(FeaturesAdminFrame.this);
+        fileSelectBtn.addActionListener(chooseDLModelPath());
+        panelDeepLearning.add(fileSelectBtn);
+        panel.add(panelDeepLearning);
 
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                prefs.put("OrbitImageAnalysis.OpenDeepLearningModelPath", fileChooser.getCurrentDirectory().getAbsolutePath());
-                String fn = fileChooser.getSelectedFile().getAbsolutePath();
-                File file = new File(fn);
-                if (file.isDirectory()) return;
-                tfDeepLearningModelPath.setText(file.getAbsolutePath());
-            }
-        });
-        pathPanel.add(fileSelectBtn);
-
-        panelDeepLearning.add(pathPanel);
+        // Options to choose a predefined model.
+        JPanel panelPredefinedModel = new JPanel();
+        panelPredefinedModel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
 
         lab = new JLabel("Predefined Model");
-        panelDeepLearning.add(lab);
+        panelPredefinedModel.add(lab);
 
+        AbstractSegmentationSettings<?>[] dLSegmentArray = getDeepLearningModels();
+
+        dlSegmentMethodsModel =
+                new DLSegmentModelComboBoxModel(dLSegmentArray);
+
+        dLMethodComboBox = new JComboBox<>(dlSegmentMethodsModel);
+        if (featureDescription.getDLSegment() == null) {
+            dLMethodComboBox.setSelectedItem(0);
+        } else {
+            dLMethodComboBox.setSelectedItem(featureDescription.getDLSegment());
+        }
+
+        panelPredefinedModel.add(dLMethodComboBox);
+        panel.add(panelPredefinedModel);
+
+        // Optionally store the annotations directly.
+        cbDLStoreAnnotations = new JCheckBox("Store Annotations: ",
+                featureDescription.isDeepLearningStoreAnnotations());  // large object detection
+        cbDLStoreAnnotations.setToolTipText("By default annotations aren't stored in the database, but displayed on " +
+                "the image. It will become possible to store a selection of these annotations to the database. " +
+                "For Batch computations it is necessary to check this option to store the annotations directly to the" +
+                "database.");
+        setCompBounds(cbDLStoreAnnotations, frameWidth);
+        panel.add(cbDLStoreAnnotations);
+
+        // Setup the options panel and return.
+        setCompBounds(panel, frameWidth - 50);
+        return panel;
+    }
+
+    private AbstractSegmentationSettings<?>[] getDeepLearningModels() {
         MaskRCNNSegmentationSettings nucleiSettings = new MaskRCNNSegmentationSettings(
                 "Nuclei", null, "C:\\Users\\fullejo1\\Downloads\\deepretina_final.pb",
                 512, 512,
@@ -669,25 +680,32 @@ public class FeaturesAdminFrame extends JDialog {
         // Since this is a two-step method it needs a different approach...
         //MaskRCNNSegment corpus_callosum = new MaskRCNNSegment(new File("D:/deeplearning/insulin/models/insulin_009.pb"), MaskRCNNSegment.PostProcessMethod.STANDARD);
 
-//        dLSegmentMethods.add(nuclei);
-//        dLSegmentMethods.add(insulin);
-//        dLSegmentMethods.add(glomeruli);
+        return new AbstractSegmentationSettings<?>[]{ nucleiSettings, insulinSettings, glomeruliSettings };
+    }
 
-        AbstractSegmentationSettings<?>[] dLSegmentArray = new AbstractSegmentationSettings<?>[]{ nucleiSettings,
-                                                                                            insulinSettings,
-                                                                                            glomeruliSettings};
-        dlSegmentMethodsModel =
-                new DLSegmentModelComboBoxModel(dLSegmentArray);
+    private ActionListener chooseDLModelPath() {
+        return e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "DL Segmentation Models (*.pb)", "pb");
+            fileChooser.setFileFilter(filter);
+            fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
 
-        dLMethodComboBox = new JComboBox<>(dlSegmentMethodsModel);
+            String dir = prefs.get("OrbitImageAnalysis.OpenDeepLearningModelPath", null);
+            if (dir != null) {
+                File cd = new File(dir);
+                fileChooser.setCurrentDirectory(cd);
+            }
+            int returnVal = fileChooser.showSaveDialog(FeaturesAdminFrame.this);
 
-        panelDeepLearning.add(dLMethodComboBox);
-
-        // TODO: Add a checkbox (Store annotations).
-
-        setCompBounds(panel, frameWidth - 50);
-        panelDeepLearning.add(panel);
-        return panelDeepLearning;
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                prefs.put("OrbitImageAnalysis.OpenDeepLearningModelPath", fileChooser.getCurrentDirectory().getAbsolutePath());
+                String fn = fileChooser.getSelectedFile().getAbsolutePath();
+                File file = new File(fn);
+                if (file.isDirectory()) return;
+                tfDeepLearningModelPath.setText(file.getAbsolutePath());
+            }
+        };
     }
 
     /**
@@ -775,7 +793,7 @@ public class FeaturesAdminFrame extends JDialog {
         cbDeepLearning.setSelected(featureDescription.isDeepLearningSegmentation());
         tfDeepLearningModelPath.setText(featureDescription.getDeepLearningModelPath());
         // TODO: Figure out what to do here...
-//        dlSegmentMethodsModel.setSelectedItem(featureDescription.getDLSegment());
+        dlSegmentMethodsModel.setSelectedItem(featureDescription.getDLSegment());
         //dLMethodComboBox.setModel(featureDescription.getDLSegment());
 
         // roi
@@ -976,6 +994,13 @@ public class FeaturesAdminFrame extends JDialog {
         // v3 features
         // TODO... Check this.
         featureDescription.setDLSegment(dlSegmentMethodsModel.getSelectedItem());
+
+//        if (dlSegmentMethodsModel.getSelectedItem() != null) {
+//        } else {
+//            dlSegmentMethodsModel.getElementAt(0);
+//        }
+
+        featureDescription.setDeepLearningStoreAnnotations(cbDLStoreAnnotations.isSelected());
 
         // fluo channels
         String[] activeFluoChannels = cbFluoChannels.getCheckedItems();

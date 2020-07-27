@@ -75,6 +75,7 @@ public class FeatureDescription implements Serializable, Cloneable {
     private boolean deepLearningSegmentation = false;
     private String deepLearningModelPath = null;
     private AbstractSegmentationSettings<?> dLSegmentSettings = null;
+    private boolean deepLearningStoreAnnotations = false;
 
     // MIHC
     private boolean mihcActive = false;
@@ -428,6 +429,15 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.dLSegmentSettings = dLSegment;
     }
 
+    public boolean isDeepLearningStoreAnnotations() {
+        return deepLearningStoreAnnotations;
+    }
+
+    public void setDeepLearningStoreAnnotations(boolean deepLearningStoreAnnotations) {
+        this.deepLearningStoreAnnotations = deepLearningStoreAnnotations;
+    }
+
+
     public Map<String, Float> getHueMap() {
         return hueMap;
     }
@@ -548,8 +558,9 @@ public class FeatureDescription implements Serializable, Cloneable {
                 ", mumfordShahAlpha="+mumfordShahAlpha +
                 ", mumfordShahCellSize="+mumfordShahCellSize +
                 ", deepLearningSegmentation="+deepLearningSegmentation +
-                ", deepLearningSegmentationModelPath="+((featureVersion<3) ? "not set" : dLSegmentSettings.toString()) +
+                ", deepLearningSegmentationModelPath="+((featureVersion<3) ? "not set" : deepLearningModelPath) +
                 ", deepLearningSegmentation="+ ((featureVersion<3) ? "not set" : dLSegmentSettings.toString()) +
+                ", deepLearningStoreAnnotations="+ ((featureVersion<3) ? "not set" : deepLearningStoreAnnotations) +
                 ", hueMap="+getHueMapString() +
                 ", mihcActive="+mihcActive+
                 '}';
