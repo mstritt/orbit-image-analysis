@@ -11,7 +11,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *  
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -370,6 +370,7 @@ public class FeaturesAdminFrame extends JDialog {
         JPanel panel;
         JLabel lab;
         JPanel panelSegmentation = new JPanel();
+        //panelSegmentation.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
         panelSegmentation.setLayout(new GridLayout(-1,1));
 
         final OrbitModel modelFin = model;
@@ -565,6 +566,7 @@ public class FeaturesAdminFrame extends JDialog {
         cbNerveDetectionMode.setToolTipText("activate for nerve detection (large object detection)");
         setCompBounds(cbNerveDetectionMode, frameWidth);
         panelSegmentation.add(cbNerveDetectionMode);
+        setCompBounds(panelSegmentation, frameWidth-150);
 
 
         return new JScrollPane(panelSegmentation,ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -573,7 +575,8 @@ public class FeaturesAdminFrame extends JDialog {
     private JPanel getDeepLearningJPanel() {
         // Full panel for the Deep Learning settings.
         JPanel panel;
-        panel = new JPanel(new GridLayout(4, 1));
+        panel = new JPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
 
         // Enable deep learning segmentation.
         cbDeepLearning = new JCheckBox("Deep Learning Segmentation", featureDescription.isDeepLearningSegmentation());  // large object detection
@@ -657,6 +660,14 @@ public class FeaturesAdminFrame extends JDialog {
             e.printStackTrace();
         }
 
+        // Size of image to use for brain detection.
+        Point brainImgDims = new Point(512, 512);
+        MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings("Brain",
+                "http://ares:8080/orbit/rdf?orbitID=19340900",
+                "C:\\Users\\fullejo1\\Downloads\\finalbrainDetect2.pb", brainImgDims.x, brainImgDims.y,
+                1f, 1, 28, 28, 2, "Brain",
+                false, MaskRCNNSegmentationSettings.PostProcessMethod.CUSTOM);
+
         DLR101SegmentationSettings glomeruliSettings = new DLR101SegmentationSettings(
                 "Glomeruli", null, "C:\\Users\\fullejo1\\Downloads\\glomeruli-410k.pb",
                 512, 512,
@@ -665,7 +676,12 @@ public class FeaturesAdminFrame extends JDialog {
         // Since this is a two-step method it needs a different approach...
         //MaskRCNNSegment corpus_callosum = new MaskRCNNSegment(new File("D:/deeplearning/insulin/models/insulin_009.pb"), MaskRCNNSegment.PostProcessMethod.STANDARD);
 
-        return new AbstractSegmentationSettings<?>[]{ nucleiSettings, insulinSettings, glomeruliSettings };
+        return new AbstractSegmentationSettings<?>[]{
+                nucleiSettings,
+                insulinSettings,
+                brainSettings,
+                glomeruliSettings
+        };
     }
 
     private ActionListener chooseDLModelPath() {
