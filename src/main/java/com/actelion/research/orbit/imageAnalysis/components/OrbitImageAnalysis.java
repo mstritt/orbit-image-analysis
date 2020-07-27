@@ -1914,8 +1914,9 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //                    "Primary Segmentation model successfully set.",
 //                    "Segmentation model set",
 //                    JOptionPane.INFORMATION_MESSAGE);
-            orbitMenu.getObjectSegmentationCommand().setActionEnabled(true);
-            orbitMenu.getObjectSegmentationCommand().setActionEnabled(true);
+            orbitMenu.getObjectSegmentationCommand().setActionEnabled(!model.getFeatureDescription().isDeepLearningSegmentation());
+            orbitMenu.getdLObjectSegmentationCommand().setActionEnabled(model.getFeatureDescription().isDeepLearningSegmentation());
+            orbitMenu.getSetSecondarySegmentationModelCommand().setActionEnabled(true);
         }
         statusBar.updateStatusBar(loadedModel, this.model);
     }
@@ -3394,7 +3395,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
                 "Segmentation model reset",
                 JOptionPane.INFORMATION_MESSAGE);
         orbitMenu.getObjectSegmentationCommand().setActionEnabled(false);
-        orbitMenu.getObjectSegmentationCommand().setActionEnabled(false);
+        orbitMenu.getdLObjectSegmentationCommand().setActionEnabled(false);
+        orbitMenu.getSetSecondarySegmentationModelCommand().setActionEnabled(false);
     };
     final CommandAction ResetSecondarySegmentationModelCommandAction = e -> {
         model.setSecondarySegmentationModel(null);

@@ -641,6 +641,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setText(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.text"))
                 .setIconFactory(secondarySeg.factory())
                 .setAction(oia.SetSecondarySegmentationModelCommandAction)
+                .setActionEnabled(oia.getModel().getSecondarySegmentationModel() != null)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.setSecondarySegmentationModel.tooltip.text"))
@@ -2696,6 +2697,10 @@ public class OrbitMenu extends JRibbonFrame {
      */
     Command getOpenSpecialResolutionCommand() {
         return openSpecialResolutionCommand;
+    }
+
+    public Command getSetSecondarySegmentationModelCommand() {
+        return setSecondarySegmentationModelCommand;
     }
 
     Command getObjectSegmentationCommand() {
