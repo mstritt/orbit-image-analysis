@@ -1,19 +1,19 @@
 /*
- *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2018 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
+ * Orbit, a versatile image analysis software for biological image-based quantification.
+ * Copyright (C) 2009 - 2020 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *  
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -47,8 +47,6 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -95,7 +93,6 @@ public class FeaturesAdminFrame extends JDialog {
     private JCheckBox cbDeepLearning = null;
     private JTextField tfDeepLearningModelPath = null;
     private DLSegmentModelComboBoxModel dlSegmentMethodsModel = null;
-    private JComboBox<AbstractSegmentationSettings<?>> dLMethodComboBox = null;
     private JCheckBox cbDLStoreAnnotations = null;
 
     private JCheckBox cbDisableWatershed = null;
@@ -114,7 +111,7 @@ public class FeaturesAdminFrame extends JDialog {
     private final int btnHeight = (int)(35/NeonCortex.getScaleFactor());
 
     public static int selectedTab = 0;
-    private FeatureDescription featureDescription = null;
+    private FeatureDescription featureDescription;
     protected Preferences prefs = Preferences.userNodeForPackage(OrbitImageAnalysis.class);
 
     public FeaturesAdminFrame(FeatureDescription featureDescription) {
@@ -333,19 +330,7 @@ public class FeaturesAdminFrame extends JDialog {
         if (model != null) {
             OrbitModel classModel = model;
             if (model.getSegmentationModel() != null) classModel = model.getSegmentationModel();
-            int i = 0;
-            for (ClassShape cs : classModel.getClassShapes()) {
-                String cleanCS = cs.getName().replaceAll(";", ",");
-                classList.add(cleanCS);
-                if (featureDescription.getFeatureClasses() != null) {
-                    for (int fc : featureDescription.getFeatureClasses()) {
-                        if (i == fc) {
-                            selected.append(cleanCS).append("; ");
-                        }
-                    }
-                }
-                i++;
-            }
+            defineFeatureClasses(featureDescription, classList, selected, classModel);
         }
 
         cbFeatureClasses = new JComboCheckBox(classList);
@@ -625,7 +610,7 @@ public class FeaturesAdminFrame extends JDialog {
         dlSegmentMethodsModel =
                 new DLSegmentModelComboBoxModel(dLSegmentArray);
 
-        dLMethodComboBox = new JComboBox<>(dlSegmentMethodsModel);
+        JComboBox<AbstractSegmentationSettings<?>> dLMethodComboBox = new JComboBox<>(dlSegmentMethodsModel);
         if (featureDescription.getDLSegment() == null) {
             dLMethodComboBox.setSelectedItem(0);
         } else {
@@ -749,19 +734,7 @@ public class FeaturesAdminFrame extends JDialog {
             if (model.getSegmentationModel() != null) classModel = model.getSegmentationModel();
             if (featureDescription.isForSecondarySegmentationModel() && model.getSecondarySegmentationModel() != null)
                 classModel = model.getSecondarySegmentationModel();
-            int i = 0;
-            for (ClassShape cs : classModel.getClassShapes()) {
-                String cleanCS = cs.getName().replaceAll(";", ",");
-                classList.add(cleanCS);
-                if (featureDescription.getFeatureClasses() != null) {
-                    for (int fc : featureDescription.getFeatureClasses()) {
-                        if (i == fc) {
-                            selected.append(cleanCS).append("; ");
-                        }
-                    }
-                }
-                i++;
-            }
+            defineFeatureClasses(featureDescription, classList, selected, classModel);
         }
 
         cbFeatureClasses.setChoices(classList);
@@ -792,9 +765,7 @@ public class FeaturesAdminFrame extends JDialog {
 
         cbDeepLearning.setSelected(featureDescription.isDeepLearningSegmentation());
         tfDeepLearningModelPath.setText(featureDescription.getDeepLearningModelPath());
-        // TODO: Figure out what to do here...
         dlSegmentMethodsModel.setSelectedItem(featureDescription.getDLSegment());
-        //dLMethodComboBox.setModel(featureDescription.getDLSegment());
 
         // roi
 
@@ -809,6 +780,22 @@ public class FeaturesAdminFrame extends JDialog {
         tfROIY.setText(Integer.toString(OrbitImageAnalysis.getInstance().getModel().getFixedROIOffsetY()));
 
         setCbActiveFluoChannels(featureDescription.getActiveFluoChannels());
+    }
+
+    private void defineFeatureClasses(FeatureDescription featureDescription, List<String> classList, StringBuilder selected, OrbitModel classModel) {
+        int i = 0;
+        for (ClassShape cs : classModel.getClassShapes()) {
+            String cleanCS = cs.getName().replaceAll(";", ",");
+            classList.add(cleanCS);
+            if (featureDescription.getFeatureClasses() != null) {
+                for (int fc : featureDescription.getFeatureClasses()) {
+                    if (i == fc) {
+                        selected.append(cleanCS).append("; ");
+                    }
+                }
+            }
+            i++;
+        }
     }
 
 
@@ -863,10 +850,6 @@ public class FeaturesAdminFrame extends JDialog {
 
     private void setDeconvChannel(int channel) {
         switch (channel) {
-            case 0: {
-                deconvChannel0.setSelected(true);
-                break;
-            }
             case 1: {
                 deconvChannel1.setSelected(true);
                 break;
@@ -879,6 +862,7 @@ public class FeaturesAdminFrame extends JDialog {
                 deconvChannel3.setSelected(true);
                 break;
             }
+            case 0:
             default: {
                 deconvChannel0.setSelected(true);
                 break;
