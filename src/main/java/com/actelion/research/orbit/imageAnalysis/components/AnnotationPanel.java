@@ -483,6 +483,23 @@ public class AnnotationPanel extends JPanel implements PropertyChangeListener {
                 }
             }
             if (bbAll != null) {
+                // Fit the annotation bounding box to 1/3 of the viewport.
+                Dimension dim = iFrame.getSize();
+                int ifWidth = dim.width;
+                // The opacity slider means you can't see all the image, so need to take it away from the available height.
+                int ifHeight = (int) (dim.height - iFrame.getOpacitySlider().getSize().height);
+
+                double annoWidth = 3 * bbAll.width;
+                double annoHeight = 3 * bbAll.height;
+
+                // Calculate the scale in x and y dimensions.
+                double wScale = 100 * ((double) ifWidth / annoWidth);
+                double hScale = 100 * ((double) ifHeight / annoHeight);
+
+                double newScale = Math.min(wScale, hScale);
+                iFrame.recognitionFrame.setScale(newScale);
+
+                // Recenter the viewport.
                 double sc = iFrame.recognitionFrame.getScale() / 100d;
                 final Point targetP = new Point((int) (bbAll.getCenterX() * sc) - iFrame.recognitionFrame.getWidth() / 2, (int) (bbAll.getCenterY() * sc) - iFrame.recognitionFrame.getHeight() / 2);
                 iFrame.setViewPortPositionAndAdjust(targetP);
