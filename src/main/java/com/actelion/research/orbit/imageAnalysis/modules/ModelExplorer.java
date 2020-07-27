@@ -1,19 +1,19 @@
 /*
- *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2018 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
+ * Orbit, a versatile image analysis software for biological image-based quantification.
+ * Copyright (C) 2009 - 2020 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -30,8 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -54,50 +52,38 @@ public class ModelExplorer extends AbstractOrbitModule {
     public ModelExplorer() {
 
         super();
-        btnAddModel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
-                if (oia.getModel()==null) {
-                    logger.error("model is null, please create a model first");
-                    return;
-                }
-                final OrbitModel model = new OrbitModel(oia.getModel(),true);
-                addModel(model,oia.getIFrames(),true);
+        btnAddModel.addActionListener(e -> {
+            final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
+            if (oia.getModel()==null) {
+                logger.error("model is null, please create a model first");
+                return;
             }
+            final OrbitModel model = new OrbitModel(oia.getModel(),true);
+            addModel(model,oia.getIFrames(),true);
         });
 
-        btnRemoveModel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                List<OrbitModel> selectedList = list.getSelectedValuesList();
-                if (selectedList!=null) {
-                    for (OrbitModel orbitModel : selectedList) {
-                        listModel.removeElement(orbitModel);
-                    }
+        btnRemoveModel.addActionListener(e -> {
+            List<OrbitModel> selectedList = list.getSelectedValuesList();
+            if (selectedList!=null) {
+                for (OrbitModel orbitModel : selectedList) {
+                    listModel.removeElement(orbitModel);
                 }
             }
         });
 
-        btnConfigureModel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                OrbitModel model = list.getSelectedValue();
-                if (model!=null) {
-                    configureClasses(model);
-                }
+        btnConfigureModel.addActionListener(e -> {
+            OrbitModel model = list.getSelectedValue();
+            if (model!=null) {
+                configureClasses(model);
             }
         });
 
-        btnSetAsClassificationModel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
-                OrbitModel model = list.getSelectedValue();
-                if (model!=null) {
-                    oia.setModel(new OrbitModel(model, true));
-                    oia.updateStatusBar();
-                }
+        btnSetAsClassificationModel.addActionListener(e -> {
+            final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
+            OrbitModel model = list.getSelectedValue();
+            if (model!=null) {
+                oia.setModel(new OrbitModel(model, true));
+                oia.getStatusBar().updateStatusBar(oia.getLoadedModelFilename(), oia.getModel());
             }
         });
 

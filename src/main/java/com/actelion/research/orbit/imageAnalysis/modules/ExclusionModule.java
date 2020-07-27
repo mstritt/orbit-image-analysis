@@ -1,19 +1,19 @@
 /*
- *     Orbit, a versatile image analysis software for biological image-based quantification.
- *     Copyright (C) 2009 - 2018 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
+ * Orbit, a versatile image analysis software for biological image-based quantification.
+ * Copyright (C) 2009 - 2020 Idorsia Pharmaceuticals Ltd., Hegenheimermattweg 91, CH-4123 Allschwil, Switzerland.
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -80,7 +80,6 @@ public class ExclusionModule extends AbstractOrbitModule {
         this.createCommands();
     }
 
-    // TODO: Something different happening here... Need to figure out how best to tie in with ExclusionModule.java
     final CommandAction SetupClassesExclusionCommandAction = e -> this.setupClasses();
     final CommandAction TrainSetClassifyCommandAction = e -> this.trainSetAndClassifyExcl();
     final CommandAction ClassifyTrainedExclusionModelCommandAction = e -> this.classifyExcl();
@@ -305,7 +304,7 @@ public class ExclusionModule extends AbstractOrbitModule {
             }
             oia.getModel().setClassShapes(classShapes);
             oia.updateCcbModel(classShapes);
-            oia.updateStatusBar();
+            oia.getStatusBar().updateStatusBar(oia.getLoadedModelFilename(), oia.getModel());
         }
     }
 
@@ -379,7 +378,7 @@ public class ExclusionModule extends AbstractOrbitModule {
     private void resetModel() {
         final OrbitImageAnalysis oia = OrbitImageAnalysis.getInstance();
         oia.getModel().setExclusionModel(null);
-        oia.updateStatusBar();
+        oia.getStatusBar().updateStatusBar(oia.getLoadedModelFilename(), oia.getModel());
     }
 
     private void configureExclusionModelLevel() {
@@ -406,7 +405,7 @@ public class ExclusionModule extends AbstractOrbitModule {
             OrbitModel exclModel = OrbitModel.LoadFromFile(file.getAbsolutePath());
             oia.getModel().setExclusionModel(exclModel);
             logger.info("exclusion model loaded and set");
-            oia.updateStatusBar();
+            oia.getStatusBar().updateStatusBar(oia.getLoadedModelFilename(), oia.getModel());
             JOptionPane.showMessageDialog(null,
                     "Exclusion model loaded and set.",
                     "Success",
@@ -433,7 +432,7 @@ public class ExclusionModule extends AbstractOrbitModule {
         if (exclModel!=null) {
             oia.getModel().setExclusionModel(exclModel);
             logger.info("exclusion model loaded and set");
-            oia.updateStatusBar();
+            oia.getStatusBar().updateStatusBar(oia.getLoadedModelFilename(), oia.getModel());
             JOptionPane.showMessageDialog(null, "Exclusion model loaded and set.", "Success", JOptionPane.INFORMATION_MESSAGE);
         } else {
             logger.trace("load model canceled.");
@@ -446,7 +445,7 @@ public class ExclusionModule extends AbstractOrbitModule {
         if (exclModel!=null) {
             oia.getModel().setExclusionModel(exclModel);
             logger.info("exclusion model loaded and set");
-            oia.updateStatusBar();
+            oia.getStatusBar().updateStatusBar(oia.getLoadedModelFilename(), oia.getModel());
             JOptionPane.showMessageDialog(null, "Exclusion set.", "Success", JOptionPane.INFORMATION_MESSAGE);
         } else {
             logger.trace("set model canceled.");

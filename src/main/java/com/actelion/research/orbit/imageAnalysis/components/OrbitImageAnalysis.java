@@ -167,6 +167,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     private RdfSearchBox searchBox;
     private AbstractOrbitTree rdTree;
     private ImageList imageList;
+
     private final OrbitStatusBar statusBar = new OrbitStatusBar();
 
     protected OrbitModel model = new OrbitModel(); // with default values
@@ -784,6 +785,10 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         infoStr += "\nLoaded model: " + loadedModel;
 
         return infoStr;
+    }
+
+    public OrbitStatusBar getStatusBar() {
+        return statusBar;
     }
 
     private void makeClassComboBox() {

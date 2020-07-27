@@ -125,7 +125,7 @@ public class OrbitStatusBar extends JPanel {
         }
         this.setLoadedModel("Model: " + loadedModel + " / Trained:" + trained + " / Segmentation:" + segModel
                 + " / Exclusion:" + exclModel+" Mask:" + mask);
-        this.setLoginUser("Login User: " + loginUser);
+        this.setLoginUser("Login User: " + OrbitImageAnalysis.loginUser);
         this.setMemory(getRuntime().totalMemory() / (1024L * 1024L),
                 getRuntime().maxMemory() / (1024L * 1024L));
     }
