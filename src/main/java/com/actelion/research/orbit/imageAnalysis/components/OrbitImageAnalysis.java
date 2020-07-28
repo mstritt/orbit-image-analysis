@@ -1932,6 +1932,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         orbitMenu.getObjectSegmentationCommand().setActionEnabled(isSegModelOnly);
         orbitMenu.getSetSecondarySegmentationModelCommand().setActionEnabled(isSegModelOnly);
         orbitMenu.getdLObjectSegmentationCommand().setActionEnabled(isDlModel);
+        orbitMenu.getShowSegmentationHeatmapCommand().setActionEnabled(isSegModelOnly);
     }
 
     public void setModelAsSecondarySegmentationModel(OrbitModel model, boolean withGUI) {
@@ -3128,7 +3129,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             iFrame.recognitionFrame.setScale(newScale);
             // Recenter the viewport so the image fills the screen.
             iFrame.recognitionFrame.setViewPortOffset(new Point(0,0));
-            repaint();
+            scaleSlider.setValue((int) newScale);
         }
     }
 

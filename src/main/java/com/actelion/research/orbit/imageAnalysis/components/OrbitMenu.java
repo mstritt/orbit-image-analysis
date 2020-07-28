@@ -684,6 +684,7 @@ public class OrbitMenu extends JRibbonFrame {
                 .setIconFactory(obj_heatmap.factory())
                 .setAction(oia.ShowSegmentationHeatmapCommandAction)
                 .setToggleSelected(false)
+                .setActionEnabled(false)
                 .setActionRichTooltip(
                         RichTooltip.builder()
                                 .setTitle(resourceBundle.getString("ObjectDetection.ObjectSegmentation.showSegmentationHeatmap.tooltip.text"))
@@ -2699,12 +2700,16 @@ public class OrbitMenu extends JRibbonFrame {
         return openSpecialResolutionCommand;
     }
 
-    public Command getSetSecondarySegmentationModelCommand() {
+    Command getSetSecondarySegmentationModelCommand() {
         return setSecondarySegmentationModelCommand;
     }
 
     Command getObjectSegmentationCommand() {
         return objectSegmentationCommand;
+    }
+
+    Command getShowSegmentationHeatmapCommand() {
+        return showSegmentationHeatmapCommand;
     }
 
     Command getdLObjectSegmentationCommand() {
