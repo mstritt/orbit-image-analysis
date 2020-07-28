@@ -397,7 +397,7 @@ public class DLSegmentationWorker extends OrbitWorker {
                     allDetections.addDetection(detections.getDetections());
                 }
 
-                allDetections.addDetection(flist.get().getDetections());
+                //allDetections.addDetection(flist.get().getDetections());
             }
         }
         return allDetections;
