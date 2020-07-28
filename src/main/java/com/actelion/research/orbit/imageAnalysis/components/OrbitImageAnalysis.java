@@ -1452,7 +1452,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             scaleSlider.setValue(400);
             iFrame.getOpacitySlider().setValue(0);
             iFrame.recognitionFrame.setClassImage(null);
-            iFrame.recognitionFrame.setScale(100d);
+//            iFrame.recognitionFrame.setScale(100d);
+            fitImageToIFrame();
             iFrame.recognitionFrame.setFeatureDescription(model.getFeatureDescription());
 
             if (imageSource instanceof RawDataFile) {
@@ -1914,15 +1915,27 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 //                    "Primary Segmentation model successfully set.",
 //                    "Segmentation model set",
 //                    JOptionPane.INFORMATION_MESSAGE);
-            orbitMenu.getObjectSegmentationCommand().setActionEnabled(!model.getFeatureDescription().isDeepLearningSegmentation());
-            orbitMenu.getdLObjectSegmentationCommand().setActionEnabled(model.getFeatureDescription().isDeepLearningSegmentation());
-            orbitMenu.getSetSecondarySegmentationModelCommand().setActionEnabled(true);
+            toggleSegmentationButtonsEnabled();
         }
         statusBar.updateStatusBar(loadedModel, this.model);
     }
 
+    /**
+     * Enable/disable the Object Segmentation, AI Object Segmentation and Secondary Segmentation Model buttons
+     * when they can/can't be used since some other requirement is there.
+     */
+    private void toggleSegmentationButtonsEnabled() {
+        boolean isSegModelOnly = this.model.getSegmentationModel() != null
+                && this.model.getFeatureDescription().isDeepLearningSegmentation() == false ? true : false;
+        boolean isDlModel = this.model.getFeatureDescription().isDeepLearningSegmentation();
+
+        orbitMenu.getObjectSegmentationCommand().setActionEnabled(isSegModelOnly);
+        orbitMenu.getSetSecondarySegmentationModelCommand().setActionEnabled(isSegModelOnly);
+        orbitMenu.getdLObjectSegmentationCommand().setActionEnabled(isDlModel);
+    }
+
     public void setModelAsSecondarySegmentationModel(OrbitModel model, boolean withGUI) {
-        if (model == null || model.getClassifier() == null /*|| model.getStructure()==null*/) {
+        if (model == null || model.getClassifier() == null) {
             JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
                     "The secondary segmentation model cannot be set.\n" +
                             "Please first specify class regions and do a classification\n" +
@@ -2773,8 +2786,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         model.setClassifier(null);
         updateCcbModel(newModel.getClassShapes());
         statusBar.updateStatusBar(loadedModel, model);
-        orbitMenu.getObjectSegmentationCommand().setActionEnabled(false);
-        orbitMenu.getdLObjectSegmentationCommand().setActionEnabled(false);
+        toggleSegmentationButtonsEnabled();
         return true;
     }
 
@@ -2826,8 +2838,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         makeClassComboBox();
         loadedModel = "none";
         statusBar.updateStatusBar(loadedModel, model);
-        orbitMenu.getObjectSegmentationCommand().setActionEnabled(false);
-        orbitMenu.getdLObjectSegmentationCommand().setActionEnabled(false);
+        toggleSegmentationButtonsEnabled();
         return true;
     }
 
@@ -3117,6 +3128,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             iFrame.recognitionFrame.setScale(newScale);
             // Recenter the viewport so the image fills the screen.
             iFrame.recognitionFrame.setViewPortOffset(new Point(0,0));
+            repaint();
         }
     }
 
@@ -3390,13 +3402,11 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     };
     final CommandAction ResetPrimarySegmentationModelCommandAction = e -> {
         model.setSegmentationModel(null);
+        toggleSegmentationButtonsEnabled();
         JOptionPane.showMessageDialog(OrbitImageAnalysis.this,
                 "Segmentation model successfully reset.",
                 "Segmentation model reset",
                 JOptionPane.INFORMATION_MESSAGE);
-        orbitMenu.getObjectSegmentationCommand().setActionEnabled(false);
-        orbitMenu.getdLObjectSegmentationCommand().setActionEnabled(false);
-        orbitMenu.getSetSecondarySegmentationModelCommand().setActionEnabled(false);
     };
     final CommandAction ResetSecondarySegmentationModelCommandAction = e -> {
         model.setSecondarySegmentationModel(null);

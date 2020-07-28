@@ -220,6 +220,7 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
     public MaskRCNNDetections segmentationImplementation(OrbitModel segModel,
                                                          OrbitTiledImageIOrbitImage orbitImage,
                                                          Point tile) {
+
         Point tileOffset = new Point(orbitImage.tileXToX(tile.x), orbitImage.tileYToY(tile.y));
 
         MaskRCNNDetections detections = null;
@@ -247,7 +248,12 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
     }
 
     @Override
-    public MaskRCNNDetections segmentationImplementation(OrbitModel orbitSegModel, OrbitTiledImageIOrbitImage orbitImage, Point tile, ExclusionMapGen exclusionMapGen, Shape roiDef) {
+    public MaskRCNNDetections segmentationImplementation(OrbitModel orbitSegModel,
+                                                         OrbitTiledImageIOrbitImage orbitImage,
+                                                         Point tile,
+                                                         ExclusionMapGen exclusionMapGen,
+                                                         Shape roiDef) {
+
         Point tileOffset = new Point(orbitImage.tileXToX(tile.x), orbitImage.tileYToY(tile.y));
 
         MaskRCNNDetections detections = null;
@@ -259,9 +265,13 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
                     detections = this.segmentTile(tile.x, tile.y, orbitImage, orbitSegModel, false, tileOffset);
                     //logger.info(detections.toString());
 
+                } catch (Exception e) {
+                    logger.error(e.getLocalizedMessage());
+                }
 
-
-                    if (detections.getSegmentationResult() != null && segmentationSettings.isSegmentationRefinement()) {
+                try {
+                    if ((detections != null ? detections.getSegmentationResult() : null) != null
+                            && segmentationSettings.isSegmentationRefinement()) {
                         try {
                             return segmentationRefinement(detections, orbitSegModel, orbitImage, exclusionMapGen, roiDef, tile);
                         } catch (Exception e) {
@@ -271,7 +281,6 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
                 } catch (Exception e) {
                     logger.error(e.getLocalizedMessage());
                 }
-
                 break;
             case CUSTOM:
                 // Apply MaskRCNN raw detection model to tile.
@@ -515,6 +524,7 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
         detections.setSegmentationResult(segRes);
 
         List<Shape> shapes = segRes.getShapeList();
+        int i = 0;
         for (Shape shape : shapes) {
             PolygonExt polygon = (PolygonExt) shape;
             polygon.setClosed(true);
@@ -526,7 +536,13 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
             polygon.translate(tileOffset.x, tileOffset.y);
 
             // TODO: Assign the correct bounding box, probability and class.
-            detections.addDetection(polygon,null,null,1, tileOffset);
+//            MaskRCNNDetection detection = detections.getDetection(i);
+            detections.addDetection(polygon,
+                    null,
+                    null,
+                    1,
+                    tileOffset);
+            i++;
         }
         return detections;
     }

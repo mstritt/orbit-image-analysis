@@ -96,6 +96,7 @@ public abstract class AbstractDetections<T extends AbstractDetection> {
         return this.detections
                 .stream()
                 .filter(Objects::nonNull)
+                .distinct()
                 .collect(Collectors.toList());
     }
 
@@ -103,6 +104,7 @@ public abstract class AbstractDetections<T extends AbstractDetection> {
         return Math.toIntExact(this.detections
                 .stream()
                 .filter(Objects::nonNull)
+                .distinct()
                 .count());
     }
 
@@ -111,9 +113,18 @@ public abstract class AbstractDetections<T extends AbstractDetection> {
      * @param i index of detection to remove.
      */
     public void removeDetection(int i) {
-        detections.remove(i);
+        this.detections.remove(i);
         // TODO: Update the segmentation model result?
     }
+
+    public void removeDetection(AbstractDetection detection) {
+        this.detections.remove(detection);
+    }
+
+    public void removeDetections(List<AbstractDetection> detections) {
+        this.detections.removeAll(detections);
+    }
+
 
     public abstract void addDetection(PolygonExt contour, RectangleExt boundingBox, Float classProbability, Integer maskClass, Point tileOffset);
 

@@ -3,6 +3,7 @@ package com.actelion.research.orbit.imageAnalysis.deeplearning;
 import com.actelion.research.orbit.imageAnalysis.models.PolygonExt;
 
 import java.awt.*;
+import java.util.Objects;
 
 public abstract class AbstractDetection {
     final PolygonExt contour;
@@ -27,4 +28,18 @@ public abstract class AbstractDetection {
 
     public Point getTileOffset() { return tileOffset; }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractDetection detection = (AbstractDetection) o;
+        return Objects.equals(contour, detection.contour) &&
+                Objects.equals(detectionClass, detection.detectionClass) &&
+                Objects.equals(tileOffset, detection.tileOffset);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(contour, detectionClass, tileOffset);
+    }
 }

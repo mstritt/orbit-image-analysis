@@ -7,6 +7,8 @@ import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetection;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
 import com.actelion.research.orbit.imageAnalysis.imaging.TileSizeWrapper;
 import com.actelion.research.orbit.imageAnalysis.models.*;
 import com.actelion.research.orbit.imageAnalysis.tasks.ExclusionMapGen;
@@ -350,9 +352,10 @@ public abstract class AbstractSegment<D extends AbstractDetections<? extends Abs
         int minY = orbitImage.tileYToY(tile.y);
 
         // Keep track of which 'original' detection is being processed (variable 'i').
-        int i = 0;
+        int i = -1;
         // Loop over all 'original' detections.
         for (Shape segShape : detections.getSegmentationResult().getShapeList()) {
+            i++;
             PolygonExt scaleShape = (PolygonExt) segShape;
             PolygonMetrics polyMetrics = new PolygonMetrics(scaleShape);
             scaleShape = scaleShape.scale(segmentationSettings.getTileScaleFactorXPercent(), polyMetrics.getCenter());
@@ -445,20 +448,34 @@ public abstract class AbstractSegment<D extends AbstractDetections<? extends Abs
                             // if works both ways take the biggest.
                             if (centeredMetrics.getArea() > originalMetrics.getArea()) {
                                 detections.addDetection(centeredContour, null, null, 1, tile);
-                                detections.removeDetection(i);
+//                                detections.removeDetection(i);
+                                detections.removeDetection(detections.getDetection(i));
                             }
                         } else {
                             // if only the 'centered' detection is biggest replace it.
-                            detections.addDetection(centeredContour, null, null, 1, tile);
-                            detections.removeDetection(i);
+                            if (detections instanceof MaskRCNNDetections) {
+                                MaskRCNNDetections maskRCNNDetections = (MaskRCNNDetections) detections;
+                                detections.addDetection(centeredContour,
+                                        maskRCNNDetections.getDetection(i).getBoundingBox(),
+                                        maskRCNNDetections.getDetection(i).getClassProbability(),
+                                        1, tile);
+                            } else {
+                                detections.addDetection(centeredContour,
+                                        null,
+                                        null,
+                                        detections.getDetection(i).getDetectionClass(),
+                                        tile);
+                            }
+//                            detections.removeDetection(i);
+                            detections.removeDetection(detections.getDetection(i));
                         }
                     }
                 } else {
                     // We're not in the ROI. So remove the detection.
-                    detections.removeDetection(i);
+//                    detections.removeDetection(i);
+                    //detections.removeDetection(detections.getDetection(i));
                 }
             }
-            i++;
         }
         return detections;
     }

@@ -29,6 +29,7 @@ import com.actelion.research.orbit.imageAnalysis.deeplearning.*;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101Detections;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101Segment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DeepLabV2Resnet101.DLR101SegmentationSettings;
+import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetection;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
@@ -63,6 +64,7 @@ public class DLSegmentationWorker extends OrbitWorker {
     private OrbitModel secondarySegmentationModel = null;  // used for segmentation inside a segmentation
     private ExclusionMapGen exclusionMapGen = null;
     private List<ClassShape> oldClassShapes = null;
+    List<Shape> roiDefList = null;
 
     private final SegmentationResult segmentationResult = new SegmentationResult();
     private final RecognitionFrame originalFrame = null;
@@ -124,7 +126,8 @@ public class DLSegmentationWorker extends OrbitWorker {
             // Decide which DL model to apply...
             switch (modelType) {
                 case "Nuclei":
-                case "Pancreas Islets":
+                case "Pancreas Islets (Identify only)":
+                case "Pancreas Islets (Identify and Classify)":
                     dLSegmentationModel = new MaskRCNNSegment((MaskRCNNSegmentationSettings) dlSegmentSettings);
                     break;
                 case "Glomeruli":
@@ -145,7 +148,7 @@ public class DLSegmentationWorker extends OrbitWorker {
             long startt = System.currentTimeMillis();
             OrbitTiledImage2.resetTileCache();
 
-            List<Shape> roiDefList = getROIShapes();
+            roiDefList = getROIShapes();
 
             // DL Segmentation requires varying image sizes (to match those used for the training.
             TileSizeWrapper tileSizeWrapper = new TileSizeWrapper(
@@ -227,7 +230,8 @@ public class DLSegmentationWorker extends OrbitWorker {
             AbstractDetections<? extends AbstractDetection> allDetections = null;
             switch (modelType) {
                 case "Nuclei":
-                case "Pancreas Islets":
+                case "Pancreas Islets (Identify only)":
+                case "Pancreas Islets (Identify and Classify)":
                     allDetections = getMaskRCNNDetections(tileSegments);
                     break;
                 case "Brain":
@@ -245,8 +249,9 @@ public class DLSegmentationWorker extends OrbitWorker {
 
             executor.shutdownNow();
 
+            filterRoiDetections(roiDefList, Objects.requireNonNull(allDetections));
 
-            rf.setROI(oldROI);
+            //rf.setROI(oldROI);
             if (oldClassShapes != null) {
                 rf.setClassShapes(oldClassShapes);
                 logger.debug("ClassShape Workaround: Old classShapes set.");
@@ -297,7 +302,32 @@ public class DLSegmentationWorker extends OrbitWorker {
             setProgress(100);
 
             // TODO: Generate a result string to output the object features.
-            taskResult = new TaskResult("Segmented objects (" + allObjectCount + " objects)", "");
+            StringBuilder detectionStr = new StringBuilder("Detection Class\tClass Probability\n");
+            switch (modelType) {
+                case "Nuclei":
+                case "Pancreas Islets (Identify only)":
+                case "Pancreas Islets (Identify and Classify)":
+                    MaskRCNNDetections allMaskRCNNDetections = (MaskRCNNDetections) allDetections;
+
+                    for (MaskRCNNDetection detection : allMaskRCNNDetections.getDetections()) {
+                        detectionStr.append(detection.getDetectionClass()).append("\t");
+                        detectionStr.append(detection.getClassProbability()).append("\t");
+                        detectionStr.append("\n");
+                    }
+                    break;
+                case "Brain":
+                    break;
+                case "Glomeruli":
+//                    allDetections = getDLR101Detections(tileSegments);
+                    break;
+                case "Corpus Callosum":
+                    // TODO: This needs implementing...
+                    break;
+                default:
+                    throw new NoSuchFieldException("No model for: " + dlSegmentSettings.getModelName());
+            }
+
+            taskResult = new TaskResult("Segmented objects (" + allDetections.getNumDetections() + " objects)", detectionStr.toString());
 
             if (rf.isVisible()) {
                 rf.repaint();
@@ -312,21 +342,49 @@ public class DLSegmentationWorker extends OrbitWorker {
         }
     }
 
-    private void filterRoiDetections(Shape roiDef, AbstractDetections<?> detections) {
+    private AbstractDetections<?> filterRoiDetections(List<Shape> roiDefList, AbstractDetections<?> detections) {
         logger.info("shapes before filtering (all in tile): " + detections.getDetections().size());
-        int i = 0;
-        for (Shape contour: detections.getContourShapes()) {
-            int x = (int) contour.getBounds().getCenterX();
-            int y = (int) contour.getBounds().getCenterY();
-            if (!OrbitUtils.isInROI(x,y,roiDef,exclusionMapGen)) {
-                // If the detection isn't in the ROI, then remove it.
-                detections.removeDetection(i);
-            } else {
-                // Only increment if we need to inspect the next element.
-                i++;
+//        List<Integer> retain = new ArrayList<>();
+        List<AbstractDetection> retainD = new ArrayList<>();
+        List<AbstractDetection> dropD = new ArrayList<>();
+        List<?> detectionsList = detections.getDetections();
+
+        for (Shape roiDef : roiDefList) {
+            for (Object detection: detectionsList) {
+                if (detection instanceof AbstractDetection) {
+                    AbstractDetection detection1 = (AbstractDetection) detection;
+
+                    Shape contour = detection1.getContourShape();
+                    int x = (int) contour.getBounds().getCenterX();
+                    int y = (int) contour.getBounds().getCenterY();
+                    if (OrbitUtils.isInROI(x, y, roiDef, exclusionMapGen)) {
+                        // If the detection isn't in the ROI, then remove it.
+    //                    detections.removeDetection(i);
+    //                    retain.add(i);
+                        retainD.add(detection1);
+                    } else {
+                        dropD.add(detection1);
+                    }
+                }
             }
         }
+        dropD.removeAll(retainD);
+        detections.removeDetections(dropD);
         logger.info("shapes after filtering (only in ROI): " + detections.getNumDetections());
+
+        return detections;
+//        for (AbstractDetection detection : detections.getDetections()) {
+//        }
+//        for (AbstractDetection detection : retainD) {
+//            if (!detections.getDetections().contains(detection)) {
+//                detections.removeDetection(detection);
+//            }
+//        }
+        //        for (int i=0; i<detections.getNumDetections(); i++) {
+//            if (!retain.contains(i)) {
+//                detections.removeDetection();
+//            }
+//        }
     }
 
     private AbstractDetections<? extends AbstractDetection> getMaskRCNNDetections(List<Future<AbstractDetections<?>>> tileSegments) throws InterruptedException, ExecutionException {

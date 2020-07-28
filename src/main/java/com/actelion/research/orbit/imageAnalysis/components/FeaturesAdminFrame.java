@@ -646,16 +646,32 @@ public class FeaturesAdminFrame extends JDialog {
                 "NucleiS", true,
                 MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD);
 
-        MaskRCNNSegmentationSettings insulinSettings = new MaskRCNNSegmentationSettings(
-                    "Pancreas Islets", null, "C:\\Users\\fullejo1\\Downloads\\insulin_009.pb",
+        MaskRCNNSegmentationSettings insulinSettingsStandard = new MaskRCNNSegmentationSettings(
+                    "Pancreas Islets (Identify only)", null, "C:\\Users\\fullejo1\\Downloads\\insulin_009.pb",
                     512, 512,
                     16f, 10, 56, 56, 5,
                     "IsletS", true,
                     MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD);
-        ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW));
-        ArrayList<String> classNames = new ArrayList<>(Arrays.asList("Background", "g0", "g1", "g2", "g3"));
+        // Standard setting doesn't classify the detections.
+        ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLACK, Color.MAGENTA));
+        ArrayList<String> classNames = new ArrayList<>(Arrays.asList("Background", "ungraded"));
         try {
-            insulinSettings.setCustomClassNames(colors, classNames);
+            insulinSettingsStandard.setCustomClassNames(colors, classNames);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        MaskRCNNSegmentationSettings insulinSettingsCustom = new MaskRCNNSegmentationSettings(
+                "Pancreas Islets (Identify and Classify)", null, "C:\\Users\\fullejo1\\Downloads\\insulin_009.pb",
+                512, 512,
+                16f, 10, 56, 56, 5,
+                "IsletC", true,
+                MaskRCNNSegmentationSettings.PostProcessMethod.CUSTOM);
+        // Custom setting does classify the detections.
+        colors = new ArrayList<>(Arrays.asList(Color.BLACK, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW));
+        classNames = new ArrayList<>(Arrays.asList("Background", "g0", "g1", "g2", "g3"));
+        try {
+            insulinSettingsCustom.setCustomClassNames(colors, classNames);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -663,7 +679,7 @@ public class FeaturesAdminFrame extends JDialog {
         // Size of image to use for brain detection.
         Point brainImgDims = new Point(512, 512);
         MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings("Brain",
-                "http://ares:8080/orbit/rdf?orbitID=19340900",
+                "null",
                 "C:\\Users\\fullejo1\\Downloads\\finalbrainDetect2.pb", brainImgDims.x, brainImgDims.y,
                 1f, 1, 28, 28, 2, "Brain",
                 false, MaskRCNNSegmentationSettings.PostProcessMethod.CUSTOM);
@@ -678,7 +694,8 @@ public class FeaturesAdminFrame extends JDialog {
 
         return new AbstractSegmentationSettings<?>[]{
                 nucleiSettings,
-                insulinSettings,
+                insulinSettingsStandard,
+                insulinSettingsCustom,
                 brainSettings,
                 glomeruliSettings
         };
