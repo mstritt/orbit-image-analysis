@@ -43,7 +43,7 @@ public class MaskRCNNSegment extends AbstractSegment<MaskRCNNDetections, MaskRCN
     @Deprecated
     public MaskRCNNSegment(File maskRCNNModelPB) {
         this(new MaskRCNNSegmentationSettings(
-                "Default",null, maskRCNNModelPB.getPath(),512,512,
+                "Default","Default", null, maskRCNNModelPB.getPath(),512,512,
                 16.0f,10,56,56,5,
                 "Default_", true, MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD));
     }

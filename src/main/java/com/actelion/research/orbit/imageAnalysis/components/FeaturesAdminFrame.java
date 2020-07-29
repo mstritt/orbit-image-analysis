@@ -640,14 +640,18 @@ public class FeaturesAdminFrame extends JDialog {
 
     private AbstractSegmentationSettings<?>[] getDeepLearningModels() {
         MaskRCNNSegmentationSettings nucleiSettings = new MaskRCNNSegmentationSettings(
-                "Nuclei", null, "C:\\Users\\fullejo1\\Downloads\\deepretina_final.pb",
+                "Nuclei",
+                "deepretina_final",
+                "http://ares:8080/orbit/rdf?orbitID=19340900", null,
                 512, 512,
                 0.5f, 512, 28, 28, 2,
                 "NucleiS", true,
                 MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD);
 
         MaskRCNNSegmentationSettings insulinSettingsStandard = new MaskRCNNSegmentationSettings(
-                    "Pancreas Islets (Identify only)", null, "C:\\Users\\fullejo1\\Downloads\\insulin_009.pb",
+                    "Pancreas Islets (Identify only)",
+                    "insulin_009",
+                    "http://ares:8080/orbit/rdf?orbitID=19340900", null,
                     512, 512,
                     16f, 10, 56, 56, 5,
                     "IsletS", true,
@@ -662,7 +666,9 @@ public class FeaturesAdminFrame extends JDialog {
         }
 
         MaskRCNNSegmentationSettings insulinSettingsCustom = new MaskRCNNSegmentationSettings(
-                "Pancreas Islets (Identify and Classify)", null, "C:\\Users\\fullejo1\\Downloads\\insulin_009.pb",
+                "Pancreas Islets (Identify and Classify)",
+                "insulin_009",
+                "http://ares:8080/orbit/rdf?orbitID=19340900", null,
                 512, 512,
                 16f, 10, 56, 56, 5,
                 "IsletC", true,
@@ -678,14 +684,18 @@ public class FeaturesAdminFrame extends JDialog {
 
         // Size of image to use for brain detection.
         Point brainImgDims = new Point(512, 512);
-        MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings("Brain",
-                "null",
-                "C:\\Users\\fullejo1\\Downloads\\finalbrainDetect2.pb", brainImgDims.x, brainImgDims.y,
+        MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings(
+                "Brain",
+                "finalbrainDetect2",
+                "http://ares:8080/orbit/rdf?orbitID=19340900",
+                null, brainImgDims.x, brainImgDims.y,
                 1f, 1, 28, 28, 2, "Brain",
                 false, MaskRCNNSegmentationSettings.PostProcessMethod.CUSTOM);
 
         DLR101SegmentationSettings glomeruliSettings = new DLR101SegmentationSettings(
-                "Glomeruli", null, "C:\\Users\\fullejo1\\Downloads\\glomeruli-410k.pb",
+                "Glomeruli",
+                "glomeruli-410k",
+                "http://ares:8080/orbit/rdf?orbitID=23539963", null,
                 512, 512,
                 2, "Glomeruli", true);
 

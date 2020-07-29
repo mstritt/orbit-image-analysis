@@ -86,6 +86,7 @@ public class TestInsulinSegment extends OrbitTestOS {
         File maskRCNNModel = new File("D:/deeplearning/insulin/models/insulin_009.pb");
 
         MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings("Pancreas Islets",
+                "insulin_009",
                 "http://ares:8080/orbit/rdf?orbitID=19340900",
                 null, 512, 512,
                 16f, 10, 56, 56, 5, "IsletC",
@@ -144,6 +145,7 @@ public class TestInsulinSegment extends OrbitTestOS {
         File maskRCNNModel = new File("D:/deeplearning/insulin/models/insulin_009.pb");
 
         MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings("Pancreas Islets",
+                "insulin_009",
                 "http://ares:8080/orbit/rdf?orbitID=19340900",
                 null, 512, 512,
                 16f, 10, 56, 56, 5, "IsletS",

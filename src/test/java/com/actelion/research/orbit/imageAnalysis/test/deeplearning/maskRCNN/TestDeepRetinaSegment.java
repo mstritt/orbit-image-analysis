@@ -39,6 +39,7 @@ public class TestDeepRetinaSegment extends OrbitTestOS {
         File maskRCNNModel = new File("D:/deeplearning/deepretina/deepretina_final.pb");
 
         MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings("Nuclei",
+                "deepretina_final",
                 "http://ares:8080/orbit/rdf?orbitID=19340900",
                 null, 512, 512,
                 0.5f, 512, 28, 28, 2, "NucleiC",
@@ -81,6 +82,7 @@ public class TestDeepRetinaSegment extends OrbitTestOS {
         assertNotNull(segModel);
 
         MaskRCNNSegmentationSettings settings = new MaskRCNNSegmentationSettings("Nuclei",
+                "deepretina_final",
                 "http://ares:8080/orbit/rdf?orbitID=19340900",
                 null, 512, 512,
                 0.5f, 512, 28, 28, 2, "NucleiS",

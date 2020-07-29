@@ -1,18 +1,24 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
 public abstract class AbstractSegmentationSettings<T> implements Serializable, Cloneable {
 
+    private static final Logger logger = LoggerFactory.getLogger(AbstractSegmentationSettings.class);
+
+    private final String modelDisplayName;
     private final String modelName;
     private final String remoteModelURL;
     private String modelPath;
@@ -43,7 +49,8 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
      * @param annotationPrefix The prefix used to store annotations.
      * @param segmentationRefinement Whether or not to refine the segmentation result. e.g. to mitigate for tile boundary
      */
-    public AbstractSegmentationSettings(String modelName, String remoteModelURL, String modelPath, int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, String annotationPrefix, boolean segmentationRefinement, double detectionToleranceScale) {
+    public AbstractSegmentationSettings(String modelDisplayName, String modelName, String remoteModelURL, String modelPath, int imageWidth, int imageHeight, float tileScaleFactorX, float tileScaleFactorY, String annotationPrefix, boolean segmentationRefinement, double detectionToleranceScale) {
+        this.modelDisplayName = modelDisplayName;
         this.modelName = modelName;
         this.remoteModelURL = remoteModelURL;
         if (remoteModelURL != null) {
@@ -66,13 +73,19 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
         this.detectionToleranceScale = detectionToleranceScale;
     }
 
-    public String getModelName() {
-        return modelName;
+    public String getModelDisplayName() {
+        return modelDisplayName;
     }
 
     public String cacheRemoteModel() throws IOException {
-        File modelFile = File.createTempFile("orbit-dl-model", modelName);
-        return modelFile.getPath();
+        final String userHome = System.getProperty("user.home");
+        Path modelDirectory = Paths.get (userHome+"/orbit/models");
+        if (Files.notExists(modelDirectory)) {
+            Files.createDirectories(modelDirectory);
+        }
+        Path modelFile = modelDirectory.resolve(modelName +"-orbit-model.pb");
+        Files.createFile(modelFile);
+        return modelFile.toString();
     }
 
     /**
@@ -85,7 +98,7 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
             try {
                 FileUtils.copyURLToFile(new URL(remoteModelURL), modelFile);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e.getLocalizedMessage());
             }
         }
         return Paths.get(modelPath);
@@ -183,7 +196,7 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
 
     @Override
     public String toString() {
-        return this.modelName;
+        return this.modelDisplayName;
     }
 
     /**
@@ -205,7 +218,7 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
                 Float.compare(that.tileScaleFactorY, tileScaleFactorY) == 0 &&
                 segmentationRefinement == that.segmentationRefinement &&
                 Double.compare(that.detectionToleranceScale, detectionToleranceScale) == 0 &&
-                modelName.equals(that.modelName) &&
+                modelDisplayName.equals(that.modelDisplayName) &&
                 Objects.equals(remoteModelURL, that.remoteModelURL) &&
                 Objects.equals(modelPath, that.modelPath) &&
                 annotationPrefix.equals(that.annotationPrefix);
@@ -217,6 +230,6 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
      */
     @Override
     public int hashCode() {
-        return Objects.hash(modelName, remoteModelURL, modelPath, imageWidth, imageHeight, trainingImageTileWidth, trainingImageTileHeight, tileScaleFactorX, tileScaleFactorY, annotationPrefix, segmentationRefinement, detectionToleranceScale);
+        return Objects.hash(modelDisplayName, remoteModelURL, modelPath, imageWidth, imageHeight, trainingImageTileWidth, trainingImageTileHeight, tileScaleFactorX, tileScaleFactorY, annotationPrefix, segmentationRefinement, detectionToleranceScale);
     }
 }

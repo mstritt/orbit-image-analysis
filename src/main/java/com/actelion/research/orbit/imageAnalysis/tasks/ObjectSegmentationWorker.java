@@ -24,8 +24,6 @@ import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.*;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetection;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNDetections;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegment;
 import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTiled;
@@ -43,10 +41,8 @@ import ij.process.BinaryProcessor;
 import ij.process.ByteProcessor;
 import imageJ.RankFiltersOrbit;
 import imageJ.graphcut.Graph_Cut;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tensorflow.Graph;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 
@@ -56,9 +52,6 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
-import java.io.File;
-import java.net.URL;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -276,7 +269,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                     ? extends AbstractSegmentationSettings<?>> dLSegmentationModel = null;
             if (deepLearningSegmentation) {
 
-                switch(dlSegmentSettings.getModelName()) {
+                switch(dlSegmentSettings.getModelDisplayName()) {
                     case "Nuclei":
                         dLSegmentationModel = new MaskRCNNSegment((MaskRCNNSegmentationSettings) dlSegmentSettings);
 
@@ -290,7 +283,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                     case "Brain":
                         break;
                     default:
-                        throw new NoSuchFieldException("No model for: " + dlSegmentSettings.getModelName());
+                        throw new NoSuchFieldException("No model for: " + dlSegmentSettings.getModelDisplayName());
 
                 }
             } else {

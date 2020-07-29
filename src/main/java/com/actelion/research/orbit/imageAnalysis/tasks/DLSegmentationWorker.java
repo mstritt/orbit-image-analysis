@@ -21,7 +21,6 @@ package com.actelion.research.orbit.imageAnalysis.tasks;
 
 import com.actelion.research.orbit.beans.RawAnnotation;
 import com.actelion.research.orbit.beans.RawDataFile;
-import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig;
@@ -122,7 +121,7 @@ public class DLSegmentationWorker extends OrbitWorker {
 //                    ? extends AbstractSegmentationSettings<?>> dLSegmentationModel = null;
             AbstractSegment dLSegmentationModel = null;
 
-            String modelType = dlSegmentSettings.getModelName();
+            String modelType = dlSegmentSettings.getModelDisplayName();
             // Decide which DL model to apply...
             switch (modelType) {
                 case "Nuclei":
@@ -140,7 +139,7 @@ public class DLSegmentationWorker extends OrbitWorker {
                     dLSegmentationModel = new MaskRCNNSegment((MaskRCNNSegmentationSettings) dlSegmentSettings);
                     break;
                 default:
-                    throw new NoSuchFieldException("No model for: " + dlSegmentSettings.getModelName());
+                    throw new NoSuchFieldException("No model for: " + dlSegmentSettings.getModelDisplayName());
 
             }
             setProgress(1);
@@ -243,7 +242,7 @@ public class DLSegmentationWorker extends OrbitWorker {
                     // TODO: This needs implementing...
                     break;
                 default:
-                    throw new NoSuchFieldException("No model for: " + dlSegmentSettings.getModelName());
+                    throw new NoSuchFieldException("No model for: " + dlSegmentSettings.getModelDisplayName());
             }
 
 
@@ -324,7 +323,7 @@ public class DLSegmentationWorker extends OrbitWorker {
                     // TODO: This needs implementing...
                     break;
                 default:
-                    throw new NoSuchFieldException("No model for: " + dlSegmentSettings.getModelName());
+                    throw new NoSuchFieldException("No model for: " + dlSegmentSettings.getModelDisplayName());
             }
 
             taskResult = new TaskResult("Segmented objects (" + allDetections.getNumDetections() + " objects)", detectionStr.toString());

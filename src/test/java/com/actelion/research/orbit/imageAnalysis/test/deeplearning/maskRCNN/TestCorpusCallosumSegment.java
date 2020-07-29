@@ -66,6 +66,7 @@ public class TestCorpusCallosumSegment extends OrbitTestOS {
 
         // Setup the brain detector.
         MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings("Brain",
+                "finalbrainDetect2",
                 "http://ares:8080/orbit/rdf?orbitID=19340900",
                 null, brainImgDims.x, brainImgDims.y,
                 1f, 1, 28, 28, 2, "Brain",
@@ -110,6 +111,7 @@ public class TestCorpusCallosumSegment extends OrbitTestOS {
 
         // Settings for Corpus Callosum detection.
         MaskRCNNSegmentationSettings corpusCallosumSettings = new MaskRCNNSegmentationSettings("Corpus Callosum",
+                "finalbrain15-56b",
                 "http://ares:8080/orbit/rdf?orbitID=19340900",
                 null, ccImgDims.x, ccImgDims.y,
                 brainScaleX, brainScaleY, 1, 56, 56, 2, "Corpus_Callosum",
