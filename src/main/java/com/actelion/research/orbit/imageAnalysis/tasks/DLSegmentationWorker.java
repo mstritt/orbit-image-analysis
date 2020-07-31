@@ -144,7 +144,7 @@ public class DLSegmentationWorker extends OrbitWorker {
             }
             setProgress(1);
 
-            long startt = System.currentTimeMillis();
+            long startTimeImage = System.currentTimeMillis();
             OrbitTiledImage2.resetTileCache();
 
             roiDefList = getROIShapes();
@@ -191,6 +191,7 @@ public class DLSegmentationWorker extends OrbitWorker {
                         //  unprocessed) jobs get cancelled.
 
                         currentTileNum.incrementAndGet();
+                        long startTimeTile = System.currentTimeMillis();
                         logger.info("tile " + currentTileNum.get() + " of " + totalNumTiles.get());
                         logger.info("tileX: " + tile.x + " tileY: " + tile.y);
 
@@ -204,8 +205,10 @@ public class DLSegmentationWorker extends OrbitWorker {
 
                             allObjectCount.addAndGet(detections.getNumDetections());
 
-                            long usedt = System.currentTimeMillis() - startt;
-                            logger.info("used time(min) for image: " + (usedt / 60000));
+                            long usedTimeTile = System.currentTimeMillis() - startTimeTile;
+                            long usedTimeImage = System.currentTimeMillis() - startTimeImage;
+                            logger.info("Time(s) for tile: " + (usedTimeTile / 1000));
+                            logger.info("Current time(min) for image: " + (usedTimeImage / 60000));
                             logger.info("tileX: " + tile.x + " tileY: " + tile.y + " tile in ROI");
                         } else {
                             // If the tile isn't in the ROI, do nothing...
