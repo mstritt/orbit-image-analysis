@@ -277,7 +277,7 @@ dependencies {
 
     testImplementation 'org.hamcrest:hamcrest:2.2'
 
-    testImplementation 'junit:junit:4.13'
+    testImplementation('junit:junit:4.13')
 }
 
 if (file('custom.gradle').exists()) {
