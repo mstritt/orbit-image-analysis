@@ -55,7 +55,7 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
         this.remoteModelURL = remoteModelURL;
         if (remoteModelURL != null) {
             try {
-                this.modelPath = cacheRemoteModel();
+                this.modelPath = createRemoteModelPlaceholder();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -77,19 +77,33 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
         return modelDisplayName;
     }
 
-    public String cacheRemoteModel() throws IOException {
+    /**
+     * Creates a placeholder directory and filename which is used when getModelPath()
+     * downloads the file to the local filesystem.
+     * @return The path to the model file.
+     * @throws IOException e.g. if it's not possible to create the file.
+     */
+    public String createRemoteModelPlaceholder() throws IOException {
         final String userHome = System.getProperty("user.home");
+
+        // Create a directory for the models in the users home (if it doesn't already exist).
         Path modelDirectory = Paths.get (userHome+"/orbit/models");
         if (Files.notExists(modelDirectory)) {
             Files.createDirectories(modelDirectory);
         }
+
+        // Create a dummy file that will later store the model (if needed).
         Path modelFile = modelDirectory.resolve(modelName +"-orbit-model.pb");
-        Files.createFile(modelFile);
+        if (Files.notExists(modelFile)) {
+            Files.createFile(modelFile);
+        }
         return modelFile.toString();
     }
 
     /**
      * Get the path to the DL model used for segmentation.
+     * Note that this also downloads and stores a copy of the model to the local file system
+     * if it hasn't already been downloaded.
      * @return Path to DL model for segmentation.
      */
     public Path getModelPath() {
@@ -101,6 +115,7 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
                 logger.error(e.getLocalizedMessage());
             }
         }
+        // TODO: Compare file hashes to see if they need to be updated.
         return Paths.get(modelPath);
     }
 
@@ -200,7 +215,7 @@ public abstract class AbstractSegmentationSettings<T> implements Serializable, C
     }
 
     /**
-     * We overide equals for e.g. FeatureAdminFrame, where we need to know that the objects are identical, but
+     * We override equals for e.g. FeatureAdminFrame, where we need to know that the objects are identical, but
      * we also know that they will reside at different memory locations.
      * @param o The AbstractSegmentationSettings
      * @return Is it the same?
