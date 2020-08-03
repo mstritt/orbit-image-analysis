@@ -257,9 +257,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             }
             final int numSamples = rf.bimg.getImage().getNumBands();
 
-            // init maskrcnn segmentation
             boolean mumfordShahSegmentation = segmentationModel != null && segmentationModel.getFeatureDescription().isMumfordShahSegmentation();
-
             if (mumfordShahSegmentation) {
                 logger.info("segmentation mode: mumford-shah");
             } else {
@@ -335,14 +333,33 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                         BufferedImage sourceImage = null;
                         TiledImageWriter classImage = null;
 
-                        if (sourceImage == null && segmentationModel != null && (segmentationModel.getFeatureDescription().isMumfordShahSegmentation())) {
+                        if (!dontClassify && segmentationModel != null) {
+                            RecognitionFrame rf2 = makeROIImage(rf, roi);
+                            sourceImage = rf2.bimg.getImage().getAsBufferedImage();
+
+                            ClassificationWorker rw = new ClassificationWorker(rdf, rf2, segmentationModel, true, null, null);
+                            rw.setNumClassificationThreads(1); // runs already in a multithreaded container
+                            rw.doWork();
+                            classImage = rf2.getClassImage();
+
+                            if (logger.isTraceEnabled())
+                                logger.trace("created classImage for current tile (roi=" + roi + "); classImage=" + classImage.getImage());
+                        } else {
+                            classImage = makeClassImage(rf, roi);
+                            if (logger.isTraceEnabled())
+                                logger.trace("reusing classImage for current tile; classImage=" + classImage.getImage());
+                        }
+
+
+                        if (sourceImage == null
+                                && segmentationModel != null
+                                && segmentationModel.getFeatureDescription().isMumfordShahSegmentation()) {
                             RecognitionFrame rf2 = makeROIImage(rf, roi);
                             sourceImage = rf2.bimg.getImage().getAsBufferedImage();
                         }
 
                         logger.trace("start object segmentation");
                         TiledImageWriter originalClassImage = classImage; // needed later for objectFeatures (intensities) because classImage will be reduced to a two-class image by the watershed process
-
 
                         // apply ImagePlus modifications, if any
                         classImage = applyImagePlusModifications(classImage);
