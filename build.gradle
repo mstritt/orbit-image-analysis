@@ -87,6 +87,11 @@ tasks.withType(JavaCompile) {
     disableAutoTargetJvm()
 }
 
+tasks.withType(JavaExec) {
+    systemProperty 'javax.xml.parsers.DocumentBuilderFactory', 'com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl'
+    systemProperty 'sun.java2d.d3d', 'false'
+}
+
 ext.orbitVersion = new File(projectDir,"src/main/resources/version.txt").text
 ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
 project.version = ext.orbitVersion
@@ -136,6 +141,8 @@ test {
     // https://java-native-access.github.io/jna/4.2.1/com/sun/jna/NativeLibrary.html
     systemProperty "jna.library.path", "lib/"
     systemProperty 'java.awt.headless', 'true'
+    systemProperty 'javax.xml.parsers.DocumentBuilderFactory', 'com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl'
+    systemProperty 'sun.java2d.d3d', 'false'
 }
 
 task sourceJar(type: Jar) {
