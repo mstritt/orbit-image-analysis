@@ -116,7 +116,7 @@ repositories {
         }
     }
     maven {
-        url 'https://maven.scijava.org/content/repositories/snapshots/'
+        url 'https://maven.scijava.org/content/repositories/releases/'
     }
     maven {
         url 'https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/'
@@ -266,7 +266,8 @@ dependencies {
 
     implementation 'ch.qos.logback:logback-classic:1.1.7'
     implementation 'net.java.linoleum:jlfgr:1_0'
-    implementation (group: 'sc.fiji', name: 'legacy-imglib1', version: '2.0.0-SNAPSHOT') {     //1.1.5  2.0.0-SNAPSHOT for graph_cut
+
+    implementation (group: 'sc.fiji', name: 'legacy-imglib1', version: '1.1.9') {     //1.1.5  2.0.0-SNAPSHOT for graph_cut
         transitive = false
     }
     implementation 'org.xerial:sqlite-jdbc:3.21.0'
