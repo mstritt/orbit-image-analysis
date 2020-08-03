@@ -23,9 +23,6 @@ import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.exceptions.OrbitImageServletException;
 import com.actelion.research.orbit.imageAnalysis.components.OrbitImageAnalysis;
 import com.actelion.research.orbit.imageAnalysis.components.RecognitionFrame;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.*;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegment;
-import com.actelion.research.orbit.imageAnalysis.deeplearning.maskRCNN.MaskRCNNSegmentationSettings;
 import com.actelion.research.orbit.imageAnalysis.features.ObjectFeatureBuilderTiled;
 import com.actelion.research.orbit.imageAnalysis.imaging.IJUtils;
 import com.actelion.research.orbit.imageAnalysis.models.*;
@@ -261,236 +258,162 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             final int numSamples = rf.bimg.getImage().getNumBands();
 
             // init maskrcnn segmentation
-            assert segmentationModel != null;
-            boolean mumfordShahSegmentation = segmentationModel.getFeatureDescription().isMumfordShahSegmentation();
-            boolean deepLearningSegmentation = segmentationModel.getFeatureDescription().isDeepLearningSegmentation();
-            AbstractSegmentationSettings<?> dlSegmentSettings = segmentationModel.getFeatureDescription().getDLSegment();
-            AbstractSegment<? extends AbstractDetections<? extends AbstractDetection>,
-                    ? extends AbstractSegmentationSettings<?>> dLSegmentationModel = null;
-            if (deepLearningSegmentation) {
+            boolean mumfordShahSegmentation = segmentationModel != null && segmentationModel.getFeatureDescription().isMumfordShahSegmentation();
 
-                switch(dlSegmentSettings.getModelDisplayName()) {
-                    case "Nuclei":
-                        dLSegmentationModel = new MaskRCNNSegment((MaskRCNNSegmentationSettings) dlSegmentSettings);
-
-                        System.out.println(Arrays.toString(((MaskRCNNSegment) dLSegmentationModel).getSegmentationSettings().getMeanPixel()));
-                    case "Pancreas Islets":
-                        break;
-                    case "Glomeruli":
-                        break;
-                    case "Corpus Callosum":
-                        break;
-                    case "Brain":
-                        break;
-                    default:
-                        throw new NoSuchFieldException("No model for: " + dlSegmentSettings.getModelDisplayName());
-
-                }
+            if (mumfordShahSegmentation) {
+                logger.info("segmentation mode: mumford-shah");
             } else {
-                // TODO: Does anything need doing here anymore?
+                logger.info("segmentation mode: normal");
             }
-
-            if (deepLearningSegmentation) logger.info("segmentation mode: deep learning");
-            else if (mumfordShahSegmentation) logger.info("segmentation mode: mumford-shah");
-            else logger.info("segmentation mode: normal");
 
             List<Future<SegmentationResult>> tileSegments;
 
             for (final Point currentTile : tiles) {
-                // TODO: Is this really inefficient?
-                MaskRCNNSegment finalDLSegmentationModel = (MaskRCNNSegment) dLSegmentationModel;
-                tileTaskList.add(() -> {
-                    if (isCancelled()) return null;
+                tileTaskList.add(new Callable<SegmentationResult>() {
+                    public SegmentationResult call() throws Exception {
+                        if (isCancelled()) return null;
 
-                    if (currentTile.x != -1 && fullROI != null) {
-                        Rectangle tileRect = rf.bimg.getImage().getTileRect(currentTile.x, currentTile.y);
-                        //if (!fullROI.intersects(tileRect)/*|| fullROI.getBounds()==null*/|| fullROI.getBounds().getWidth()==0||fullROI.getBounds().getHeight()==0) {           // || fullROI.getBounds()==null added 18.06.2015
-                        if (!fullROI.intersects(tileRect) || (fullROI.getBounds() != null && (fullROI.getBounds().getWidth() == 0 || fullROI.getBounds().getHeight() == 0))) {         // upd 14.12.2015: roi.getBounds() can be null, e.g. ShapeAnnotations with only exclusions
-                            currentTileNum.incrementAndGet();
-                            setProgress((int) (((double) currentTileNum.get() / (double) tiles.size()) * 100d));
+                        if (currentTile.x != -1 && fullROI != null) {
+                            Rectangle tileRect = rf.bimg.getImage().getTileRect(currentTile.x, currentTile.y);
+                            //if (!fullROI.intersects(tileRect)/*|| fullROI.getBounds()==null*/|| fullROI.getBounds().getWidth()==0||fullROI.getBounds().getHeight()==0) {           // || fullROI.getBounds()==null added 18.06.2015
+                            if (!fullROI.intersects(tileRect) || (fullROI.getBounds() != null && (fullROI.getBounds().getWidth() == 0 || fullROI.getBounds().getHeight() == 0))) {         // upd 14.12.2015: roi.getBounds() can be null, e.g. ShapeAnnotations with only exclusions
+                                currentTileNum.incrementAndGet();
+                                setProgress((int) (((double) currentTileNum.get() / (double) tiles.size()) * 100d));
+                                return null;
+                            }
+                        }
+
+                        Shape roi = null;
+
+                        List<Shape> segments = new ArrayList<Shape>();
+                        logger.trace("tile: " + currentTile.x + "," + currentTile.y);
+                        currentTileNum.incrementAndGet();
+                        if (currentTile.x != -1) { // -1 means dummy tile
+                            // override ROI with current tile
+                            roi = rf.bimg.getImage().getTileRect(currentTile.x, currentTile.y);
+                            logger.trace("using tileROI: " + roi);
+                            RectangleExt re = new RectangleExt(roi.getBounds().x, roi.getBounds().y, roi.getBounds().width, roi.getBounds().height);
+                            re.setScale(100d);
+
+                            // exclusionMap check
+                            //really only useForSegmentation? -> Upd 30.08.2012 Manuel: no, we do the exclusion check all the time
+                            if (exclusionMap != null /*&& !exclusionMap.useForSegmentation()*/) {
+                                Rectangle tr = rf.bimg.getImage().getTileRect(currentTile.x, currentTile.y);
+                                long cnt = 0;
+                                long hit = 0;
+                                for (int x = tr.x; x < tr.getMaxX(); x += 2)
+                                    for (int y = tr.y; y < tr.getMaxY(); y += 2) {
+                                        cnt++;
+                                        //if (!exclusionMap.isExcluded(x, y)) {
+                                        if (OrbitUtils.isInROI(x, y, fullROI, exclusionMap)) {
+                                            hit++;
+                                        }
+                                    }
+                                double pExl = (double) hit / (double) cnt;
+
+                                logger.trace("hits: " + hit);
+                                if (pExl < 0.05d) {  // if less that 5% foreground in the tile, excluse it completely for better performance. However, small objects might be discarded!
+                                    logger.trace("object segmentation tile excluded " + pExl);
+                                    return null; // too much excluded, so skip tile
+                                } else
+                                    logger.trace("ns included " + pExl);
+                            }
+                        } else {
+                            roi = fullROI;
+                            logger.trace("using fullROI");
+                        }
+                        if (getSize(roi) > 5000 * 5000L) {
+                            logger.error("object segmentation can only be applied for smaller regions (max 5000x5000). Please try to select a smaller ROI and apply this method again.");
                             return null;
                         }
-                    }
 
-                    Shape roi;
-
-                    List<Shape> segments = new ArrayList<>();
-                    logger.trace("tile: " + currentTile.x + "," + currentTile.y);
-                    currentTileNum.incrementAndGet();
-                    if (currentTile.x != -1) { // -1 means dummy tile
-                        // override ROI with current tile
-                        roi = rf.bimg.getImage().getTileRect(currentTile.x, currentTile.y);
-                        logger.trace("using tileROI: " + roi);
-                        RectangleExt re = new RectangleExt(roi.getBounds().x, roi.getBounds().y, roi.getBounds().width, roi.getBounds().height);
-                        re.setScale(100d);
-
-                        // exclusionMap check
-                        //really only useForSegmentation? -> Upd 30.08.2012 Manuel: no, we do the exclusion check all the time
-                        if (exclusionMap != null /*&& !exclusionMap.useForSegmentation()*/) {
-                            Rectangle tr = rf.bimg.getImage().getTileRect(currentTile.x, currentTile.y);
-                            long cnt = 0;
-                            long hit = 0;
-                            for (int x = tr.x; x < tr.getMaxX(); x += 2)
-                                for (int y = tr.y; y < tr.getMaxY(); y += 2) {
-                                    cnt++;
-                                    //if (!exclusionMap.isExcluded(x, y)) {
-                                    if (OrbitUtils.isInROI(x, y, fullROI, exclusionMap)) {
-                                        hit++;
-                                    }
-                                }
-                            double pExl = (double) hit / (double) cnt;
-
-                            logger.trace("hits: " + hit);
-                            if (pExl < 0.05d) {  // if less that 5% foreground in the tile, excluse it completely for better performance. However, small objects might be discarded!
-                                logger.trace("object segmentation tile excluded " + pExl);
-                                return null; // too much excluded, so skip tile
-                            } else
-                                logger.trace("ns included " + pExl);
+                        if (roi != null && (roi.getBounds().getWidth() == 0 || roi.getBounds().getHeight() == 0)) {
+                            logger.warn("roi size is 0, this will cause an error");
+                            // should we return null or new SegmentationResult here??? (so far not, because it should never happen...)
                         }
-                    } else {
-                        roi = fullROI;
-                        logger.trace("using fullROI");
-                    }
-                    if (getSize(roi) > 5000 * 5000L) {
-                        logger.error("object segmentation can only be applied for smaller regions (max 5000x5000). Please try to select a smaller ROI and apply this method again.");
-                        return null;
-                    }
 
-                    if (roi != null && (roi.getBounds().getWidth() == 0 || roi.getBounds().getHeight() == 0)) {
-                        logger.warn("roi size is 0, this will cause an error");
-                        // should we return null or new SegmentationResult here??? (so far not, because it should never happen...)
-                    }
+                        BufferedImage sourceImage = null;
+                        TiledImageWriter classImage = null;
 
-                    BufferedImage sourceImage = null;
-                    TiledImageWriter classImage = null;
-                    if (!deepLearningSegmentation) {
-                        if (!dontClassify && segmentationModel != null) {
+                        if (sourceImage == null && segmentationModel != null && (segmentationModel.getFeatureDescription().isMumfordShahSegmentation())) {
                             RecognitionFrame rf2 = makeROIImage(rf, roi);
                             sourceImage = rf2.bimg.getImage().getAsBufferedImage();
-                            if (false /*dlSegmentation*/) {
-                                // BufferedImage mask = dlSegment.segmentInput(sourceImage,tfSession, segmentationModel.getClassShapes().get(0).getColor(), segmentationModel.getClassShapes().get(1).getColor() );
-                                // classImage = new TiledImageWriter(mask);
-                            } else {
-                                ClassificationWorker rw = new ClassificationWorker(rdf, rf2, segmentationModel, true, null, null);
-                                rw.setNumClassificationThreads(1); // runs already in a multithreaded container
-                                rw.doWork();
-                                classImage = rf2.getClassImage();
-                            }
-                            if (logger.isTraceEnabled())
-                                logger.trace("created classImage for current tile (roi=" + roi + "); classImage=" + classImage.getImage());
-                        } else {
-                            classImage = makeClassImage(rf, roi);
-                            if (logger.isTraceEnabled())
-                                logger.trace("reusing classImage for current tile; classImage=" + classImage.getImage());
                         }
-                    }
 
-                    if (sourceImage == null && segmentationModel != null && (segmentationModel.getFeatureDescription().isMumfordShahSegmentation() || segmentationModel.getFeatureDescription().isDeepLearningSegmentation())) {
-                        RecognitionFrame rf2 = makeROIImage(rf, roi);
-                        sourceImage = rf2.bimg.getImage().getAsBufferedImage();
-                    }
-
-                    logger.trace("start object segmentation");
-                    TiledImageWriter originalClassImage = classImage; // needed later for objectFeatures (intensities) because classImage will be reduced to a two-class image by the watershed process
+                        logger.trace("start object segmentation");
+                        TiledImageWriter originalClassImage = classImage; // needed later for objectFeatures (intensities) because classImage will be reduced to a two-class image by the watershed process
 
 
-                    // apply ImagePlus modifications, if any
-                    if (!deepLearningSegmentation) {
+                        // apply ImagePlus modifications, if any
                         classImage = applyImagePlusModifications(classImage);
-                    }
-                    // for cytoplasmaSegmentation only two classes are allowed. The applyImagePlusMod performs a voronoi diagram, so the original class image is modified, thus originalClassImage must be set again (but only with two classes (foreground/background)!
-                    if (isCytoplasmaSegmentation())
-                        originalClassImage = classImage;
 
-                    logger.trace("start segmentation");
-                    int oldObjectCount = segments.size();
-                    int roffsX = 0;
-                    int roffsY = 0;
-                    if (roi != null && roi.getBounds() != null) {
-                        roffsX = roi.getBounds().x;
-                        roffsY = roi.getBounds().y;
-                        if (roffsX < 0) roffsX = 0;    // handle out-of-image ROIs
-                        if (roffsY < 0) roffsY = 0;    // handle out-of-image ROIs
-                    }
+                        // for cytoplasmaSegmentation only two classes are allowed. The applyImagePlusMod performs a voronoi diagram, so the original class image is modified, thus originalClassImage must be set again (but only with two classes (foreground/background)!
+                        if (isCytoplasmaSegmentation())
+                            originalClassImage = classImage;
 
-
-                    // here the actual segmentation per tile happens
-                    List<Shape> tileSegmentations;
-                    if (deepLearningSegmentation) {
-                        OrbitModel segModel = OrbitModel.LoadFromInputStream(
-                                this.getClass().getResourceAsStream("/resource/testmodels/dlsegmentsplit.omo"));
-                        //D detections = finalDLSegmentationModel.segmentationImplementation(segModel, orbitImage, currentTile, null, fullROI);
-                        //tileSegmentations = Objects.requireNonNull(finalDLSegmentationModel).generateSegmentationAnnotations(Arrays.asList(rdf), dlSegmentSettings, segModel, segModel, null, currentTile, false);
-
-
-                        tileSegmentations = Objects.requireNonNull(finalDLSegmentationModel).generateSegmentationAnnotations(rdf,
-                                (MaskRCNNSegmentationSettings) dlSegmentSettings,
-                                segModel,
-                                null,
-                                new Point(0,0),
-                                false);
-                        // TODO: Problem with the tile size vs. the settings in dlSegmentSettings...
-                        // e.g.
-                        //tileSegmentations = getObjectSegmentationsTileDeepLearning(sourceImage, fullROI, roffsX, roffsY, segMaskRCNN, tfSession);
-                    } else if (mumfordShahSegmentation) {
-                        tileSegmentations = getObjectSegmentationsTileMumfordShah(classImage, originalClassImage, sourceImage, fullROI, roffsX, roffsY);
-                    } else {
-                        tileSegmentations = getObjectSegmentationsTile(classImage, originalClassImage, fullROI, roffsX, roffsY);
-                    }
-
-                    segments.addAll(tileSegmentations);
-                    logger.trace("end segmentation: #objects: " + segments.size());
-                    objectCount = segments.size() - oldObjectCount; // minus the old
-                    // objectCount
-                    allObjectCount.addAndGet(objectCount);
-
-                    logger.debug("counted " + objectCount + " objects in tile " + currentTile.x + "," + currentTile.y + " / overall: " + allObjectCount);
-
-                    setProgress((int) (((double) currentTileNum.get() / (double) tiles.size()) * 100d));
-                    //if ((!ScaleoutMode.SCALEOUTMODE.get()) && doRepaint) rf.repaint();
-                    logger.trace("end object segmentation for current tile");
-
-
-                    // object features
-                    List<double[]> features = new ArrayList<double[]>();
-                    if (segmentationModel != null
-                            && segmentationModel.getFeatureDescription().getFeatureClasses() != null
-                            && segmentationModel.getFeatureDescription().getFeatureClasses().length > 0) {
-                        ObjectFeatureBuilderTiled cfb = new ObjectFeatureBuilderTiled(segmentationModel);
-                        cfb.setClasses(segmentationModel.getFeatureDescription().getFeatureClasses());
-                        features = cfb.buildFeatures(segments, Double.NaN, rf, originalClassImage, getSampleNumberForFeatures(), roffsX, roffsY);
-                        if (logger.isTraceEnabled() && segmentationModel != null && segmentationModel.getFeatureDescription() != null) {
-                            logger.trace("used feature classes: " + Arrays.toString(segmentationModel.getFeatureDescription().getFeatureClasses()));
+                        logger.trace("start segmentation");
+                        int oldObjectCount = segments.size();
+                        int roffsX = 0;
+                        int roffsY = 0;
+                        if (roi != null && roi.getBounds() != null) {
+                            roffsX = roi.getBounds().x;
+                            roffsY = roi.getBounds().y;
+                            if (roffsX < 0) roffsX = 0;    // handle out-of-image ROIs
+                            if (roffsY < 0) roffsY = 0;    // handle out-of-image ROIs
                         }
+
+
+
+                        // here the actual segmentation per tile happens
+                        List<Shape> tileSegmentations;
+                        if (mumfordShahSegmentation) {
+                            tileSegmentations = getObjectSegmentationsTileMumfordShah(classImage, originalClassImage, sourceImage, fullROI, roffsX, roffsY);
+                        } else {
+                            tileSegmentations = getObjectSegmentationsTile(classImage, originalClassImage, fullROI, roffsX, roffsY);
+                        }
+
+                        segments.addAll(tileSegmentations);
+                        logger.trace("end segmentation: #objects: " + segments.size());
+                        objectCount = segments.size() - oldObjectCount; // minus the old
+                        // objectCount
+                        allObjectCount.addAndGet(objectCount);
+
+                        logger.debug("counted " + objectCount + " objects in tile " + currentTile.x + "," + currentTile.y + " / overall: " + allObjectCount);
+
+                        setProgress((int) (((double) currentTileNum.get() / (double) tiles.size()) * 100d));
+                        //if ((!ScaleoutMode.SCALEOUTMODE.get()) && doRepaint) rf.repaint();
+                        logger.trace("end object segmentation for current tile");
+
+
+                        // object features
+                        List<double[]> features = new ArrayList<double[]>();
+                        if (segmentationModel != null && segmentationModel.getFeatureDescription().getFeatureClasses() != null && segmentationModel.getFeatureDescription().getFeatureClasses().length > 0) {
+                            ObjectFeatureBuilderTiled cfb = new ObjectFeatureBuilderTiled(segmentationModel);
+                            cfb.setClasses(segmentationModel.getFeatureDescription().getFeatureClasses());
+                            features = cfb.buildFeatures(segments, Double.NaN, rf, originalClassImage, getSampleNumberForFeatures(), roffsX, roffsY);
+                            if (logger.isTraceEnabled() && segmentationModel != null && segmentationModel.getFeatureDescription() != null) {
+                                logger.trace("used feature classes: " + Arrays.toString(segmentationModel.getFeatureDescription().getFeatureClasses()));
+                            }
+                        }
+
+                        int secondaryObjectCount = 0;
+                        List<Shape> secondaryShapes = null;
+
+                        // second level seg start
+                        SecondLevelSegmentation secondLevelSegmentation = new SecondLevelSegmentation(segments, features, secondaryObjectCount, secondaryShapes, allObjectCountSecondary, numSamples).invoke();
+                        secondaryObjectCount = secondLevelSegmentation.getSecondaryObjectCount();
+                        secondaryShapes = secondLevelSegmentation.getSecondaryShapes();
+                        // second level seg end
+
+
+                        SegmentationResult segmentationResult = new SegmentationResult(segments.size(), secondaryObjectCount, segments, features);
+                        segmentationResult.setSecondaryShapeList(secondaryShapes);
+                        return segmentationResult;
                     }
-
-                    int secondaryObjectCount = 0;
-                    List<Shape> secondaryShapes = null;
-
-                    // second level seg start
-                    SecondLevelSegmentation secondLevelSegmentation = new SecondLevelSegmentation(segments, features, secondaryObjectCount, secondaryShapes, allObjectCountSecondary, numSamples).invoke();
-                    secondaryObjectCount = secondLevelSegmentation.getSecondaryObjectCount();
-                    secondaryShapes = secondLevelSegmentation.getSecondaryShapes();
-                    // second level seg end
-
-
-                    SegmentationResult segmentationResult = new SegmentationResult(segments.size(), secondaryObjectCount, segments, features);
-                    segmentationResult.setSecondaryShapeList(secondaryShapes);
-                    return segmentationResult;
                 });
             } // tiles
 
             tileSegments = executor.invokeAll(tileTaskList);
-
-            // maskrcnn close
-//            if (deepLearningSegmentation) {
-//                if (tfSession != null) {
-//                    tfSession.close();
-//                }
-//                if (tfGraph!=null) {
-//                    tfGraph.close();
-//                }
-//            }
 
             String[] featureNames = new ObjectFeatureBuilderTiled(segmentationModel).getFeatureNames(numSamples);
             SegmentationResult allSegmentsAndFeatures = new SegmentationResult(0, 0, Arrays.asList(featureNames), new ArrayList<Shape>(), new ArrayList<double[]>());
@@ -1018,126 +941,6 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         return shapeList;
     }
 
-
-    @Deprecated
-    public List<Shape> getObjectSegmentationsTileDeepLearning(final BufferedImage sourceImage,  Shape fullROI, int offsX, int offsY, final InstSegMaskRCNN segMaskRCNN, final Session tfSession) {
-        logger.trace("deep learning segmentation");
-
-        if (segmentationModel!=null) {
-          //  read DL specific features
-          //  alpha = segmentationModel.getFeatureDescription().getMumfordShahAlpha();
-        }
-
-        List<Polygon> polyList = new ArrayList<>();
-        int maxDLTileSize = 512;
-        if (sourceImage.getWidth()<=maxDLTileSize && sourceImage.getHeight()<=maxDLTileSize) {
-            logger.info("-- full image segmentation");
-            // small tile - segment on full tile
-            Tensor<Float> input = segMaskRCNN.convertBufferedImageToTensor(sourceImage);
-            InstSegMaskRCNN.RawDetections rawDetections = segMaskRCNN.executeInceptionGraph(tfSession,input);
-            input.close();
-            InstSegMaskRCNN.Detections detections = segMaskRCNN.processDetections(sourceImage.getWidth(),sourceImage.getHeight(),rawDetections);
-            List<Polygon> pList = new ArrayList<>(detections.getContours());
-            //translatePolygons(pList,roffsX,roffsY);
-            polyList.addAll(pList);
-        } else {
-            logger.info("-- tiled image segmentation");
-            // big tile - segment on tileparts
-            PlanarImage piSource = PlanarImage.wrapRenderedImage(sourceImage);
-            ImageTiler sourceTiler = new ImageTiler(piSource,maxDLTileSize,maxDLTileSize);
-            Iterator<BufferedImage> imageTiles = sourceTiler.iterator();
-            Point[] tileIdx = sourceTiler.getTileIndices();
-            int idx=0;
-            while (imageTiles.hasNext()) {
-                BufferedImage sourceImageTile = imageTiles.next();
-                Tensor<Float> input = segMaskRCNN.convertBufferedImageToTensor(sourceImageTile);
-                InstSegMaskRCNN.RawDetections rawDetections = segMaskRCNN.executeInceptionGraph(tfSession,input);
-                input.close();
-                InstSegMaskRCNN.Detections detections = segMaskRCNN.processDetections(sourceImageTile.getWidth(),sourceImageTile.getHeight(),rawDetections);
-                List<Polygon> pList = new ArrayList<>(detections.getContours());
-                //pList = filterEdgePolygons(pList,maxDLTileSize,maxDLTileSize);   // needed?
-                translatePolygons(pList, sourceTiler.getTiledImage().tileXToX(tileIdx[idx].x), sourceTiler.getTiledImage().tileYToY(tileIdx[idx].y));
-                polyList.addAll(pList);
-                idx++;
-            }
-
-        }
-
-        if (polyList.size()==0) {
-            logger.debug("no segmentations");
-            return new ArrayList<>(0);
-        } else {
-            logger.debug("# segmented objects (deep learning): " + polyList.size());
-        }
-
-        List<List<Point>> pListList = new ArrayList<>(polyList.size());
-        for (int i=0; i<polyList.size(); i++) {
-            Polygon poly = polyList.get(i);
-            List<Point> pList = new ArrayList<>(poly.npoints);
-            for (int p=0; p<poly.npoints; p++) {
-                pList.add(new Point(poly.xpoints[p],poly.ypoints[p]));
-            }
-            pListList.add(pList);
-        }
-        logger.trace("points conversion end");
-
-
-        // transform to polygons; discards polygons with length>maxSegmentationLength or openDistance > maxOpenDistance (FeatureDescription)
-        boolean skipPoly = false;
-        List<Shape> shapeList = new ArrayList<Shape>(pListList.size());
-        for (List<Point> pList : pListList) {
-            if (pList == null || pList.size() == 0) continue;
-            Shape s = new PolygonExt();
-            int roiOffsX = offsX;
-            int roiOffsY = offsY;
-            skipPoly = false;
-            if (segmentationModel != null && pList.size() > segmentationModel.getFeatureDescription().getMaxSegmentationLength())
-                continue;
-            if (segmentationModel != null && pList.get(0).distance(pList.get(pList.size() - 1)) > segmentationModel.getFeatureDescription().getMaxOpenDistance())
-                continue;
-            for (Point p : pList) {
-                if ((exclusionMap == null || !exclusionMap.isExcluded(p.x + roiOffsX, p.y + roiOffsY))) {
-                    ((Polygon) s).addPoint(p.x + roiOffsX, p.y + roiOffsY); // add points and adjust roi offset
-                } else {
-                    skipPoly = true;
-                    break;
-                }
-            }
-
-            if (skipPoly) continue;
-
-            // here polygons might be filtered
-
-            int dilateNum = 0;
-            int erodeNum = 0;
-            int adjust = Math.min(0, dilateNum - erodeNum);
-            if ((s.getBounds().width - (adjust * 2) >= minSegmentationSize) && (s.getBounds().height - (adjust * 2) >= minSegmentationSize)) // at least one site > MIN_SEGMENT_SIZE
-            {
-                if ((fullROI == null) || fullROI.contains(s.getBounds().getCenterX(), s.getBounds().getCenterY())) {
-                    if (!shapeInNegativeChannel(s) /*&& !inverseShape(s, offsX, offsY, originalClassImage)*/)   {
-                        shapeList.add(s);
-                    }
-                }
-            }
-        }
-
-
-        // scale
-        if (plasmaScale != 1) {
-            logger.trace("scaling object shape by factor " + plasmaScale);
-            List<Shape> scaledShapes = new ArrayList<Shape>(shapeList.size());
-            PolygonMetrics pm = new PolygonMetrics(null);
-            for (Shape shape : shapeList) {
-                PolygonExt pe = (PolygonExt) shape;
-                pm.setPolygon(pe);
-                pe = pe.scale(100d * plasmaScale, pm.getCenter());
-                scaledShapes.add(pe);
-            }
-            shapeList = scaledShapes;
-        }
-
-        return shapeList;
-    }
 
     private void translatePolygons(List<Polygon> polyList, int tx, int ty) {
          for  (Polygon p: polyList) {
