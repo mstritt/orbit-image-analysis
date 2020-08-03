@@ -23,6 +23,7 @@ import com.actelion.research.orbit.beans.RawAnnotation;
 import com.actelion.research.orbit.beans.RawData;
 import com.actelion.research.orbit.beans.RawDataFile;
 import com.actelion.research.orbit.beans.RawMeta;
+import com.actelion.research.orbit.dal.IImageProvider;
 import com.actelion.research.orbit.dal.IModelAwareImageProvider;
 import com.actelion.research.orbit.dal.IOrbitImage;
 import com.actelion.research.orbit.dal.IOrbitImageMultiChannel;
@@ -587,7 +588,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
         if (DALConfig.isCheckVersion()) {
             SwingUtilities.invokeLater(() -> {
-                UpdateChecker updateChecker = new UpdateChecker();
+                IUpdateChecker updateChecker = DALConfig.getUpdateChecker();
                 updateChecker.checkUpdate();
             });
         }

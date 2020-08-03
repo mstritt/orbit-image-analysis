@@ -20,6 +20,7 @@
 package com.actelion.research.orbit.imageAnalysis.dal;
 
 import com.actelion.research.orbit.dal.IImageProvider;
+import com.actelion.research.orbit.imageAnalysis.components.IUpdateChecker;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAODataFileSQLite;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAORawAnnotationSQLite;
 import com.actelion.research.orbit.imageAnalysis.utils.ICustomMenu;
@@ -50,6 +51,7 @@ public class DALConfig {
 
     private static IImageProvider imageProvider;
     private static IScaleout scaleOut;
+    private static IUpdateChecker updateChecker;
 
     private final static List<String> externalRepositoryComputers;
     private final static List<String> temporaryUsers;   // e.g. annotations of those can be modified by others
@@ -68,6 +70,7 @@ public class DALConfig {
             // defaults
             props.put("ImageProvider", "com.actelion.research.orbit.imageprovider.ImageProviderOmero");
             props.put("ScaleOut", "com.actelion.research.orbit.imageAnalysis.dal.ScaleoutNoop");
+            props.put("UpdateChecker", "com.actelion.research.orbit.imageAnalysis.components.UpdateChecker");
 
             // read properties
             readConfigProperties(props);
@@ -112,6 +115,9 @@ public class DALConfig {
             scaleOut = (IScaleout) Class.forName(props.getProperty("ScaleOut")).newInstance();
             //scaleOut = new ScaleoutSparkClusterTest2();
             String sparkMaster = props.getProperty("SparkMaster", "local[*]");
+
+            logger.info("Update Checker: " + props.getProperty("UpdateChecker"));
+            updateChecker = (IUpdateChecker) Class.forName(props.getProperty("UpdateChecker")).getConstructor().newInstance();
 
             String strTempUsers = props.getProperty("TemporaryUsers");
             temporaryUsers = parseString(strTempUsers);
@@ -277,6 +283,12 @@ public class DALConfig {
 
     public static void setScaleOut(IScaleout scaleOut) {
         DALConfig.scaleOut = scaleOut;
+    }
+
+    public static IUpdateChecker getUpdateChecker() { return updateChecker; }
+
+    public static void setUpdateChecker(IUpdateChecker updateChecker) {
+        DALConfig.updateChecker = updateChecker;
     }
 
     public static List<String> getExternalRepositoryComputers() {

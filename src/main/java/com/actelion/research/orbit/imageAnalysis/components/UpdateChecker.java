@@ -35,18 +35,19 @@ import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class UpdateChecker {
+public class UpdateChecker implements IUpdateChecker {
     private static final Logger logger = LoggerFactory.getLogger(UpdateChecker.class);
     private final ResourceBundle resourceBundle;
 
     private final Preferences preferences = Preferences.userNodeForPackage(this.getClass());
-    private final String checkUpdateKey = "com.actelion.research.orbit.imageAnalysis.checkUpdate";
+    private final String checkUpdateKey = "com.actelion.research.orbit.imageAnalysis.checkVersion";
 
-    UpdateChecker() {
+    public UpdateChecker() {
         Locale currLocale = Locale.getDefault();
         resourceBundle = ResourceBundle.getBundle("Resources", currLocale);
     }
 
+    @Override
     public void checkUpdate() {
         boolean doCheck = preferences.getBoolean(checkUpdateKey, true);
         if (!doCheck) return;
@@ -77,10 +78,12 @@ public class UpdateChecker {
         }
     }
 
+    @Override
     public boolean isChecksEnabled() {
         return preferences.getBoolean(checkUpdateKey, true);
     }
 
+    @Override
     public void setChecksEnabled(boolean enabled) {
         preferences.putBoolean(checkUpdateKey, enabled);
     }
