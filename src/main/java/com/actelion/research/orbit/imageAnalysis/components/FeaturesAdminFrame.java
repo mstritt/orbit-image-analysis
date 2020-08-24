@@ -651,7 +651,7 @@ public class FeaturesAdminFrame extends JDialog {
         MaskRCNNSegmentationSettings insulinSettingsStandard = new MaskRCNNSegmentationSettings(
                     "Pancreas Islets (Identify only)",
                     "insulin_009",
-                    "http://ares:8080/orbit/rdf?orbitID=19340900", null,
+                    "http://ares:8080/orbit/rdf?orbitID=19340903", null,
                     512, 512,
                     16f, 10, 56, 56, 5,
                     "IsletS", true,
@@ -668,7 +668,7 @@ public class FeaturesAdminFrame extends JDialog {
         MaskRCNNSegmentationSettings insulinSettingsCustom = new MaskRCNNSegmentationSettings(
                 "Pancreas Islets (Identify and Classify)",
                 "insulin_009",
-                "http://ares:8080/orbit/rdf?orbitID=19340900", null,
+                "http://ares:8080/orbit/rdf?orbitID=19340903", null,
                 512, 512,
                 16f, 10, 56, 56, 5,
                 "IsletC", true,
@@ -687,7 +687,7 @@ public class FeaturesAdminFrame extends JDialog {
         MaskRCNNSegmentationSettings brainSettings = new MaskRCNNSegmentationSettings(
                 "Brain",
                 "finalbrainDetect2",
-                "http://ares:8080/orbit/rdf?orbitID=19340900",
+                "http://ares:8080/orbit/rdf?orbitID=19340889",
                 null, brainImgDims.x, brainImgDims.y,
                 1f, 1, 28, 28, 2, "Brain",
                 false, MaskRCNNSegmentationSettings.PostProcessMethod.CUSTOM);
