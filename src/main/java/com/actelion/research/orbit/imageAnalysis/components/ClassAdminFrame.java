@@ -170,6 +170,7 @@ public class ClassAdminFrame extends JDialog {
             //((DefaultComboBoxModel)boxToUpdate.getModel()).addElement(cs);
             classShapes.add(cs);
             //boxToUpdate.repaint();
+            firePropertyChange(CLASSADMIN_DONE, null, classShapes);
         };
         btnAddClass.addActionListener(addAction);
 
@@ -178,6 +179,7 @@ public class ClassAdminFrame extends JDialog {
             if (classList.getSelectedValue() == null) return;
             ((ClassShape) classList.getSelectedValue()).setName(tfClassName.getText());
             classList.repaint();
+            firePropertyChange(CLASSADMIN_DONE, null, classShapes);
         };
         btnRenameClass.addActionListener(renameAction);
 
@@ -187,6 +189,7 @@ public class ClassAdminFrame extends JDialog {
             ClassShape cs = (ClassShape) classList.getSelectedValue();
             model.removeElement(cs);
             classShapes.remove(cs);
+            firePropertyChange(CLASSADMIN_DONE, null, classShapes);
         };
         btnRemoveClass.addActionListener(removeAction);
 
@@ -202,6 +205,7 @@ public class ClassAdminFrame extends JDialog {
             }
             if (c != null && c.getRGB() == OrbitUtils.UNDEF_COLOR)
                 log.warn("This special color (black) cannot be used as class color!");
+            firePropertyChange(CLASSADMIN_DONE, null, classShapes);
         };
         btnChooseColor.addActionListener(colorAction);
 
