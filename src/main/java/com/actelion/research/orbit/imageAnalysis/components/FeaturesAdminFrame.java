@@ -706,7 +706,7 @@ public class FeaturesAdminFrame extends JDialog {
                 nucleiSettings,
                 insulinSettingsStandard,
                 insulinSettingsCustom,
-                brainSettings,
+               // brainSettings,
                 glomeruliSettings
         };
     }
