@@ -2071,6 +2071,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             boolean isTissueClassification = true; // it is a tissue classification model
             if (file.getName().endsWith("cell")) isTissueClassification = false; // it is a cell classification model
             loadModel(file, true, isTissueClassification);
+
         } else {
             logger.trace("load model canceled.");
         }
@@ -2176,6 +2177,8 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             ((IModelAwareImageProvider) DALConfig.getImageProvider()).setOrbitModel(model);
         }
         statusBar.updateStatusBar(loadedModel, this.model);
+        updateClassShapes(loadedClassShapes);
+        updateCcbModel(loadedClassShapes);
     }
 
 
