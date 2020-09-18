@@ -28,6 +28,9 @@ buildscript {
     }
 }
 
+
+
+
 //plugins {
 //    id "com.github.cr0.macappbundle" version "3.0.1"
 //}
@@ -45,6 +48,9 @@ plugins {
 apply plugin: 'license-report'
 apply plugin: 'org.pushing-pixels.ignite'
 
+if (file('custom.gradle').exists()) {
+    apply from: 'custom.gradle'
+}
 
 [ compileJava, compileTestJava ]*.options*.encoding = 'UTF-8'
 
@@ -288,9 +294,7 @@ dependencies {
     testImplementation('junit:junit:4.13')
 }
 
-if (file('custom.gradle').exists()) {
-    apply from: 'custom.gradle'
-}
+
 
 /*
  * Compile the icons at build time, for better performance.
