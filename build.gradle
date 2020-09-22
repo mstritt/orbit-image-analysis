@@ -22,7 +22,6 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "com.smokejumperit.gradle.license:Gradle-License-Report:0.0.2"
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.2"
         classpath "org.pushing-pixels:radiance-ignite:3.0.0"
     }
@@ -45,7 +44,6 @@ plugins {
     id 'application'
 }
 
-apply plugin: 'license-report'
 apply plugin: 'org.pushing-pixels.ignite'
 
 if (file('custom.gradle').exists()) {
@@ -186,6 +184,7 @@ task copyToLib( type: Copy ) {
 
 jar {
     archiveVersion = orbitVersion
+    archivesBaseName = 'orbit-image-analysis'
     dependsOn copyToLib
 //    zip64=true
     manifest {
