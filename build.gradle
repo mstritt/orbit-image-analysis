@@ -178,6 +178,10 @@ publishing {
 
 
 task copyToLib( type: Copy ) {
+//    println "Classpath = ${configurations.runtimeClasspath.asPath}"
+    doFirst{
+        sourceSets.main.runtimeClasspath.each { println it}
+    }
     into "$buildDir/libs/lib"
     from configurations.runtimeClasspath
 }
