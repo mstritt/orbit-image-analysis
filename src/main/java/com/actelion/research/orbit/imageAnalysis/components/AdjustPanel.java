@@ -79,88 +79,72 @@ public class AdjustPanel extends JPanel {
         brightnessSlider.setPaintLabels(true);
         brightnessSlider.setPaintTicks(true);
 
-        saveBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                saveAdjustments();
-            }
+        saveBtn.addActionListener(e -> saveAdjustments());
+
+        resetBtn.addActionListener(e -> {
+            resetValuesNotChannels();
         });
 
-        resetBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                resetValues();
-            }
-        });
-
-        brightnessSlider.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-                if (iFrame != null) {
-                    int b = brightnessSlider.getValue();
-                    iFrame.recognitionFrame.bimg.setBrightness(b);
-                    if (!brightnessSlider.getValueIsAdjusting()) {
-                        updateIFrame(iFrame);
-                    }
+        brightnessSlider.addChangeListener(e -> {
+            ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+            if (iFrame != null) {
+                int b = brightnessSlider.getValue();
+                iFrame.recognitionFrame.bimg.setBrightness(b);
+                if (!brightnessSlider.getValueIsAdjusting()) {
+                    updateIFrame(iFrame);
                 }
             }
         });
 
-        contrastSlider.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-                if (iFrame != null) {
-                    int b = contrastSlider.getValue();
-                    iFrame.recognitionFrame.bimg.setContrast(b);
-                    if (!contrastSlider.getValueIsAdjusting()) {
-                        updateIFrame(iFrame);
-                    }
+        contrastSlider.addChangeListener(e -> {
+            ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+            if (iFrame != null) {
+                int b = contrastSlider.getValue();
+                iFrame.recognitionFrame.bimg.setContrast(b);
+                if (!contrastSlider.getValueIsAdjusting()) {
+                    updateIFrame(iFrame);
                 }
             }
         });
 
-        gammaSlider.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-                if (iFrame != null) {
-                    int b = gammaSlider.getValue();
-                    iFrame.recognitionFrame.bimg.setGamma(b);
-                    if (!gammaSlider.getValueIsAdjusting()) {
-                        updateIFrame(iFrame);
-                    }
+        gammaSlider.addChangeListener(e -> {
+            ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+            if (iFrame != null) {
+                int b = gammaSlider.getValue();
+                iFrame.recognitionFrame.bimg.setGamma(b);
+                if (!gammaSlider.getValueIsAdjusting()) {
+                    updateIFrame(iFrame);
                 }
             }
         });
 
 
-        blurSlider.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-                if (iFrame != null) {
-                    int b = blurSlider.getValue();
-                    iFrame.recognitionFrame.bimg.setBlur(b);
-                    if (!blurSlider.getValueIsAdjusting()) {
-                        updateIFrame(iFrame);
-                    }
+        blurSlider.addChangeListener(e -> {
+            ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+            if (iFrame != null) {
+                int b = blurSlider.getValue();
+                iFrame.recognitionFrame.bimg.setBlur(b);
+                if (!blurSlider.getValueIsAdjusting()) {
+                    updateIFrame(iFrame);
                 }
             }
         });
 
 
-        ChangeListener rgbChangeListener = new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-                if (iFrame != null) {
-                    int r = redSlider.getValue();
-                    int g = greenSlider.getValue();
-                    int b = blueSlider.getValue();
-                    iFrame.recognitionFrame.bimg.setRedAdjust(r);
-                    iFrame.recognitionFrame.bimg.setGreenAdjust(g);
-                    iFrame.recognitionFrame.bimg.setBlueAdjust(b);
-                    iFrame.recognitionFrame.bimg.setRedActive(redCb.isSelected());
-                    iFrame.recognitionFrame.bimg.setGreenActive(greenCb.isSelected());
-                    iFrame.recognitionFrame.bimg.setBlueActive(blueCb.isSelected());
-                    if (!(redSlider.getValueIsAdjusting()||greenSlider.getValueIsAdjusting()||blueSlider.getValueIsAdjusting())) {
-                        updateIFrame(iFrame);
-                    }
+        ChangeListener rgbChangeListener = e -> {
+            ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+            if (iFrame != null) {
+                int r = redSlider.getValue();
+                int g = greenSlider.getValue();
+                int b = blueSlider.getValue();
+                iFrame.recognitionFrame.bimg.setRedAdjust(r);
+                iFrame.recognitionFrame.bimg.setGreenAdjust(g);
+                iFrame.recognitionFrame.bimg.setBlueAdjust(b);
+                iFrame.recognitionFrame.bimg.setRedActive(redCb.isSelected());
+                iFrame.recognitionFrame.bimg.setGreenActive(greenCb.isSelected());
+                iFrame.recognitionFrame.bimg.setBlueActive(blueCb.isSelected());
+                if (!(redSlider.getValueIsAdjusting()||greenSlider.getValueIsAdjusting()||blueSlider.getValueIsAdjusting())) {
+                    updateIFrame(iFrame);
                 }
             }
         };
@@ -174,80 +158,65 @@ public class AdjustPanel extends JPanel {
         blueCb.addChangeListener(rgbChangeListener);
 
         deconvChannel0.setToolTipText("disable color deconvolution");
-        deconvChannel0.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-                if (iFrame != null) {
-                    if (deconvChannel0.isSelected()) {
-                        iFrame.recognitionFrame.bimg.setDeconvChannel(0);
-                        updateIFrame(iFrame);
-                    }
+        deconvChannel0.addChangeListener(e -> {
+            ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+            if (iFrame != null) {
+                if (deconvChannel0.isSelected()) {
+                    iFrame.recognitionFrame.bimg.setDeconvChannel(0);
+                    updateIFrame(iFrame);
                 }
             }
         });
         deconvChannel1.setToolTipText("select primary staining");
-        deconvChannel1.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-                if (iFrame != null) {
-                    if (deconvChannel1.isSelected() && deconvCb.getSelectedItem() != null && (!deconvCb.getSelectedItem().equals(Colour_Deconvolution.DECONV_NONE))) {
-                        iFrame.recognitionFrame.bimg.setDeconvName((String) deconvCb.getSelectedItem());
-                        iFrame.recognitionFrame.bimg.setDeconvChannel(1);
-                        updateIFrame(iFrame);
-                    }
+        deconvChannel1.addChangeListener(e -> {
+            ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+            if (iFrame != null) {
+                if (deconvChannel1.isSelected() && deconvCb.getSelectedItem() != null && (!deconvCb.getSelectedItem().equals(Colour_Deconvolution.DECONV_NONE))) {
+                    iFrame.recognitionFrame.bimg.setDeconvName((String) deconvCb.getSelectedItem());
+                    iFrame.recognitionFrame.bimg.setDeconvChannel(1);
+                    updateIFrame(iFrame);
                 }
             }
         });
         deconvChannel2.setToolTipText("select secondary staining");
-        deconvChannel2.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-                if (iFrame != null) {
-                    if (deconvChannel2.isSelected() && deconvCb.getSelectedItem() != null && (!deconvCb.getSelectedItem().equals(Colour_Deconvolution.DECONV_NONE))) {
-                        iFrame.recognitionFrame.bimg.setDeconvName((String) deconvCb.getSelectedItem());
-                        iFrame.recognitionFrame.bimg.setDeconvChannel(2);
-                        updateIFrame(iFrame);
-                    }
+        deconvChannel2.addChangeListener(e -> {
+            ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+            if (iFrame != null) {
+                if (deconvChannel2.isSelected() && deconvCb.getSelectedItem() != null && (!deconvCb.getSelectedItem().equals(Colour_Deconvolution.DECONV_NONE))) {
+                    iFrame.recognitionFrame.bimg.setDeconvName((String) deconvCb.getSelectedItem());
+                    iFrame.recognitionFrame.bimg.setDeconvChannel(2);
+                    updateIFrame(iFrame);
                 }
             }
         });
         deconvChannel3.setToolTipText("select complementary color to staining 1 + staining 2");
-        deconvChannel3.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-                if (iFrame != null) {
-                    if (deconvChannel3.isSelected() && deconvCb.getSelectedItem() != null && (!deconvCb.getSelectedItem().equals(Colour_Deconvolution.DECONV_NONE))) {
-                        iFrame.recognitionFrame.bimg.setDeconvName((String) deconvCb.getSelectedItem());
-                        iFrame.recognitionFrame.bimg.setDeconvChannel(3);
-                        updateIFrame(iFrame);
-                    }
+        deconvChannel3.addChangeListener(e -> {
+            ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+            if (iFrame != null) {
+                if (deconvChannel3.isSelected() && deconvCb.getSelectedItem() != null && (!deconvCb.getSelectedItem().equals(Colour_Deconvolution.DECONV_NONE))) {
+                    iFrame.recognitionFrame.bimg.setDeconvName((String) deconvCb.getSelectedItem());
+                    iFrame.recognitionFrame.bimg.setDeconvChannel(3);
+                    updateIFrame(iFrame);
                 }
             }
         });
-        deconvCb.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-                if (iFrame != null) {
-                    if (deconvCb.getSelectedItem() != null) {
-                        String name = (String) deconvCb.getSelectedItem();
-                        iFrame.recognitionFrame.bimg.setDeconvName(name);
-                        if (name.equals(Colour_Deconvolution.DECONV_NONE)) {
-                            iFrame.recognitionFrame.bimg.setDeconvChannel(0);
-                        } else {
-                            if (iFrame.recognitionFrame.bimg.getDeconvChannel() < 1) {
-                                if (deconvChannel0.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(0);
-                                if (deconvChannel1.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(1);
-                                if (deconvChannel2.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(2);
-                                if (deconvChannel3.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(3);
-                            }
+        deconvCb.addItemListener(e -> {
+            ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+            if (iFrame != null) {
+                if (deconvCb.getSelectedItem() != null) {
+                    String name = (String) deconvCb.getSelectedItem();
+                    iFrame.recognitionFrame.bimg.setDeconvName(name);
+                    if (name.equals(Colour_Deconvolution.DECONV_NONE)) {
+                        iFrame.recognitionFrame.bimg.setDeconvChannel(0);
+                    } else {
+                        if (iFrame.recognitionFrame.bimg.getDeconvChannel() < 1) {
+                            if (deconvChannel0.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(0);
+                            if (deconvChannel1.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(1);
+                            if (deconvChannel2.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(2);
+                            if (deconvChannel3.isSelected()) iFrame.recognitionFrame.bimg.setDeconvChannel(3);
                         }
-                        updateIFrame(iFrame);
                     }
+                    updateIFrame(iFrame);
                 }
             }
         });
@@ -334,12 +303,9 @@ public class AdjustPanel extends JPanel {
     }
 
     public void resetValues() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                multiChannelPanel.removeAll();
-                OrbitImageAnalysis.getInstance().getSplitPanePropLoupe().resetToPreferredSizes();
-            }
+        SwingUtilities.invokeLater(() -> {
+            multiChannelPanel.removeAll();
+            OrbitImageAnalysis.getInstance().getSplitPanePropLoupe().resetToPreferredSizes();
         });
         brightnessSlider.setValue(brightnessSlider.getDefValue());
         contrastSlider.setValue(contrastSlider.getDefValue());
@@ -356,6 +322,15 @@ public class AdjustPanel extends JPanel {
         deconvChannel1.setSelected(false);
         deconvChannel2.setSelected(false);
         deconvChannel3.setSelected(false);
+    }
+
+    public void resetValuesNotChannels() {
+        resetValues();
+        SwingUtilities.invokeLater(() -> {
+            ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
+            populateChannels(iFrame);
+            OrbitImageAnalysis.getInstance().getSplitPanePropLoupe().resetToPreferredSizes();
+        });
     }
 
     public void setAdjustmentValues(int brightness, int contrast, int red, int green, int blue, int gamma, boolean redSelected, boolean greenSelected, boolean blueSelected, int deconvChannel, String deconvName, final ImageFrame iFrame) {
@@ -544,109 +519,102 @@ public class AdjustPanel extends JPanel {
         }
 
         // add multichannel components
-        if (iFrame!=null) {
-            OrbitTiledImage2 img = iFrame.recognitionFrame.bimg.getImage();
-            if (img instanceof OrbitTiledImageIOrbitImage) {
-                IOrbitImage oi = ((OrbitTiledImageIOrbitImage) img).getOrbitImage();
-                if (oi instanceof IOrbitImageMultiChannel) {
-                    final IOrbitImageMultiChannel oim = (IOrbitImageMultiChannel) oi;
-                    if (oim.getChannelNames()!=null && oim.getChannelNames().length>0) {
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                multiChannelPanel.removeAll();
-                                JLabel fluoLabel = new JLabel("Fluorescence Channels:");
-                                Box  b1 = Box.createHorizontalBox();
-                                b1.setBorder(BorderFactory.createEmptyBorder(13,0,7,0));
-                                b1.add(fluoLabel);
-                                b1.add(Box.createHorizontalGlue());
-                                multiChannelPanel.add(b1);
-                                JPanel cp = new JPanel(new GridBagLayout());
-                                Insets insetsL = new Insets(5, 5, 0, 5);
-                                Insets insetsCP = new Insets(6, 5, 0, 5);
-                                Insets insets = new Insets(0, 5, 0, 5);
-                                int y = 0;
-                                final float multiplier = 0.01f;
-                                for (int c=0; c<oim.getChannelNames().length; c++) {
-                                    final int channelNr = c;
-                                    final String channelName = oim.getChannelNames()[c];
-                                    final float hue = ChannelToHue.getHue(channelName);
-                                    float saturation = hue>1? 0f : 1f;
-                                    final Color channelColor = Color.getHSBColor(hue,saturation,1f);
-                                    final DoubleClickSlider slider = new DoubleClickSlider(0,200, 100, true);
-                                    if (oim.getChannelContributions()!=null) {
-                                        slider.setValue((int)(oim.getChannelContributions()[c]/multiplier)); // restore values
-                                    }
-                                    slider.addChangeListener(new ChangeListener() {
-                                        @Override
-                                        public void stateChanged(ChangeEvent e) {
-                                            float[] contribs = oim.getChannelContributions();
-                                            if (contribs==null) {
-                                                contribs = new float[oim.getChannelNames().length];
-                                                Arrays.fill(contribs,1f);
-                                            }
-                                            float val = slider.getValue() * multiplier;
-                                            contribs[channelNr] = val;
-                                            iFrame.recognitionFrame.bimg.setChannelContributions(contribs);
-                                            updateIFrame(iFrame);
-                                        }
-                                    });
+        if (iFrame!=null) populateChannels(iFrame);
 
-                                    final Color color = channelColor;
-                                    final ChannelColorPicker colorPicker = new ChannelColorPicker(color);
+        return adjustmentsSet;
+    }
 
-                                    colorPicker.addMouseListener(new MouseAdapter() {
-                                        @Override
-                                        public void mouseClicked(MouseEvent e) {
-                                            OrbitImageAnalysis.getInstance().forceLogin();
-                                            if (OrbitImageAnalysis.loginOk) {
-                                                final float hue = ChannelToHue.getHue(channelName);
-                                                HueColorChooser hcc = new HueColorChooser(hue);
-                                                hcc.setVisible(true);
-                                                if (hcc.getReturnValue() == JOptionPane.OK_OPTION) {
-                                                    float saturation = hcc.getSelectedHue()>1? 0f : 1f;
-                                                    colorPicker.setColor(Color.getHSBColor(hcc.getSelectedHue(),saturation,1f));
-                                                    colorPicker.repaint();
-                                                    ChannelToHue.userHueMap.put(channelName.toLowerCase(), hcc.getSelectedHue());
-                                                    ChannelToHue.hueMap.put(channelName.toLowerCase(), hcc.getSelectedHue());
-                                                    ChannelToHue.lastUpdate.set(System.currentTimeMillis());
-                                                    OrbitTiledImage2.tileCache = null;
-                                                    final ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-                                                    if (iFrame!=null) {
-                                                        SwingUtilities.invokeLater(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                iFrame.repaint();
-                                                                OrbitImageAnalysis.getInstance().getRenderGrid().componentResized(null);
-                                                            }
-                                                        });
-                                                    }
-                                                    logger.info("selected hue for channel " + channelName + ": " + hcc.getSelectedHue());
-                                                    channelPrefs.putFloat(OrbitUtils.CHANNEL_NAME2HUE + channelName.toLowerCase(), hcc.getSelectedHue());
-                                                }
-                                                hcc.dispose();
-                                            }
-                                            e.consume();
-                                        }
-                                    });
-
-                                    cp.add(new JLabel(channelName), new GridBagConstraints(0, y++, 1, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, insetsL, 0, 0));
-                                    cp.add(DoubleClickSlider.wrapToPanelWithValue(slider, 0, multiplier), new GridBagConstraints(0, y, 1, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
-                                    cp.add(colorPicker, new GridBagConstraints(1, y, 1, 1, 0, 1, GridBagConstraints.NORTHEAST, GridBagConstraints.NONE, insetsCP, 0, 0));
-                                    y++;
-
-                                }
-                                multiChannelPanel.add(cp);
-                                OrbitImageAnalysis.getInstance().getSplitPanePropLoupe().resetToPreferredSizes();
-
+    private void populateChannels(ImageFrame iFrame) {
+        OrbitTiledImage2 img = iFrame.recognitionFrame.bimg.getImage();
+        if (img instanceof OrbitTiledImageIOrbitImage) {
+            IOrbitImage oi = ((OrbitTiledImageIOrbitImage) img).getOrbitImage();
+            if (oi instanceof IOrbitImageMultiChannel) {
+                final IOrbitImageMultiChannel oim = (IOrbitImageMultiChannel) oi;
+                if (oim.getChannelNames()!=null && oim.getChannelNames().length>0) {
+                    SwingUtilities.invokeLater(() -> {
+                        multiChannelPanel.removeAll();
+                        JLabel fluoLabel = new JLabel("Fluorescence Channels:");
+                        Box  b1 = Box.createHorizontalBox();
+                        b1.setBorder(BorderFactory.createEmptyBorder(13,0,7,0));
+                        b1.add(fluoLabel);
+                        b1.add(Box.createHorizontalGlue());
+                        multiChannelPanel.add(b1);
+                        JPanel cp = new JPanel(new GridBagLayout());
+                        Insets insetsL = new Insets(5, 5, 0, 5);
+                        Insets insetsCP = new Insets(6, 5, 0, 5);
+                        Insets insets = new Insets(0, 5, 0, 5);
+                        int y = 0;
+                        final float multiplier = 0.01f;
+                        for (int c=0; c<oim.getChannelNames().length; c++) {
+                            final int channelNr = c;
+                            final String channelName = oim.getChannelNames()[c];
+                            final float hue = ChannelToHue.getHue(channelName);
+                            float saturation = hue>1? 0f : 1f;
+                            final Color channelColor = Color.getHSBColor(hue,saturation,1f);
+                            final DoubleClickSlider slider = new DoubleClickSlider(0,200, 100, true);
+                            if (oim.getChannelContributions()!=null) {
+                                slider.setValue((int)(oim.getChannelContributions()[c]/multiplier)); // restore values
                             }
-                        });
-                    }
+                            slider.addChangeListener(e -> {
+                                float[] contribs = oim.getChannelContributions();
+                                if (contribs==null) {
+                                    contribs = new float[oim.getChannelNames().length];
+                                    Arrays.fill(contribs,1f);
+                                }
+                                float val = slider.getValue() * multiplier;
+                                contribs[channelNr] = val;
+                                iFrame.recognitionFrame.bimg.setChannelContributions(contribs);
+                                updateIFrame(iFrame);
+                            });
+
+                            final Color color = channelColor;
+                            final ChannelColorPicker colorPicker = new ChannelColorPicker(color);
+
+                            colorPicker.addMouseListener(new MouseAdapter() {
+                                @Override
+                                public void mouseClicked(MouseEvent e) {
+                                    OrbitImageAnalysis.getInstance().forceLogin();
+                                    if (OrbitImageAnalysis.loginOk) {
+                                        final float hue = ChannelToHue.getHue(channelName);
+                                        HueColorChooser hcc = new HueColorChooser(hue);
+                                        hcc.setVisible(true);
+                                        if (hcc.getReturnValue() == JOptionPane.OK_OPTION) {
+                                            float saturation = hcc.getSelectedHue()>1? 0f : 1f;
+                                            colorPicker.setColor(Color.getHSBColor(hcc.getSelectedHue(),saturation,1f));
+                                            colorPicker.repaint();
+                                            ChannelToHue.userHueMap.put(channelName.toLowerCase(), hcc.getSelectedHue());
+                                            ChannelToHue.hueMap.put(channelName.toLowerCase(), hcc.getSelectedHue());
+                                            ChannelToHue.lastUpdate.set(System.currentTimeMillis());
+                                            OrbitTiledImage2.tileCache = null;
+                                            final ImageFrame iFrame1 = OrbitImageAnalysis.getInstance().getIFrame();
+                                            if (iFrame1 !=null) {
+                                                SwingUtilities.invokeLater(() -> {
+                                                    iFrame1.repaint();
+                                                    OrbitImageAnalysis.getInstance().getRenderGrid().componentResized(null);
+                                                });
+                                            }
+                                            logger.info("selected hue for channel " + channelName + ": " + hcc.getSelectedHue());
+                                            channelPrefs.putFloat(OrbitUtils.CHANNEL_NAME2HUE + channelName.toLowerCase(), hcc.getSelectedHue());
+                                        }
+                                        hcc.dispose();
+                                    }
+                                    e.consume();
+                                }
+                            });
+
+                            cp.add(new JLabel(channelName), new GridBagConstraints(0, y++, 1, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, insetsL, 0, 0));
+                            cp.add(DoubleClickSlider.wrapToPanelWithValue(slider, 0, multiplier), new GridBagConstraints(0, y, 1, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insets, 0, 0));
+                            cp.add(colorPicker, new GridBagConstraints(1, y, 1, 1, 0, 1, GridBagConstraints.NORTHEAST, GridBagConstraints.NONE, insetsCP, 0, 0));
+                            y++;
+
+                        }
+                        multiChannelPanel.add(cp);
+                        OrbitImageAnalysis.getInstance().getSplitPanePropLoupe().resetToPreferredSizes();
+
+                    });
                 }
             }
         }
-
-        return adjustmentsSet;
     }
 
     public JCheckBox getRedCb() {
