@@ -1573,6 +1573,7 @@ public class OrbitMenu extends JRibbonFrame {
                 new CommandGroup(openModelMenuCommand),
                 new CommandGroup(saveModelAsMenuCommand),
                 new CommandGroup(helpMenuCommand),
+                new CommandGroup(imageProviderCommand),
                 new CommandGroup(getLoginMenuCommand()),
                 new CommandGroup(getLogoutMenuCommand()),
                 new CommandGroup(exitApplicationMenuCommand)
