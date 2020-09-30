@@ -128,7 +128,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
     final public String START_PIC = null; //"/image_small.jpg";
 //    final public String startModel = null; // = "D:\\orbitModels\\simple-segmentation_v5.omo";
 
-    public static final String platform = NeonCortex.getPlatform().toString();
+    public static String platform = null;
 
     public static final String LOGO_NAME = "/resource/Orbital_bones32.png";
     public static final String GUEST_USER = "guest";
@@ -244,6 +244,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
         }
 
         if (!GraphicsEnvironment.isHeadless()) {
+            platform = NeonCortex.getPlatform().toString();
             logFrame = new ResultFrame("", "Log");
         } else
             logFrame = null;
@@ -3023,25 +3024,35 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
 
     public static void main(String[] args) {
 
-        // Show the splash screen.
         boolean showSplash = (!ScaleoutMode.SCALEOUTMODE.get());
-        final SplashScreen splashScreen = new SplashScreen("/resource/orbit_splash2.jpg");
 
-        if (showSplash) {
-            splashScreen.splash();
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignored) {
+        // Show the splash screen.
+        try {
+            GraphicsEnvironment.isHeadless();
+            final SplashScreen splashScreen = new SplashScreen("/resource/orbit_splash2.jpg");
+
+            if (showSplash) {
+                splashScreen.splash();
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignored) {
+                }
             }
+            // Launch the application itself.
+            initSingleApplication(args);
+
+            // Remove the splash screen.
+            if (showSplash && OrbitUtils.DARKUI) {
+                SwingUtilities.invokeLater(splashScreen::dispose);
+            }
+        } catch (HeadlessException ex) {
+            showSplash = false;
+            // Launch the application itself.
+            initSingleApplication(args);
+
+            logger.info(ex.getMessage());
         }
 
-        // Launch the application itself.
-        initSingleApplication(args);
-
-        // Remove the splash screen.
-        if (showSplash && OrbitUtils.DARKUI) {
-            SwingUtilities.invokeLater(splashScreen::dispose);
-        }
     }
 
 
