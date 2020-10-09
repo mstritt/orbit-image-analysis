@@ -1380,7 +1380,7 @@ public class OrbitMenu extends JRibbonFrame {
 
         // Other keys
         KeyStroke toggleLabelsKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
-                ? KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK)
+                ? KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.ALT_DOWN_MASK)
                 : KeyStroke.getKeyStroke(KeyEvent.VK_L, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
 
         // Cut/copy/paste.
@@ -1400,9 +1400,11 @@ public class OrbitMenu extends JRibbonFrame {
         KeyStroke fitToFrameKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
                 ? KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK)
                 : KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
-        KeyStroke handToolKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
-                ? KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_DOWN_MASK)
-                : KeyStroke.getKeyStroke(KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+// Not required. See f6KeyStroke...
+//        KeyStroke handToolKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
+//                ? KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.ALT_DOWN_MASK)
+//                : KeyStroke.getKeyStroke(KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke handToolKeyStroke = f6KeyStroke;
         KeyStroke eraserKeyStroke = (NeonCortex.getPlatform() != NeonCortex.Platform.MACOS)
                 ? KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.ALT_DOWN_MASK)
                 : KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
