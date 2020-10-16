@@ -20,31 +20,83 @@
 package com.actelion.research.orbit.imageAnalysis.tasks;
 
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitLogAppender;
+import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import groovy.lang.GroovyShell;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.function.Predicate;
 
 public class GroovyExecutor {
     private static final Logger logger = LoggerFactory.getLogger(GroovyExecutor.class);
 
+    private static void help() {
+        System.out.println("GroovyExecutor (orbitimageanalysisact-groovy-0.x.y.jar)" //
+                + "\nTool to run Orbit Image Analysis Groovy scripts from the command line" //
+                + "\n" //
+                + "\nGroovy Script local file:" //
+                + "\n  orbitimageanalysisact-groovy-0.x.y.jar -f <local-script-file>" //
+                + "\n" //
+                + "\nGroovy Script remote url:" //
+                + "\n  orbitimageanalysisact-groovy-0.x.y.jar -u <remote-script-url>" //
+                + "\n" //
+                + "\nOPTIONS:" //
+                + "\n  -h, --help               : Just show this help text (all other arguments are ignored)" //
+                + "\n  -v, --version            : Just prints out the version (all other arguments are ignored)" //
+                + "\n  -f                       : Path to local file" //
+                + "\n  -u                       : URL of remote file");
+    }
+
+    private static void version ()
+    {
+        System.out.println("orbitimageanalysisact-groovy-0.x.y.jar -v" + OrbitUtils.VERSION_STR);
+    }
+
     public static void main(String[] args) throws Exception {
         OrbitLogAppender.GUI_APPENDER = false;
-        if (args == null || args.length < 1)
-            throw new IllegalArgumentException("No URL argument found. Call: GroovyExecutor <URL>");
 
-        URL url = new URL(args[0]);
+        Predicate<String> h = s -> s.contains("-h");
+        Predicate<String> help = s -> s.contains("--help");
+        Predicate<String> v = s -> s.contains("-v");
+        Predicate<String> version = s -> s.contains("--version");
+        if (Arrays.stream(args).anyMatch(h.and(help))) {
+            help();
+            System.exit(0);
+        } else if (Arrays.stream(args).anyMatch(v.and(version))) {
+            version();
+            System.exit(0);
+        } else if (args.length < 2) {
+            System.err.println("Missing arguments");
+            System.exit(1);
+        }
 
-        InputStream in = url.openStream();
-        String content;
-        try {
-            System.out.println( IOUtils.toString( in ) );
-            content = IOUtils.toString( in );
-        } finally {
-            IOUtils.closeQuietly(in);
+        // Exit with code 1 if no script is read in.
+        String content = "exit(2)";
+
+        if (args[0].equals("-f")) {
+            // Read from file
+            content = FileUtils.readFileToString(new File(args[1]));
+        } else if (args[0].equals("-u")) {
+            // Read from URL
+            try {
+                URL url = new URL(args[1]);
+                InputStream in = url.openStream();
+                try {
+                    System.out.println( IOUtils.toString( in ) );
+                    content = IOUtils.toString( in );
+                } finally {
+                    IOUtils.closeQuietly(in);
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
         }
 
         logger.info("executing code:\n" + content);

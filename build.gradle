@@ -101,7 +101,7 @@ ext.orbitVersionStr = orbitVersion.replaceAll("\\.","")
 project.version = ext.orbitVersion
 
 // Define the Radiance version in one place, since multiple libraries that need to be updated together.
-def radianceVersion = '3.0.0'
+def radianceVersion = '3.5.1'
 
 repositories {
     mavenCentral()

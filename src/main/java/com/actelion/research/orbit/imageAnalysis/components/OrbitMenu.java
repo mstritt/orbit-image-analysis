@@ -1660,15 +1660,15 @@ public class OrbitMenu extends JRibbonFrame {
      */
     private void configureTaskBar(final JRibbon ribbon) {
         // Hand tool
-        ribbon.addTaskbarCommand(this.handToolCommand);
+        ribbon.addTaskbarCommand(this.handToolCommand, null);
         // Classes
         ribbon.addTaskbarComponent(new RibbonClassComboBoxProjection(oia.ccbModel,
                 ComponentPresentationModel.builder().build()));
         // Configure Classes
-        ribbon.addTaskbarCommand(this.classesCommand);
+        ribbon.addTaskbarCommand(this.classesCommand, null);
         // Configure Features
-        ribbon.addTaskbarCommand(this.featuresCommand);
-        ribbon.addTaskbarCommand(this.fitToIFrameCommand);
+        ribbon.addTaskbarCommand(this.featuresCommand, null);
+        ribbon.addTaskbarCommand(this.fitToIFrameCommand, null);
     }
 
     /**
