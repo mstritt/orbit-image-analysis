@@ -21,6 +21,7 @@ package com.actelion.research.orbit.imageAnalysis.tasks;
 
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitLogAppender;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
+import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -33,6 +34,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class GroovyExecutor {
     private static final Logger logger = LoggerFactory.getLogger(GroovyExecutor.class);
@@ -101,7 +103,14 @@ public class GroovyExecutor {
 
         logger.info("executing code:\n" + content);
         logger.info("start executing groovy code");
-        GroovyShell shell = new GroovyShell();
+
+        // Get rid of the script name and type flag, and pass the remaining args to the script.
+        Stream<String> stream = Arrays.stream(args);
+        String[] argSlice = stream.skip(2).toArray(String[]::new);
+        Binding sharedArgs = new Binding();
+        sharedArgs.setProperty("args", argSlice);
+
+        GroovyShell shell = new GroovyShell(sharedArgs);
         shell.evaluate(content);
         logger.info("finished");
     }
