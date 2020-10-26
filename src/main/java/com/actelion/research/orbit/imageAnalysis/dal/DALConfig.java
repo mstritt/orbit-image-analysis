@@ -41,9 +41,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.security.CodeSource;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Properties;
 import java.util.prefs.Preferences;
 
 public class DALConfig {
@@ -74,6 +73,7 @@ public class DALConfig {
 
             // read properties
             readConfigProperties(props);
+            readConfigEnvs(props);
             logger.info("Configured image provider: " + props.getProperty("ImageProvider"));
             logger.info("Different image providers can be configured in resources/config.properties or resources/config_custom.properties (priority).");
 
@@ -244,6 +244,18 @@ public class DALConfig {
         } catch (Exception e) {
             logger.warn("cannot close properties stream");
         }
+    }
+
+    public static void setProperty(Properties props, String key) {
+        if (System.getenv("ORBIT_"+key) != null) {
+            String newValue = System.getenv("ORBIT_"+key);
+            logger.info("Environment variable set, overriding : " + key + " with new value: "+ newValue);
+            props.setProperty(key, newValue);
+        }
+    }
+
+    public static void readConfigEnvs(Properties props) {
+        props.forEach((key, value) -> setProperty(props, key.toString()));
     }
 
     public static String getLibDir() throws URISyntaxException, UnsupportedEncodingException {
