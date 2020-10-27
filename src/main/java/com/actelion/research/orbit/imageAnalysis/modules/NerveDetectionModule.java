@@ -314,7 +314,9 @@ public class NerveDetectionModule extends AbstractSpotModule {
             if (shapes.size() == 0) {
                 logger.info("No nerves found.");
                 if (withGui)
-                    JOptionPane.showMessageDialog(NerveDetectionModule.this, "No nerves found in selected region of interest", "No nerves found", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(NerveDetectionModule.this,
+                            "No nerves found in selected region of interest",
+                            "No nerves found", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
             // shuffle shape list to be unbiased for manual classification
@@ -341,11 +343,7 @@ public class NerveDetectionModule extends AbstractSpotModule {
                 iFrame.getRecognitionFrame().getAnnotations().add(annotation);
             }
             try {
-                SwingUtilities.invokeAndWait(new Runnable() {
-                    public void run() {
-                        list.setModel(listModel);
-                    }
-                });
+                SwingUtilities.invokeAndWait(() -> list.setModel(listModel));
             } catch (Exception e) {
                 logger.error("error updating spot list", e);
                 e.printStackTrace();

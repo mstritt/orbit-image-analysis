@@ -29,7 +29,6 @@ import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.ScaleoutMode;
 import com.actelion.research.orbit.utils.ChannelToHue;
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
@@ -80,10 +79,10 @@ public class DALConfig {
             readConfig(props, orbitExternalProperties);
             logger.info("Summary of properties: " + props.toString());
             logger.info("Configured image provider: " + props.getProperty("ImageProvider"));
-            logger.info("Different image providers can be configured by setting environment variables in the form" +
+            logger.info("Different image providers can be configured by setting environment variables in the form " +
                     "ORBIT_propertyName, or adding a file to $user.home/orbit/config.properties." +
                     "Otherwise the image provider will be read from the application archive " +
-                    "resources/config_custom.properties (priority)" +
+                    "resources/config_custom.properties (priority) " +
                     "or resources/config.properties in that order of priority.");
 
             try {
