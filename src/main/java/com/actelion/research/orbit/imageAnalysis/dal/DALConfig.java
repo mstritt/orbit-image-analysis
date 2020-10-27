@@ -23,26 +23,28 @@ import com.actelion.research.orbit.dal.IImageProvider;
 import com.actelion.research.orbit.imageAnalysis.components.IUpdateChecker;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAODataFileSQLite;
 import com.actelion.research.orbit.imageAnalysis.dal.localImage.DAORawAnnotationSQLite;
+import com.actelion.research.orbit.imageAnalysis.dal.localImage.ImageProviderLocalCached;
 import com.actelion.research.orbit.imageAnalysis.utils.ICustomMenu;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitTiledImage2;
 import com.actelion.research.orbit.imageAnalysis.utils.OrbitUtils;
 import com.actelion.research.orbit.imageAnalysis.utils.ScaleoutMode;
 import com.actelion.research.orbit.utils.ChannelToHue;
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.CodeSource;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.prefs.Preferences;
 
 public class DALConfig {
@@ -61,7 +63,10 @@ public class DALConfig {
     private static boolean checkVersion = true;
     private static String explicitLibDir = null;
     private static String localDBFile;
-    private static boolean localImageCache = true;
+    private static boolean localImageCache = false;
+
+    private final static String userHome = System.getProperty("user.home");
+    private final static Path orbitExternalProperties = Paths.get (userHome+"/orbit/config.properties");
 
     static {
         try {
@@ -72,10 +77,14 @@ public class DALConfig {
             props.put("UpdateChecker", "com.actelion.research.orbit.imageAnalysis.components.UpdateChecker");
 
             // read properties
-            readConfigProperties(props);
-            readConfigEnvs(props);
+            readConfig(props, orbitExternalProperties);
+            logger.info("Summary of properties: " + props.toString());
             logger.info("Configured image provider: " + props.getProperty("ImageProvider"));
-            logger.info("Different image providers can be configured in resources/config.properties or resources/config_custom.properties (priority).");
+            logger.info("Different image providers can be configured by setting environment variables in the form" +
+                    "ORBIT_propertyName, or adding a file to $user.home/orbit/config.properties." +
+                    "Otherwise the image provider will be read from the application archive " +
+                    "resources/config_custom.properties (priority)" +
+                    "or resources/config.properties in that order of priority.");
 
             try {
                 // https://docs.oracle.com/javase/9/docs/api/java/lang/Class.html#newInstance--
@@ -105,15 +114,18 @@ public class DALConfig {
             }
 
             logger.info("scaleout mode: "+ScaleoutMode.SCALEOUTMODE.get());
-//            if (localImageCache && ScaleoutMode.SCALEOUTMODE.get()) {
-//                File tempDir = new File(OrbitUtils.getCurrentDir()+File.separator+"tempimages");
-//                //tempDir.deleteOnExit();
-//                logger.info("local file cache temp dir: "+tempDir.getAbsolutePath());
-//                ((ImageProviderOrbit) imageProvider).setLocalImageProvider(new ImageProviderLocalCached(tempDir.getAbsolutePath(), imageProvider));
-//            }
 
-            scaleOut = (IScaleout) Class.forName(props.getProperty("ScaleOut")).newInstance();
-            //scaleOut = new ScaleoutSparkClusterTest2();
+            setLocalImageCache(props);
+            logger.info("Use local image cache for remote image provider: "+ localImageCache);
+            if (localImageCache) {
+                File tempDir = new File(OrbitUtils.getTempDir()+File.separator+"tempimages");
+                //tempDir.deleteOnExit();
+                logger.info("local file cache temp dir: "+tempDir.getAbsolutePath());
+//            ((ImageProviderOrbit) imageProvider).setLocalImageProvider(new ImageProviderLocalCached(tempDir.getAbsolutePath(), imageProvider));
+                imageProvider.setLocalImageProvider(new ImageProviderLocalCached(tempDir.getAbsolutePath(), imageProvider));
+            }
+
+            scaleOut = (IScaleout) Class.forName(props.getProperty("ScaleOut")).getConstructor().newInstance();
             String sparkMaster = props.getProperty("SparkMaster", "local[*]");
 
             logger.info("Update Checker: " + props.getProperty("UpdateChecker"));
@@ -126,7 +138,7 @@ public class DALConfig {
 
             String strCustomMenu = props.getProperty("CustomMenu");
             if (strCustomMenu != null && strCustomMenu.length() > 0) {
-                customMenu = (ICustomMenu) Class.forName(strCustomMenu).newInstance();
+                customMenu = (ICustomMenu) Class.forName(strCustomMenu).getConstructor().newInstance();
                 logger.info("Custom Menu: " + customMenu);
             }
 
@@ -228,6 +240,11 @@ public class DALConfig {
         }
     }
 
+    private static void setLocalImageCache(Properties props) {
+        localImageCache = props.get("localImageCache").toString().equals("true");
+    }
+
+    @Deprecated
     public static void readConfigProperties(Properties props) throws IOException {
         InputStream propsStream;
         propsStream = DALConfig.class.getResourceAsStream("/config_custom.properties");
@@ -246,16 +263,63 @@ public class DALConfig {
         }
     }
 
+    /**
+     * Read the configuration properties from the 'external' orbit directory, and then fall back to the
+     * properties that are embedded in the JAR file. First the config.properties, and then
+     * the config_custom.properties.
+     * @param props The properties
+     * @param propsFilePath The path to the 'external' properties file.
+     */
+    public static void readConfig(Properties props, Path propsFilePath) {
+        if (propsFilePath.toFile().exists()) {
+            logger.info("Reading external configuration properties from "+propsFilePath.toString());
+            try {
+                props.load(new FileInputStream(propsFilePath.toFile()));
+            } catch (IOException e) {
+                logger.error(e.getLocalizedMessage());
+            }
+        } else {
+            logger.info("No external configuration properties file available, using built-ins.");
+            InputStream propsStream = DALConfig.class.getResourceAsStream("/config_custom.properties");
+            if (propsStream == null) {
+                propsStream = DALConfig.class.getResourceAsStream("/config.properties");
+                logger.info("using config file: resources/config.properties ");
+            } else {
+                logger.info("using config file: resources/config_custom.properties ");
+            }
+            try {
+                props.load(propsStream);
+            } catch (IOException e) {
+                logger.error(e.getLocalizedMessage());
+            }
+        }
+
+        // Override properties using environment variables.
+        readConfigEnvs(props);
+    }
+
+    /**
+     * Read and override configuration from environment variables that are prefixed
+     * by ORBIT_. This will only work for properties that match those already set
+     * in config.properties.
+     * @param props The properties.
+     */
+    public static void readConfigEnvs(Properties props) {
+        logger.info("Checking whether to override properties from environment variables.");
+        props.forEach((key, value) -> setProperty(props, key.toString()));
+    }
+
+    /**
+     * Set/override properties in the case where the property already exists in the config.properties file.
+     * @param props The properties.
+     * @param key The property to be set.
+     */
     public static void setProperty(Properties props, String key) {
         if (System.getenv("ORBIT_"+key) != null) {
             String newValue = System.getenv("ORBIT_"+key);
             logger.info("Environment variable set, overriding : " + key + " with new value: "+ newValue);
             props.setProperty(key, newValue);
         }
-    }
-
-    public static void readConfigEnvs(Properties props) {
-        props.forEach((key, value) -> setProperty(props, key.toString()));
     }
 
     public static String getLibDir() throws URISyntaxException, UnsupportedEncodingException {
@@ -270,7 +334,7 @@ public class DALConfig {
         } else {
             String path = OrbitUtils.class.getResource(OrbitUtils.class.getSimpleName() + ".class").getPath();
             String jarFilePath = path.substring(path.indexOf(":") + 1, path.indexOf("!"));
-            jarFilePath = URLDecoder.decode(jarFilePath, "UTF-8");
+            jarFilePath = URLDecoder.decode(jarFilePath, StandardCharsets.UTF_8);
             jarFile = new File(jarFilePath);
         }
         String jarDir = jarFile.getParentFile().getAbsolutePath();
