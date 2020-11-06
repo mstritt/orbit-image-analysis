@@ -207,6 +207,8 @@ public class DLSegmentationWorker extends OrbitWorker {
 
                             long usedTimeTile = System.currentTimeMillis() - startTimeTile;
                             long usedTimeImage = System.currentTimeMillis() - startTimeImage;
+                            setProgress((int) (0.9*((double) currentTileNum.get() / (double) totalNumTiles.get()) * 100d));
+
                             logger.info("Time(s) for tile: " + (usedTimeTile / 1000));
                             logger.info("Current time(min) for image: " + (usedTimeImage / 60000));
                             logger.info("tileX: " + tile.x + " tileY: " + tile.y + " tile in ROI");
@@ -215,7 +217,6 @@ public class DLSegmentationWorker extends OrbitWorker {
                             logger.info("tileX: " + tile.x + " tileY: " + tile.y + " not in ROI.");
                             return null;
                         }
-                        setProgress((int) (0.9*((double) currentTileNum.get() / (double) totalNumTiles.get()) * 100d));
 
                         return detections;
                     });

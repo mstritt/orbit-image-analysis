@@ -143,10 +143,11 @@ public class ImageProviderLocalCached extends ImageProviderLocal {
         } else {
             url = imageProvider.getRawDataFileUrl(rdf);
         }
-        logger.info("downloading url: "+url);
+        logger.info("Downloading file from url: "+url);
         String ending = getEnding(rdf,level);
         File file = new File(dir+File.separator+rdfId+"."+ending);
         FileUtils.copyURLToFile(url,file);
+        logger.info("Successfully cached file to local disk: "+url);
         cachedFiles.add(file);
     }
 

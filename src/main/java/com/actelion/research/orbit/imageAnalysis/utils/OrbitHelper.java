@@ -210,6 +210,11 @@ public class OrbitHelper {
         return Segmentation(rdf, model, tiles, numThreads);
     }
 
+    public static SegmentationResult Segmentation(final RawDataFile rdf, final OrbitModel model, List<Point> tiles, int numThreads, IScaleableShape roi) throws Exception {
+        RecognitionFrame rf = new RecognitionFrame(rdf, false);
+        return Segmentation(rf, rdf.getRawDataId(), model, tiles, numThreads, false, roi);
+    }
+
     public static SegmentationResult Segmentation(final RawDataFile rdf, final OrbitModel model, List<Point> tiles, int numThreads) throws OrbitImageServletException {
         RecognitionFrame rf = new RecognitionFrame(rdf, false);
         return Segmentation(rf, rdf.getRawDataFileId(), model, tiles, numThreads, true);
@@ -257,7 +262,7 @@ public class OrbitHelper {
             }
         }
 
-        ExclusionMapGen exMap = ExclusionMapGen.constructExclusionMap(rdf, rf, model, rf.getROI());
+        ExclusionMapGen exMap = ExclusionMapGen.constructExclusionMap(rdf, rf, model, roi);
         if (exMap != null) {
             exMap.setNumThreads(1);
             exMap.setKeepVisualClassificationImage(false);

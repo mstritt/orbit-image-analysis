@@ -91,7 +91,7 @@ public class GroovyExecutor {
                 URL url = new URL(args[1]);
                 InputStream in = url.openStream();
                 try {
-                    System.out.println( IOUtils.toString( in ) );
+                    //System.out.println( IOUtils.toString( in ) );
                     content = IOUtils.toString( in );
                 } finally {
                     IOUtils.closeQuietly(in);
