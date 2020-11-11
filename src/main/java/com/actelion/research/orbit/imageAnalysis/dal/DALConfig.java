@@ -74,6 +74,7 @@ public class DALConfig {
             props.put("ImageProvider", "com.actelion.research.orbit.imageprovider.ImageProviderOmero");
             props.put("ScaleOut", "com.actelion.research.orbit.imageAnalysis.dal.ScaleoutNoop");
             props.put("UpdateChecker", "com.actelion.research.orbit.imageAnalysis.components.UpdateChecker");
+            props.put("localImageCache", "false");
 
             // read properties
             readConfig(props, orbitExternalProperties);
