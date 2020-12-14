@@ -76,6 +76,9 @@ public class FeatureDescription implements Serializable, Cloneable {
     private String deepLearningModelPath = null;
     private AbstractSegmentationSettings<?> dLSegmentSettings = null;
     private boolean deepLearningStoreAnnotations = false;
+    private double shapeExpansionInUm = 0;
+    private boolean avoidShapeExpansionOverlaps = true;
+    private boolean excludeInnerShape = false;
 
     // MIHC
     private boolean mihcActive = false;
@@ -478,6 +481,30 @@ public class FeatureDescription implements Serializable, Cloneable {
         this.mihcNormalGain = mihcNormalGain;
     }
 
+    public double getShapeExpansionInUm() {
+        return shapeExpansionInUm;
+    }
+
+    public void setShapeExpansionInUm(double shapeExpansionInUm) {
+        this.shapeExpansionInUm = shapeExpansionInUm;
+    }
+
+    public boolean isAvoidShapeExpansionOverlaps() {
+        return avoidShapeExpansionOverlaps;
+    }
+
+    public void setAvoidShapeExpansionOverlaps(boolean avoidShapeExpansionOverlaps) {
+        this.avoidShapeExpansionOverlaps = avoidShapeExpansionOverlaps;
+    }
+
+    public boolean isExcludeInnerShape() {
+        return excludeInnerShape;
+    }
+
+    public void setExcludeInnerShape(boolean excludeInnerShape) {
+        this.excludeInnerShape = excludeInnerShape;
+    }
+
     public FeatureDescription clone() {
         try {
             FeatureDescription copy = ((FeatureDescription) super.clone());
@@ -565,4 +592,5 @@ public class FeatureDescription implements Serializable, Cloneable {
                 ", mihcActive="+mihcActive+
                 '}';
     }
+
 }

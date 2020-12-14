@@ -302,6 +302,8 @@ dependencies {
 
     testImplementation 'org.hamcrest:hamcrest:2.2'
 
+    implementation group: 'org.locationtech.jts', name: 'jts-core', version: '1.17.1'
+
     testImplementation('junit:junit:4.13')
 }
 

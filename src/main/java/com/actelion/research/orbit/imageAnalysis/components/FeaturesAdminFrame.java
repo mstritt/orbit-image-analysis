@@ -103,12 +103,15 @@ public class FeaturesAdminFrame extends JDialog {
     private IntegerTextField tfRemoveOutliers = null;
     private DoubleTextField tfGraphCut = null;
     private JCheckBox cbUseImageAdjustments = null;
+    private DoubleTextField tfShapeExpansionInUm = null;
+    private JCheckBox cbAvoidShapeExpansionOverlaps = null;
+    private JCheckBox cbExcludeInnerShape = null;
 
     private final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
-    private final int frameWidth = (int)(800/ NeonCortex.getScaleFactor());
-    private final int frameHeight = (int)(Math.min(ge.getMaximumWindowBounds().height,800)/NeonCortex.getScaleFactor()); // 1100
-    private final int btnHeight = (int)(35/NeonCortex.getScaleFactor());
+    private final int frameWidth = (int) (800 / NeonCortex.getScaleFactor());
+    private final int frameHeight = (int) (Math.min(ge.getMaximumWindowBounds().height, 800) / NeonCortex.getScaleFactor()); // 1100
+    private final int btnHeight = (int) (35 / NeonCortex.getScaleFactor());
 
     public static int selectedTab = 0;
     private FeatureDescription featureDescription;
@@ -120,7 +123,7 @@ public class FeaturesAdminFrame extends JDialog {
 
     public FeaturesAdminFrame(FeatureDescription featureDescription, int selectedTab) {
         this.featureDescription = featureDescription;
-        if (selectedTab>=0) {
+        if (selectedTab >= 0) {
             FeaturesAdminFrame.selectedTab = selectedTab;
         }
         initialize();
@@ -169,7 +172,7 @@ public class FeaturesAdminFrame extends JDialog {
         tabs.setSelectedIndex(FeaturesAdminFrame.selectedTab);
 
         tabs.addChangeListener(e -> {
-            logger.trace("selected tab: "+ tabs.getSelectedIndex());
+            logger.trace("selected tab: " + tabs.getSelectedIndex());
             FeaturesAdminFrame.selectedTab = tabs.getSelectedIndex();
         });
 
@@ -344,17 +347,16 @@ public class FeaturesAdminFrame extends JDialog {
 
 
         // fluo channels
-        if (featureDescription.getActiveFluoChannels()!=null) {
+        if (featureDescription.getActiveFluoChannels() != null) {
             setCbActiveFluoChannels(featureDescription.getActiveFluoChannels());
-        }
-        else {
+        } else {
             IOrbitImageMultiChannel multiChanImage = getOpenMultiChannelImage();
-            if (multiChanImage!=null && multiChanImage.getChannelNames()!=null && multiChanImage.getChannelNames().length>0) {
+            if (multiChanImage != null && multiChanImage.getChannelNames() != null && multiChanImage.getChannelNames().length > 0) {
                 setCbActiveFluoChannels(multiChanImage.getChannelNames());
             }
         }
 
-        if (cbFluoChannels==null)
+        if (cbFluoChannels == null)
             cbFluoChannels = new JComboCheckBox();
         panel = new JPanel(new GridLayout(1, 2));
         lab = new JLabel("Active fluorescence channels:");
@@ -371,7 +373,7 @@ public class FeaturesAdminFrame extends JDialog {
         JLabel lab;
         JPanel panelSegmentation = new JPanel();
         //panelSegmentation.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 15));
-        panelSegmentation.setLayout(new GridLayout(-1,1));
+        panelSegmentation.setLayout(new GridLayout(-1, 1));
 
         final OrbitModel modelFin = model;
         cbForSecondarySegmentationModel = new JCheckBox("Set Features for Secondary Segmentation", featureDescription.isForSecondarySegmentationModel());
@@ -461,7 +463,7 @@ public class FeaturesAdminFrame extends JDialog {
 
 
         panel = new JPanel(new GridLayout(1, 2));
-        cbMFS = new JCheckBox("Mumford-Shah segmentation (cell clusters):",featureDescription.isMumfordShahSegmentation());
+        cbMFS = new JCheckBox("Mumford-Shah segmentation (cell clusters):", featureDescription.isMumfordShahSegmentation());
         cbMFS.setToolTipText("enable mumford-shah segmentation (good for cell clusters)");
         cbMFS.addActionListener(e -> {
             if (cbMFS.isSelected() && !cbDisableWatershed.isSelected()) {
@@ -491,7 +493,7 @@ public class FeaturesAdminFrame extends JDialog {
         mfsAlphaPanel.setBorder(BorderFactory.createEmptyBorder());
         JLabel mfsAlphaLabel = new JLabel("Intens split [1-50]");
         mfsAlphaLabel.setToolTipText("Object splitting based on intensity. Smaller values will split objects more frequently.\n" +
-                "Recommended range: [1,50], allowed range: [1,255].\n"+
+                "Recommended range: [1,50], allowed range: [1,255].\n" +
                 "This value corresponds to the alpha value of the mumford-shah functional which is responsible for the smoothing of the image.\n" +
                 "Higher values will smooth the image more and thus split objects less.");
         tfMFSAlpha = new IntegerTextField(5, 5, 1, 255);
@@ -503,14 +505,14 @@ public class FeaturesAdminFrame extends JDialog {
         mfsParamPanel.add(mfsAlphaPanel);
         panel.add(mfsParamPanel);
         setCompBounds(panel, frameWidth - 50);
-        panel.setPreferredSize(new Dimension((int)panel.getPreferredSize().getWidth(),(int)mfsAlphaPanel.getPreferredSize().getHeight()));
+        panel.setPreferredSize(new Dimension((int) panel.getPreferredSize().getWidth(), (int) mfsAlphaPanel.getPreferredSize().getHeight()));
         panelSegmentation.add(panel);
 
 
         panel = new JPanel(new GridLayout(1, 2));
         lab = new JLabel("Dilate:");
         panel.add(lab);
-        tfNumDilate = new IntegerTextField(featureDescription.getNumDilate(), 10, 0, 10);
+        tfNumDilate = new IntegerTextField(featureDescription.getNumDilate(), 1, 0, 100);
         tfNumDilate.setText(Integer.toString(featureDescription.getNumDilate()));
         tfNumDilate.setToolTipText("dilate foreground before object segmentation");
         tfNumDilate.setHorizontalAlignment(JTextField.LEFT);
@@ -522,7 +524,7 @@ public class FeaturesAdminFrame extends JDialog {
         panel = new JPanel(new GridLayout(1, 2));
         lab = new JLabel("Erode:");
         panel.add(lab);
-        tfNumErode = new IntegerTextField(featureDescription.getNumErode(), 10, 0, 10);
+        tfNumErode = new IntegerTextField(featureDescription.getNumErode(), 1, 0, 100);
         tfNumErode.setText(Integer.toString(featureDescription.getNumErode()));
         tfNumErode.setToolTipText("erode foreground before object segmentation");
         tfNumErode.setHorizontalAlignment(JTextField.LEFT);
@@ -536,6 +538,27 @@ public class FeaturesAdminFrame extends JDialog {
         setCompBounds(cbDilateBeforeErode, frameWidth);
         panelSegmentation.add(cbDilateBeforeErode);
 
+        panel = new JPanel(new GridLayout(1, 6));
+        lab = new JLabel("Expand shape (μm):");
+        panel.add(lab);
+        panel.add(new JLabel(""));
+        panel.add(new JLabel(""));
+        tfShapeExpansionInUm = new DoubleTextField(featureDescription.getShapeExpansionInUm(), 10.0, 0, 100);
+        tfShapeExpansionInUm.setText(Double.toString(featureDescription.getShapeExpansionInUm()));
+        tfShapeExpansionInUm.setToolTipText("Expands the contours after the object detection. Can be used for cytoplasm estimation.");
+        tfShapeExpansionInUm.setHorizontalAlignment(JTextField.LEFT);
+        // tfShapeExpansionInUm.setColumns(4);
+        panel.add(tfShapeExpansionInUm);
+
+        cbAvoidShapeExpansionOverlaps = new JCheckBox("Avoid overlaps", featureDescription.isAvoidShapeExpansionOverlaps());
+        cbAvoidShapeExpansionOverlaps.setToolTipText("Avoid overlaps after expansion, typically helpful for cells detections");
+        panel.add(cbAvoidShapeExpansionOverlaps);
+
+        cbExcludeInnerShape = new JCheckBox("Exclude inner part", featureDescription.isExcludeInnerShape());
+        cbExcludeInnerShape.setToolTipText("Typically helpful to keep cytoplasm area by excluding nucleus area");
+        panel.add(cbExcludeInnerShape);
+        panelSegmentation.add(panel);
+
         panel = new JPanel(new GridLayout(1, 2));
         lab = new JLabel("Despeckle: [0-50]");
         panel.add(lab);
@@ -547,7 +570,6 @@ public class FeaturesAdminFrame extends JDialog {
         panel.add(tfRemoveOutliers);
         setCompBounds(panel, frameWidth - 50);
         panelSegmentation.add(panel);
-
 
         panel = new JPanel(new GridLayout(1, 2));
         lab = new JLabel("Smooth objects (GraphCut): [0-100]");
@@ -566,10 +588,10 @@ public class FeaturesAdminFrame extends JDialog {
         cbNerveDetectionMode.setToolTipText("activate for nerve detection (large object detection)");
         setCompBounds(cbNerveDetectionMode, frameWidth);
         panelSegmentation.add(cbNerveDetectionMode);
-        setCompBounds(panelSegmentation, frameWidth-150);
+        setCompBounds(panelSegmentation, frameWidth - 150);
 
 
-        return new JScrollPane(panelSegmentation,ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        return new JScrollPane(panelSegmentation, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     }
 
     private JPanel getDeepLearningJPanel() {
@@ -649,13 +671,13 @@ public class FeaturesAdminFrame extends JDialog {
                 MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD);
 
         MaskRCNNSegmentationSettings insulinSettingsStandard = new MaskRCNNSegmentationSettings(
-                    "Pancreas Islets (Identify only)",
-                    "insulin_009",
-                    "http://ares:8080/orbit/rdf?orbitID=19340903", null,
-                    512, 512,
-                    16f, 10, 56, 56, 5,
-                    "IsletS", true,
-                    MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD);
+                "Pancreas Islets (Identify only)",
+                "insulin_009",
+                "http://ares:8080/orbit/rdf?orbitID=19340903", null,
+                512, 512,
+                16f, 10, 56, 56, 5,
+                "IsletS", true,
+                MaskRCNNSegmentationSettings.PostProcessMethod.STANDARD);
         // Standard setting doesn't classify the detections.
         ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLACK, Color.MAGENTA));
         ArrayList<String> classNames = new ArrayList<>(Arrays.asList("Background", "ungraded"));
@@ -706,7 +728,7 @@ public class FeaturesAdminFrame extends JDialog {
                 nucleiSettings,
                 insulinSettingsStandard,
                 insulinSettingsCustom,
-               // brainSettings,
+                // brainSettings,
                 glomeruliSettings
         };
     }
@@ -741,7 +763,7 @@ public class FeaturesAdminFrame extends JDialog {
      */
     private IOrbitImageMultiChannel getOpenMultiChannelImage() {
         ImageFrame iFrame = OrbitImageAnalysis.getInstance().getIFrame();
-        if (iFrame!=null) {
+        if (iFrame != null) {
             OrbitTiledImage2 img = iFrame.recognitionFrame.bimg.getImage();
             if (img instanceof OrbitTiledImageIOrbitImage) {
                 IOrbitImage oi = ((OrbitTiledImageIOrbitImage) img).getOrbitImage();
@@ -799,6 +821,9 @@ public class FeaturesAdminFrame extends JDialog {
         tfNumDilate.setText(Integer.toString(featureDescription.getNumDilate()));
         tfNumErode.setText(Integer.toString(featureDescription.getNumErode()));
         cbDilateBeforeErode.setSelected(featureDescription.isDilateBeforeErode());
+        tfShapeExpansionInUm.setDouble(featureDescription.getShapeExpansionInUm());
+        cbAvoidShapeExpansionOverlaps.setSelected(featureDescription.isAvoidShapeExpansionOverlaps());
+        cbExcludeInnerShape.setSelected(featureDescription.isExcludeInnerShape());
         tfRemoveOutliers.setText(Integer.toString(featureDescription.getRemoveOutliers()));
         tfGraphCut.setText(Double.toString(featureDescription.getGraphCut()));
         cbNerveDetectionMode.setSelected(featureDescription.isDeactivateWatershed());  // large object detection
@@ -845,32 +870,31 @@ public class FeaturesAdminFrame extends JDialog {
     private void setCbActiveFluoChannels(final String[] activeFluoChannels) {
         List<String> fluoChannels = new ArrayList<>();
         StringBuilder selectedChannels = new StringBuilder();
-        if (activeFluoChannels!=null &&activeFluoChannels.length>0) {
-            for (int i=0;i<activeFluoChannels.length; i++) {
+        if (activeFluoChannels != null && activeFluoChannels.length > 0) {
+            for (int i = 0; i < activeFluoChannels.length; i++) {
                 String channel = OrbitUtils.cleanChannelName(activeFluoChannels[i]);
                 selectedChannels.append(channel);
-                if (i<activeFluoChannels.length-1) selectedChannels.append("; ");
+                if (i < activeFluoChannels.length - 1) selectedChannels.append("; ");
                 fluoChannels.add(channel);
             }
         }
         IOrbitImageMultiChannel multiChanImage = getOpenMultiChannelImage();
-        if (multiChanImage!=null && multiChanImage.getChannelNames()!=null && multiChanImage.getChannelNames().length>0) {
-            for (String channel: multiChanImage.getChannelNames()) {
+        if (multiChanImage != null && multiChanImage.getChannelNames() != null && multiChanImage.getChannelNames().length > 0) {
+            for (String channel : multiChanImage.getChannelNames()) {
                 channel = OrbitUtils.cleanChannelName(channel);
                 if (!fluoChannels.contains(channel)) {
                     fluoChannels.add(channel);
                 }
             }
         }
-        if (fluoChannels.size()>0) {
+        if (fluoChannels.size() > 0) {
             Collections.sort(fluoChannels);
-        }
-        else {
+        } else {
             selectedChannels = new StringBuilder(OrbitUtils.CHANNEL_NAME_ALL);
             fluoChannels.add(OrbitUtils.CHANNEL_NAME_ALL);
         }
-        
-        if (cbFluoChannels==null) {
+
+        if (cbFluoChannels == null) {
             cbFluoChannels = new JComboCheckBox(fluoChannels);
         } else {
             cbFluoChannels.setChoices(fluoChannels);
@@ -1004,6 +1028,7 @@ public class FeaturesAdminFrame extends JDialog {
         featureDescription.setDilateBeforeErode(cbDilateBeforeErode.isSelected());
         featureDescription.setNumDilate(tfNumDilate.getInt());
         featureDescription.setNumErode(tfNumErode.getInt());
+
         featureDescription.setRemoveOutliers(tfRemoveOutliers.getInt());
         featureDescription.setGraphCut(tfGraphCut.getDouble());
 
@@ -1022,16 +1047,20 @@ public class FeaturesAdminFrame extends JDialog {
         // TODO... Check this.
         featureDescription.setDLSegment(dlSegmentMethodsModel.getSelectedItem());
 
-//        if (dlSegmentMethodsModel.getSelectedItem() != null) {
-//        } else {
-//            dlSegmentMethodsModel.getElementAt(0);
-//        }
+        //        if (dlSegmentMethodsModel.getSelectedItem() != null) {
+        //        } else {
+        //            dlSegmentMethodsModel.getElementAt(0);
+        //        }
 
         featureDescription.setDeepLearningStoreAnnotations(cbDLStoreAnnotations.isSelected());
 
+        featureDescription.setShapeExpansionInUm(tfShapeExpansionInUm.getDouble());
+        featureDescription.setAvoidShapeExpansionOverlaps(cbAvoidShapeExpansionOverlaps.isSelected());
+        featureDescription.setExcludeInnerShape(cbExcludeInnerShape.isSelected());
+
         // fluo channels
         String[] activeFluoChannels = cbFluoChannels.getCheckedItems();
-        if (activeFluoChannels!=null && activeFluoChannels.length>0) {
+        if (activeFluoChannels != null && activeFluoChannels.length > 0) {
             featureDescription.setActiveFluoChannels(activeFluoChannels);
         }
 
@@ -1041,6 +1070,7 @@ public class FeaturesAdminFrame extends JDialog {
 
     /**
      * Used to quickly test the frame layout.
+     *
      * @param args No args are required.
      */
     public static void main(String... args) {
