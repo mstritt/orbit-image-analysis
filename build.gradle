@@ -180,10 +180,10 @@ publishing {
 task copyToLib( type: Copy ) {
 //    println "Classpath = ${configurations.runtimeClasspath.asPath}"
     doFirst{
-        sourceSets.main.runtimeClasspath.each { println it}
+        sourceSets.main.compileClasspath.each { println it}
     }
     into "$buildDir/libs/lib"
-    from configurations.runtimeClasspath
+    from configurations.compileClasspath
 }
 
 task printRuntimeClasspath() {
@@ -192,7 +192,7 @@ task printRuntimeClasspath() {
 jar {
     archiveVersion = orbitVersion
     archivesBaseName = 'orbit-image-analysis'
-    dependsOn copyToLib
+    dependsOn configurations.compileClasspath
 //    zip64=true
     manifest {
         attributes 'Implementation-Title': 'Orbit Image Analysis',
