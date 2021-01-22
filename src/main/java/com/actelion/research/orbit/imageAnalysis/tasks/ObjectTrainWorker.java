@@ -182,7 +182,7 @@ public class ObjectTrainWorker extends OrbitWorker {
                 String w = "Warning: The model classifies the training objects only with an accuracy of " + evaluation.pctCorrect() + "%.\nThat means that the marked objects are not diverse enough.\nYou might want to remove some marked objects and mark some more representative ones.\nHowever, you can still use this model if you want (check the object classification).";
                 logger.warn(w);
                 if (withGUI && !ScaleoutMode.SCALEOUTMODE.get()) {
-                    JOptionPane.showMessageDialog(null, w, "Warning: Low accuracy", JOptionPane.WARNING_MESSAGE);
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, w, "Warning: Low accuracy", JOptionPane.WARNING_MESSAGE));
                 }
             }
 

@@ -72,7 +72,7 @@ public class ObjectClassificationWorker extends OrbitWorker implements PropertyC
         this.rf = rf;
         OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(),model.getFeatureDescription());
         if (classShapesToSet != null) {
-            oldClassShapes = SerializationUtils.clone((ArrayList) rf.getClassShapes()); // remember original classShales workaround (dirty fix...). Must be cloned because rf.setClassShapes will clear() and addAll() (next line).
+            oldClassShapes = SerializationUtils.clone(new ArrayList<>(rf.getClassShapes())); // remember original classShales workaround (dirty fix...). Must be cloned because rf.setClassShapes will clear() and addAll() (next line).
             this.rf.setClassShapes(classShapesToSet);
         }
         this.model = new OrbitModel(model);
