@@ -38,10 +38,20 @@ import ij.process.BinaryProcessor;
 import ij.process.ByteProcessor;
 import imageJ.RankFiltersOrbit;
 import imageJ.graphcut.Graph_Cut;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.operation.buffer.BufferParameters;
+import org.locationtech.jts.simplify.VWSimplifier;
+import org.locationtech.jts.triangulate.DelaunayTriangulationBuilder;
+import org.locationtech.jts.triangulate.IncrementalDelaunayTriangulator;
+import org.locationtech.jts.triangulate.quadedge.QuadEdge;
+import org.locationtech.jts.triangulate.quadedge.QuadEdgeLocator;
+import org.locationtech.jts.triangulate.quadedge.QuadEdgeSubdivision;
+import org.locationtech.jts.triangulate.quadedge.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tensorflow.Session;
-import org.tensorflow.Tensor;
 
 import javax.media.jai.PlanarImage;
 import javax.swing.*;
@@ -91,6 +101,9 @@ public class ObjectSegmentationWorker extends OrbitWorker {
     private int numThreads = Runtime.getRuntime().availableProcessors();
     private RecognitionFrame originalFrame = null;
     private boolean cytoplasmaSegmentation = false;
+    private double shapeExpansionInUm = 0.0;
+    private boolean avoidShapeExpansionOverlaps = true;
+    private boolean excludeInnerShape = false;
     private RawDataFile rdf;
 
 
@@ -108,7 +121,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         this.rdf = rdf;
         if (classShapeToSet != null) {
             if (rf.getClassShapes() != null)
-                oldClassShapes =  SerializationUtils.clone(new ArrayList<>(rf.getClassShapes())); // remember original classShapes workaround (dirty fix...). Must be cloned because rf.setClassShapes will clear() and addAll() (next line).
+                oldClassShapes = SerializationUtils.clone(new ArrayList<>(rf.getClassShapes())); // remember original classShapes workaround (dirty fix...). Must be cloned because rf.setClassShapes will clear() and addAll() (next line).
             this.rf.setClassShapes(classShapeToSet);
             logger.debug("old classShapes saved");
         } else {
@@ -150,7 +163,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                 //return null; // instead an error message will be thrown in getAsBufferedImage
             }
             BufferedImage bi = rf.bimg.getModifiedImage(this.segmentationModel.getFeatureDescription()).getAsBufferedImage(roiBounds, rf.bimg.getImage().getColorModel());    // here it is a 'rendered' image, e.g. only with active fluo channels
-//            BufferedImage bi = rf.bimg.getImage().getAsBufferedImage(roiBounds, rf.bimg.getImage().getColorModel());    // here it is a 'rendered' image, e.g. only with active fluo channels
+            //            BufferedImage bi = rf.bimg.getImage().getAsBufferedImage(roiBounds, rf.bimg.getImage().getColorModel());    // here it is a 'rendered' image, e.g. only with active fluo channels
 
             ci = new TiledImagePainter(PlanarImage.wrapRenderedImage(bi), "roi");
             ci.getImage().setUseCache(false);
@@ -203,7 +216,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             if (tiles == null && getSize(rf.getROI()) > 1500 * 1500L) {
                 // tile list
                 Point[] tileIndices = rf.bimg.getImage().getTileIndices(fullROI == null ? null : fullROI.getBounds());
-                if (tileIndices!=null && tileIndices.length>0) {
+                if (tileIndices != null && tileIndices.length > 0) {
                     tiles = Arrays.asList(tileIndices);
                 }
             }
@@ -250,6 +263,9 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                     setDoDilate(numDilate > 0);
                     setDoErode(numErode > 0);
                     setGraphCutSmoothness(segmentationModel.getFeatureDescription().getGraphCut());
+                    setShapeExpansionInUm(segmentationModel.getFeatureDescription().getShapeExpansionInUm());
+                    setAvoidShapeExpansionOverlaps(segmentationModel.getFeatureDescription().isAvoidShapeExpansionOverlaps());
+                    setExcludeInnerShape(segmentationModel.getFeatureDescription().isExcludeInnerShape());
                 }
             }
             if (segmentationModel != null) {
@@ -380,7 +396,6 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                         }
 
 
-
                         // here the actual segmentation per tile happens
                         List<Shape> tileSegmentations;
                         if (mumfordShahSegmentation) {
@@ -461,7 +476,11 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
             // now join tile-overlapping segments (if activated)
             if (mergeTileSegments) {
-                allSegmentsAndFeatures = joinTileSegments(allSegmentsAndFeatures,false);
+                allSegmentsAndFeatures = joinTileSegments(allSegmentsAndFeatures, false);
+            }
+
+            if (shapeExpansionInUm > 0.0) {
+                expandShapes(allSegmentsAndFeatures);
             }
 
             if (allSegmentsAndFeatures.getShapeList() != null) {
@@ -548,7 +567,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                     secondary = "\nSecondary Object Count: " + allObjectCountSecondary + "\n";
                 }
                 taskResult = new TaskResult("Object Count", "Number of objects: " + allObjectCount + secondary
-                      //  + "\n\nHint: Set feature classes (F3->'classes for retrieving features') to retrieve features (e.g. intensities) per object."
+                        //  + "\n\nHint: Set feature classes (F3->'classes for retrieving features') to retrieve features (e.g. intensities) per object."
                 );
             }
 
@@ -624,8 +643,6 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                     EDM edm = new EDM();
                     edm.toWatershed(ip.getProcessor()); // watershed needs black (0) as background and white as foreground
                     logger.trace("end watershed");
-
-
                 }
 
                 if (isCytoplasmaSegmentation()) {
@@ -817,7 +834,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
      * To be called for each tile. ClassImage is the classImage of one classified tile.
      * OffsX and offsY is the offset of the current tile.
      */
-    public List<Shape> getObjectSegmentationsTileMumfordShah(final TiledImageWriter classImage, final TiledImageWriter originalClassImage, final BufferedImage sourceImage,  Shape fullROI, int offsX, int offsY) {
+    public List<Shape> getObjectSegmentationsTileMumfordShah(final TiledImageWriter classImage, final TiledImageWriter originalClassImage, final BufferedImage sourceImage, Shape fullROI, int offsX, int offsY) {
         logger.trace("mumford-shah segmentation");
         if (classImage == null) return new ArrayList<Shape>(0);
         BufferedImage mask = new BufferedImage(classImage.getImage().getWidth(), classImage.getImage().getHeight(), BufferedImage.TYPE_BYTE_BINARY);
@@ -836,53 +853,53 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         } // x
 
 
-//        BufferedImage sourceOri = originalClassImage.getImage().getAsBufferedImage();
-//        BufferedImage source = new BufferedImage(sourceOri.getWidth(),sourceOri.getHeight(),BufferedImage.TYPE_INT_RGB);
-//        source.getGraphics().drawImage(sourceOri,0,0,null);
-//        source.getGraphics().dispose();
+        //        BufferedImage sourceOri = originalClassImage.getImage().getAsBufferedImage();
+        //        BufferedImage source = new BufferedImage(sourceOri.getWidth(),sourceOri.getHeight(),BufferedImage.TYPE_INT_RGB);
+        //        source.getGraphics().drawImage(sourceOri,0,0,null);
+        //        source.getGraphics().dispose();
         logger.trace("mumford-shah pre-processing finished");
 
         int alpha = 5;
         int cellSize = 18;
-        if (segmentationModel!=null) {
+        if (segmentationModel != null) {
             alpha = segmentationModel.getFeatureDescription().getMumfordShahAlpha();
             cellSize = segmentationModel.getFeatureDescription().getMumfordShahCellSize();
         }
 
-        logger.trace("mumford-shah alpha: "+alpha+" cellSize: "+cellSize);
+        logger.trace("mumford-shah alpha: " + alpha + " cellSize: " + cellSize);
 
         List<Polygon> polyList = new ArrayList<>();
         int maxMFSTileSize = 512;
-        if (sourceImage.getWidth()<maxMFSTileSize && sourceImage.getHeight()<maxMFSTileSize) {
+        if (sourceImage.getWidth() < maxMFSTileSize && sourceImage.getHeight() < maxMFSTileSize) {
             // small tile - segment on full tile
             SegmentedImage segmentedImage = SegmenterFacade.detectCells(sourceImage, mask, alpha, cellSize);
-            if (segmentedImage!=null && segmentedImage.getPolygons()!=null && segmentedImage.getPolygons().size()>0) {
+            if (segmentedImage != null && segmentedImage.getPolygons() != null && segmentedImage.getPolygons().size() > 0) {
                 polyList.addAll(segmentedImage.getPolygons());
             }
         } else {
             // big tile - segment on tileparts
             PlanarImage piSource = PlanarImage.wrapRenderedImage(sourceImage);
             PlanarImage piMask = PlanarImage.wrapRenderedImage(mask);
-            ImageTiler sourceTiler = new ImageTiler(piSource,maxMFSTileSize,maxMFSTileSize);
+            ImageTiler sourceTiler = new ImageTiler(piSource, maxMFSTileSize, maxMFSTileSize);
             Iterator<BufferedImage> imageTiles = sourceTiler.iterator();
-            Iterator<BufferedImage> maskTiles = new ImageTiler(piMask,maxMFSTileSize,maxMFSTileSize).iterator();
+            Iterator<BufferedImage> maskTiles = new ImageTiler(piMask, maxMFSTileSize, maxMFSTileSize).iterator();
             Point[] tileIdx = sourceTiler.getTileIndices();
-            int idx=0;
+            int idx = 0;
             while (imageTiles.hasNext()) {
                 SegmentedImage segmentedImage = SegmenterFacade.detectCells(imageTiles.next(), maskTiles.next(), alpha, cellSize);
-                if (segmentedImage!=null && segmentedImage.getPolygons()!=null && segmentedImage.getPolygons().size()>0) {
+                if (segmentedImage != null && segmentedImage.getPolygons() != null && segmentedImage.getPolygons().size() > 0) {
                     List<Polygon> segmentedList = segmentedImage.getPolygons();
                     // remove tile border objects
-                    segmentedList = filterEdgePolygons(segmentedList,maxMFSTileSize,maxMFSTileSize);
+                    segmentedList = filterEdgePolygons(segmentedList, maxMFSTileSize, maxMFSTileSize);
                     translatePolygons(segmentedList, sourceTiler.getTiledImage().tileXToX(tileIdx[idx].x), sourceTiler.getTiledImage().tileYToY(tileIdx[idx].y));
                     polyList.addAll(segmentedList);
                 }
                 idx++;
             }
-           
+
         }
 
-        if (polyList.size()==0) {
+        if (polyList.size() == 0) {
             logger.debug("no segmentations");
             return new ArrayList<>(0);
         } else {
@@ -890,11 +907,11 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         }
 
         List<List<Point>> pListList = new ArrayList<>(polyList.size());
-        for (int i=0; i<polyList.size(); i++) {
+        for (int i = 0; i < polyList.size(); i++) {
             Polygon poly = polyList.get(i);
             List<Point> pList = new ArrayList<>(poly.npoints);
-            for (int p=0; p<poly.npoints; p++) {
-                pList.add(new Point(poly.xpoints[p],poly.ypoints[p]));
+            for (int p = 0; p < poly.npoints; p++) {
+                pList.add(new Point(poly.xpoints[p], poly.ypoints[p]));
             }
             pListList.add(pList);
         }
@@ -960,12 +977,12 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
 
     private void translatePolygons(List<Polygon> polyList, int tx, int ty) {
-         for  (Polygon p: polyList) {
-             for (int i=0; i<p.npoints; i++) {
-                 p.xpoints[i] += tx;
-                 p.ypoints[i] += ty;
-             }
-         }
+        for (Polygon p : polyList) {
+            for (int i = 0; i < p.npoints; i++) {
+                p.xpoints[i] += tx;
+                p.ypoints[i] += ty;
+            }
+        }
     }
 
 
@@ -1027,26 +1044,27 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         int dist = 2;
         int maxEdgeCnt = 6;
 
-        for (int i=0; i<segResult.getShapeList().size(); i++) {
+        for (int i = 0; i < segResult.getShapeList().size(); i++) {
             Shape shape = segResult.getShapeList().get(i);
             if (shape instanceof PolygonExt) {
                 PolygonExt poly = (PolygonExt) shape;
                 int cntBorder = 0;
                 int tileWidth = rf.bimg.getImage().getTileWidth();
                 int tileHeight = rf.bimg.getImage().getTileHeight();
-                for (int p=0; p<poly.npoints; p++) {
-                   if ((poly.xpoints[p] % tileWidth <= dist) || (poly.ypoints[p] % tileHeight <= dist)) cntBorder++;
-                   if ((poly.xpoints[p] % tileWidth >= tileWidth-dist) || (poly.ypoints[p] % tileHeight >= tileHeight - dist)) cntBorder++;
-                  
+                for (int p = 0; p < poly.npoints; p++) {
+                    if ((poly.xpoints[p] % tileWidth <= dist) || (poly.ypoints[p] % tileHeight <= dist)) cntBorder++;
+                    if ((poly.xpoints[p] % tileWidth >= tileWidth - dist) || (poly.ypoints[p] % tileHeight >= tileHeight - dist))
+                        cntBorder++;
+
                 }
-                if (cntBorder<maxEdgeCnt) {
+                if (cntBorder < maxEdgeCnt) {
                     filteredSegments.add(shape);
-                    if (segResult.getFeatureList().size()>i)
+                    if (segResult.getFeatureList().size() > i)
                         featureList.add(segResult.getFeatureList().get(i));
                 }
-            }  else {
+            } else {
                 filteredSegments.add(shape);
-                if (segResult.getFeatureList().size()>i)
+                if (segResult.getFeatureList().size() > i)
                     featureList.add(segResult.getFeatureList().get(i));
             }
         }
@@ -1069,14 +1087,15 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         int dist = 2;
         int maxEdgeCnt = 2;
 
-        for (int i=0; i<polygonList.size(); i++) {
+        for (int i = 0; i < polygonList.size(); i++) {
             Polygon poly = polygonList.get(i);
             int cntBorder = 0;
-            for (int p=0; p<poly.npoints; p++) {
+            for (int p = 0; p < poly.npoints; p++) {
                 if ((poly.xpoints[p] % tileWidth <= dist) || (poly.ypoints[p] % tileHeight <= dist)) cntBorder++;
-                if ((poly.xpoints[p] % tileWidth >= tileWidth-dist) || (poly.ypoints[p] % tileHeight >= tileHeight - dist)) cntBorder++;
+                if ((poly.xpoints[p] % tileWidth >= tileWidth - dist) || (poly.ypoints[p] % tileHeight >= tileHeight - dist))
+                    cntBorder++;
             }
-            if (cntBorder<maxEdgeCnt) {
+            if (cntBorder < maxEdgeCnt) {
                 filteredPologons.add(poly);
             }
         }
@@ -1098,7 +1117,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         while (change) {
             int numSegments = segResult.getShapeList().size();
             logger.debug("merging, numSegments=" + numSegments);
-            segResult = joinTileSegmentsStep(segResult,onlyCrossTiles);
+            segResult = joinTileSegmentsStep(segResult, onlyCrossTiles);
             change = segResult.getShapeList().size() != numSegments;
         }
         logger.debug("merging, final segments before sorting=" + segResult.getShapeList().size());
@@ -1120,29 +1139,29 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             if (s1 instanceof PolygonExt) {
                 if (mergedIdx.contains(i)) continue;
                 PolygonExt poly1 = (PolygonExt) s1;
-                    for (int j = i + 1; j < segResult.getShapeList().size(); j++) {
-                        if (mergedIdx.contains(j)) continue;
-                        Shape s2 = segResult.getShapeList().get(j);
-                        if (s2 instanceof PolygonExt) {
-                            PolygonExt poly2 = (PolygonExt) s2;
-                                if (!onlyCrossTiles || onDifferentTiles(poly1, poly2)) {
-                                    Rectangle r1 = s1.getBounds();
-                                    r1.grow(mergeMinDistance, mergeMinDistance);
-                                    if (r1.intersects(s2.getBounds())) {
-                                        nearest = nearestPoints(poly1, poly2, nearest);
-                                        if (nearest[0].distance(nearest[1]) < mergeMinDistance) { // really merge
-                                            PolygonExt merged = mergePolysSorted(poly1, poly2);
-                                            mergedSegments.add(merged);
-                                            if (mergedFeatures != null && segResult.getFeatureList() != null && segResult.getFeatureList().size() > i && segResult.getFeatureList().size() > j) {
-                                                mergedFeatures.add(mergeFeatures(segResult.getFeatureList().get(i), segResult.getFeatureList().get(j), merged));
-                                            }
-                                            mergedIdx.add(i);
-                                            mergedIdx.add(j);
-                                        }
+                for (int j = i + 1; j < segResult.getShapeList().size(); j++) {
+                    if (mergedIdx.contains(j)) continue;
+                    Shape s2 = segResult.getShapeList().get(j);
+                    if (s2 instanceof PolygonExt) {
+                        PolygonExt poly2 = (PolygonExt) s2;
+                        if (!onlyCrossTiles || onDifferentTiles(poly1, poly2)) {
+                            Rectangle r1 = s1.getBounds();
+                            r1.grow(mergeMinDistance, mergeMinDistance);
+                            if (r1.intersects(s2.getBounds())) {
+                                nearest = nearestPoints(poly1, poly2, nearest);
+                                if (nearest[0].distance(nearest[1]) < mergeMinDistance) { // really merge
+                                    PolygonExt merged = mergePolysSorted(poly1, poly2);
+                                    mergedSegments.add(merged);
+                                    if (mergedFeatures != null && segResult.getFeatureList() != null && segResult.getFeatureList().size() > i && segResult.getFeatureList().size() > j) {
+                                        mergedFeatures.add(mergeFeatures(segResult.getFeatureList().get(i), segResult.getFeatureList().get(j), merged));
                                     }
+                                    mergedIdx.add(i);
+                                    mergedIdx.add(j);
                                 }
+                            }
                         }
                     }
+                }
             }
         }
 
@@ -1161,11 +1180,11 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
     @Deprecated
     private boolean checkMaxOpenDist(PolygonExt merged) {
-        if (merged.npoints>1) {
+        if (merged.npoints > 1) {
             for (int i = 1; i < merged.npoints; i++) {
-                double dist = Point.distance(merged.xpoints[i-1],merged.ypoints[i-1],merged.xpoints[i],merged.ypoints[i]);
-                if (dist>500) {
-                    System.out.println("dist: "+dist);
+                double dist = Point.distance(merged.xpoints[i - 1], merged.ypoints[i - 1], merged.xpoints[i], merged.ypoints[i]);
+                if (dist > 500) {
+                    System.out.println("dist: " + dist);
                     return false;
                 }
             }
@@ -1179,8 +1198,8 @@ public class ObjectSegmentationWorker extends OrbitWorker {
     public boolean onDifferentTiles(PolygonExt p1, PolygonExt p2) {
         if (rf == null) throw new IllegalStateException("recognition frame not set (is null)");
         // check scale? (or not)
-        if (p1.npoints==0 && p2.npoints==0) return false;
-        if (p1.npoints==0 || p2.npoints==0) return true;
+        if (p1.npoints == 0 && p2.npoints == 0) return false;
+        if (p1.npoints == 0 || p2.npoints == 0) return true;
         int tx1 = rf.bimg.getImage().XToTileX(p1.xpoints[0]);
         int tx2 = rf.bimg.getImage().XToTileX(p2.xpoints[0]);
         if (tx1 != tx2) return true;
@@ -1593,16 +1612,227 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                 else if (y > 0 && buf[x][y - 1] == cf) res[x][y] = cf;
                 else if (y < buf[x].length - 1 && buf[x][y + 1] == cf) res[x][y] = cf;
 
-//				else
-//				if (x>0 && y>0 && buf[x-1][y-1]==cf) res[x][y] = cf; else
-//				if (x<buf.length-1 && y>0 && buf[x+1][y-1]==cf) res[x][y] = cf; else
-//				if (y>0 && x<buf.length-1 && buf[x+1][y-1]==cf) res[x][y] = cf; else
-//				if (y<buf[x].length-1 && x<buf.length-1 && buf[x+1][y+1]==cf) res[x][y] = cf;
+                //				else
+                //				if (x>0 && y>0 && buf[x-1][y-1]==cf) res[x][y] = cf; else
+                //				if (x<buf.length-1 && y>0 && buf[x+1][y-1]==cf) res[x][y] = cf; else
+                //				if (y>0 && x<buf.length-1 && buf[x+1][y-1]==cf) res[x][y] = cf; else
+                //				if (y<buf[x].length-1 && x<buf.length-1 && buf[x+1][y+1]==cf) res[x][y] = cf;
 
                 if (x == 0 || y == 0 || x == buf.length - 1 || y == buf[x].length - 1)
                     res[x][y] = 0;   // border pixel is always background (needed to 'close' objects)
             }
         return res;
+    }
+
+    /**
+     * This function converts the polygons list of a {@link SegmentationResult} into a list of JTS polygons
+     *
+     * @param segmentationResult
+     * @return
+     */
+    private List<org.locationtech.jts.geom.Polygon> convertToJts(SegmentationResult segmentationResult) {
+        ArrayList<org.locationtech.jts.geom.Polygon> polygonList = new ArrayList<>();
+        if (null != segmentationResult) {
+            List<Shape> originalShapeList = segmentationResult.getShapeList();
+            GeometryFactory geometryFactory = new GeometryFactory();
+            for (Shape shape : originalShapeList) {
+                if (shape instanceof PolygonExt) {
+                    PolygonExt poly = (PolygonExt) shape;
+
+                    ArrayList<Coordinate> coordinates = new ArrayList<>();
+
+                    for (int iPoint = 0; iPoint < poly.xpoints.length; iPoint++) {
+                        if (0 < poly.xpoints[iPoint] || 0 < poly.ypoints[iPoint]) {
+                            coordinates.add(new Coordinate(poly.xpoints[iPoint], poly.ypoints[iPoint], 0.0));
+                        }
+                    }
+
+                    // close contour
+                    coordinates.add(coordinates.get(0));
+
+                    try {
+                        org.locationtech.jts.geom.Polygon jtsPolygon = geometryFactory.createPolygon(coordinates.toArray(new Coordinate[coordinates.size()]));
+                        polygonList.add(jtsPolygon);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        }
+        return polygonList;
+    }
+
+    private SegmentationResult replacePolygonsWithJtsList(SegmentationResult segmentationResult, List<org.locationtech.jts.geom.Polygon> inputPolygonList) {
+        if (segmentationResult != null) {
+            List<Shape> shapeList = new ArrayList<>();
+            for (org.locationtech.jts.geom.Polygon jtsPolygon : inputPolygonList) {
+                try {
+                    Coordinate[] jtsCoordinates = jtsPolygon.getCoordinates();
+                    PolygonExt polygonExt = new PolygonExt();
+                    for (Coordinate coordinate : jtsCoordinates) {
+                        // for (int i = 0; i < jtsCoordinates.length - 1; i++) {
+                        //     Coordinate coordinate = jtsCoordinates[i];
+                        polygonExt.addPoint((int) coordinate.getX(), (int) coordinate.getY());
+                    }
+                    shapeList.add(polygonExt);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            segmentationResult.setShapeList(shapeList);
+        }
+        return segmentationResult;
+    }
+
+    private List<org.locationtech.jts.geom.Polygon> geometryToPolygons(Geometry geometry) {
+        List<org.locationtech.jts.geom.Polygon> shapes = new ArrayList<>();
+        if (geometry instanceof org.locationtech.jts.geom.Polygon) {
+            shapes.add((org.locationtech.jts.geom.Polygon) geometry);
+        } else if (geometry instanceof MultiPolygon) {
+            MultiPolygon multiPolygon = (MultiPolygon) geometry;
+            for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
+                shapes.add((org.locationtech.jts.geom.Polygon) multiPolygon.getGeometryN(i));
+            }
+        } else {
+            logger.error("Class not handled");
+        }
+        return shapes;
+    }
+
+    static class FirstVertexLocator implements QuadEdgeLocator {
+
+        private QuadEdgeSubdivision subdiv;
+        private QuadEdge firstLiveEdge;
+
+        FirstVertexLocator(QuadEdgeSubdivision subdiv) {
+            this.subdiv = subdiv;
+        }
+
+        private QuadEdge firstEdge() {
+            if (firstLiveEdge == null || !firstLiveEdge.isLive())
+                firstLiveEdge = (QuadEdge) subdiv.getEdges().iterator().next();
+            return firstLiveEdge;
+        }
+
+        @Override
+        public QuadEdge locate(Vertex v) {
+            return subdiv.locateFromEdge(v, firstEdge());
+        }
+
+    }
+
+    private static QuadEdgeSubdivision createSubdivision(Collection<Coordinate> coords, double tolerance) {
+        var envelope = DelaunayTriangulationBuilder.envelope(coords);
+        var subdiv = new QuadEdgeSubdivision(envelope, tolerance);
+        var triangulator = new IncrementalDelaunayTriangulator(subdiv);
+        subdiv.setLocator(new FirstVertexLocator(subdiv));
+        var edgeSet = new HashSet<QuadEdge>();
+        for (var coord : coords) {
+            var edge = triangulator.insertSite(new Vertex(coord));
+            if (!edgeSet.add(edge))
+                logger.debug("Found duplicate edge!");
+        }
+        return subdiv;
+    }
+
+    private void expandJtsShapes(List<org.locationtech.jts.geom.Polygon> inputShapes, List<org.locationtech.jts.geom.Polygon> expandedPolygons, List<org.locationtech.jts.geom.Polygon> inputShapesSimple) {
+        long start;
+        start = System.currentTimeMillis();
+        int expansionInPixels = (int) (shapeExpansionInUm / rf.getMuMeterPerPixel());
+        for (org.locationtech.jts.geom.Polygon inputShape : inputShapes) {
+            Geometry convexShape = inputShape.convexHull();
+            org.locationtech.jts.geom.Polygon simplePolygon = (org.locationtech.jts.geom.Polygon) VWSimplifier.simplify(convexShape, 3);
+            inputShapesSimple.add(simplePolygon);
+            Geometry expandedShape = simplePolygon.buffer(expansionInPixels,
+                    BufferParameters.DEFAULT_QUADRANT_SEGMENTS,
+                    BufferParameters.CAP_ROUND);
+            for (org.locationtech.jts.geom.Polygon expandedPolygon : geometryToPolygons(expandedShape)) {
+                expandedPolygons.addAll(geometryToPolygons(VWSimplifier.simplify(expandedPolygon, 3)));
+            }
+        }
+        logger.trace("Expansion time = " + (System.currentTimeMillis() - start));
+    }
+
+    private void avoidShapesOverlaps(List<org.locationtech.jts.geom.Polygon> expandedPolygons,
+                                     List<org.locationtech.jts.geom.Polygon> inputShapesSimple,
+                                     List<org.locationtech.jts.geom.Polygon> outputInnerShapes,
+                                     List<org.locationtech.jts.geom.Polygon> outputOuterShapes) {
+        long start = System.currentTimeMillis();
+        List<org.locationtech.jts.geom.Coordinate> nucleiCenters = new ArrayList<>();
+        Map<Coordinate, Integer> shapeIndexMap = new HashMap<>();
+        for (int i = 0; i < inputShapesSimple.size(); i++) {
+            org.locationtech.jts.geom.Polygon inputShape = inputShapesSimple.get(i);
+            var convexPolygon = inputShape.convexHull();
+            Coordinate center = convexPolygon.getCentroid().getCoordinate();
+            nucleiCenters.add(center);
+            shapeIndexMap.put(center, i);
+        }
+        logger.trace("nuclei centers = " + (System.currentTimeMillis() - start));
+
+        // Voronoi
+        start = System.currentTimeMillis();
+        // VoronoiDiagramBuilder builder = new VoronoiDiagramBuilder();
+        // builder.setSites(nucleiCenters);
+        // QuadEdgeSubdivision quadEdgeSubdivision = builder.getSubdivision();
+        var quadEdgeSubdivision = createSubdivision(nucleiCenters, 0.001);
+        var quadEdgeSubdivisionVoronoi = quadEdgeSubdivision.getVoronoiCellPolygons(new GeometryFactory());
+        var voronoiPolygons = (List<org.locationtech.jts.geom.Polygon>) quadEdgeSubdivisionVoronoi;
+        logger.trace("VoronoiDiagramBuilder = " + (System.currentTimeMillis() - start));
+
+        // Fuse
+        start = System.currentTimeMillis();
+        if (voronoiPolygons.size() == expandedPolygons.size()) {
+            for (org.locationtech.jts.geom.Polygon voronoiPolygon : voronoiPolygons) {
+                Coordinate associatedCenter = (Coordinate) voronoiPolygon.getUserData();
+                int polygonIndex = shapeIndexMap.get(associatedCenter);
+                outputOuterShapes.addAll(geometryToPolygons(expandedPolygons.get(polygonIndex).intersection(voronoiPolygon)));
+                outputInnerShapes.addAll(geometryToPolygons(inputShapesSimple.get(polygonIndex).intersection(voronoiPolygon)));
+            }
+            logger.trace("Fuse = " + (System.currentTimeMillis() - start));
+        } else {
+            logger.warn("Polygons list size mismatch: voronoiPolygons.size() = " + voronoiPolygons.size()
+                    + ", expandedPolygons.size() = " + expandedPolygons.size());
+        }
+    }
+
+    private void expandShapes(SegmentationResult segmentationResult) {
+        if (segmentationResult != null) {
+            long start = System.currentTimeMillis();
+            // Convert to JTS polygons to use interesting function of JTS such as buffering, simplify, or Voronoi
+            List<org.locationtech.jts.geom.Polygon> inputShapes = convertToJts(segmentationResult);
+            logger.trace("convertToJts time = " + (System.currentTimeMillis() - start));
+
+            // Nuclei expansion
+            List<org.locationtech.jts.geom.Polygon> expandedPolygons = new ArrayList<>();
+            List<org.locationtech.jts.geom.Polygon> inputShapesSimple = new ArrayList<>();
+            expandJtsShapes(inputShapes, expandedPolygons, inputShapesSimple);
+
+            List<org.locationtech.jts.geom.Polygon> outputShapes;
+            if (avoidShapeExpansionOverlaps) {
+                System.out.println("avoidShapeExpansionOverlaps true");
+                List<org.locationtech.jts.geom.Polygon> outputOuterShapes = new ArrayList<>();
+                List<org.locationtech.jts.geom.Polygon> outputInnerShapes = new ArrayList<>();
+                avoidShapesOverlaps(expandedPolygons, inputShapesSimple, outputInnerShapes, outputOuterShapes);
+
+                if (excludeInnerShape) {
+                    outputShapes = new ArrayList<>();
+                    for (int i = 0; i < outputOuterShapes.size(); i++) {
+                        org.locationtech.jts.geom.Polygon outerShape = outputOuterShapes.get(i);
+                        org.locationtech.jts.geom.Polygon innerShape = outputInnerShapes.get(i);
+                        outputShapes.addAll(geometryToPolygons(outerShape.difference(innerShape)));
+                    }
+                } else {
+                    outputShapes = outputOuterShapes;
+                }
+            } else {
+                outputShapes = expandedPolygons;
+            }
+
+            start = System.currentTimeMillis();
+            replacePolygonsWithJtsList(segmentationResult, outputShapes);
+            logger.trace("replacePolygonsWithJtsList = " + (System.currentTimeMillis() - start));
+        }
     }
 
 
@@ -1622,7 +1852,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             setPlasmaScale(model.getSegmentationModel().getFeatureDescription().getSegmentationScale());
             this.cytoplasmaSegmentation = model.getSegmentationModel().getFeatureDescription().isCytoplasmaSegmentation();
             rf.setClassShapes(model.getSegmentationModel().getClassShapes());
-            OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(),model.getSegmentationModel().getFeatureDescription());
+            OrbitUtils.setMultiChannelFeatures(rf.bimg.getImage(), model.getSegmentationModel().getFeatureDescription());
             rf.initializeClassColors();
         } else {
             this.segmentationModel = null;
@@ -1801,6 +2031,29 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         this.cytoplasmaSegmentation = cytoplasmaSegmentation;
     }
 
+    public double getShapeExpansionInUm() {
+        return shapeExpansionInUm;
+    }
+
+    public void setShapeExpansionInUm(double shapeExpansionInUm) {
+        this.shapeExpansionInUm = shapeExpansionInUm;
+    }
+
+    public boolean isAvoidShapeExpansionOverlaps() {
+        return avoidShapeExpansionOverlaps;
+    }
+
+    public void setAvoidShapeExpansionOverlaps(boolean avoidShapeExpansionOverlaps) {
+        this.avoidShapeExpansionOverlaps = avoidShapeExpansionOverlaps;
+    }
+
+    public boolean isExcludeInnerShape() {
+        return excludeInnerShape;
+    }
+
+    public void setExcludeInnerShape(boolean excludeInnerShape) {
+        this.excludeInnerShape = excludeInnerShape;
+    }
 
     private class SecondLevelSegmentation {
         private List<Shape> segments;
