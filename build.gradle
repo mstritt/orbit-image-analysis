@@ -192,7 +192,7 @@ task printRuntimeClasspath() {
 jar {
     archiveVersion = orbitVersion
     archivesBaseName = 'orbit-image-analysis'
-    dependsOn configurations.compileClasspath
+    dependsOn copyToLib
 //    zip64=true
     manifest {
         attributes 'Implementation-Title': 'Orbit Image Analysis',
