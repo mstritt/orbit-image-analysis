@@ -72,7 +72,7 @@ public class DLSegment {
     public static boolean SEGMENTATION_REFINEMENT = true;
     public static int segmentNr = 0;
 
-    public static Map<Integer,List<Shape>> generateSegmentationAnnotations(int[] images, Session s, OrbitModel segModel,  OrbitModel modelContainingExclusionModel, boolean storeAnnotations) throws Exception {
+    public static Map<Integer,List<Shape>> generateSegmentationAnnotations(int[] images, DLSession s, OrbitModel segModel,  OrbitModel modelContainingExclusionModel, boolean storeAnnotations) throws Exception {
         List<RawDataFile> rdfList = new ArrayList<>(images.length);
         for (int i=0; i<images.length; i++) {
             rdfList.add(DALConfig.getImageProvider().LoadRawDataFile(images[i]));
@@ -80,15 +80,7 @@ public class DLSegment {
         return generateSegmentationAnnotations(rdfList,s,segModel,modelContainingExclusionModel,storeAnnotations);
     }
 
-    public static Map<Integer,List<Shape>> generateSegmentationAnnotations(int[] images, InferRequest req, OrbitModel segModel,  OrbitModel modelContainingExclusionModel, boolean storeAnnotations) throws Exception {
-        List<RawDataFile> rdfList = new ArrayList<>(images.length);
-        for (int i=0; i<images.length; i++) {
-            rdfList.add(DALConfig.getImageProvider().LoadRawDataFile(images[i]));
-        }
-        return generateSegmentationAnnotations(rdfList,req,segModel,modelContainingExclusionModel,storeAnnotations);
-    }
-
-    public static Map<Integer,List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, Session s, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations) throws Exception {
+    public static Map<Integer,List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, DLSession s, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations) throws Exception {
         Map<Integer,List<Shape>> segmentationsPerImage = new HashMap<>();
         for (RawDataFile rdf: rdfList) {
             long startt = System.currentTimeMillis();
@@ -210,130 +202,7 @@ public class DLSegment {
         return segmentationsPerImage;
     }
 
-    public static Map<Integer,List<Shape>> generateSegmentationAnnotations(List<RawDataFile> rdfList, InferRequest req, OrbitModel segModel, OrbitModel modelContainingExclusionModel, boolean storeAnnotations) throws Exception {
-        Map<Integer,List<Shape>> segmentationsPerImage = new HashMap<>();
-        for (RawDataFile rdf: rdfList) {
-            long startt = System.currentTimeMillis();
-            OrbitTiledImage2.resetTileCache();
-            int rdfId = rdf.getRawDataFileId();
-            logger.info("rdfid: " + rdfId);
-            List<Shape> segmentationShapes = new ArrayList<>();
-            List<RawAnnotation> annotations = DALConfig.getImageProvider().LoadRawAnnotationsByRawDataFile(rdfId, RawAnnotation.ANNOTATION_TYPE_IMAGE);
-            List<ImageAnnotation> rois = new ArrayList<>();
-            List<Shape> exclusions = new ArrayList<>();
-            List<Shape> inclusions = new ArrayList<>();
-            for (RawAnnotation annotation: annotations) {
-                ImageAnnotation ia = new ImageAnnotation(annotation);
-                if (ia.getSubType() == ImageAnnotation.SUBTYPE_ROI) rois.add(ia);
-                else if (ia.getSubType() == ImageAnnotation.SUBTYPE_EXCLUSION) exclusions.add(ia.getFirstShape());
-            }
-            RecognitionFrame rf = new RecognitionFrame(rdf);
-            TileSizeWrapper tileSizeWrapper = new TileSizeWrapper(new OrbitImagePlanar(rf.bimg.getImage(), ""), 1024, 1024);
-            OrbitTiledImageIOrbitImage orbitImage = new OrbitTiledImageIOrbitImage(tileSizeWrapper);
-            ExclusionMapGen exclusionMapGen = null;
-            if (modelContainingExclusionModel!=null && modelContainingExclusionModel.getExclusionModel()!=null) {
-                exclusionMapGen = ExclusionMapGen.constructExclusionMap(rdf,rf,modelContainingExclusionModel);
-                if (exclusionMapGen!=null) {
-                    exclusionMapGen.generateMap();
-                }
-            }
-
-            List<Shape> roiDefList = new ArrayList<>();
-            for (ImageAnnotation roiAnnotation: rois) {
-                IScaleableShape roiShape = (IScaleableShape)roiAnnotation.getFirstShape();
-                roiShape = (IScaleableShape)roiShape.getScaledInstance(100d, new Point(0, 0));
-                ShapeAnnotationList roiDef = new ShapeAnnotationList(inclusions, exclusions, roiShape, roiShape.getBounds());
-                roiDefList.add(roiDef);
-            }
-            if (roiDefList.size()==0) {   // no ROI annotations, so create one around the whole image
-                 roiDefList.add(new RectangleExt(0,0,rf.bimg.getWidth(),rf.bimg.getHeight()));
-            }
-
-            for (Shape roiDef: roiDefList) {
-                Point[] tiles = orbitImage.getTileIndices(roiDef.getBounds());
-                int tileNr=0;
-                for (Point tile: tiles) {
-                    tileNr++;
-                    logger.trace("tile "+tileNr+" of "+tiles.length);
-                   // if (!(tile.x==15 && tile.y==12)) continue;   // for testing: just on one tile
-                    if (OrbitUtils.isTileInROI(tile.x, tile.y, orbitImage, roiDef, exclusionMapGen)) {
-                        // source image
-                        SegmentationResult segRes = DLSegment.segmentTile(tile.x, tile.y, orbitImage, req, segModel, false);
-                        int minX = orbitImage.tileXToX(tile.x);
-                        int minY = orbitImage.tileYToY(tile.y);
-                        logger.info("ObjectCount: "+segRes.getObjectCount()+" for tile "+tile.x+" x "+tile.y);
-                        if (SEGMENTATION_REFINEMENT) {
-                            for (Shape segShape: segRes.getShapeList()) {
-                                PolygonExt scaleShape = (PolygonExt) segShape;
-                                PolygonMetrics polyMetrics = new PolygonMetrics(scaleShape);
-                                scaleShape = scaleShape.scale(200d, polyMetrics.getCenter());
-                                scaleShape.translate(minX, minY);
-                                Point2D center = polyMetrics.getCenter();
-                                scaleShape.translate((int) center.getX(), (int) center.getY());
-                                PolygonMetrics pm2 = new PolygonMetrics(scaleShape);
-                                center = pm2.getCenter();
-
-                                //segmentationShapes.add(scaleShape);     // enable?
-
-                                // re-segment
-                                int startx = (int) (center.getX() - 512);
-                                int starty = (int) (center.getY() - 512);
-                                if (startx < 0) startx = 0;
-                                if (starty < 0) starty = 0;
-                                if (startx + 1024 >= orbitImage.getWidth()) startx = orbitImage.getWidth() - 1025;
-                                if (starty + 1024 >= orbitImage.getHeight()) starty = orbitImage.getHeight() - 1025;
-                                Rectangle rect = new Rectangle(startx, starty, 1024, 1024);
-                                Raster rasterCenter = orbitImage.getData(rect);
-                                SegmentationResult segCenter = DLSegment.segmentRaster(rasterCenter, orbitImage, req, segModel, false);
-                                if (segCenter.getObjectCount() > 0) {
-                                    // find center shape
-                                    Point centerP = new Point(256, 256);
-                                    Shape centerShape = segCenter.getShapeList().get(0);
-                                    double dist = 1024;
-                                    for (Shape shape2 : segCenter.getShapeList()) {
-                                        PolygonMetrics pm = new PolygonMetrics((Polygon) shape2);
-                                        double d = pm.getCenter().distance(centerP);
-                                        if (d < dist) {
-                                            centerShape = shape2;
-                                            dist = d;
-                                        }
-                                    }
-                                    PolygonExt scaleShape2 = (PolygonExt) centerShape;
-                                    PolygonMetrics polyMetrics2 = new PolygonMetrics(scaleShape2);
-                                    scaleShape2 = scaleShape2.scale(200d, polyMetrics2.getCenter());
-                                    scaleShape2.translate(startx, starty);
-                                    Point2D center2 = polyMetrics2.getCenter();
-                                    scaleShape2.translate((int) center2.getX(), (int) center2.getY());
-
-                                    PolygonMetrics pm = new PolygonMetrics(scaleShape2);
-                                    Point2D centerScaled = pm.getCenter();
-                                    if (OrbitUtils.isInROI((int)centerScaled.getX(),(int)centerScaled.getY(),roiDef,exclusionMapGen)) {
-                                        segmentationShapes.add(scaleShape2);
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-                }
-            }
-
-            logger.info("shapes before filtering: " + segmentationShapes.size());
-            segmentationShapes = DLSegment.filterShapes(segmentationShapes);
-            logger.info("shapes after filtering: " + segmentationShapes.size());
-            if (storeAnnotations) {
-                logger.info("storing annotations in DB");
-                DLSegment.storeShapes(segmentationShapes, "Objects", rdfId, "orbit");
-            }
-            segmentationsPerImage.put(rdfId,segmentationShapes);
-            long usedt = System.currentTimeMillis() - startt;
-            logger.info("used time(h) for image: " + (usedt / 60000) / 60);
-        }
-        return segmentationsPerImage;
-    }
-
-
-    public static SegmentationResult segmentTile(int tileX, int tileY, OrbitTiledImageIOrbitImage orbitImage, Session s, OrbitModel segModel, boolean writeImg) throws Exception {
+    public static SegmentationResult segmentTile(int tileX, int tileY, OrbitTiledImageIOrbitImage orbitImage, DLSession s, OrbitModel segModel, boolean writeImg) throws Exception {
         Raster tileRaster = orbitImage.getTile(tileX, tileY);
         //BufferedImage ori = new BufferedImage(orbitImage.getColorModel(), (WritableRaster) tileRaster.createTranslatedChild(0,0), false, null);
         //ImageIO.write(ori, "jpeg", new File(path + File.separator +"tile" + tileX + "x" + tileY + "_ori1.jpg"));
@@ -352,26 +221,7 @@ public class DLSegment {
         return segmentationResult;
     }
 
-        public static SegmentationResult segmentTile(int tileX, int tileY, OrbitTiledImageIOrbitImage orbitImage, InferRequest req, OrbitModel segModel, boolean writeImg) throws Exception {
-        Raster tileRaster = orbitImage.getTile(tileX, tileY);
-        //BufferedImage ori = new BufferedImage(orbitImage.getColorModel(), (WritableRaster) tileRaster.createTranslatedChild(0,0), false, null);
-        //ImageIO.write(ori, "jpeg", new File(path + File.separator +"tile" + tileX + "x" + tileY + "_ori1.jpg"));
-        BufferedImage maskOriginal = maskRaster(tileRaster,orbitImage, req, writeImg);
-
-        int factor = 2;
-        maskOriginal = getShiftedMask(orbitImage, req, tileRaster, maskOriginal, factor, 0, 512, false);
-        maskOriginal = getShiftedMask(orbitImage, req, tileRaster, maskOriginal, factor, 0, -512, false);
-        maskOriginal = getShiftedMask(orbitImage, req, tileRaster, maskOriginal, factor, 512, 0, false);
-        maskOriginal = getShiftedMask(orbitImage, req, tileRaster, maskOriginal, factor, -512, 0, false);
-       // maskOriginal = getShiftedMask(orbitImage, s, tileRaster, maskOriginal, factor, 0, 0, true);
-
-        //ImageIO.write(maskOriginal, "jpeg", new File(path + File.separator +"tile" + tileX + "x" + tileY + "_seg1.jpg"));
-        SegmentationResult segmentationResult = getSegmentationResult(segModel, maskOriginal);
-        return segmentationResult;
-    }
-
-
-    private static BufferedImage getShiftedMask(OrbitTiledImageIOrbitImage orbitImage,Session s, Raster tileRaster, BufferedImage maskOriginal, int factor, int dx, int dy, boolean flip) throws Exception {
+    private static BufferedImage getShiftedMask(OrbitTiledImageIOrbitImage orbitImage, DLSession s, Raster tileRaster, BufferedImage maskOriginal, int factor, int dx, int dy, boolean flip) throws Exception {
         Rectangle rect = tileRaster.getBounds();
         rect.translate(dx,dy);
         if (!orbitImage.getBounds().contains(rect)) {
@@ -392,29 +242,6 @@ public class DLSegment {
         }
         return maskOriginal;
     }
-
-        private static BufferedImage getShiftedMask(OrbitTiledImageIOrbitImage orbitImage, InferRequest req, Raster tileRaster, BufferedImage maskOriginal, int factor, int dx, int dy, boolean flip) throws Exception {
-        Rectangle rect = tileRaster.getBounds();
-        rect.translate(dx,dy);
-        if (!orbitImage.getBounds().contains(rect)) {
-            return maskOriginal;
-        }
-        try {
-            Raster shiftraster = orbitImage.getData(rect);
-            if (flip) {
-                shiftraster = flipRaster(shiftraster);
-            }
-            BufferedImage mask2 = maskRaster(shiftraster, orbitImage, req, false);
-            if (flip) {
-                mask2 = flipImage(mask2);
-            }
-            maskOriginal = combineMasks(maskOriginal, mask2, dx / factor, dy / factor);
-        } catch (Exception e) {
-            logger.warn("Could not shift raster, returning original image (rect="+rect+" img.bounds="+orbitImage.getBounds()+")", e);
-        }
-        return maskOriginal;
-    }
-
 
     private static BufferedImage flipImage(BufferedImage bi) {
         return new BufferedImage(bi.getColorModel(),(WritableRaster) flipRaster(bi.getData()),false,null);
@@ -451,17 +278,12 @@ public class DLSegment {
         return combined;
     }
 
-    public static SegmentationResult segmentRaster(Raster inputTileRaster, OrbitTiledImageIOrbitImage orbitImage, Session s, OrbitModel segModel, boolean writeImg) throws Exception {
+    public static SegmentationResult segmentRaster(Raster inputTileRaster, OrbitTiledImageIOrbitImage orbitImage, DLSession s, OrbitModel segModel, boolean writeImg) throws Exception {
         BufferedImage segmented = maskRaster(inputTileRaster,orbitImage, s, writeImg);
         return getSegmentationResult(segModel, segmented);
     }
 
-    public static SegmentationResult segmentRaster(Raster inputTileRaster, OrbitTiledImageIOrbitImage orbitImage, InferRequest req, OrbitModel segModel, boolean writeImg) throws Exception {
-        BufferedImage segmented = maskRaster(inputTileRaster,orbitImage, req, writeImg);
-        return getSegmentationResult(segModel, segmented);
-    }
-
-    public static BufferedImage maskRaster(Raster inputTileRaster, OrbitTiledImageIOrbitImage orbitImage, Session s, boolean writeImg) throws Exception {
+    public static BufferedImage maskRaster(Raster inputTileRaster, OrbitTiledImageIOrbitImage orbitImage, DLSession s, boolean writeImg) throws Exception {
         WritableRaster tileRaster = (WritableRaster) inputTileRaster.createTranslatedChild(0, 0);
         BufferedImage ori = new BufferedImage(orbitImage.getColorModel(), tileRaster, false, null);
         ori = shrink(ori);
@@ -480,48 +302,6 @@ public class DLSegment {
         Tensor<Float> inputTensor = DLSegment.convertBufferedImageToTensor(ori);
         long startt = System.currentTimeMillis();
         BufferedImage segmented = DLSegment.segmentInput(inputTensor, s, Color.black, Color.white);
-        long usedt = System.currentTimeMillis()-startt;
-        System.out.println("segment time (s): "+usedt/1000d);
-
-        if (false) {
-            ImagePlus ip = new ImagePlus("img", segmented);
-            ip.getProcessor().setBinaryThreshold();
-            ThresholderOrbit thresh = new ThresholderOrbit();
-            thresh.applyThreshold(ip);
-            BinaryOrbit binaryOrbit = new BinaryOrbit();
-            binaryOrbit.setup("close", ip);
-            binaryOrbit.run(ip.getProcessor().convertToByte(false));
-            binaryOrbit.setup("fill Holes", ip);
-            binaryOrbit.run(ip.getProcessor().convertToByte(false));
-            ip.getProcessor().invert();
-            ip = new ImagePlus("img", ip.getProcessor().convertToRGB());
-            segmented = ip.getBufferedImage();
-        }
-
-        //ImageIO.write(segmented, "jpeg", new File(path + File.separator +"tile" + tx + "x" + ty + "_seg.jpg"));
-
-       return segmented;
-    }
-
-    public static BufferedImage maskRaster(Raster inputTileRaster, OrbitTiledImageIOrbitImage orbitImage, InferRequest req, boolean writeImg) throws Exception {
-        WritableRaster tileRaster = (WritableRaster) inputTileRaster.createTranslatedChild(0, 0);
-        BufferedImage ori = new BufferedImage(orbitImage.getColorModel(), tileRaster, false, null);
-        ori = shrink(ori);
-
-        // color-deconvolution
-        if (deconvolution) {
-            ori = Colour_Deconvolution.getProcessedImage(ori, deconvolution_name, deconvolution_channel - 1, ori);
-        }
-
-        int tx = orbitImage.XToTileX(inputTileRaster.getMinX());
-        int ty = orbitImage.YToTileY(inputTileRaster.getMinY());
-        if (writeImg) {
-            ImageIO.write(ori, "jpeg", new File(debugImagePath + File.separator +"tile" + tx + "x" + ty + ".jpg"));
-        }
-
-        Tensor<Float> inputTensor = DLSegment.convertBufferedImageToTensor(ori);
-        long startt = System.currentTimeMillis();
-        BufferedImage segmented = DLSegment.segmentInput(inputTensor, req, Color.black, Color.white);
         long usedt = System.currentTimeMillis()-startt;
         System.out.println("segment time (s): "+usedt/1000d);
 
@@ -691,29 +471,17 @@ public class DLSegment {
         }
     }
 
-    public static Session buildSession(String fileName) {
-        byte[] graphDef = readAllBytesOrExit(Paths.get(fileName));
-        return buildSessionBytes(graphDef);
-    }
-
-    public static IECore buildIECore() {
-        System.loadLibrary(IECore.NATIVE_LIBRARY_NAME);
-        return new IECore();
-    }
-
-    public static ExecutableNetwork loadNetwork(String xmlPath, IECore ie, String device) {
-        CNNNetwork net = ie.ReadNetwork(xmlPath);
-        
-        InputInfo inputInfo = net.getInputsInfo()
-                                 .get("image_batch/placeholder_port_0");
-        inputInfo.setLayout(Layout.NHWC);
-
-        return ie.LoadNetwork(net, device);
+    public static DLSession buildSession(String fileName) {
+        if (fileName.endsWith(".pb")) {
+            byte[] graphDef = readAllBytesOrExit(Paths.get(fileName));
+            return new DLSession(buildSessionBytes(graphDef));
+        } else {
+            return DLSession.createOpenVINOSession(fileName);
+        }
     }
 
     public static Session buildSession(URL modelUrl) {
         byte[] graphDef = OrbitUtils.getContentBytes(modelUrl);
-        // IECore core = new IECore();
         return buildSessionBytes(graphDef);
     }
 
@@ -725,43 +493,40 @@ public class DLSegment {
     }
 
 
-    public static BufferedImage segmentInput(final Tensor<Float> inputTensor, Session s, Color bg, Color fg) {
-        Tensor<Long> outputTensor = s
-                .runner()
-                .feed("image_batch", inputTensor)
-                .fetch("predictions")
-                .run().get(0).expect(Long.class);
+    public static BufferedImage segmentInput(final Tensor<Float> inputTensor, DLSession s, Color bg, Color fg) {
+        long[] mask;
+        if (s.isTensorFlow()) {
+            Tensor<Long> outputTensor = s.tfSession
+                    .runner()
+                    .feed("image_batch", inputTensor)
+                    .fetch("predictions")
+                    .run().get(0).expect(Long.class);
 
-        long[] mask = outputTensor.copyTo(new long[outputTensor.numElements()]);
-        BufferedImage bufferedImage = decodeLabels(mask,bg,fg);
-        return bufferedImage;
-    }
+            mask = outputTensor.copyTo(new long[outputTensor.numElements()]);
+        } else {
+            int[] dimsArr = {1, 3, 512, 512};
+            TensorDesc tDesc = new TensorDesc(Precision.FP32, dimsArr, Layout.NHWC);
 
-    public static BufferedImage segmentInput(final Tensor<Float> inputTensor, InferRequest req, Color bg, Color fg) {
-        int[] dimsArr = {1, 3, 512, 512};
-        TensorDesc tDesc = new TensorDesc(Precision.FP32, dimsArr, Layout.NHWC);
+            float[] array = new float[512*512*3];
+            FloatBuffer fb = FloatBuffer.wrap(array);
+            inputTensor.writeTo(fb);
 
-        float[] array = new float[512*512*3];
-        FloatBuffer fb = FloatBuffer.wrap(array);
-        inputTensor.writeTo(fb);
+            Blob inputBlob = new Blob(tDesc, array);
+            s.ovRequest.SetBlob("image_batch/placeholder_port_0", inputBlob);
+            s.ovRequest.Infer();
+            Blob outputBlob = s.ovRequest.GetBlob("predictions");
 
-        Blob inputBlob = new Blob(tDesc, array);
-        req.SetBlob("image_batch/placeholder_port_0", inputBlob);
-        req.Infer();
-        Blob outputBlob = req.GetBlob("predictions");
+            int[] mask_int = new int[outputBlob.size()];
+            outputBlob.rmap().get(mask_int);
 
-        int[] mask_int = new int[outputBlob.size()];
-        outputBlob.rmap().get(mask_int);
-
-        long[] mask = new long[outputBlob.size()];
-        for (int i = 0; i < mask.length; ++i) {
-            mask[i] = mask_int[i];
+            mask = new long[outputBlob.size()];
+            for (int i = 0; i < mask.length; ++i) {
+                mask[i] = mask_int[i];
+            }
         }
-
         BufferedImage bufferedImage = decodeLabels(mask,bg,fg);
         return bufferedImage;
     }
-
 
     private static byte[] readAllBytesOrExit(Path path) {
         try {
@@ -784,7 +549,7 @@ public class DLSegment {
     private static final String DEMO_OUTPUT_IMAGE = INPUT_IMAGE.replaceAll(".jpg","_seg.jpg");
 
     public static void main3(String[] args) throws IOException {
-        Session s = DLSegment.buildSession(DEMO_MODEL_NAME);
+        DLSession s = DLSegment.buildSession(DEMO_MODEL_NAME);
 
         BufferedImage sourceImage = ImageIO.read(new File(INPUT_IMAGE));
         BufferedImage bi1 = new BufferedImage(1024,1024,BufferedImage.TYPE_INT_RGB);
@@ -809,7 +574,7 @@ public class DLSegment {
 
     public static void main2(String[] args) throws IOException {
         DLSegment segment = new DLSegment();
-        Session s = DLSegment.buildSession(DEMO_MODEL_NAME);
+        DLSession s = DLSegment.buildSession(DEMO_MODEL_NAME);
         //byte[] image = readAllBytesOrExit(Paths.get(INPUT_IMAGE));
         BufferedImage inputImage = ImageIO.read(new File(INPUT_IMAGE));
         Tensor<Float> inputTensor = convertBufferedImageToTensor(inputImage);

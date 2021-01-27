@@ -28,8 +28,8 @@
  */
 import com.actelion.research.orbit.imageAnalysis.dal.DALConfig
 import com.actelion.research.orbit.imageAnalysis.deeplearning.DLSegment
+import com.actelion.research.orbit.imageAnalysis.deeplearning.DLSession
 import com.actelion.research.orbit.imageAnalysis.models.OrbitModel
-import org.tensorflow.Session
 import org.tensorflow.TensorFlow
 import org.intel.openvino.*
 
@@ -40,10 +40,8 @@ int[] images = [88] // either orbitIDs or load via query
 storeAnnotations = true // store segmentation annotations in DB ?
 
 // load the segmentation model, either via file, or url (useful if you want to run it on a server / cluster)
-// Session s = DLSegment.buildSession("models/20180202_glomeruli_detection_noquant.pb")
-IECore ie = DLSegment.buildIECore()
-ExecutableNetwork net = DLSegment.loadNetwork("models/20180202_glomeruli_detection_noquant.xml", ie, "CPU")
-InferRequest inferRequest = net.CreateInferRequest()
+// DLSession s = DLSegment.buildSession("models/20180202_glomeruli_detection_noquant.pb")
+DLSession s = DLSegment.buildSession("models/20180202_glomeruli_detection_noquant.xml")
 //Session s = segment.buildSession(new URL("http://myserver/20180202_glomeruli_detection_noquant.pb"))
 
 // segmentation model, white objects an black background. You can use the dlsegmentsplit.omo in the resources/testmodels folder.
@@ -51,8 +49,7 @@ OrbitModel segModel = OrbitModel.LoadFromInputStream(this.getClass().getResource
 // exclusion model (to define a ROI by model): a model that contains an exclusion model, can be null
 OrbitModel modelContainingExclusionModel = null;
 println "using Tensorflow "+TensorFlow.version()
-// Map<Integer,List<Shape>> segmentationsPerImage = DLSegment.generateSegmentationAnnotations(images, s, segModel, modelContainingExclusionModel, storeAnnotations)
-Map<Integer,List<Shape>> segmentationsPerImage = DLSegment.generateSegmentationAnnotations(images, inferRequest, segModel, modelContainingExclusionModel, storeAnnotations)
+Map<Integer,List<Shape>> segmentationsPerImage = DLSegment.generateSegmentationAnnotations(images, s, segModel, modelContainingExclusionModel, storeAnnotations)
 
 // output number of found objects per image
 segmentationsPerImage.keySet().each {
