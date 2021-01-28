@@ -472,12 +472,11 @@ public class DLSegment {
     }
 
     public static DLSession buildSession(String fileName) {
-        if (fileName.endsWith(".pb")) {
-            byte[] graphDef = readAllBytesOrExit(Paths.get(fileName));
-            return new DLSession(buildSessionBytes(graphDef));
-        } else {
+        if (fileName.endsWith(".xml")) {
             return DLSession.createOpenVINOSession(fileName);
         }
+        byte[] graphDef = readAllBytesOrExit(Paths.get(fileName));
+        return new DLSession(buildSessionBytes(graphDef));
     }
 
     public static Session buildSession(URL modelUrl) {

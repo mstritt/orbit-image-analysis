@@ -1,5 +1,11 @@
 package com.actelion.research.orbit.imageAnalysis.deeplearning;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.net.URL;
+
 import org.tensorflow.Session;
 import org.intel.openvino.*;
 
@@ -33,7 +39,35 @@ public class DLSession {
     }
 
     public static DLSession createOpenVINOSession(String fileName) {
-        System.loadLibrary(IECore.NATIVE_LIBRARY_NAME);
+        // Load native libraries
+        String[] nativeFiles = {
+            "plugins.xml",
+            "libngraph.so",
+            "libinference_engine_transformations.so",
+            "libinference_engine.so",
+            "libinference_engine_ir_reader.so",
+            "libinference_engine_legacy.so",
+            "libinference_engine_lp_transformations.so",
+            "libMKLDNNPlugin.so",
+            "libinference_engine_java_api.so"  // Should be at the end
+        };
+        try {
+            File tmpDir = Files.createTempDirectory("openvino-native").toFile();
+            for (String file : nativeFiles) {
+                URL url = IECore.class.getClassLoader().getResource(file);
+                tmpDir.deleteOnExit();
+                File nativeLibTmpFile = new File(tmpDir, file);
+                nativeLibTmpFile.deleteOnExit();
+                try (InputStream in = url.openStream()) {
+                    Files.copy(in, nativeLibTmpFile.toPath());
+                }
+                String path = nativeLibTmpFile.getAbsolutePath();
+                if (file.endsWith(".so")) {
+                    System.load(path);
+                }
+            }
+        } catch (IOException ex) {
+        }
 
         IECore ie = new IECore();
 
