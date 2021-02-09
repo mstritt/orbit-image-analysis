@@ -61,6 +61,7 @@ public class ImageOverlayModule extends AbstractOrbitRibbonModule {
     private final ItemListener mapSelectionListener = e -> handleNewMapSelection();
     private final SpinnerNumberModel spinResizeFactorModel = new SpinnerNumberModel(0.0, 0.0, 1e6, 1.0);
     private final JSpinner spinResizeFactor = new JSpinner(spinResizeFactorModel);
+    private final JCheckBox cbColorize = new JCheckBox("Colorize");
     private final JButton btnColorPicker = new JButton("Pick overlay color");
     private final RangeBar rangeBar = new RangeBar(0.0f, 1.0f);
     private final JComboBox<alphaModeEnum> alphaModeComboBox = new JComboBox<>(alphaModeEnum.values());
@@ -124,11 +125,14 @@ public class ImageOverlayModule extends AbstractOrbitRibbonModule {
         nestedPanel.add(spinResizeFactor, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHEAST, GridBagConstraints.HORIZONTAL, insetsItem, 0, padYItem));
         spinResizeFactor.addChangeListener(e -> handleNewResizeFactor());
 
+        // To colorize or not the overlay
+        nestedPanel.add(cbColorize, new GridBagConstraints(0, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYCategory));
+        cbColorize.addActionListener(e -> changeColorize());
+
         // Range Bar
         nestedPanel.add(new JLabel("Display Range:"), new GridBagConstraints(0, y++, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYCategory));
         nestedPanel.add(rangeBar, new GridBagConstraints(0, y++, columns, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsItem, 0, 5));
         rangeBar.addPruningBarListener(e -> handleAlphaModeChanged());
-
 
         // Color Picker + Alpha mode
         nestedPanel.add(new JLabel("Overlay color:"), new GridBagConstraints(0, y, 1, 1, 1, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, insetsCategory, 0, padYCategory));
@@ -215,18 +219,20 @@ public class ImageOverlayModule extends AbstractOrbitRibbonModule {
                             OrbitTiledImageIOrbitImage overlayOrbitImage = overlay.getImageAtLevel(closestLevel);
                             BufferedImage overlayBufferedImage = overlayOrbitImage.getAsBufferedImage(overlayReadRect, null);
 
-                            // Takes the value from overlayBufferedImage & 0xFF and convert it to RGBA on the green channel
-                            BufferedImage rgbaOverlay = applyColorMap(overlayBufferedImage, overlay);
-
                             // Scale up the read image to remap on the reference grid at 100% zoom
                             AffineTransform mapTransform = AffineTransform.getTranslateInstance(xAnchor, yAnchor);
                             // Scale after the translation to get the right anchor
                             mapTransform.scale(levelFactor, levelFactor);
 
+                            if (overlay.isColorized()){
+                                // Takes the value from overlayBufferedImage & 0xFF and convert it to RGBA on the green channel
+                                overlayBufferedImage = applyColorMap(overlayBufferedImage, overlay);
+                            }
+
                             // Draw with an additional transform instead of changing it with graphics.setTransform()
                             // It has not been tested if only one scaling is done at the rendering or if this implementation
                             // creates two renderings.
-                            graphics.drawImage(rgbaOverlay, mapTransform, null);
+                            graphics.drawImage(overlayBufferedImage, mapTransform, null);
                         }
                     } else {
                         logger.warn("Overlay is null");
@@ -404,6 +410,7 @@ public class ImageOverlayModule extends AbstractOrbitRibbonModule {
             rangeBar.setLowAndHigh(currentOverlay.getDisplayRangeMin(), currentOverlay.getDisplayRangeMax(), true);
             spinResizeFactor.setValue(currentOverlay.getResizeFactor());
             alphaModeComboBox.setSelectedItem(alphaModeEnum.valueOf(currentOverlay.getAlphaMode()));
+            cbColorize.setSelected(currentOverlay.isColorized());
             updateMapSelection();
 
             rangeBar.setEnabled(true);
@@ -414,6 +421,7 @@ public class ImageOverlayModule extends AbstractOrbitRibbonModule {
             btnColorPicker.setEnabled(true);
         } else {
             resetGUI();
+            cbColorize.setSelected(false);
             rangeBar.setEnabled(false);
             spinResizeFactor.setEnabled(false);
             alphaModeComboBox.setEnabled(false);
@@ -489,6 +497,14 @@ public class ImageOverlayModule extends AbstractOrbitRibbonModule {
                 e.printStackTrace();
                 logger.error("Could not load this image as overlay");
             }
+        }
+    }
+
+    protected void changeColorize() {
+        LocalOverlay currentOverlay = getCurrentOverlay();
+        if (null != currentOverlay) {
+            currentOverlay.setColorizeOn(cbColorize.isSelected());
+            refresh();
         }
     }
 

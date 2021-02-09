@@ -37,16 +37,21 @@ public class LocalOverlay {
                 logger.warn("Could not retrieve input stream, got exception: " + e.getMessage());
             }
         }
+
+        InputStream masterPropertiesStream = LocalOverlay.class.getResourceAsStream("/overlay.properties");
+
         if (!propertiesFileExists) {
-            InputStream propertiesStream = LocalOverlay.class.getResourceAsStream("/overlay.properties");
-            loadPropertiesFromStream(propertiesStream);
-            props.setProperty("FilePath", overlayPath);
-            props.setProperty("AssociatedImageRdfId", associatedRdfMd5);
+            loadPropertiesFromStream(masterPropertiesStream);
+        } else {
+            checkAndUpdateVersion(masterPropertiesStream);
         }
+
+        props.setProperty("FilePath", overlayPath);
+        props.setProperty("AssociatedImageRdfId", associatedRdfMd5);
 
         load(overlayPath);
 
-        if (overlayMipMaps.size() > 0){
+        if (overlayMipMaps.size() > 0) {
             props.setProperty("ResizeFactor", Double.toString(associatedImageWidth / (double) overlayMipMaps.get(0).getWidth()));
         }
     }
@@ -128,6 +133,22 @@ public class LocalOverlay {
         props.setProperty("OverlayColor", String.format("#%06x", color.getRGB() & 0x00FFFFFF));
     }
 
+    public void setColorizeOn(boolean value) {
+        props.setProperty("Colorize", Boolean.toString(value));
+    }
+
+    public boolean isColorized() {
+        return Boolean.parseBoolean(props.getProperty("Colorize"));
+    }
+
+    public void setVersion(int value) {
+        props.setProperty("OverlayPropertiesVersion", Integer.toString(value));
+    }
+
+    public int getVersion() {
+        return Integer.decode(props.getProperty("OverlayPropertiesVersion"));
+    }
+
     public void resetProperties() {
         File overlayPropertiesFile = new File(getPropertiesFilePath(getFilePath()));
         if (overlayPropertiesFile.exists()) {
@@ -163,6 +184,29 @@ public class LocalOverlay {
             props.load(propertiesStream);
         } catch (IOException e) {
             logger.warn("Could not fetch default overlay properties: " + e.getMessage());
+        }
+    }
+
+    private void checkAndUpdateVersion(InputStream masterPropertiesStream) {
+        if (1 == getVersion()) {
+            // In version 1, the overlays were always colorized
+            setColorizeOn(true);
+            setVersion(2);
+        }
+        // if (2 == getVersion()) {
+        //     ...
+        //     setVersion(3);
+        // }
+
+        try {
+            Properties masterProperties = new Properties();
+            masterProperties.load(masterPropertiesStream);
+            int lastVersion = Integer.decode(masterProperties.getProperty("OverlayPropertiesVersion"));
+            if (lastVersion != getVersion()){
+                logger.warn("Unexpected version after converting existing properties");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
