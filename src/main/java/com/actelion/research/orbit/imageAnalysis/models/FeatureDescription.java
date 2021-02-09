@@ -76,6 +76,7 @@ public class FeatureDescription implements Serializable, Cloneable {
     private String deepLearningModelPath = null;
     private AbstractSegmentationSettings<?> dLSegmentSettings = null;
     private boolean deepLearningStoreAnnotations = false;
+    private double shapeExpansionInPixels = 0.0;
     private double shapeExpansionInUm = 0;
     private boolean avoidShapeExpansionOverlaps = true;
     private boolean excludeInnerShape = false;
@@ -487,6 +488,14 @@ public class FeatureDescription implements Serializable, Cloneable {
 
     public void setShapeExpansionInUm(double shapeExpansionInUm) {
         this.shapeExpansionInUm = shapeExpansionInUm;
+    }
+
+    public double getShapeExpansionInPixels() {
+        return shapeExpansionInPixels;
+    }
+
+    public void setShapeExpansionInPixels(double shapeExpansionInPixels) {
+        this.shapeExpansionInPixels = shapeExpansionInPixels;
     }
 
     public boolean isAvoidShapeExpansionOverlaps() {

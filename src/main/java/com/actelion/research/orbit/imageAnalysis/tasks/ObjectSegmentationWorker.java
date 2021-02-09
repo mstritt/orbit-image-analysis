@@ -102,6 +102,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
     private RecognitionFrame originalFrame = null;
     private boolean cytoplasmaSegmentation = false;
     private double shapeExpansionInUm = 0.0;
+    private double shapeExpansionInPixels = 0.0;
     private boolean avoidShapeExpansionOverlaps = true;
     private boolean excludeInnerShape = false;
     private RawDataFile rdf;
@@ -264,6 +265,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                     setDoErode(numErode > 0);
                     setGraphCutSmoothness(segmentationModel.getFeatureDescription().getGraphCut());
                     setShapeExpansionInUm(segmentationModel.getFeatureDescription().getShapeExpansionInUm());
+                    setShapeExpansionInPixels(segmentationModel.getFeatureDescription().getShapeExpansionInPixels());
                     setAvoidShapeExpansionOverlaps(segmentationModel.getFeatureDescription().isAvoidShapeExpansionOverlaps());
                     setExcludeInnerShape(segmentationModel.getFeatureDescription().isExcludeInnerShape());
                 }
@@ -479,7 +481,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                 allSegmentsAndFeatures = joinTileSegments(allSegmentsAndFeatures, false);
             }
 
-            if (shapeExpansionInUm > 0.0) {
+            if (shapeExpansionInUm > 0.0 || shapeExpansionInPixels > 0.0) {
                 expandShapes(allSegmentsAndFeatures);
             }
 
@@ -1739,7 +1741,15 @@ public class ObjectSegmentationWorker extends OrbitWorker {
     private void expandJtsShapes(List<org.locationtech.jts.geom.Polygon> inputShapes, List<org.locationtech.jts.geom.Polygon> expandedPolygons, List<org.locationtech.jts.geom.Polygon> inputShapesSimple) {
         long start;
         start = System.currentTimeMillis();
-        int expansionInPixels = (int) (shapeExpansionInUm / rf.getMuMeterPerPixel());
+        double expansionInPixels = shapeExpansionInPixels;
+        if (shapeExpansionInUm > 0 ) {
+            if (rf.getMuMeterPerPixel() <= 0) {
+                logger.error("This image does not have scale information, the objects cannot be expanded in micrometers. Please use the expansion in pixels instead.");
+            } else {
+                expansionInPixels += (shapeExpansionInUm / rf.getMuMeterPerPixel());
+            }
+        }
+
         for (org.locationtech.jts.geom.Polygon inputShape : inputShapes) {
             Geometry convexShape = inputShape.convexHull();
             org.locationtech.jts.geom.Polygon simplePolygon = (org.locationtech.jts.geom.Polygon) VWSimplifier.simplify(convexShape, 3);
@@ -1752,6 +1762,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             }
         }
         logger.trace("Expansion time = " + (System.currentTimeMillis() - start));
+
     }
 
     private void avoidShapesOverlaps(List<org.locationtech.jts.geom.Polygon> expandedPolygons,
@@ -1768,7 +1779,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
             nucleiCenters.add(center);
             shapeIndexMap.put(center, i);
         }
-        logger.trace("nuclei centers = " + (System.currentTimeMillis() - start));
+        logger.trace("nuclei centers compute time = " + (System.currentTimeMillis() - start) + " ms");
 
         // Voronoi
         start = System.currentTimeMillis();
@@ -1778,7 +1789,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
         var quadEdgeSubdivision = createSubdivision(nucleiCenters, 0.001);
         var quadEdgeSubdivisionVoronoi = quadEdgeSubdivision.getVoronoiCellPolygons(new GeometryFactory());
         var voronoiPolygons = (List<org.locationtech.jts.geom.Polygon>) quadEdgeSubdivisionVoronoi;
-        logger.trace("VoronoiDiagramBuilder = " + (System.currentTimeMillis() - start));
+        logger.trace("VoronoiDiagramBuilder compute time = " + (System.currentTimeMillis() - start) + " ms");
 
         // Fuse
         start = System.currentTimeMillis();
@@ -1789,7 +1800,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
                 outputOuterShapes.addAll(geometryToPolygons(expandedPolygons.get(polygonIndex).intersection(voronoiPolygon)));
                 outputInnerShapes.addAll(geometryToPolygons(inputShapesSimple.get(polygonIndex).intersection(voronoiPolygon)));
             }
-            logger.trace("Fuse = " + (System.currentTimeMillis() - start));
+            logger.trace("Fuse voronoi and exanasion compute time = " + (System.currentTimeMillis() - start) + " ms");
         } else {
             logger.warn("Polygons list size mismatch: voronoiPolygons.size() = " + voronoiPolygons.size()
                     + ", expandedPolygons.size() = " + expandedPolygons.size());
@@ -1810,7 +1821,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
             List<org.locationtech.jts.geom.Polygon> outputShapes;
             if (avoidShapeExpansionOverlaps) {
-                System.out.println("avoidShapeExpansionOverlaps true");
+                logger.trace("avoidShapeExpansionOverlaps true");
                 List<org.locationtech.jts.geom.Polygon> outputOuterShapes = new ArrayList<>();
                 List<org.locationtech.jts.geom.Polygon> outputInnerShapes = new ArrayList<>();
                 avoidShapesOverlaps(expandedPolygons, inputShapesSimple, outputInnerShapes, outputOuterShapes);
@@ -1831,7 +1842,7 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
             start = System.currentTimeMillis();
             replacePolygonsWithJtsList(segmentationResult, outputShapes);
-            logger.trace("replacePolygonsWithJtsList = " + (System.currentTimeMillis() - start));
+            logger.trace("replacePolygonsWithJtsList = " + (System.currentTimeMillis() - start) + " ms");
         }
     }
 
@@ -2037,6 +2048,14 @@ public class ObjectSegmentationWorker extends OrbitWorker {
 
     public void setShapeExpansionInUm(double shapeExpansionInUm) {
         this.shapeExpansionInUm = shapeExpansionInUm;
+    }
+
+    public double getShapeExpansionInPixels() {
+        return shapeExpansionInPixels;
+    }
+
+    public void setShapeExpansionInPixels(double shapeExpansionInPixels) {
+        this.shapeExpansionInPixels = shapeExpansionInPixels;
     }
 
     public boolean isAvoidShapeExpansionOverlaps() {

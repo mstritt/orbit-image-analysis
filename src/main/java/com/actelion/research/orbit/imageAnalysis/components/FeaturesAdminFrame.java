@@ -104,6 +104,7 @@ public class FeaturesAdminFrame extends JDialog {
     private DoubleTextField tfGraphCut = null;
     private JCheckBox cbUseImageAdjustments = null;
     private DoubleTextField tfShapeExpansionInUm = null;
+    private DoubleTextField tfShapeExpansionInPixels = null;
     private JCheckBox cbAvoidShapeExpansionOverlaps = null;
     private JCheckBox cbExcludeInnerShape = null;
 
@@ -538,25 +539,45 @@ public class FeaturesAdminFrame extends JDialog {
         setCompBounds(cbDilateBeforeErode, frameWidth);
         panelSegmentation.add(cbDilateBeforeErode);
 
-        panel = new JPanel(new GridLayout(1, 6));
-        lab = new JLabel("Expand shape (μm):");
-        panel.add(lab);
-        panel.add(new JLabel(""));
-        panel.add(new JLabel(""));
+        JPanel expansionTopRightPanel = new JPanel(new GridLayout(1, 3));
         tfShapeExpansionInUm = new DoubleTextField(featureDescription.getShapeExpansionInUm(), 10.0, 0, 100);
         tfShapeExpansionInUm.setText(Double.toString(featureDescription.getShapeExpansionInUm()));
-        tfShapeExpansionInUm.setToolTipText("Expands the contours after the object detection. Can be used for cytoplasm estimation.");
+        tfShapeExpansionInUm.setToolTipText("Expands the contours after the object detection. " +
+                "Can be used for cytoplasm estimation.");
         tfShapeExpansionInUm.setHorizontalAlignment(JTextField.LEFT);
-        // tfShapeExpansionInUm.setColumns(4);
+        panel = new JPanel(new GridLayout(1,2));
         panel.add(tfShapeExpansionInUm);
-
+        panel.add(new JLabel("μm"));
+        expansionTopRightPanel.add(panel);
         cbAvoidShapeExpansionOverlaps = new JCheckBox("Avoid overlaps", featureDescription.isAvoidShapeExpansionOverlaps());
         cbAvoidShapeExpansionOverlaps.setToolTipText("Avoid overlaps after expansion, typically helpful for cells detections");
-        panel.add(cbAvoidShapeExpansionOverlaps);
-
+        expansionTopRightPanel.add(cbAvoidShapeExpansionOverlaps);
         cbExcludeInnerShape = new JCheckBox("Exclude inner part", featureDescription.isExcludeInnerShape());
-        cbExcludeInnerShape.setToolTipText("Typically helpful to keep cytoplasm area by excluding nucleus area");
-        panel.add(cbExcludeInnerShape);
+        cbExcludeInnerShape.setToolTipText("Typically helpful to keep only the cytoplasm area by excluding nucleus area");
+        expansionTopRightPanel.add(cbExcludeInnerShape);
+
+        JPanel expansionBottomRightPanel = new JPanel(new GridLayout(1, 4));
+        tfShapeExpansionInPixels = new DoubleTextField(featureDescription.getShapeExpansionInPixels(), 10.0, 0, 100);
+        tfShapeExpansionInPixels.setText(Double.toString(featureDescription.getShapeExpansionInPixels()));
+        tfShapeExpansionInPixels.setToolTipText("Expands the contours after the object detection. " +
+                "Can be used for cytoplasm estimation. " +
+                "You can use pixels instead of μm if the scale is not defined.");
+        tfShapeExpansionInPixels.setHorizontalAlignment(JTextField.LEFT);
+        panel = new JPanel(new GridLayout(1,2));
+        panel.add(tfShapeExpansionInPixels);
+        panel.add(new JLabel("pixels"));
+        expansionBottomRightPanel.add(panel);
+        expansionBottomRightPanel.add(new JPanel()); // void cell for alignment
+        expansionBottomRightPanel.add(new JPanel()); // void cell for alignment
+
+        panel = new JPanel(new GridLayout(1,2));
+        panel.add(new JLabel("Expand shape:"));
+        panel.add(expansionTopRightPanel);
+        panelSegmentation.add(panel);
+
+        panel = new JPanel(new GridLayout(1,2));
+        panel.add(new JPanel()); // void cell for alignment
+        panel.add(expansionBottomRightPanel);
         panelSegmentation.add(panel);
 
         panel = new JPanel(new GridLayout(1, 2));
@@ -822,6 +843,7 @@ public class FeaturesAdminFrame extends JDialog {
         tfNumErode.setText(Integer.toString(featureDescription.getNumErode()));
         cbDilateBeforeErode.setSelected(featureDescription.isDilateBeforeErode());
         tfShapeExpansionInUm.setDouble(featureDescription.getShapeExpansionInUm());
+        tfShapeExpansionInPixels.setDouble(featureDescription.getShapeExpansionInPixels());
         cbAvoidShapeExpansionOverlaps.setSelected(featureDescription.isAvoidShapeExpansionOverlaps());
         cbExcludeInnerShape.setSelected(featureDescription.isExcludeInnerShape());
         tfRemoveOutliers.setText(Integer.toString(featureDescription.getRemoveOutliers()));
@@ -1055,6 +1077,7 @@ public class FeaturesAdminFrame extends JDialog {
         featureDescription.setDeepLearningStoreAnnotations(cbDLStoreAnnotations.isSelected());
 
         featureDescription.setShapeExpansionInUm(tfShapeExpansionInUm.getDouble());
+        featureDescription.setShapeExpansionInPixels(tfShapeExpansionInPixels.getDouble());
         featureDescription.setAvoidShapeExpansionOverlaps(cbAvoidShapeExpansionOverlaps.isSelected());
         featureDescription.setExcludeInnerShape(cbExcludeInnerShape.isSelected());
 

@@ -2545,6 +2545,7 @@ public class OrbitImageAnalysis extends JRibbonFrame implements PropertyChangeLi
             segModel.getFeatureDescription().setDeepLearningModelPath(featureDescription.getDeepLearningModelPath());
 
             segModel.getFeatureDescription().setShapeExpansionInUm(featureDescription.getShapeExpansionInUm());
+            segModel.getFeatureDescription().setShapeExpansionInPixels(featureDescription.getShapeExpansionInPixels());
             segModel.getFeatureDescription().setAvoidShapeExpansionOverlaps(featureDescription.isAvoidShapeExpansionOverlaps());
             segModel.getFeatureDescription().setExcludeInnerShape(featureDescription.isExcludeInnerShape());
         }
